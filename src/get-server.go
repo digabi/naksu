@@ -29,6 +29,11 @@ func main() {
 	var path_ktpjako = create_dir_ktpjako()
 	mebroutines.Message_debug(fmt.Sprintf("path_ktpjako is %s", path_ktpjako))
 
+	// chdir ~/ktp
+	if (! mebroutines.Chdir_vagrant_directory()) {
+		mebroutines.Message_error("Could not change to vagrant directory ~/ktp")
+	}
+
 	// If there is ~/ktp/Vagrantfile
 	var path_vagrantfile = path_ktp + "/Vagrantfile"
 	if (mebroutines.ExistsFile(path_vagrantfile)) {

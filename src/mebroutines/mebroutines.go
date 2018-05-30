@@ -137,6 +137,17 @@ func Get_home_directory () string {
   panic("Could not get home directory")
 }
 
+func Chdir_vagrant_directory () bool {
+  path_vagrant := Get_home_directory()+string(os.PathSeparator)+"ktp"
+  err := os.Chdir(path_vagrant)
+  if (err != nil) {
+    Message_warning(fmt.Sprintf("Could not chdir to %s", path_vagrant))
+    return false
+  }
+
+  return true
+}
+
 func Message_error (message string) {
   fmt.Printf("FATAL ERROR: %s\n\n", message)
   os.Exit(1)
