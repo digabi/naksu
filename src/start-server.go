@@ -17,5 +17,6 @@ func main() {
 	}
 
 	// Start VM
-	mebroutines.Run_vagrant("up")
+	run_params_up := []string{"up"}
+	mebroutines.Run_vagrant(run_params_up)
 }

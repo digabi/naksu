@@ -8,28 +8,26 @@ import (
   "strings"
 )
 
-func Run(command string) error {
-	Message_debug(fmt.Sprintf("run: %s", command))
-	args := strings.Split(command, " ")
-	cmd := exec.Command(args[0], args[1:]...)
+func Run(command_args []string) error {
+	Message_debug(fmt.Sprintf("run: %s", strings.Join(command_args, " ")))
+	cmd := exec.Command(command_args[0], command_args[1:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
   err := cmd.Run()
 	if err != nil {
-		Message_warning(fmt.Sprintf("command failed: %s", command))
+		Message_warning(fmt.Sprintf("command failed: %s", strings.Join(command_args, " ")))
 	}
 
   return err
 }
 
-func Run_get_output (command string) (string, error) {
-  Message_debug(fmt.Sprintf("run_get_output: %s", command))
-	args := strings.Split(command, " ")
-	out,err := exec.Command(args[0], args[1:]...).Output()
+func Run_get_output (command_args []string) (string, error) {
+  Message_debug(fmt.Sprintf("run_get_output: %s", strings.Join(command_args, " ")))
+	out,err := exec.Command(command_args[0], command_args[1:]...).Output()
   if (err != nil) {
     // Executing failed, return error condition
-    Message_warning(fmt.Sprintf("command failed: %s", command))
+    Message_warning(fmt.Sprintf("command failed: %s", strings.Join(command_args, " ")))
     return "", err
   }
 
@@ -45,29 +43,21 @@ func get_vagrant_path () string {
   return path
 }
 
-func get_vboxmanage_path () string {
-  var path = "VBoxManage"
-	if (os.Getenv("VBOXMANAGEPATH") != "") {
-		path = os.Getenv("VBOXMANAGEPATH")
-	}
-
-  return path
-}
-
-func Run_vagrant (command string) {
-  var vagrantpath = get_vagrant_path()
-
-  err := Run(vagrantpath+" "+command)
-
+func Run_vagrant (args []string) {
+  vagrantpath_arr := []string{get_vagrant_path()}
+  run_args := append(vagrantpath_arr, args...)
+  err := Run(run_args)
   if (err != nil) {
-    Message_error(fmt.Sprintf("Failed to execute %s %s", vagrantpath, command))
+    Message_error(fmt.Sprintf("Failed to execute %s", strings.Join(run_args, " ")))
   }
 }
 
 func If_found_vagrant () bool {
   var vagrantpath = get_vagrant_path()
 
-  vagrant_version,err := Run_get_output (vagrantpath+" --version")
+  run_params := []string{vagrantpath, "--version"}
+
+  vagrant_version,err := Run_get_output (run_params)
   if (err != nil) {
     // No vagrant was found
     return false
@@ -81,7 +71,14 @@ func If_found_vagrant () bool {
 func If_found_vboxmanage () bool {
   var vboxmanagepath = get_vboxmanage_path()
 
-  vboxmanage_version,err := Run_get_output (vboxmanagepath+" --version")
+  if (vboxmanagepath == "") {
+    Message_debug("Could not get VBoxManage path")
+    return false
+  }
+
+  run_params := []string{vboxmanagepath, "--version"}
+
+  vboxmanage_version,err := Run_get_output (run_params)
   if (err != nil) {
     // No VBoxManage was found
     return false

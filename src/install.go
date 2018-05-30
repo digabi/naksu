@@ -33,16 +33,20 @@ func main() {
 	var path_vagrantfile = path_ktp + "/Vagrantfile"
 	if (mebroutines.ExistsFile(path_vagrantfile)) {
 		// Destroy current VM
-		mebroutines.Run_vagrant("destroy -f")
+		run_params_destroy := []string{"destroy","-f"}
+		mebroutines.Run_vagrant(run_params_destroy)
 
 		remove_vagrantfile(path_vagrantfile)
 	}
 
 	download_file(URL_VAGRANT, path_vagrantfile)
 
-	mebroutines.Run_vagrant("box update")
-	mebroutines.Run_vagrant("box prune")
-	mebroutines.Run_vagrant("up")
+	run_params_update := []string{"box","update"}
+	mebroutines.Run_vagrant(run_params_update)
+	run_params_prune := []string{"box","prune"}
+	mebroutines.Run_vagrant(run_params_prune)
+	run_params_up := []string{"up"}
+	mebroutines.Run_vagrant(run_params_up)
 }
 
 

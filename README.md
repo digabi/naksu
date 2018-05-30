@@ -44,6 +44,12 @@ Almost the same as Update but you have to be able to select between Abitti-versi
 1. `VBoxManage list hdds` -> Get UUID of the disk
 1. `VBoxManage clonemedium {UUID} {destination path} --format VMDK`
 
+## TODO
+
+Things to consider later:
+
+ * Icon and avoid asking administrator rights: https://stackoverflow.com/questions/31558066/how-to-ask-for-administer-privileges-on-windows-with-go
+ 
 ## License
 
 [MIT](https://opensource.org/licenses/MIT)
