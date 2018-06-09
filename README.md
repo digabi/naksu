@@ -48,8 +48,9 @@ Almost the same as Update but you have to be able to select between Abitti-versi
 
 Things to consider later:
 
+ * Update naksu binary from GitHub: https://github.com/rhysd/go-github-selfupdate
  * Icon and avoid asking administrator rights: https://stackoverflow.com/questions/31558066/how-to-ask-for-administer-privileges-on-windows-with-go
- 
+
 ## License
 
 [MIT](https://opensource.org/licenses/MIT)

@@ -1,10 +1,10 @@
-package main
+package start
 
 import (
 	"mebroutines"
 )
 
-func main() {
+func Do_start_server() {
 	// Make sure we have vagrant
 	if (! mebroutines.If_found_vagrant()) {
 		mebroutines.Message_error("Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?")

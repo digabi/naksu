@@ -1,4 +1,4 @@
-package main
+package install
 
 import (
 	"mebroutines"
@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func main() {
+func Do_get_server() {
 	const URL_VAGRANT = "http://static.abitti.fi/usbimg/qa/vagrant/Vagrantfile"
 
 	// Make sure we have vagrant

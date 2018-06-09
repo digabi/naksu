@@ -2,21 +2,15 @@ current_dir = $(shell pwd)
 
 all: windows linux
 
-windows: get-server.exe start-server.exe
+windows: naksu.exe
 
-linux: get-server start-server
+linux: naksu
 
-get-server.exe: src/get-server.go src/mebroutines/*
-	GOPATH=$(current_dir)/ GOOS=windows GOARCH=386 go build -o bin/get-server.exe src/get-server.go
+naksu.exe: src/*
+	GOPATH=$(current_dir)/ GOOS=windows GOARCH=386 go build -o bin/naksu.exe src/naksu.go
 
-get-server: src/get-server.go src/mebroutines/*
-	GOPATH=$(current_dir)/ GOARCH=386 go build -o bin/get-server src/get-server.go
-
-start-server.exe: src/start-server.go src/mebroutines/*
-	GOPATH=$(current_dir)/ GOOS=windows GOARCH=386 go build -o bin/start-server.exe src/start-server.go
-
-start-server: src/start-server.go src/mebroutines/*
-	GOPATH=$(current_dir)/ GOARCH=386 go build -o bin/start-server src/start-server.go
+naksu: src/*
+	GOPATH=$(current_dir)/ GOARCH=386 go build -o bin/naksu src/naksu.go
 
 phony_get-server:
 	VAGRANTPATH=phony-scripts/vagrant VBOXMANAGEPATH=phony-scripts/VBoxManage bin/get-server
