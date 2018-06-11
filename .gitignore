@@ -4,3 +4,5 @@ bin/
 src/github.com/
 src/golang.org/
 pkg/
+# Ignore GitHub release packages
+*.zip

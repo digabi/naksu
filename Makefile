@@ -15,6 +15,12 @@ naksu.exe: src/*
 naksu: src/*
 	GOPATH=$(current_dir)/ GOARCH=386 $(GO) build -o bin/naksu src/naksu.go
 
+naksu_packages: all
+	rm -f naksu_linux_amd64.zip
+	zip -j naksu_linux_amd64 bin/naksu
+	rm -f naksu_windows_amd64.zip
+	zip -j naksu_windows_amd64 bin/naksu.exe
+
 update_libs:
 	rm -fR src/github.com/
 	#GOPATH=$(current_dir)/ go get github.com/gorilla/context
