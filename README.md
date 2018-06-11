@@ -7,8 +7,8 @@ The need for some kind of helper scripts appeared to be evident as we followed s
 and feedback from school IT staff and teachers.
 
 These scripts are currently under planning/proof-of-concept stage. You can compile scripts in
-Linux environment. In Debian/Ubuntu environment install `golang-any` before compiling scripts
-with `make all`.
+Linux environment. To compile you need to have golang 1.7 or newer. In Debian/Ubuntu environment
+install `golang-1.9` or `golang-1.10` before compiling scripts with `make all`.
 
 ## Plan for the Scripts
 
@@ -48,8 +48,8 @@ Almost the same as Update but you have to be able to select between Abitti-versi
 
 Things to consider later:
 
- * Update naksu binary from GitHub: https://github.com/rhysd/go-github-selfupdate
  * Icon and avoid asking administrator rights: https://stackoverflow.com/questions/31558066/how-to-ask-for-administer-privileges-on-windows-with-go
+ * GUI: https://github.com/andlabs/ui
 
 ## License
 

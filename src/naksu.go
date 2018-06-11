@@ -1,19 +1,43 @@
 package main
 
+// required by selfupdate (needs context)
+// +build go1.7
+
 import (
   "bufio"
   "os"
   "fmt"
+
+  "github.com/blang/semver"
+  "github.com/rhysd/go-github-selfupdate/selfupdate"
 
   "mebroutines"
   "mebroutines/install"
   "mebroutines/start"
 )
 
-const version = "0.1.0"
+const version = "1.0.0"
+
+func doSelfUpdate() {
+  v := semver.MustParse(version)
+  latest, err := selfupdate.UpdateSelf(v, "digabi/naksu")
+  if err != nil {
+    mebroutines.Message_warning(fmt.Sprintf("Binary update failed: %s", err))
+    return
+  }
+  if latest.Version.Equals(v) {
+    // latest version is the same as current version. It means current binary is up to date.
+    mebroutines.Message_debug(fmt.Sprintf("Current binary is the latest version: %s", version))
+  } else {
+    mebroutines.Message_debug(fmt.Sprintf("Successfully updated to version: %s", latest.Version))
+    //log.Println("Release note:\n", latest.ReleaseNotes)
+  }
+}
 
 func main() {
   var selection string = ""
+
+  doSelfUpdate()
 
   Askinput:
 
