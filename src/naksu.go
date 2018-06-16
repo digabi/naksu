@@ -21,7 +21,7 @@ const version = "0.10.0"
 
 var is_debug bool
 
-func doSelfUpdate() {
+func doSelfUpdate() bool {
   v := semver.MustParse(version)
 
   if (mebroutines.Is_debug()) {
@@ -31,13 +31,15 @@ func doSelfUpdate() {
   latest, err := selfupdate.UpdateSelf(v, "digabi/naksu")
   if err != nil {
     mebroutines.Message_warning(fmt.Sprintf("Binary update failed: %s", err))
-    return
+    return true
   }
   if latest.Version.Equals(v) {
     // latest version is the same as current version. It means current binary is up to date.
     mebroutines.Message_debug(fmt.Sprintf("Current binary is the latest version: %s", version))
+    return false
   } else {
     mebroutines.Message_debug(fmt.Sprintf("Successfully updated to version: %s", latest.Version))
+    return true
     //log.Println("Release note:\n", latest.ReleaseNotes)
   }
 }
@@ -52,7 +54,10 @@ func main() {
   // UI (main menu)
   var selection string = ""
 
-  doSelfUpdate()
+  if doSelfUpdate() {
+    mebroutines.Message_warning("naksu has been automatically updated. Please restart naksu.")
+    os.Exit(0)
+  }
 
   Askinput:
 
