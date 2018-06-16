@@ -7,6 +7,7 @@ import (
   "bufio"
   "os"
   "fmt"
+  "flag"
 
   "github.com/blang/semver"
   "github.com/rhysd/go-github-selfupdate/selfupdate"
@@ -16,10 +17,17 @@ import (
   "mebroutines/start"
 )
 
-const version = "0.9.1"
+const version = "0.10.0"
+
+var is_debug bool
 
 func doSelfUpdate() {
   v := semver.MustParse(version)
+
+  if (mebroutines.Is_debug()) {
+    selfupdate.EnableLog()
+  }
+
   latest, err := selfupdate.UpdateSelf(v, "digabi/naksu")
   if err != nil {
     mebroutines.Message_warning(fmt.Sprintf("Binary update failed: %s", err))
@@ -35,6 +43,13 @@ func doSelfUpdate() {
 }
 
 func main() {
+  // Process command line parameters
+  flag.BoolVar(&is_debug, "debug", false, "Turn debugging on")
+  flag.Parse()
+
+  mebroutines.Set_debug(is_debug)
+
+  // UI (main menu)
   var selection string = ""
 
   doSelfUpdate()

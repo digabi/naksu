@@ -8,6 +8,8 @@ import (
   "strings"
 )
 
+var is_debug bool
+
 func Run(command_args []string) error {
 	Message_debug(fmt.Sprintf("run: %s", strings.Join(command_args, " ")))
 	cmd := exec.Command(command_args[0], command_args[1:]...)
@@ -157,6 +159,16 @@ func Message_warning (message string) {
   fmt.Printf("WARNING: %s\n", message)
 }
 
+func Set_debug (new_value bool) {
+  is_debug = new_value
+}
+
+func Is_debug () bool {
+  return is_debug
+}
+
 func Message_debug (message string) {
-  fmt.Printf("DEBUG: %s\n", message)
+  if (Is_debug()) {
+    fmt.Printf("DEBUG: %s\n", message)
+  }
 }
