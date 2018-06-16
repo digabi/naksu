@@ -16,7 +16,7 @@ import (
   "mebroutines/start"
 )
 
-const version = "1.0.0"
+const version = "0.9.0"
 
 func doSelfUpdate() {
   v := semver.MustParse(version)
