@@ -10,10 +10,10 @@ windows: naksu.exe
 linux: naksu
 
 naksu.exe: src/*
-	GOPATH=$(current_dir)/ GOOS=windows GOARCH=386 $(GO) build -o bin/naksu.exe src/naksu.go
+	GOPATH=$(current_dir)/ GOOS=windows GOARCH=amd64 $(GO) build -o bin/naksu.exe src/naksu.go
 
 naksu: src/*
-	GOPATH=$(current_dir)/ GOARCH=386 $(GO) build -o bin/naksu src/naksu.go
+	GOPATH=$(current_dir)/ GOARCH=amd64 $(GO) build -o bin/naksu src/naksu.go
 
 naksu_packages: all
 	rm -f naksu_linux_amd64.zip
