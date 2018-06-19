@@ -6,9 +6,14 @@ import (
   "os"
   "os/exec"
   "strings"
+  "regexp"
+  "bytes"
+
+  "github.com/andlabs/ui"
 )
 
 var is_debug bool
+var main_window *ui.Window
 
 func Run(command_args []string) error {
 	Message_debug(fmt.Sprintf("run: %s", strings.Join(command_args, " ")))
@@ -26,14 +31,28 @@ func Run(command_args []string) error {
 
 func Run_get_output (command_args []string) (string, error) {
   Message_debug(fmt.Sprintf("run_get_output: %s", strings.Join(command_args, " ")))
-	out,err := exec.Command(command_args[0], command_args[1:]...).Output()
+	out,err := exec.Command(command_args[0], command_args[1:]...).CombinedOutput()
   if (err != nil) {
     // Executing failed, return error condition
     Message_warning(fmt.Sprintf("command failed: %s", strings.Join(command_args, " ")))
-    return "", err
+    return string(out), err
   }
 
   return string(out), nil
+}
+
+func Run_get_error (command_args []string) (string, error) {
+  Message_debug(fmt.Sprintf("run_get_error: %s", strings.Join(command_args, " ")))
+
+  var stderr bytes.Buffer
+
+  cmd := exec.Command(command_args[0], command_args[1:]...)
+  cmd.Stdout = os.Stdout
+  cmd.Stdin = os.Stdin
+  cmd.Stderr = &stderr
+
+  err := cmd.Run()
+  return stderr.String(), err
 }
 
 func get_vagrant_path () string {
@@ -48,9 +67,18 @@ func get_vagrant_path () string {
 func Run_vagrant (args []string) {
   vagrantpath_arr := []string{get_vagrant_path()}
   run_args := append(vagrantpath_arr, args...)
-  err := Run(run_args)
+  vagrant_output,err := Run_get_error(run_args)
   if (err != nil) {
-    Message_error(fmt.Sprintf("Failed to execute %s", strings.Join(run_args, " ")))
+    matched,err_re := regexp.MatchString("Timed out while waiting for the machine to boot", vagrant_output)
+    if err_re == nil && matched {
+      // We've obviously started the VM
+      Message_debug("Running vagrant gives me timeout - things are probably ok, complete output:")
+      Message_debug(vagrant_output)
+    } else {
+      Message_debug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(run_args, " ")))
+      Message_debug(vagrant_output)
+      Message_error(fmt.Sprintf("Failed to execute %s", strings.Join(run_args, " ")))
+    }
   }
 }
 
@@ -141,6 +169,7 @@ func Get_home_directory () string {
 
 func Chdir_vagrant_directory () bool {
   path_vagrant := Get_home_directory()+string(os.PathSeparator)+"ktp"
+  Message_debug(fmt.Sprintf("chdir %s", path_vagrant))
   err := os.Chdir(path_vagrant)
   if (err != nil) {
     Message_warning(fmt.Sprintf("Could not chdir to %s", path_vagrant))
@@ -150,13 +179,29 @@ func Chdir_vagrant_directory () bool {
   return true
 }
 
+func Set_main_window (win *ui.Window) {
+  // Set libui main window pointer used by Message_error and Message_warning
+  main_window = win
+}
+
 func Message_error (message string) {
   fmt.Printf("FATAL ERROR: %s\n\n", message)
+
+  // Show libui box if main window has been set with Set_main_window
+  if main_window != nil {
+    ui.MsgBoxError(main_window, "Error", message)
+  }
+
   os.Exit(1)
 }
 
 func Message_warning (message string) {
   fmt.Printf("WARNING: %s\n", message)
+
+  // Show libui box if main window has been set with Set_main_window
+  if main_window != nil {
+    ui.MsgBox(main_window, "Warning", message)
+  }
 }
 
 func Set_debug (new_value bool) {

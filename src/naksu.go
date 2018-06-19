@@ -4,13 +4,13 @@ package main
 // +build go1.7
 
 import (
-  "bufio"
   "os"
   "fmt"
   "flag"
 
   "github.com/blang/semver"
   "github.com/rhysd/go-github-selfupdate/selfupdate"
+  "github.com/andlabs/ui"
 
   "mebroutines"
   "mebroutines/install"
@@ -52,39 +52,53 @@ func main() {
   mebroutines.Set_debug(is_debug)
 
   // UI (main menu)
-  var selection string = ""
-
   if doSelfUpdate() {
     mebroutines.Message_warning("naksu has been automatically updated. Please restart naksu.")
     os.Exit(0)
   }
 
-  Askinput:
+  err := ui.Main(func () {
+    button_start_server := ui.NewButton("Start Stickless Exam Server")
+    button_get_server := ui.NewButton("Install new or update existing Stickless Exam Server")
+    button_exit := ui.NewButton("Exit")
 
-  fmt.Println("Hi! I'm Naksu "+version)
-  fmt.Println("")
-  fmt.Println("Choose action and press Enter:")
-  fmt.Println("1) Install new or update existing Stickless Exam Server")
-  fmt.Println("2) Start Stickless Exam Server")
-  fmt.Println("X) Exit")
-  fmt.Println("")
-  fmt.Printf("Your choice (1-2 or X): ")
+    box := ui.NewVerticalBox()
+    box.Append(button_start_server, false)
+    box.Append(button_get_server, false)
+    box.Append(button_exit, false)
 
-  reader := bufio.NewReader(os.Stdin)
-  selection, _ = reader.ReadString('\n')
+    window := ui.NewWindow(fmt.Sprintf("naksu %s", version), 1, 1, false)
 
-  selection_stripped := selection[:len(selection)-1]
+    mebroutines.Set_main_window(window)
 
-  if (selection_stripped == "1") {
-    mebroutines.Message_debug("Now executing install package")
-    install.Do_get_server()
-  } else if (selection_stripped == "2") {
-    mebroutines.Message_debug("Now executing start package")
-    start.Do_start_server()
-  } else if (selection_stripped == "x" || selection_stripped == "X") {
-    mebroutines.Message_debug("Exit")
-  } else {
-    goto Askinput
+    window.SetMargined(true)
+		window.SetChild(box)
+
+    button_start_server.OnClicked(func(*ui.Button) {
+      window.Hide()
+      ui.QueueMain(func () {
+        start.Do_start_server()
+        os.Exit(0)
+      })
+    })
+
+    button_get_server.OnClicked(func(*ui.Button) {
+      window.Hide()
+      ui.QueueMain(func () {
+        install.Do_get_server()
+        os.Exit(0)
+      })
+    })
+
+    button_exit.OnClicked(func(*ui.Button) {
+      mebroutines.Message_debug("Exiting by user request")
+      os.Exit(0)
+    })
+
+    window.Show()
+  })
+
+  if err != nil {
+    panic(err)
   }
-
 }

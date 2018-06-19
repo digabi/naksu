@@ -10,7 +10,7 @@ windows: naksu.exe
 linux: naksu
 
 naksu.exe: src/*
-	GOPATH=$(current_dir)/ GOOS=windows GOARCH=amd64 $(GO) build -o bin/naksu.exe src/naksu.go
+	GOPATH=$(current_dir)/ GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ CGO_LDFLAGS="-L/home/matti/mingw-w64/current/lib" $(GO) build -o bin/naksu.exe src/naksu.go
 
 naksu: src/*
 	GOPATH=$(current_dir)/ GOARCH=amd64 $(GO) build -o bin/naksu src/naksu.go
@@ -26,6 +26,7 @@ update_libs:
 	#GOPATH=$(current_dir)/ go get github.com/gorilla/context
 	GOPATH=$(current_dir)/ $(GO) get github.com/blang/semver
 	GOPATH=$(current_dir)/ $(GO) get github.com/rhysd/go-github-selfupdate/selfupdate
+	GOPATH=$(current_dir)/ $(GO) get github.com/andlabs/ui
 
 phony_get-server:
 	VAGRANTPATH=phony-scripts/vagrant VBOXMANAGEPATH=phony-scripts/VBoxManage bin/get-server
