@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func Do_get_server() {
+func Do_get_server(path_new_vagrantfile string) {
 	const URL_VAGRANT = "http://static.abitti.fi/usbimg/qa/vagrant/Vagrantfile"
 
 	// Create ~/ktp if missing
@@ -34,7 +34,16 @@ func Do_get_server() {
 		remove_vagrantfile(path_vagrantfile)
 	}
 
-	download_file(URL_VAGRANT, path_vagrantfile)
+	if path_new_vagrantfile == "" {
+		// Download Vagrantfile (Abitti)
+		download_file(URL_VAGRANT, path_vagrantfile)
+	} else {
+		err := mebroutines.CopyFile(path_new_vagrantfile, path_vagrantfile)
+
+		if (err != nil) {
+			mebroutines.Message_error(fmt.Sprintf("Error while copying new vagrantfile: %d", err))
+		}
+	}
 
 	run_params_update := []string{"box","update"}
 	mebroutines.Run_vagrant(run_params_update)

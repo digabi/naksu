@@ -59,12 +59,14 @@ func main() {
 
   err := ui.Main(func () {
     button_start_server := ui.NewButton("Start Stickless Exam Server")
-    button_get_server := ui.NewButton("Install new or update existing Stickless Exam Server")
+    button_get_server := ui.NewButton("Install or update Abitti Stickless Exam Server")
+    button_switch_server := ui.NewButton("Install or update Stickless Matriculation Exam Server")
     button_exit := ui.NewButton("Exit")
 
     box := ui.NewVerticalBox()
     box.Append(button_start_server, false)
     box.Append(button_get_server, false)
+    box.Append(button_switch_server, false)
     box.Append(button_exit, false)
 
     window := ui.NewWindow(fmt.Sprintf("naksu %s", version), 1, 1, false)
@@ -85,7 +87,21 @@ func main() {
     button_get_server.OnClicked(func(*ui.Button) {
       window.Hide()
       ui.QueueMain(func () {
-        install.Do_get_server()
+        install.Do_get_server("")
+        os.Exit(0)
+      })
+    })
+
+    button_switch_server.OnClicked(func(*ui.Button) {
+      path_new_vagrantfile := ui.OpenFile(window)
+
+      if path_new_vagrantfile == "" {
+        mebroutines.Message_error("Did not get a path for a new Vagrantfile")
+      }
+
+      window.Hide()
+      ui.QueueMain(func () {
+        install.Do_get_server(path_new_vagrantfile)
         os.Exit(0)
       })
     })

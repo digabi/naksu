@@ -5,9 +5,11 @@ import (
   "fmt"
   "os"
   "os/exec"
+  "io"
   "strings"
   "regexp"
   "bytes"
+  "errors"
 
   "github.com/andlabs/ui"
 )
@@ -151,6 +153,33 @@ func ExistsFile (path string) bool {
 func CreateDir (path string) error {
   var err = os.Mkdir(path, os.ModePerm)
   return err
+}
+
+func CopyFile (src, dst string) (err error) {
+  if ! ExistsFile(src) {
+    return errors.New("Could not find source file")
+  }
+
+  in, err := os.Open(src)
+  if err != nil {
+    return
+  }
+  defer in.Close()
+  out, err := os.Create(dst)
+  if err != nil {
+    return
+  }
+  defer func() {
+    cerr := out.Close()
+    if err == nil {
+      err = cerr
+    }
+  }()
+  if _, err = io.Copy(out, in); err != nil {
+    return
+  }
+  err = out.Sync()
+  return
 }
 
 func Get_home_directory () string {
