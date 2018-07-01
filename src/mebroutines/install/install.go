@@ -11,16 +11,6 @@ import (
 func Do_get_server() {
 	const URL_VAGRANT = "http://static.abitti.fi/usbimg/qa/vagrant/Vagrantfile"
 
-	// Make sure we have vagrant
-	if (! mebroutines.If_found_vagrant()) {
-		mebroutines.Message_error("Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?")
-	}
-
-	// Make sure we have VBoxManage
-	if (! mebroutines.If_found_vboxmanage()) {
-		mebroutines.Message_error("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?")
-	}
-
 	// Create ~/ktp if missing
 	var path_ktp = create_dir_ktp()
 	mebroutines.Message_debug(fmt.Sprintf("path_ktp is %s", path_ktp))
