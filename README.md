@@ -98,3 +98,9 @@ Things to consider later:
 ## License
 
 [MIT](https://opensource.org/licenses/MIT)
+
+## Changelog
+
+### 1.1.0 (05-JUL-2018)
+
+ * User can switch between Abitti and Matriculation Exam servers
