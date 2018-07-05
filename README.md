@@ -6,9 +6,7 @@ In real life Naksu is Onerva's (the [Abitti model teacher](https://www.abitti.fi
 The need for some kind of helper scripts appeared to be evident as we followed support requests
 and feedback from school IT staff and teachers.
 
-These scripts are currently under planning/proof-of-concept stage. You can compile scripts in
-Linux environment. To compile you need to have golang 1.7 or newer. In Debian/Ubuntu environment
-install `golang-1.9` or `golang-1.10` before compiling scripts with `make all`.
+These scripts are currently under planning/proof-of-concept stage. The executables can be downloaded from [GitHub](https://github.com/digabi/naksu/releases/latest). Download either Windows or Linux version and execute the file in the OS-related zip. After this naksu updates itself when executed.
 
 ## Plan for the Scripts
 
@@ -24,17 +22,17 @@ install `golang-1.9` or `golang-1.10` before compiling scripts with `make all`.
  1. Retrieve `http://static.abitti.fi/usbimg/qa/vagrant/Vagrantfile` to `~/ktp/Vagrantfile`
  1. Execute `vagrant box update`
  1. Execute `vagrant box prune`
- 1. TODO: Update `naksu` scripts
+
+### Switch Between Abitti and Matriculation Examination Server
+
+ Same as install/update procedure but the user is able to select `Vagrantfile`. The
+ file must be downloaded beforehand by the school principal.
 
 ### Start Virtual Server
 
  1. Make sure you have `vagrant` executable
  1. Make sure Oracle VirtualBox is installed
  1. Execute `vagrant up`
-
-### TODO: Switch Between Abitti and Matriculation Examination Server
-
-Almost the same as Update but you have to be able to select between Abitti-version `Vagrantfile` and the matriculation examination `Vagrantfile`. The latter is downloaded by the school principal.
 
 ### TODO: Make Backup of Server Hard Drive
 
@@ -44,15 +42,24 @@ Almost the same as Update but you have to be able to select between Abitti-versi
 1. `VBoxManage list hdds` -> Get UUID of the disk
 1. `VBoxManage clonemedium {UUID} {destination path} --format VMDK`
 
-## Building Linux version
+## Compiling
 
-Building is supported on Linux. You need at least Go 1.7 to build naksu.
+`naksu` can be used in Linux and Windows environments. The compiling is supported
+only on Linux. You need at least Go 1.7 to build naksu. In
+Debian/Ubuntu environment install `golang-1.9` or `golang-1.10`.
+
 Make sure `go` points to your compiler or set `GO` to point your go binary (in `Makefile`).
 
-1. Install `libgtk-3-dev` which is required by `libui`.
-1. Run `make update_libs` to get all required libraries.
+### Requirements
 
-## Cross-Compiling Windows version
+ * Install `libgtk-3-dev` which is required by `libui`.
+ * Run `make update_libs` to get all required golang dependencies.
+
+### Building Linux version
+
+`make linux`
+
+### Cross-Compiling Windows version
 
 Windows version can be cross-compiled using mingw-w64. You need at least 5.0 of
 mingw-w64 libs. Build it from source if your pre-packaged version is older:
@@ -67,11 +74,26 @@ mingw-w64 libs. Build it from source if your pre-packaged version is older:
 1. Refer to `$HOME/some/path` in the `Makefile` by adding `CGO_LDFLAGS="-L/home/you/some/path/lib"`
    in the `naksu.exe` rule. The path should point to `lib` under your mingw-w64 install path.
 
+After installing mingw-w64:
+
+`make windows`
+
+## Troubleshooting
+
+In case of trouble execute naksu with `-debug` switch. If naksu can't find your `vagrant`/`VBoxManage` executable(s) you can use `VAGRANTPATH` and `VBOXMANAGEPATH` environment variables to set these by hand:
+
+```
+VAGRANPATH=/opt/vagrant/latest/bin/vagrant naksu
+VBOXMANAGEPATH=D:\Oracle\VirtualBox\VBoxManage.exe naksu
+```
+
+However, please report these problems since we would like to make naksu as easy to use as possible.
+
 ## TODO
 
 Things to consider later:
 
- * Icon and avoid asking administrator rights: https://stackoverflow.com/questions/31558066/how-to-ask-for-administer-privileges-on-windows-with-go
+ * Icon and avoid asking administrator rights (Windows): https://stackoverflow.com/questions/31558066/how-to-ask-for-administer-privileges-on-windows-with-go
 
 ## License
 
