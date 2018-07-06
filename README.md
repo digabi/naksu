@@ -83,7 +83,7 @@ After installing mingw-w64:
 In case of trouble execute naksu with `-debug` switch. If naksu can't find your `vagrant`/`VBoxManage` executable(s) you can use `VAGRANTPATH` and `VBOXMANAGEPATH` environment variables to set these by hand:
 
 ```
-VAGRANPATH=/opt/vagrant/latest/bin/vagrant naksu
+VAGRANTPATH=/opt/vagrant/latest/bin/vagrant naksu
 VBOXMANAGEPATH=D:\Oracle\VirtualBox\VBoxManage.exe naksu
 ```
 
