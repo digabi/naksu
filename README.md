@@ -37,10 +37,13 @@ These scripts are currently under planning/proof-of-concept stage. The executabl
 ### TODO: Make Backup of Server Hard Drive
 
 1. Make sure you have `vagrant` executable
-1. Make sure Oracle VirtualBox is installed
 1. Make sure you have `VBoxManage` executable
-1. `VBoxManage list hdds` -> Get UUID of the disk
-1. `VBoxManage clonemedium {UUID} {destination path} --format VMDK`
+1. Get VirtualBox VM id of the vagrant default machine from `~/ktp/.vagrant/machines/default/virtualbox/id`
+1. `VBoxManage showvminfo -machinereadable {Machine UUID}` -> Get `Disk UUID` from `SATA Controller-ImageUUID-0-0`
+1. `VBoxManage clonemedium {Disk UUID} {destination path} --format VMDK`
+
+Since the cloned disks can be quite large the user might want to select the media for the save.
+Unfortunately, libui SaveFile dialog [does not support folders](https://github.com/andlabs/libui/issues/314).
 
 ## Compiling
 
