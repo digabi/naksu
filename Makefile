@@ -10,7 +10,7 @@ windows: naksu.exe
 linux: naksu
 
 naksu.exe: src/*
-	GOPATH=$(current_dir)/ GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ CGO_LDFLAGS="-L/home/matti/mingw-w64/current/lib" $(GO) build -o bin/naksu.exe src/naksu.go
+	GOPATH=$(current_dir)/ GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ CGO_LDFLAGS="-L$(HOME)/mingw-w64/current/lib" $(GO) build -o bin/naksu.exe src/naksu.go
 
 naksu: src/*
 	GOPATH=$(current_dir)/ GOARCH=amd64 $(GO) build -o bin/naksu src/naksu.go

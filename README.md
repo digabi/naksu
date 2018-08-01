@@ -67,14 +67,17 @@ Make sure `go` points to your compiler or set `GO` to point your go binary (in `
 Windows version can be cross-compiled using mingw-w64. You need at least 5.0 of
 mingw-w64 libs. Build it from source if your pre-packaged version is older:
 
+1. Make sure your pre-packaged mingw-w64 is installed (Debian/Ubuntu: `mingw-w64`).
 1. Get mingw-w64 from https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release/
 1. Build:
   ```
-  ./configure --prefix=$HOME/some/path --host=x86_64-w64-mingw32
+  mkdir ~/mingw-w64/current
+  ./configure --prefix=$HOME/mingw-w64/current --host=x86_64-w64-mingw32
   make -j4
   make install
   ```
-1. Refer to `$HOME/some/path` in the `Makefile` by adding `CGO_LDFLAGS="-L/home/you/some/path/lib"`
+1. By default the `Makefile` expects mingw-w64 at `$HOME/mingw-w64/current`.
+   This can be changed by editing `CGO_LDFLAGS="-L$(HOME)/mingw-w64/current/lib"`
    in the `naksu.exe` rule. The path should point to `lib` under your mingw-w64 install path.
 
 After installing mingw-w64:
