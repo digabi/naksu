@@ -84,6 +84,19 @@ func Run_vagrant (args []string) {
   }
 }
 
+func Run_vboxmanage (args []string) string {
+  vboxmanagepath_arr := []string{get_vboxmanage_path()}
+  run_args := append(vboxmanagepath_arr, args...)
+  vboxmanage_output,err := Run_get_output(run_args)
+  if (err != nil) {
+    Message_debug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(run_args, " ")))
+    Message_debug(vboxmanage_output)
+    Message_error(fmt.Sprintf("Failed to execute %s", strings.Join(run_args, " ")))
+  }
+
+  return vboxmanage_output
+}
+
 func If_found_vagrant () bool {
   var vagrantpath = get_vagrant_path()
 
@@ -196,8 +209,12 @@ func Get_home_directory () string {
   panic("Could not get home directory")
 }
 
+func Get_vagrant_directory () string {
+  return Get_home_directory()+string(os.PathSeparator)+"ktp"
+}
+
 func Chdir_vagrant_directory () bool {
-  path_vagrant := Get_home_directory()+string(os.PathSeparator)+"ktp"
+  path_vagrant := Get_vagrant_directory()
   Message_debug(fmt.Sprintf("chdir %s", path_vagrant))
   err := os.Chdir(path_vagrant)
   if (err != nil) {
@@ -230,6 +247,15 @@ func Message_warning (message string) {
   // Show libui box if main window has been set with Set_main_window
   if main_window != nil {
     ui.MsgBox(main_window, "Warning", message)
+  }
+}
+
+func Message_info (message string) {
+  fmt.Printf("INFO: %s\n", message)
+
+  // Show libui box if main window has been set with Set_main_window
+  if main_window != nil {
+    ui.MsgBox(main_window, "Info", message)
   }
 }
 

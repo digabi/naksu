@@ -15,6 +15,7 @@ import (
   "mebroutines"
   "mebroutines/install"
   "mebroutines/start"
+  "mebroutines/backup"
 )
 
 const version = "1.1.0"
@@ -61,12 +62,14 @@ func main() {
     button_start_server := ui.NewButton("Start Stickless Exam Server")
     button_get_server := ui.NewButton("Install or update Abitti Stickless Exam Server")
     button_switch_server := ui.NewButton("Install or update Stickless Matriculation Exam Server")
+    button_make_backup := ui.NewButton("Make Stickless Exam Server Backup")
     button_exit := ui.NewButton("Exit")
 
     box := ui.NewVerticalBox()
     box.Append(button_start_server, false)
     box.Append(button_get_server, false)
     box.Append(button_switch_server, false)
+    box.Append(button_make_backup, false)
     box.Append(button_exit, false)
 
     window := ui.NewWindow(fmt.Sprintf("naksu %s", version), 1, 1, false)
@@ -102,6 +105,19 @@ func main() {
       window.Hide()
       ui.QueueMain(func () {
         install.Do_get_server(path_new_vagrantfile)
+        os.Exit(0)
+      })
+    })
+
+    button_make_backup.OnClicked(func(*ui.Button) {
+      path_vagrant := mebroutines.Get_vagrant_directory()
+
+      // Set hard-coded path for backup
+      path_backup := path_vagrant + string(os.PathSeparator) + "server_backup.vmdk"
+
+      window.Hide()
+      ui.QueueMain(func () {
+        backup.Do_make_backup(path_backup)
         os.Exit(0)
       })
     })
