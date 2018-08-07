@@ -1,11 +1,13 @@
 package backup
 
 import (
-  "mebroutines"
   "os"
   "fmt"
   "io/ioutil"
   "regexp"
+  "time"
+
+  "mebroutines"
 )
 
 func Do_make_backup (path_backup string) {
@@ -73,4 +75,8 @@ func make_clone(disk_uuid string, path_backup string) {
 
 func delete_clone(path_backup string) {
   _ = mebroutines.Run_vboxmanage([]string{"closemedium", path_backup})
+}
+
+func Get_backup_filename (timestamp time.Time) string {
+  return timestamp.Format("2006-01-02_15-04-05.vmdk")
 }
