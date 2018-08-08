@@ -54,10 +54,6 @@ func main() {
   mebroutines.Set_debug(is_debug)
 
   // UI (main menu)
-  if doSelfUpdate() {
-    mebroutines.Message_warning("naksu has been automatically updated. Please restart naksu.")
-    os.Exit(0)
-  }
 
   err := ui.Main(func () {
     // Define main window
@@ -77,6 +73,12 @@ func main() {
     window := ui.NewWindow(fmt.Sprintf("naksu %s", version), 1, 1, false)
 
     mebroutines.Set_main_window(window)
+
+    // Run auto-update
+    if doSelfUpdate() {
+      mebroutines.Message_warning("naksu has been automatically updated. Please restart naksu.")
+      os.Exit(0)
+    }
 
     window.SetMargined(true)
 		window.SetChild(box)
