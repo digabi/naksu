@@ -33,7 +33,7 @@ func doSelfUpdate() bool {
   latest, err := selfupdate.UpdateSelf(v, "digabi/naksu")
   if err != nil {
     mebroutines.Message_warning(fmt.Sprintf("Binary update failed: %s", err))
-    return true
+    return false
   }
   if latest.Version.Equals(v) {
     // latest version is the same as current version. It means current binary is up to date.
