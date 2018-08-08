@@ -63,12 +63,30 @@ func main() {
     button_make_backup := ui.NewButton("Make Stickless Exam Server Backup")
     button_exit := ui.NewButton("Exit")
 
+    group_common := ui.NewGroup("Basic Functions")
+    group_common.SetMargined(true)
+    box_common := ui.NewVerticalBox()
+    box_common.Append(button_start_server, false)
+    box_common.Append(button_exit, false)
+    group_common.SetChild(box_common)
+
+    group_abitti := ui.NewGroup("Abitti")
+    group_abitti.SetMargined(true)
+    box_abitti := ui.NewVerticalBox()
+    box_abitti.Append(button_get_server, false)
+    group_abitti.SetChild(box_abitti)
+
+    group_matric := ui.NewGroup("Matriculation Exam")
+    group_matric.SetMargined(true)
+    box_matric := ui.NewVerticalBox()
+    box_matric.Append(button_switch_server, false)
+    box_matric.Append(button_make_backup, false)
+    group_matric.SetChild(box_matric)
+
     box := ui.NewVerticalBox()
-    box.Append(button_start_server, false)
-    box.Append(button_get_server, false)
-    box.Append(button_switch_server, false)
-    box.Append(button_make_backup, false)
-    box.Append(button_exit, false)
+    box.Append(group_common, false)
+    box.Append(group_abitti, false)
+    box.Append(group_matric, false)
 
     window := ui.NewWindow(fmt.Sprintf("naksu %s", version), 1, 1, false)
 
