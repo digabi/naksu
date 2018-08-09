@@ -6,6 +6,8 @@ import (
   "encoding/csv"
   "strings"
 
+  "golang.org/x/text/encoding/charmap"
+
   "mebroutines"
 )
 
@@ -55,11 +57,30 @@ func get_backup_media_windows () map[string]string {
     if len(this_record) == 5 && (this_record[3] == "2" || this_record[3] == "3") {
       mebroutines.Message_debug(fmt.Sprintf("wmic csv record: %s", strings.Join(this_record,", ")))
       this_path := fmt.Sprintf("%s\\", this_record[2])
-      media[this_path] = fmt.Sprintf("%s, %s", this_record[1], this_record[4])
+      media[this_path] = fmt.Sprintf("%s, %s", get_utf8(this_record[1]), get_utf8(this_record[4]))
     } else {
       mebroutines.Message_debug(fmt.Sprintf("Skipping wmic csv record: %s", strings.Join(this_record,", ")))
     }
   }
 
   return media
+}
+
+func get_utf8 (str_orig string) string {
+  // Convert string from Windows console CodePage850 to UTF-8
+  var dec = charmap.CodePage850.NewDecoder()
+
+  byte_orig := []byte(str_orig)
+  byte_utf := make([]byte, len(byte_orig)*3)
+  n, _, err := dec.Transform(byte_utf, byte_orig, false)
+  if err != nil {
+    mebroutines.Message_debug(fmt.Sprintf("Charset conversion failed for string: %s", str_orig))
+    return str_orig
+  }
+
+  byte_utf = byte_utf[:n]
+
+  str_utf := string(byte_utf)
+
+  return str_utf
 }

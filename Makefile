@@ -23,10 +23,12 @@ naksu_packages: all
 
 update_libs:
 	rm -fR src/github.com/
+	rm -fR src/golang.org/
 	#GOPATH=$(current_dir)/ go get github.com/gorilla/context
 	GOPATH=$(current_dir)/ $(GO) get github.com/blang/semver
 	GOPATH=$(current_dir)/ $(GO) get github.com/rhysd/go-github-selfupdate/selfupdate
 	GOPATH=$(current_dir)/ $(GO) get github.com/andlabs/ui
+	GOPATH=$(current_dir)/ $(GO) get golang.org/x/text/encoding/charmap
 
 phony_get-server:
 	VAGRANTPATH=phony-scripts/vagrant VBOXMANAGEPATH=phony-scripts/VBoxManage bin/get-server
