@@ -107,6 +107,11 @@ Things to consider later:
 
 ## Changelog
 
+### 1.2.0 (09-AUG-2018)
+
+ * User can create a backup (clone) from VM hard drive
+ * Continues execution although binary update fails
+
 ### 1.1.0 (05-JUL-2018)
 
  * User can switch between Abitti and Matriculation Exam servers
