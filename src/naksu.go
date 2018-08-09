@@ -8,10 +8,12 @@ import (
   "fmt"
   "flag"
   "time"
+  "strings"
 
   "github.com/blang/semver"
   "github.com/rhysd/go-github-selfupdate/selfupdate"
   "github.com/andlabs/ui"
+  "github.com/kardianos/osext"
 
   "mebroutines"
   "mebroutines/install"
@@ -52,6 +54,19 @@ func main() {
   flag.Parse()
 
   mebroutines.Set_debug(is_debug)
+
+  // Check whether we have a terminal (restart with x-terminal-emulator, if missing)
+  if (! mebroutines.ExistsStdin()) {
+    path_to_me, _ := osext.Executable()
+    command_args := []string{"x-terminal-emulator", "-e", path_to_me}
+
+    mebroutines.Message_debug(fmt.Sprintf("No stdin, restarting with terminal: %s", strings.Join(command_args, " ")))
+    _, _ = mebroutines.Run_get_output(command_args)
+    mebroutines.Message_debug(fmt.Sprintf("No stdin, returned from %s", strings.Join(command_args, " ")))
+
+    // Normal termination
+    os.Exit(0)
+  }
 
   // UI (main menu)
 

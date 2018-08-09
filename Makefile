@@ -28,6 +28,7 @@ update_libs:
 	GOPATH=$(current_dir)/ $(GO) get github.com/blang/semver
 	GOPATH=$(current_dir)/ $(GO) get github.com/rhysd/go-github-selfupdate/selfupdate
 	GOPATH=$(current_dir)/ $(GO) get github.com/andlabs/ui
+	GOPATH=$(current_dir)/ $(GO) get github.com/kardianos/osext
 	GOPATH=$(current_dir)/ $(GO) get golang.org/x/text/encoding/charmap
 
 phony_get-server:
