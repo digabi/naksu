@@ -32,7 +32,7 @@ func Run(command_args []string) error {
 }
 
 func Run_get_output (command_args []string) (string, error) {
-  Message_debug(fmt.Sprintf("run_get_output: %s", strings.Join(command_args, " ")))
+  Message_debug(fmt.Sprintf("Run_get_output: %s", strings.Join(command_args, " ")))
 	out,err := exec.Command(command_args[0], command_args[1:]...).CombinedOutput()
   if (err != nil) {
     // Executing failed, return error condition
@@ -40,11 +40,18 @@ func Run_get_output (command_args []string) (string, error) {
     return string(out), err
   }
 
+  if (out != nil) {
+    Message_debug("Run_get_output returns combined STDOUT and STDERR:")
+    Message_debug(string(out))
+  } else {
+    Message_debug("Run_get_output returned NIL as combined STDOUT and STDERR")
+  }
+
   return string(out), nil
 }
 
 func Run_get_error (command_args []string) (string, error) {
-  Message_debug(fmt.Sprintf("run_get_error: %s", strings.Join(command_args, " ")))
+  Message_debug(fmt.Sprintf("Run_get_error: %s", strings.Join(command_args, " ")))
 
   var stderr bytes.Buffer
 
@@ -54,6 +61,10 @@ func Run_get_error (command_args []string) (string, error) {
   cmd.Stderr = &stderr
 
   err := cmd.Run()
+
+  Message_debug("Run_get_error returns STDERR:")
+  Message_debug(stderr.String())
+
   return stderr.String(), err
 }
 

@@ -95,6 +95,8 @@ func remove_vagrantfile (path_vagrantfile string) {
 }
 
 func download_file (url string, filepath string) {
+	mebroutines.Message_debug(fmt.Sprintf("Starting download from URL %s to file %s", url, filepath))
+
 	out, err1 := os.Create(filepath)
 	defer out.Close()
 	if (err1 != nil) {
@@ -111,4 +113,6 @@ func download_file (url string, filepath string) {
 	if (err3 != nil) {
 		mebroutines.Message_error(fmt.Sprintf("Could not copy body from %s to %s", url, filepath))
 	}
+
+	mebroutines.Message_debug(fmt.Sprintf("Finished download from URL %s to file %s", url, filepath))
 }
