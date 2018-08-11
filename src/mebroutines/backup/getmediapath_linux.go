@@ -60,19 +60,34 @@ func get_removable_disks (blockdevices []interface{}) map[string]string {
   var media = map[string]string{}
   //media_n := 0
 
+  if blockdevices == nil {
+    return media
+  }
+
   for blockdevice_n := range blockdevices {
     //fmt.Println(blockdevices[blockdevice_n])
     this_blockdevice := blockdevices[blockdevice_n].(map[string]interface{})
-    if this_blockdevice["hotplug"].(string) == "1" && this_blockdevice["children"] != nil {
+    if device_field_string(this_blockdevice["hotplug"]) == "1" && this_blockdevice["children"] != nil {
       this_children := this_blockdevice["children"].([]interface{})
 
       for this_child_n := range this_children {
         this_child := this_children[this_child_n].(map[string]interface{})
 
-        media[this_child["mountpoint"].(string)] = fmt.Sprintf("%s, %s", this_blockdevice["vendor"].(string), this_blockdevice["model"].(string))
+        this_mountpoint := device_field_string(this_child["mountpoint"])
+        if this_mountpoint != "" {
+          media[this_mountpoint] = fmt.Sprintf("%s, %s", device_field_string(this_blockdevice["vendor"]), device_field_string(this_blockdevice["model"]))
+        }
       }
     }
   }
 
   return media
+}
+
+func device_field_string (this_field interface{}) string {
+  if this_field == nil {
+    return ""
+  }
+
+  return this_field.(string)
 }
