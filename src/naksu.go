@@ -22,6 +22,7 @@ import (
 )
 
 const version = "1.2.0"
+const low_disk_limit = 5000000 // 5 Gb
 
 var is_debug bool
 
@@ -147,6 +148,12 @@ func main() {
     })
 
     button_get_server.OnClicked(func(*ui.Button) {
+      // Check free disk
+      free_disk,err := mebroutines.Get_disk_free(mebroutines.Get_vagrant_directory())
+      if (err == nil && free_disk < low_disk_limit) {
+        mebroutines.Message_warning("Your free disk size is getting low. If install/update fails please consider freeing some disk space.")
+      }
+
       window.Hide()
       ui.QueueMain(func () {
         install.Do_get_server("")
@@ -155,6 +162,12 @@ func main() {
     })
 
     button_switch_server.OnClicked(func(*ui.Button) {
+      // Check free disk
+      free_disk,err := mebroutines.Get_disk_free(mebroutines.Get_vagrant_directory())
+      if (err == nil && free_disk < low_disk_limit) {
+        mebroutines.Message_warning("Your free disk size is getting low. If install/update fails please consider freeing some disk space.")
+      }
+
       path_new_vagrantfile := ui.OpenFile(window)
 
       if path_new_vagrantfile == "" {
@@ -183,6 +196,12 @@ func main() {
       backup_window.Hide()
 
       path_backup := fmt.Sprintf("%s%s%s", backup_media_path[backup_combobox.Selected()], string(os.PathSeparator), backup.Get_backup_filename(time.Now()))
+
+      // Check free disk
+      free_disk,err := mebroutines.Get_disk_free(fmt.Sprintf("%s%s", backup_media_path[backup_combobox.Selected()], string(os.PathSeparator)))
+      if (err == nil && free_disk < low_disk_limit) {
+        mebroutines.Message_warning("Your free disk size is getting low. If backup process fails please consider freeing some disk space.")
+      }
 
       ui.QueueMain(func () {
         backup.Do_make_backup(path_backup)
