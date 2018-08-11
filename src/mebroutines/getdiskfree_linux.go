@@ -3,6 +3,7 @@ package mebroutines
 import (
   "regexp"
   "strconv"
+  "fmt"
 )
 
 func Get_disk_free (path string) (int, error) {
@@ -20,6 +21,7 @@ func Get_disk_free (path string) (int, error) {
 
   if (len(result)>1) {
     result_float, _ := strconv.ParseFloat(result[1], 10)
+    Message_debug(fmt.Sprintf("Disk free for path %s: %d", path, int(result_float)))
     return int(result_float), nil
   }
 
