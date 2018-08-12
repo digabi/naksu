@@ -84,6 +84,11 @@ After installing mingw-w64:
 
 `make windows`
 
+### Windows Icon
+
+Windows version is built with icon file. Building `src\naksu.syso` is done with
+[rsrc](https://github.com/akavel/rsrc).
+
 ## Troubleshooting
 
 In case of trouble execute naksu with `-debug` switch. If naksu can't find your `vagrant`/`VBoxManage` executable(s) you can use `VAGRANTPATH` and `VBOXMANAGEPATH` environment variables to set these by hand:
@@ -99,7 +104,7 @@ However, please report these problems since we would like to make naksu as easy 
 
 Things to consider later:
 
- * Icon and avoid asking administrator rights (Windows): https://stackoverflow.com/questions/31558066/how-to-ask-for-administer-privileges-on-windows-with-go
+ * Avoid asking administrator rights (Windows): [Github](https://stackoverflow.com/questions/31558066/how-to-ask-for-administer-privileges-on-windows-with-go)
 
 ## License
 

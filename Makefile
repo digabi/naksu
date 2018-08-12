@@ -2,6 +2,8 @@ current_dir = $(shell pwd)
 GO=go
 # Give path of your go executable
 #GO=/usr/lib/go-1.10/bin/go
+# Path to your rsrc executable (see README.md)
+RSRC=$(HOME)/go/bin/rsrc
 
 all: windows linux
 
@@ -9,8 +11,11 @@ windows: naksu.exe
 
 linux: naksu
 
+src/naksu.syso: res/windows/*
+	$(RSRC) -arch="amd64" -ico="res/windows/naksu.ico" -o src/naksu.syso
+
 naksu.exe: src/*
-	GOPATH=$(current_dir)/ GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ CGO_LDFLAGS="-L$(HOME)/mingw-w64/current/lib" $(GO) build -o bin/naksu.exe src/naksu.go
+	cd src; GOPATH=$(current_dir)/ GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ CGO_LDFLAGS="-L$(HOME)/mingw-w64/current/lib" $(GO) build -o ../bin/naksu.exe
 
 naksu: src/*
 	GOPATH=$(current_dir)/ GOARCH=amd64 $(GO) build -o bin/naksu src/naksu.go
