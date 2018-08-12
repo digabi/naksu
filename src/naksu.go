@@ -69,6 +69,10 @@ func main() {
     os.Exit(0)
   }
 
+  // Get list of backup locations (as there is not SaveAs/directory dialog in libui)
+  // We do this before starting GUI to avoid "cannot change thread mode" in Windows WMI call
+  backup_media := backup.Get_backup_media()
+
   // UI (main menu)
 
   err := ui.Main(func () {
@@ -122,7 +126,7 @@ func main() {
 
     backup_combobox := ui.NewCombobox()
     // Refresh media selection
-    backup_media_path := backup_combobox_populate(backup_combobox)
+    backup_media_path := backup_combobox_populate(backup_media, backup_combobox)
 
     backup_button_save := ui.NewButton("Save")
     backup_button_cancel := ui.NewButton("Cancel")
@@ -143,42 +147,94 @@ func main() {
       window.Hide()
       ui.QueueMain(func () {
         start.Do_start_server()
-        os.Exit(0)
+        ui.Quit()
       })
     })
 
     button_get_server.OnClicked(func(*ui.Button) {
-      // Check free disk
-      free_disk,err := mebroutines.Get_disk_free(mebroutines.Get_vagrant_directory())
-      if (err == nil && free_disk < low_disk_limit) {
-        mebroutines.Message_warning("Your free disk size is getting low. If install/update fails please consider freeing some disk space.")
-      }
+      ch_free_disk := make(chan int)
+      ch_disk_low_popup := make(chan bool)
 
-      window.Hide()
-      ui.QueueMain(func () {
-        install.Do_get_server("")
-        os.Exit(0)
-      })
+      // Check free disk
+      // Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+      go func () {
+        free_disk,_ := mebroutines.Get_disk_free(mebroutines.Get_vagrant_directory())
+        ch_free_disk <- free_disk
+      }()
+
+      go func () {
+        free_disk := <- ch_free_disk
+        ui.QueueMain(func () {
+          if (free_disk != -1 && free_disk < low_disk_limit) {
+            mebroutines.Message_warning("Your free disk size is getting low. If update/install process fails please consider freeing some disk space.")
+            ch_disk_low_popup <- true
+            window.Hide()
+          } else {
+            ch_disk_low_popup <- true
+            window.Hide()
+          }
+        })
+      }()
+
+      go func () {
+        // Wait until disk low popup has been processed
+        <- ch_disk_low_popup
+
+        ui.QueueMain(func () {
+          install.Do_get_server("")
+          ui.Quit()
+        })
+      }()
     })
 
     button_switch_server.OnClicked(func(*ui.Button) {
+      ch_free_disk := make(chan int)
+      ch_disk_low_popup := make(chan bool)
+      ch_path_new_vagrantfile := make(chan string)
+
       // Check free disk
-      free_disk,err := mebroutines.Get_disk_free(mebroutines.Get_vagrant_directory())
-      if (err == nil && free_disk < low_disk_limit) {
-        mebroutines.Message_warning("Your free disk size is getting low. If install/update fails please consider freeing some disk space.")
-      }
+      // Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+      go func () {
+        free_disk,_ := mebroutines.Get_disk_free(mebroutines.Get_vagrant_directory())
+        ch_free_disk <- free_disk
+      }()
 
-      path_new_vagrantfile := ui.OpenFile(window)
+      go func () {
+        free_disk := <- ch_free_disk
+        ui.QueueMain(func() {
+          if (free_disk != -1 && free_disk < low_disk_limit) {
+            mebroutines.Message_warning("Your free disk size is getting low. If update/install process fails please consider freeing some disk space.")
+            ch_disk_low_popup <- true
+          } else {
+            ch_disk_low_popup <- true
+          }
+        })
+      }()
 
-      if path_new_vagrantfile == "" {
-        mebroutines.Message_error("Did not get a path for a new Vagrantfile")
-      }
+      go func () {
+        // Wait until free disk check has been carried out
+        <- ch_disk_low_popup
 
-      window.Hide()
-      ui.QueueMain(func () {
-        install.Do_get_server(path_new_vagrantfile)
-        os.Exit(0)
-      })
+        ui.QueueMain(func () {
+          path_new_vagrantfile := ui.OpenFile(window)
+          ch_path_new_vagrantfile <- path_new_vagrantfile
+          window.Hide()
+        })
+      }()
+
+      go func () {
+        // Wait until you have path_new_vagrantfile
+        path_new_vagrantfile := <- ch_path_new_vagrantfile
+
+        ui.QueueMain(func () {
+          if path_new_vagrantfile == "" {
+            mebroutines.Message_error("Did not get a path for a new Vagrantfile")
+          } else {
+            install.Do_get_server(path_new_vagrantfile)
+            ui.Quit()
+          }
+        })
+      }()
     })
 
     button_make_backup.OnClicked(func(*ui.Button) {
@@ -188,25 +244,45 @@ func main() {
 
     button_exit.OnClicked(func(*ui.Button) {
       mebroutines.Message_debug("Exiting by user request")
-      os.Exit(0)
+      ui.Quit()
     })
 
     // Define actions for SaveAs window/dialog
     backup_button_save.OnClicked(func(*ui.Button) {
-      backup_window.Hide()
-
       path_backup := fmt.Sprintf("%s%s%s", backup_media_path[backup_combobox.Selected()], string(os.PathSeparator), backup.Get_backup_filename(time.Now()))
 
-      // Check free disk
-      free_disk,err := mebroutines.Get_disk_free(fmt.Sprintf("%s%s", backup_media_path[backup_combobox.Selected()], string(os.PathSeparator)))
-      if (err == nil && free_disk < low_disk_limit) {
-        mebroutines.Message_warning("Your free disk size is getting low. If backup process fails please consider freeing some disk space.")
-      }
+      ch_free_disk := make(chan int)
+      ch_disk_low_popup := make(chan bool)
 
-      ui.QueueMain(func () {
-        backup.Do_make_backup(path_backup)
-        os.Exit(0)
-      })
+      // Check free disk
+      // Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+      go func () {
+        free_disk,_ := mebroutines.Get_disk_free(fmt.Sprintf("%s%s", backup_media_path[backup_combobox.Selected()], string(os.PathSeparator)))
+        ch_free_disk <- free_disk
+      }()
+
+      go func () {
+        free_disk := <- ch_free_disk
+        ui.QueueMain(func () {
+          if (free_disk != -1 && free_disk < low_disk_limit) {
+            mebroutines.Message_warning("Your free disk size is getting low. If backup process fails please consider freeing some disk space.")
+            ch_disk_low_popup <- true
+            backup_window.Hide()
+          } else {
+            ch_disk_low_popup <- true
+            backup_window.Hide()
+          }
+        })
+      }()
+
+      go func () {
+        <- ch_disk_low_popup
+
+        ui.QueueMain(func () {
+          backup.Do_make_backup(path_backup)
+          ui.Quit()
+        })
+      }()
     })
 
     backup_button_cancel.OnClicked(func(*ui.Button) {
@@ -231,12 +307,11 @@ func main() {
   if err != nil {
     panic(err)
   }
+
+  mebroutines.Message_debug("Exiting GUI loop")
 }
 
-func backup_combobox_populate (combobox *ui.Combobox) []string {
-  // Get list of backup locations (as there is not SaveAs/directory dialog in libui)
-  backup_media := backup.Get_backup_media()
-
+func backup_combobox_populate (backup_media map[string]string, combobox *ui.Combobox) []string {
   // Collect all paths to this slice
   media_path := make([]string, len(backup_media))
   media_path_n := 0

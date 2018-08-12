@@ -247,9 +247,10 @@ func Message_error (message string) {
   // Show libui box if main window has been set with Set_main_window
   if main_window != nil {
     ui.MsgBoxError(main_window, "Error", message)
+    ui.Quit()
+  } else {
+    os.Exit(1)
   }
-
-  os.Exit(1)
 }
 
 func Message_warning (message string) {
