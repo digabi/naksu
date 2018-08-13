@@ -112,6 +112,15 @@ Things to consider later:
 
 ## Changelog
 
+### 1.3.0 (13-AUG-2018)
+
+ * Restart with `x-terminal-emulator` if started via file manager (Linux)
+ * Warn user if there is less than 5 Gb free disk before install, update or backup
+ * Bugfix: Don't panic if media does not have vendor/model (Linux)
+ * Get vendor/model strings for removable media directly from WMI without `wmic` (Windows)
+ * Application icon (Windows)
+ * Added logging (use `-debug` switch to show debug messages)
+
 ### 1.2.0 (09-AUG-2018)
 
  * User can create a backup (clone) from VM hard drive
