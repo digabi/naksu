@@ -23,6 +23,7 @@ func SetLanguage(new_language string) {
       "Exit": "Poistu",
 
       // Main window, other
+      "Naksu update failed. Maybe you don't have network connection?\n\nError: %s": "Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n\nVirhe: %s",
       "Did not get a path for a new Vagrantfile": "Uuden Vagrantfile-tiedoston sijainti on annettava",
       "Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?": "Ohjelman Vagrant käynnistys epäonnistui. Oletko varma, että koneeseen on asennettu HashiCorp Vagrant?",
       "Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?": "Ohjelman VBoxManage käynnistys epäonnistui. Oletko varma, että koneeseen on asennettu Oracle VirtualBox?",
@@ -83,6 +84,7 @@ func SetLanguage(new_language string) {
       "Exit": "SV: Poistu",
 
       // Main window, other
+      "Naksu update failed. Maybe you don't have network connection?\n\nError: %s": "SV: Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n\nVirhe: %s",
       "Did not get a path for a new Vagrantfile": "Ge positionen för den nya Vagrantfile-filen",
       "Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?": "Startning av programmet Vagrant lyckades inte. Är du säker, att HashiCorp Vagrant har installerats på datorn?",
       "Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?": "Startning av programmet VBoxManage lyckades inte. Är du säker, att Oracle VirtualBox har installerats på datorn?",

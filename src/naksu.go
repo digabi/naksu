@@ -36,7 +36,7 @@ func doSelfUpdate() bool {
 
   latest, err := selfupdate.UpdateSelf(v, "digabi/naksu")
   if err != nil {
-    mebroutines.Message_warning(fmt.Sprintf("Binary update failed: %s", err))
+    mebroutines.Message_warning(fmt.Sprintf(xlate.Get("Naksu update failed. Maybe you don't have network connection?\n\nError: %s"), err))
     return false
   }
   if latest.Version.Equals(v) {
