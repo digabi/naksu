@@ -349,6 +349,12 @@ func main() {
       window.Show()
     })
 
+    window.OnClosing(func(*ui.Window) bool {
+      mebroutines.Message_debug("User exists through window exit")
+      ui.Quit()
+      return true
+    })
+
     window.Show()
     backup_window.Hide()
 
