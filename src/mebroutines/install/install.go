@@ -1,6 +1,8 @@
 package install
 
 import (
+	"xlate"
+
 	"mebroutines"
 	"fmt"
 	"os"
@@ -41,7 +43,7 @@ func Do_get_server(path_new_vagrantfile string) {
 		err := mebroutines.CopyFile(path_new_vagrantfile, path_vagrantfile)
 
 		if (err != nil) {
-			mebroutines.Message_error(fmt.Sprintf("Error while copying new vagrantfile: %d", err))
+			mebroutines.Message_error(fmt.Sprintf(xlate.Get("Error while copying new Vagrantfile: %d"), err))
 		}
 	}
 
@@ -59,7 +61,7 @@ func create_dir_ktp () string {
 
   if (! mebroutines.ExistsDir(path_ktp)) {
     if (mebroutines.CreateDir(path_ktp) != nil) {
-			mebroutines.Message_error(fmt.Sprintf("Could not create ~/ktp to %s\n", path_ktp))
+			mebroutines.Message_error(fmt.Sprintf(xlate.Get("Could not create ~/ktp to %s"), path_ktp))
     }
   }
 
@@ -71,7 +73,7 @@ func create_dir_ktpjako () string {
 
   if (! mebroutines.ExistsDir(path_ktpjako)) {
     if (mebroutines.CreateDir(path_ktpjako) != nil) {
-			mebroutines.Message_error(fmt.Sprintf("Could not create ~/ktp-jako at %s", path_ktpjako))
+			mebroutines.Message_error(fmt.Sprintf(xlate.Get("Could not create ~/ktp-jako to %s"), path_ktpjako))
     }
   }
 
@@ -83,14 +85,14 @@ func remove_vagrantfile (path_vagrantfile string) {
 	if (mebroutines.ExistsFile(path_vagrantfile+".bak")) {
 		err := os.Remove(path_vagrantfile+".bak")
 		if (err != nil) {
-			mebroutines.Message_warning(fmt.Sprintf("Failed to delete %s\n", path_vagrantfile+".bak"))
+			mebroutines.Message_warning(fmt.Sprintf(xlate.Get("Failed to delete %s"), path_vagrantfile+".bak"))
 		}
 	}
 
 	// Rename Vagrantfile to Vagrantfile.bak
 	err := os.Rename(path_vagrantfile, path_vagrantfile+".bak")
 	if (err != nil) {
-		mebroutines.Message_warning(fmt.Sprintf("Failed to rename %s to %s\n", path_vagrantfile, path_vagrantfile+".bak"))
+		mebroutines.Message_warning(fmt.Sprintf(xlate.Get("Failed to rename %s to %s"), path_vagrantfile, path_vagrantfile+".bak"))
 	}
 }
 
@@ -100,18 +102,18 @@ func download_file (url string, filepath string) {
 	out, err1 := os.Create(filepath)
 	defer out.Close()
 	if (err1 != nil) {
-		mebroutines.Message_error(fmt.Sprintf("Failed to create file %s\n", filepath))
+		mebroutines.Message_error(fmt.Sprintf(xlate.Get("Failed to create file %s"), filepath))
 	}
 
 	resp, err2 := http.Get(url)
 	defer resp.Body.Close()
 	if (err2 != nil) {
-		mebroutines.Message_error(fmt.Sprintf("Failed to retrieve %s\n", url))
+		mebroutines.Message_error(fmt.Sprintf(xlate.Get("Failed to retrieve %s"), url))
 	}
 
 	_, err3 := io.Copy(out, resp.Body)
 	if (err3 != nil) {
-		mebroutines.Message_error(fmt.Sprintf("Could not copy body from %s to %s", url, filepath))
+		mebroutines.Message_error(fmt.Sprintf(xlate.Get("Could not copy body from %s to %s"), url, filepath))
 	}
 
 	mebroutines.Message_debug(fmt.Sprintf("Finished download from URL %s to file %s", url, filepath))

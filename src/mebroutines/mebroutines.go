@@ -2,6 +2,8 @@
 package mebroutines
 
 import (
+  "xlate"
+
   "fmt"
   "os"
   "os/exec"
@@ -25,7 +27,7 @@ func Run(command_args []string) error {
 	cmd.Stderr = os.Stderr
   err := cmd.Run()
 	if err != nil {
-		Message_warning(fmt.Sprintf("command failed: %s", strings.Join(command_args, " ")))
+		Message_warning(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(command_args, " ")))
 	}
 
   return err
@@ -36,7 +38,7 @@ func Run_get_output (command_args []string) (string, error) {
 	out,err := exec.Command(command_args[0], command_args[1:]...).CombinedOutput()
   if (err != nil) {
     // Executing failed, return error condition
-    Message_warning(fmt.Sprintf("command failed: %s", strings.Join(command_args, " ")))
+    Message_warning(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(command_args, " ")))
     return string(out), err
   }
 
@@ -90,7 +92,7 @@ func Run_vagrant (args []string) {
     } else {
       Message_debug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(run_args, " ")))
       Message_debug(vagrant_output)
-      Message_error(fmt.Sprintf("Failed to execute %s", strings.Join(run_args, " ")))
+      Message_error(fmt.Sprintf(xlate.Get("Failed to execute %s"), strings.Join(run_args, " ")))
     }
   }
 }
@@ -102,7 +104,7 @@ func Run_vboxmanage (args []string) string {
   if (err != nil) {
     Message_debug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(run_args, " ")))
     Message_debug(vboxmanage_output)
-    Message_error(fmt.Sprintf("Failed to execute %s", strings.Join(run_args, " ")))
+    Message_error(fmt.Sprintf(xlate.Get("Failed to execute %s"), strings.Join(run_args, " ")))
   }
 
   return vboxmanage_output
@@ -229,7 +231,7 @@ func Chdir_vagrant_directory () bool {
   Message_debug(fmt.Sprintf("chdir %s", path_vagrant))
   err := os.Chdir(path_vagrant)
   if (err != nil) {
-    Message_warning(fmt.Sprintf("Could not chdir to %s", path_vagrant))
+    Message_warning(fmt.Sprintf(xlate.Get("Could not chdir to %s"), path_vagrant))
     return false
   }
 
@@ -246,7 +248,7 @@ func Message_error (message string) {
 
   // Show libui box if main window has been set with Set_main_window
   if main_window != nil {
-    ui.MsgBoxError(main_window, "Error", message)
+    ui.MsgBoxError(main_window, xlate.Get("Error"), message)
     ui.Quit()
   } else {
     os.Exit(1)
@@ -258,7 +260,7 @@ func Message_warning (message string) {
 
   // Show libui box if main window has been set with Set_main_window
   if main_window != nil {
-    ui.MsgBox(main_window, "Warning", message)
+    ui.MsgBox(main_window, xlate.Get("Warning"), message)
   }
 }
 
@@ -267,7 +269,7 @@ func Message_info (message string) {
 
   // Show libui box if main window has been set with Set_main_window
   if main_window != nil {
-    ui.MsgBox(main_window, "Info", message)
+    ui.MsgBox(main_window, xlate.Get("Info"), message)
   }
 }
 

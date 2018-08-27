@@ -19,6 +19,7 @@ import (
   "mebroutines/install"
   "mebroutines/start"
   "mebroutines/backup"
+  "xlate"
 )
 
 const version = "1.3.0"
@@ -50,6 +51,9 @@ func doSelfUpdate() bool {
 }
 
 func main() {
+  // Set default UI language
+  xlate.SetLanguage("fi")
+
   // Process command line parameters
   flag.BoolVar(&is_debug, "debug", false, "Turn debugging on")
   flag.Parse()
@@ -77,26 +81,39 @@ func main() {
 
   err := ui.Main(func () {
     // Define main window
-    button_start_server := ui.NewButton("Start Stickless Exam Server")
+    button_start_server := ui.NewButton(xlate.Get("Start Stickless Exam Server"))
     button_get_server := ui.NewButton("Install or update Abitti Stickless Exam Server")
     button_switch_server := ui.NewButton("Install or update Stickless Matriculation Exam Server")
     button_make_backup := ui.NewButton("Make Stickless Exam Server Backup")
     button_exit := ui.NewButton("Exit")
 
-    group_common := ui.NewGroup("Basic Functions")
+    button_lang_fi := ui.NewButton("Suomeksi")
+    button_lang_sv := ui.NewButton("På svenska")
+    button_lang_en := ui.NewButton("in English")
+
+    group_language := ui.NewGroup("")
+    group_language.SetMargined(true)
+    box_language := ui.NewHorizontalBox()
+    box_language.SetPadded(true)
+    box_language.Append(button_lang_fi, true)
+    box_language.Append(button_lang_sv, true)
+    box_language.Append(button_lang_en, true)
+    group_language.SetChild(box_language)
+
+    group_common := ui.NewGroup("")
     group_common.SetMargined(true)
     box_common := ui.NewVerticalBox()
     box_common.Append(button_start_server, false)
     box_common.Append(button_exit, false)
     group_common.SetChild(box_common)
 
-    group_abitti := ui.NewGroup("Abitti")
+    group_abitti := ui.NewGroup("")
     group_abitti.SetMargined(true)
     box_abitti := ui.NewVerticalBox()
     box_abitti.Append(button_get_server, false)
     group_abitti.SetChild(box_abitti)
 
-    group_matric := ui.NewGroup("Matriculation Exam")
+    group_matric := ui.NewGroup("")
     group_matric.SetMargined(true)
     box_matric := ui.NewVerticalBox()
     box_matric.Append(button_switch_server, false)
@@ -104,6 +121,7 @@ func main() {
     group_matric.SetChild(box_matric)
 
     box := ui.NewVerticalBox()
+    box.Append(group_language, false)
     box.Append(group_common, false)
     box.Append(group_abitti, false)
     box.Append(group_matric, false)
@@ -137,10 +155,51 @@ func main() {
     backup_box.Append(backup_button_save, false)
     backup_box.Append(backup_button_cancel, false)
 
-    backup_window := ui.NewWindow("naksu: SaveTo", 1, 1, false)
+    backup_window := ui.NewWindow("", 1, 1, false)
 
     backup_window.SetMargined(true)
     backup_window.SetChild(backup_box)
+
+    // (Re)write UI labels
+    rewrite_ui_labels := func () {
+      group_language.SetTitle(xlate.Get("Language"))
+      group_common.SetTitle(xlate.Get("Basic Functions"))
+      group_abitti.SetTitle(xlate.Get("Abitti"))
+      group_matric.SetTitle(xlate.Get("Matriculation Exam"))
+
+      button_start_server.SetText(xlate.Get("Start Stickless Exam Server"))
+      button_get_server.SetText(xlate.Get("Install or update Abitti Stickless Exam Server"))
+      button_switch_server.SetText(xlate.Get("Install or update Stickless Matriculation Exam Server"))
+      button_make_backup.SetText(xlate.Get("Make Stickless Exam Server Backup"))
+      button_exit.SetText(xlate.Get("Exit"))
+
+      backup_window.SetTitle(xlate.Get("naksu: SaveTo"))
+      backup_label.SetText(xlate.Get("Please select target path"))
+      backup_button_save.SetText(xlate.Get("Save"))
+      backup_button_cancel.SetText(xlate.Get("Cancel"))
+    }
+
+    // Set UI labels with default language
+    rewrite_ui_labels()
+
+    // Define language selection buttons for main window
+    button_lang_fi.OnClicked(func(*ui.Button) {
+      xlate.SetLanguage("fi")
+      // Note: We don't recreate backup_media_path
+      rewrite_ui_labels()
+    })
+
+    button_lang_sv.OnClicked(func(*ui.Button) {
+      xlate.SetLanguage("sv")
+      // Note: We don't recreate backup_media_path
+      rewrite_ui_labels()
+    })
+
+    button_lang_en.OnClicked(func(*ui.Button) {
+      xlate.SetLanguage("en")
+      // Note: We don't recreate backup_media_path
+      rewrite_ui_labels()
+    })
 
     // Define actions for main window
     button_start_server.OnClicked(func(*ui.Button) {
@@ -228,7 +287,7 @@ func main() {
 
         ui.QueueMain(func () {
           if path_new_vagrantfile == "" {
-            mebroutines.Message_error("Did not get a path for a new Vagrantfile")
+            mebroutines.Message_error(xlate.Get("Did not get a path for a new Vagrantfile"))
           } else {
             install.Do_get_server(path_new_vagrantfile)
             ui.Quit()
@@ -295,12 +354,12 @@ func main() {
 
     // Make sure we have vagrant
   	if (! mebroutines.If_found_vagrant()) {
-  		mebroutines.Message_error("Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?")
+  		mebroutines.Message_error(xlate.Get("Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?"))
   	}
 
   	// Make sure we have VBoxManage
   	if (! mebroutines.If_found_vboxmanage()) {
-  		mebroutines.Message_error("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?")
+  		mebroutines.Message_error(xlate.Get("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?"))
   	}
   })
 

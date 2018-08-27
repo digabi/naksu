@@ -1,6 +1,8 @@
 package backup
 
 import (
+  "xlate"
+
   "os"
   "fmt"
   "io/ioutil"
@@ -21,14 +23,14 @@ func Do_make_backup (path_backup string) {
 
   // Make clone to path_backup
   if (mebroutines.ExistsFile(path_backup)) {
-    mebroutines.Message_error(fmt.Sprintf("File %s already exists", path_backup))
+    mebroutines.Message_error(fmt.Sprintf(xlate.Get("File %s already exists"), path_backup))
   }
   make_clone(disk_uuid, path_backup)
 
   // Close backup media (detach it from VirtualBox disk management)
   delete_clone(path_backup)
 
-  mebroutines.Message_info(fmt.Sprintf("Backup has been made to %s", path_backup))
+  mebroutines.Message_info(fmt.Sprintf(xlate.Get("Backup has been made to %s"), path_backup))
 }
 
 func get_vagrantbox_id () string {
@@ -38,7 +40,7 @@ func get_vagrantbox_id () string {
 
   file_content, err := ioutil.ReadFile(path_id)
   if err != nil {
-    mebroutines.Message_error(fmt.Sprintf("Could not get vagrantbox ID: %d", err))
+    mebroutines.Message_error(fmt.Sprintf(xlate.Get("Could not get vagrantbox ID: %d"), err))
   }
 
   return string(file_content)
@@ -57,7 +59,7 @@ func get_disk_uuid(box_id string) string {
 
   // No match
   mebroutines.Message_debug(vboxmanage_output)
-  mebroutines.Message_error("Could not make backup: failed to get disk UUID")
+  mebroutines.Message_error(xlate.Get("Could not make backup: failed to get disk UUID"))
 
   return ""
 }
@@ -69,7 +71,7 @@ func make_clone(disk_uuid string, path_backup string) {
   matched,err_re := regexp.MatchString("Clone medium created in format 'VMDK'", vboxmanage_output)
   if err_re != nil || !matched {
     // Failure
-    mebroutines.Message_error(fmt.Sprintf("Could not back up disk %s to %s", disk_uuid, path_backup))
+    mebroutines.Message_error(fmt.Sprintf(xlate.Get("Could not back up disk %s to %s"), disk_uuid, path_backup))
   }
 }
 

@@ -1,6 +1,8 @@
 package backup
 
 import (
+  "xlate"
+
   "os"
   "fmt"
   "encoding/json"
@@ -13,10 +15,10 @@ func Get_backup_media () map[string]string {
 
   // Add some entries from environment variables
   if (os.Getenv("HOME") != "") {
-    media[os.Getenv("HOME")] = "Home directory"
+    media[os.Getenv("HOME")] = xlate.Get("Home directory")
   }
   if (os.Getenv("TEMP") != "") {
-    media[os.Getenv("TEMP")] = "Temporary files"
+    media[os.Getenv("TEMP")] = xlate.Get("Temporary files")
   }
 
   return media

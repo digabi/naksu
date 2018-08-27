@@ -7,16 +7,17 @@ import (
   "github.com/StackExchange/wmi"
 
   "mebroutines"
+  "xlate"
 )
 
 func Get_backup_media () map[string]string {
   media := get_backup_media_windows()
 
   if (os.Getenv("TEMP") != "") {
-    media[os.Getenv("TEMP")] = "Temporary files"
+    media[os.Getenv("TEMP")] = xlate.Get("Temporary files")
   }
   if (os.Getenv("USERPROFILE") != "") {
-    media[os.Getenv("USERPROFILE")] = "Profile directory"
+    media[os.Getenv("USERPROFILE")] = xlate.Get("Profile directory")
   }
 
   return media
