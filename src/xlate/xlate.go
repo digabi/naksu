@@ -84,14 +84,14 @@ func SetLanguage(new_language string) {
       "Exit": "SV: Poistu",
 
       // Main window, other
-      "Naksu update failed. Maybe you don't have network connection?\n\nError: %s": "SV: Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n\nVirhe: %s",
-      "Did not get a path for a new Vagrantfile": "Ge positionen för den nya Vagrantfile-filen",
-      "Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?": "Startning av programmet Vagrant lyckades inte. Är du säker, att HashiCorp Vagrant har installerats på datorn?",
-      "Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?": "Startning av programmet VBoxManage lyckades inte. Är du säker, att Oracle VirtualBox har installerats på datorn?",
+      "Naksu update failed. Maybe you don't have network connection?\n\nError: %s": "Uppdateringen av Naksu misslyckades. Du saknar möjligtvis nätförbindelse för tillfället?\n\nFel: %s",
+      "Did not get a path for a new Vagrantfile": "Ge sökvägen för den nya Vagrantfile-filen",
+      "Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?": "Utförandet av programmet Vagrant misslyckades. Är du säker, att HashiCorp Vagrant har installerats på datorn?",
+      "Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?": "Utförandet av programmet VBoxManage misslyckades. Är du säker, att Oracle VirtualBox har installerats på datorn?",
 
       // Backup dialog
       "naksu: SaveTo": "naksu: Spara till ",
-      "Please select target path": "Välj sparningsställe",
+      "Please select target path": "Välj sökväg",
       "Save": "Spara",
       "Cancel": "Avbryt",
 
@@ -104,27 +104,27 @@ func SetLanguage(new_language string) {
       "Info": "För information",
 
       // backup
-      "File %s already exists": "SV: Tiedosto %s on jo olemassa",
-      "Backup has been made to %s": "SV: Varmuuskopio on talletettu tiedostoon %s",
-      "Could not get vagrantbox ID: %d": "SV: Vagrantboxin ID:tä ei voitu lukea: %d",
-      "Could not make backup: failed to get disk UUID": "SV: Varmuuskopion ottaminen epäonnistui: levyn UUID:tä ei löytynyt",
-      "Could not back up disk %s to %s": "SV: Varmuuskopion ottaminen levystä %s tiedostoon %s epäonnistui",
+      "File %s already exists": "Filen %s existerar redan",
+      "Backup has been made to %s": "Säkerhetskopian har sparats i filen %s",
+      "Could not get vagrantbox ID: %d": "Det gick inte att läsa ID:n på Vagrantboxen: %d",
+      "Could not make backup: failed to get disk UUID": "Säkerhetskopieringen misslyckades: skivans UUID hittades inte",
+      "Could not back up disk %s to %s": "Säkerhetskopieringen av skivan %s i filen %s misslyckades",
 
       // backup, getmediapath
-      "Home directory": "SV: Kotihakemisto",
-      "Temporary files": "SV: Tilapäishakemisto",
-      "Profile directory": "SV: Profiilihakemisto",
+      "Home directory": "Hemkatalog",
+      "Temporary files": "Tillfällig katalog",
+      "Profile directory": "Profilkatalog",
 
       // install
-      "Could not change to vagrant directory ~/ktp": "SV: Vagrant-hakemistoon ~/ktp siirtyminen epäonnistui",
-      "Error while copying new Vagrantfile: %d": "SV: Uuden Vagrantfile-tiedoston kopiointi epäonnistui: %d",
-      "Could not create ~/ktp to %s": "SV: Hakemiston ~/ktp luominen sijaintiin %s epäonnistui",
-      "Could not create ~/ktp-jako to %s": "SV: Hakemiston ~/ktp-jako luominen sijaintiin %s epäonnistui",
-      "Failed to delete %s": "SV: Tiedoston %s poistaminen epäonnistui",
-      "Failed to rename %s to %s": "SV: Tiedoston %s nimeäminen tiedostoksi %s epäonnistui",
-      "Failed to create file %s": "SV: Tiedoston %s luominen epäonnistui",
-      "Failed to retrieve %s": "SV: Sijainnista %s lataaminen epäonnistui",
-      "Could not copy body from %s to %s": "SV: Sisällön %s kopioint sijaintiin %s epäonnistui",
+      "Could not change to vagrant directory ~/ktp": "Förflyttningen till Vagrant-katalogen ~/ktp misslyckades",
+      "Error while copying new Vagrantfile: %d": "Kopieringen av en ny Vagrantfile-fil misslyckades: %d",
+      "Could not create ~/ktp to %s": "Det gick inte att skapa katalogen ~/ktp i sökvägen %s",
+      "Could not create ~/ktp-jako to %s": "Det gick inte att skapa katalogen ~/ktp-jako i sökvägen %s",
+      "Failed to delete %s": "Det gick inte att avlägsna filen %s",
+      "Failed to rename %s to %s": "Det gick inte att namnge filen %s som %s",
+      "Failed to create file %s": "Det gick inte att skapa filen %s",
+      "Failed to retrieve %s": "Det gick inte att ladda ner från sökvägen %s",
+      "Could not copy body from %s to %s": "Det gick inte att kopiera från sökvägen %s till %s",
 
       // start
       // Already defined: "Could not change to vagrant directory ~/ktp"
