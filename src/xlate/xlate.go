@@ -116,15 +116,15 @@ func SetLanguage(new_language string) {
       "Profile directory": "Profilkatalog",
 
       // install
-      "Could not change to vagrant directory ~/ktp": "Förflytningen till Vagrant-katalogen ~/ktp misslyckades",
+      "Could not change to vagrant directory ~/ktp": "Förflyttningen till Vagrant-katalogen ~/ktp misslyckades",
       "Error while copying new Vagrantfile: %d": "Kopieringen av en ny Vagrantfile-fil misslyckades: %d",
       "Could not create ~/ktp to %s": "Det gick inte att skapa katalogen ~/ktp i sökvägen %s",
       "Could not create ~/ktp-jako to %s": "Det gick inte att skapa katalogen ~/ktp-jako i sökvägen %s",
       "Failed to delete %s": "Det gick inte att avlägsna filen %s",
       "Failed to rename %s to %s": "Det gick inte att namnge filen %s som %s",
       "Failed to create file %s": "Det gick inte att skapa filen %s",
-      "Failed to retrieve %s": "Det gick inte att ladda från sökvägen %s",
-      "Could not copy body from %s to %s": "Det gick inte att kopiera fråm sökvägen %s till %s",
+      "Failed to retrieve %s": "Det gick inte att ladda ner från sökvägen %s",
+      "Could not copy body from %s to %s": "Det gick inte att kopiera från sökvägen %s till %s",
 
       // start
       // Already defined: "Could not change to vagrant directory ~/ktp"
