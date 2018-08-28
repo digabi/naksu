@@ -1,6 +1,6 @@
 # naksu
 
-`naksu` is collection of helper scripts for MEB diskless Abitti/matriculation exam servers.
+`naksu` is collection of helper scripts for MEB stickless Abitti/matriculation exam servers.
 In real life Naksu is Onerva's (the [Abitti model teacher](https://www.abitti.fi/fi/tutustu/)) cat.
 
 The need for some kind of helper scripts appeared to be evident as we followed support requests
