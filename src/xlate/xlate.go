@@ -17,13 +17,14 @@ func SetLanguage(new_language string) {
       "Status": "Tila",
 
       // Main window, buttons
-      "Start Stickless Exam Server": "Käynnistä tikuton koetilan palvelin",
       "Install or update Abitti Stickless Exam Server": "Asenna tai päivitä Abitin tikuton palvelin",
       "Install or update Stickless Matriculation Exam Server": "Asenna tai päivitä yo-kokeen tikuton palvelin",
       "Make Stickless Exam Server Backup": "Tee tikuttomasta palvelimesta varmuuskopio",
       "Exit": "Poistu",
 
       // Main window, other
+      "Current version: %s": "Asennettu versio: %s",
+      "Start Stickless Exam Server": "Käynnistä tikuton koetilan palvelin",
       "Naksu update failed. Maybe you don't have network connection?\n\nError: %s": "Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n\nVirhe: %s",
       "Did not get a path for a new Vagrantfile": "Uuden Vagrantfile-tiedoston sijainti on annettava",
       "Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?": "Ohjelman Vagrant käynnistys epäonnistui. Oletko varma, että koneeseen on asennettu HashiCorp Vagrant?",
@@ -36,6 +37,8 @@ func SetLanguage(new_language string) {
       "Cancel": "Peruuta",
 
       // mebroutines
+      "Abitti server": "Abitti-palvelin",
+      "Matric Exam server": "Yo-palvelin",
       "command failed: %s": "komento epäonnistui: %s",
       "Failed to execute %s": "Komennon suorittaminen epäonnistui: %s",
       "Could not chdir to %s": "Hakemistoon %s siirtyminen epäonnistui",
@@ -56,7 +59,6 @@ func SetLanguage(new_language string) {
       "Profile directory": "Profiilihakemisto",
 
       // install
-      "Progress: Install/update server": "Tila: Palvelimen asennus/päivitys",
       "Could not change to vagrant directory ~/ktp": "Vagrant-hakemistoon ~/ktp siirtyminen epäonnistui",
       "Error while copying new Vagrantfile: %d": "Uuden Vagrantfile-tiedoston kopiointi epäonnistui: %d",
       "Could not create ~/ktp to %s": "Hakemiston ~/ktp luominen sijaintiin %s epäonnistui",
@@ -84,9 +86,10 @@ func SetLanguage(new_language string) {
       "Install or update Abitti Stickless Exam Server": "Installera eller uppdatera sticklös server för Abitti",
       "Install or update Stickless Matriculation Exam Server": "Installera eller uppdatera sticklös server för studentexamen",
       "Make Stickless Exam Server Backup": "Säkerhetskopiera den sticklösa servern",
-      "Exit": "Avsluta",
+      "Exit": "Stäng",
 
       // Main window, other
+      "Current version: %s": "Installerad version: %s",
       "Naksu update failed. Maybe you don't have network connection?\n\nError: %s": "Uppdateringen av Naksu misslyckades. Du saknar möjligtvis nätförbindelse för tillfället?\n\nFel: %s",
       "Did not get a path for a new Vagrantfile": "Ge sökvägen för den nya Vagrantfile-filen",
       "Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?": "Utförandet av programmet Vagrant misslyckades. Är du säker, att HashiCorp Vagrant har installerats på datorn?",
@@ -99,6 +102,8 @@ func SetLanguage(new_language string) {
       "Cancel": "Avbryt",
 
       // mebroutines
+      "Abitti server": "Abitti-server",
+      "Matric Exam server": "Examensserver",
       "command failed: %s": "Komandot misslyckades: %s",
       "Failed to execute %s": "Utförning av komandot misslyckades: %s",
       "Could not chdir to %s": "Förflyttning till katalogen %s misslyckades",
@@ -119,7 +124,6 @@ func SetLanguage(new_language string) {
       "Profile directory": "Profilkatalog",
 
       // install
-      "Progress: Install/update server": "SV:Tila: Palvelimen asennus/päivitys",
       "Could not change to vagrant directory ~/ktp": "Förflyttningen till Vagrant-katalogen ~/ktp misslyckades",
       "Error while copying new Vagrantfile: %d": "Kopieringen av en ny Vagrantfile-fil misslyckades: %d",
       "Could not create ~/ktp to %s": "Det gick inte att skapa katalogen ~/ktp i sökvägen %s",

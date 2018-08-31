@@ -8,10 +8,12 @@ import (
   "os"
   "os/exec"
   "io"
+  "io/ioutil"
   "strings"
   "regexp"
   "bytes"
   "errors"
+  "encoding/json"
 
   "github.com/andlabs/ui"
 )
@@ -147,6 +149,71 @@ func If_found_vboxmanage () bool {
   return true
 }
 
+func Get_vagrantbox_version () string {
+  box_index_uuid := Get_vagrantbox_index_uuid()
+  if box_index_uuid == "" {
+    // We did not get machine index UUID so we cannot return any version string
+    return ""
+  }
+
+  index_filename := Get_vagrantd_directory() + string(os.PathSeparator) + "data" + string(os.PathSeparator) + "machine-index" + string(os.PathSeparator) + "index"
+  file_content, err := ioutil.ReadFile(index_filename)
+  if err != nil {
+    Message_debug(fmt.Sprintf("Could not read from %s", index_filename))
+    return ""
+  }
+
+  Message_debug("Vagrant machine-index/index:")
+  Message_debug(fmt.Sprintf("%s", file_content))
+
+  // Get version from JSON structure
+  var json_data map[string]interface{}
+
+  json_err := json.Unmarshal([]byte(file_content), &json_data)
+  if json_err != nil {
+    Message_debug("Unable on decode machine-index/index response:")
+    Message_debug(fmt.Sprintf("%s", json_err))
+    return ""
+  }
+
+  json_machines := json_data["machines"].(map[string]interface{})
+  json_our_machine := json_machines[box_index_uuid].(map[string]interface{})
+  json_extra_data := json_our_machine["extra_data"].(map[string]interface{})
+  json_box := json_extra_data["box"].(map[string]interface{})
+
+  box_string := fmt.Sprintf("%s (%s %s)", Get_vagrantbox_type(json_box["name"].(string)), json_box["name"], json_box["version"] )
+
+  return box_string
+}
+
+func Get_vagrantbox_type (name string) string {
+  if name == "" {
+    return "-"
+  }
+
+  if name == "digabi/ktp-qa" {
+    return xlate.Get("Abitti server")
+  }
+
+  return xlate.Get("Matric Exam server")
+}
+
+func Get_vagrantbox_index_uuid () string {
+  path_vagrant := Get_vagrant_directory()
+
+  path_id := path_vagrant + string(os.PathSeparator) + ".vagrant" + string(os.PathSeparator) + "machines" + string(os.PathSeparator) + "default" + string(os.PathSeparator) + "virtualbox" + string(os.PathSeparator) + "index_uuid"
+
+  file_content, err := ioutil.ReadFile(path_id)
+  if err != nil {
+    Message_debug(fmt.Sprintf(xlate.Get("Could not get vagrantbox index UUID: %d"), err))
+    return ""
+  }
+
+  Message_debug(fmt.Sprintf("Vagrantbox index UUID is %s", string(file_content)))
+
+  return string(file_content)
+}
+
 func get_file_mode (path string) (os.FileMode, error) {
   fi, err := os.Lstat(path)
   if (err == nil) {
@@ -224,6 +291,10 @@ func Get_home_directory () string {
 
 func Get_vagrant_directory () string {
   return Get_home_directory()+string(os.PathSeparator)+"ktp"
+}
+
+func Get_vagrantd_directory () string {
+  return Get_home_directory()+string(os.PathSeparator)+".vagrant.d"
 }
 
 func Chdir_vagrant_directory () bool {

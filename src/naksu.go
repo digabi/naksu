@@ -92,6 +92,7 @@ func main() {
     button_lang_sv := ui.NewButton("På svenska")
     button_lang_en := ui.NewButton("in English")
 
+    label_box := ui.NewLabel("")
     label_status := ui.NewLabel("")
 
     group_language := ui.NewGroup("")
@@ -107,6 +108,7 @@ func main() {
     group_common.SetMargined(true)
     box_common := ui.NewVerticalBox()
     box_common.SetPadded(true)
+    box_common.Append(label_box, false)
     box_common.Append(button_start_server, false)
     box_common.Append(button_exit, false)
     group_common.SetChild(box_common)
@@ -222,6 +224,8 @@ func main() {
       button_make_backup.SetText(xlate.Get("Make Stickless Exam Server Backup"))
       button_exit.SetText(xlate.Get("Exit"))
 
+      label_box.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.Get_vagrantbox_version()))
+
       backup_window.SetTitle(xlate.Get("naksu: SaveTo"))
       backup_label.SetText(xlate.Get("Please select target path"))
       backup_button_save.SetText(xlate.Get("Save"))
@@ -287,6 +291,7 @@ func main() {
         go func () {
           buttons_disable()
           install.Do_get_server("")
+          rewrite_ui_labels()
           buttons_enable()
           progress.Set_message("")
         }()
@@ -334,6 +339,7 @@ func main() {
           go func () {
             buttons_disable()
             install.Do_get_server(path_new_vagrantfile)
+            rewrite_ui_labels()
             buttons_enable()
             progress.Set_message("")
           }()
