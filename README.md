@@ -113,6 +113,12 @@ Things to consider later:
 
 ## Changelog
 
+### 1.4.0 (31-AUG-2018)
+
+ * Show current server version
+ * Show status messages when working with vagrant/VBoxManage
+ * UI Language support (Finnish, Swedish)
+
 ### 1.3.0 (13-AUG-2018)
 
  * Restart with `x-terminal-emulator` if started via file manager (Linux)

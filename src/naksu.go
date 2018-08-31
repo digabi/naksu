@@ -23,7 +23,7 @@ import (
   "progress"
 )
 
-const version = "1.3.0"
+const version = "1.4.0"
 const low_disk_limit = 5000000 // 5 Gb
 
 var is_debug bool
