@@ -2,6 +2,7 @@ package install
 
 import (
 	"xlate"
+	"progress"
 
 	"mebroutines"
 	"fmt"
@@ -14,10 +15,12 @@ func Do_get_server(path_new_vagrantfile string) {
 	const URL_VAGRANT = "http://static.abitti.fi/usbimg/qa/vagrant/Vagrantfile"
 
 	// Create ~/ktp if missing
+	progress.Set_message_xlate("Creating ~/ktp")
 	var path_ktp = create_dir_ktp()
 	mebroutines.Message_debug(fmt.Sprintf("path_ktp is %s", path_ktp))
 
   // Create ~/ktp-jako if missing
+	progress.Set_message_xlate("Creating ~/ktp-jako")
 	var path_ktpjako = create_dir_ktpjako()
 	mebroutines.Message_debug(fmt.Sprintf("path_ktpjako is %s", path_ktpjako))
 
@@ -30,6 +33,7 @@ func Do_get_server(path_new_vagrantfile string) {
 	var path_vagrantfile = path_ktp + "/Vagrantfile"
 	if (mebroutines.ExistsFile(path_vagrantfile)) {
 		// Destroy current VM
+		progress.Set_message_xlate("Destroying existing server")
 		run_params_destroy := []string{"destroy","-f"}
 		mebroutines.Run_vagrant(run_params_destroy)
 
@@ -38,8 +42,10 @@ func Do_get_server(path_new_vagrantfile string) {
 
 	if path_new_vagrantfile == "" {
 		// Download Vagrantfile (Abitti)
+		progress.Set_message_xlate("Downloading Abitti Vagrantfile")
 		download_file(URL_VAGRANT, path_vagrantfile)
 	} else {
+		progress.Set_message_xlate("Copying Vagrantfile")
 		err := mebroutines.CopyFile(path_new_vagrantfile, path_vagrantfile)
 
 		if (err != nil) {
@@ -47,10 +53,15 @@ func Do_get_server(path_new_vagrantfile string) {
 		}
 	}
 
+	progress.Set_message_xlate("Installing/updating VM: box update")
 	run_params_update := []string{"box","update"}
 	mebroutines.Run_vagrant(run_params_update)
+
+	progress.Set_message_xlate("Installing/updating VM: box prune")
 	run_params_prune := []string{"box","prune"}
 	mebroutines.Run_vagrant(run_params_prune)
+
+	progress.Set_message_xlate("Downloading stickless server and starting it for the first time. This takes a long time...\n\nIf the server fails to start please try to start it again from the Naksu main menu.")
 	run_params_up := []string{"up"}
 	mebroutines.Run_vagrant(run_params_up)
 }

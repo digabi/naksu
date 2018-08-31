@@ -20,6 +20,7 @@ import (
   "mebroutines/start"
   "mebroutines/backup"
   "xlate"
+  "progress"
 )
 
 const version = "1.3.0"
@@ -91,6 +92,8 @@ func main() {
     button_lang_sv := ui.NewButton("På svenska")
     button_lang_en := ui.NewButton("in English")
 
+    label_status := ui.NewLabel("")
+
     group_language := ui.NewGroup("")
     group_language.SetMargined(true)
     box_language := ui.NewHorizontalBox()
@@ -123,20 +126,61 @@ func main() {
     box_matric.Append(button_make_backup, false)
     group_matric.SetChild(box_matric)
 
+    group_status := ui.NewGroup("")
+    group_status.SetMargined(true)
+    box_status := ui.NewVerticalBox()
+    box_status.SetPadded(true)
+    box_status.Append(label_status, false)
+    group_status.SetChild(box_status)
+
     box := ui.NewVerticalBox()
     box.Append(group_language, false)
     box.Append(group_common, false)
     box.Append(group_abitti, false)
     box.Append(group_matric, false)
+    box.Append(group_status, false)
 
     window := ui.NewWindow(fmt.Sprintf("naksu %s", version), 1, 1, false)
 
     mebroutines.Set_main_window(window)
+    progress.Set_label_object(label_status)
 
     // Run auto-update
     if doSelfUpdate() {
       mebroutines.Message_warning("naksu has been automatically updated. Please restart naksu.")
       os.Exit(0)
+    }
+
+    // We define enable/disable as lambda functions as Go does not have nested functions
+    // and we need these function-wide vars
+    buttons_disable := func () {
+      ui.QueueMain(func() {
+        button_lang_fi.Disable()
+        button_lang_sv.Disable()
+        button_lang_en.Disable()
+
+        button_start_server.Disable()
+        button_exit.Disable()
+
+        button_get_server.Disable()
+        button_switch_server.Disable()
+        button_make_backup.Disable()
+      })
+    }
+
+    buttons_enable := func() {
+      ui.QueueMain(func() {
+        button_lang_fi.Enable()
+        button_lang_sv.Enable()
+        button_lang_en.Enable()
+
+        button_start_server.Enable()
+        button_exit.Enable()
+
+        button_get_server.Enable()
+        button_switch_server.Enable()
+        button_make_backup.Enable()
+      })
     }
 
     window.SetMargined(true)
@@ -170,6 +214,7 @@ func main() {
       group_common.SetTitle(xlate.Get("Basic Functions"))
       group_abitti.SetTitle(xlate.Get("Abitti"))
       group_matric.SetTitle(xlate.Get("Matriculation Exam"))
+      group_status.SetTitle(xlate.Get("Status"))
 
       button_start_server.SetText(xlate.Get("Start Stickless Exam Server"))
       button_get_server.SetText(xlate.Get("Install or update Abitti Stickless Exam Server"))
@@ -207,11 +252,12 @@ func main() {
 
     // Define actions for main window
     button_start_server.OnClicked(func(*ui.Button) {
-      window.Hide()
-      ui.QueueMain(func () {
+      go func () {
+        buttons_disable()
         start.Do_start_server()
-        ui.Quit()
-      })
+        buttons_enable()
+        progress.Set_message("")
+      }()
     })
 
     button_get_server.OnClicked(func(*ui.Button) {
@@ -227,26 +273,23 @@ func main() {
 
       go func () {
         free_disk := <- ch_free_disk
-        ui.QueueMain(func () {
-          if (free_disk != -1 && free_disk < low_disk_limit) {
-            mebroutines.Message_warning("Your free disk size is getting low. If update/install process fails please consider freeing some disk space.")
-            ch_disk_low_popup <- true
-            window.Hide()
-          } else {
-            ch_disk_low_popup <- true
-            window.Hide()
-          }
-        })
+        if (free_disk != -1 && free_disk < low_disk_limit) {
+          mebroutines.Message_warning("Your free disk size is getting low. If update/install process fails please consider freeing some disk space.")
+        }
+
+        ch_disk_low_popup <- true
       }()
 
       go func () {
         // Wait until disk low popup has been processed
         <- ch_disk_low_popup
 
-        ui.QueueMain(func () {
+        go func () {
+          buttons_disable()
           install.Do_get_server("")
-          ui.Quit()
-        })
+          buttons_enable()
+          progress.Set_message("")
+        }()
       }()
     })
 
@@ -264,14 +307,11 @@ func main() {
 
       go func () {
         free_disk := <- ch_free_disk
-        ui.QueueMain(func() {
-          if (free_disk != -1 && free_disk < low_disk_limit) {
-            mebroutines.Message_warning("Your free disk size is getting low. If update/install process fails please consider freeing some disk space.")
-            ch_disk_low_popup <- true
-          } else {
-            ch_disk_low_popup <- true
-          }
-        })
+        if (free_disk != -1 && free_disk < low_disk_limit) {
+          mebroutines.Message_warning("Your free disk size is getting low. If update/install process fails please consider freeing some disk space.")
+        }
+
+        ch_disk_low_popup <- true
       }()
 
       go func () {
@@ -281,7 +321,6 @@ func main() {
         ui.QueueMain(func () {
           path_new_vagrantfile := ui.OpenFile(window)
           ch_path_new_vagrantfile <- path_new_vagrantfile
-          window.Hide()
         })
       }()
 
@@ -289,19 +328,21 @@ func main() {
         // Wait until you have path_new_vagrantfile
         path_new_vagrantfile := <- ch_path_new_vagrantfile
 
-        ui.QueueMain(func () {
-          if path_new_vagrantfile == "" {
-            mebroutines.Message_error(xlate.Get("Did not get a path for a new Vagrantfile"))
-          } else {
+        if path_new_vagrantfile == "" {
+          mebroutines.Message_error(xlate.Get("Did not get a path for a new Vagrantfile"))
+        } else {
+          go func () {
+            buttons_disable()
             install.Do_get_server(path_new_vagrantfile)
-            ui.Quit()
-          }
-        })
+            buttons_enable()
+            progress.Set_message("")
+          }()
+        }
       }()
     })
 
     button_make_backup.OnClicked(func(*ui.Button) {
-      window.Hide()
+      buttons_disable()
       backup_window.Show()
     })
 
@@ -326,31 +367,26 @@ func main() {
 
       go func () {
         free_disk := <- ch_free_disk
-        ui.QueueMain(func () {
-          if (free_disk != -1 && free_disk < low_disk_limit) {
-            mebroutines.Message_warning("Your free disk size is getting low. If backup process fails please consider freeing some disk space.")
-            ch_disk_low_popup <- true
-            backup_window.Hide()
-          } else {
-            ch_disk_low_popup <- true
-            backup_window.Hide()
-          }
-        })
+        if (free_disk != -1 && free_disk < low_disk_limit) {
+          mebroutines.Message_warning("Your free disk size is getting low. If backup process fails please consider freeing some disk space.")
+        }
+        ch_disk_low_popup <- true
       }()
 
       go func () {
         <- ch_disk_low_popup
 
-        ui.QueueMain(func () {
+        go func () {
+          backup_window.Hide()
           backup.Do_make_backup(path_backup)
-          ui.Quit()
-        })
+          buttons_enable()
+        }()
       }()
     })
 
     backup_button_cancel.OnClicked(func(*ui.Button) {
       backup_window.Hide()
-      window.Show()
+      buttons_enable()
     })
 
     window.OnClosing(func(*ui.Window) bool {
@@ -360,6 +396,7 @@ func main() {
     })
 
     window.Show()
+    buttons_enable()
     backup_window.Hide()
 
     // Make sure we have vagrant
@@ -371,6 +408,7 @@ func main() {
   	if (! mebroutines.If_found_vboxmanage()) {
   		mebroutines.Message_error(xlate.Get("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?"))
   	}
+
   })
 
   if err != nil {

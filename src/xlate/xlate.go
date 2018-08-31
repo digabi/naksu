@@ -14,6 +14,7 @@ func SetLanguage(new_language string) {
       "Basic Functions": "Perustoiminnot",
       "Abitti": "Abitti-koe",
       "Matriculation Exam": "Ylioppilaskoe",
+      "Status": "Tila",
 
       // Main window, buttons
       "Start Stickless Exam Server": "Käynnistä tikuton koetilan palvelin",
@@ -55,6 +56,7 @@ func SetLanguage(new_language string) {
       "Profile directory": "Profiilihakemisto",
 
       // install
+      "Progress: Install/update server": "Tila: Palvelimen asennus/päivitys",
       "Could not change to vagrant directory ~/ktp": "Vagrant-hakemistoon ~/ktp siirtyminen epäonnistui",
       "Error while copying new Vagrantfile: %d": "Uuden Vagrantfile-tiedoston kopiointi epäonnistui: %d",
       "Could not create ~/ktp to %s": "Hakemiston ~/ktp luominen sijaintiin %s epäonnistui",
@@ -75,13 +77,14 @@ func SetLanguage(new_language string) {
       "Basic Functions": "Grundfunktionaliteter",
       "Abitti": "Abitti-prov",
       "Matriculation Exam": "Studentprov",
+      "Status": "Status",
 
       // Main window, buttons
       "Start Stickless Exam Server": "Starta sticklös provlokalsserver",
       "Install or update Abitti Stickless Exam Server": "Installera eller uppdatera sticklös server för Abitti",
       "Install or update Stickless Matriculation Exam Server": "Installera eller uppdatera sticklös server för studentexamen",
       "Make Stickless Exam Server Backup": "Säkerhetskopiera den sticklösa servern",
-      "Exit": "SV: Poistu",
+      "Exit": "Avsluta",
 
       // Main window, other
       "Naksu update failed. Maybe you don't have network connection?\n\nError: %s": "Uppdateringen av Naksu misslyckades. Du saknar möjligtvis nätförbindelse för tillfället?\n\nFel: %s",
@@ -116,6 +119,7 @@ func SetLanguage(new_language string) {
       "Profile directory": "Profilkatalog",
 
       // install
+      "Progress: Install/update server": "SV:Tila: Palvelimen asennus/päivitys",
       "Could not change to vagrant directory ~/ktp": "Förflyttningen till Vagrant-katalogen ~/ktp misslyckades",
       "Error while copying new Vagrantfile: %d": "Kopieringen av en ny Vagrantfile-fil misslyckades: %d",
       "Could not create ~/ktp to %s": "Det gick inte att skapa katalogen ~/ktp i sökvägen %s",

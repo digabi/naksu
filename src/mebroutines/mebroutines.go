@@ -92,7 +92,7 @@ func Run_vagrant (args []string) {
     } else {
       Message_debug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(run_args, " ")))
       Message_debug(vagrant_output)
-      Message_error(fmt.Sprintf(xlate.Get("Failed to execute %s"), strings.Join(run_args, " ")))
+      Message_warning(fmt.Sprintf(xlate.Get("Failed to execute %s"), strings.Join(run_args, " ")))
     }
   }
 }
@@ -248,8 +248,10 @@ func Message_error (message string) {
 
   // Show libui box if main window has been set with Set_main_window
   if main_window != nil {
-    ui.MsgBoxError(main_window, xlate.Get("Error"), message)
-    ui.Quit()
+    ui.QueueMain(func () {
+      ui.MsgBoxError(main_window, xlate.Get("Error"), message)
+      ui.Quit()
+    })
   } else {
     os.Exit(1)
   }
@@ -260,7 +262,9 @@ func Message_warning (message string) {
 
   // Show libui box if main window has been set with Set_main_window
   if main_window != nil {
-    ui.MsgBox(main_window, xlate.Get("Warning"), message)
+    ui.QueueMain(func () {
+      ui.MsgBox(main_window, xlate.Get("Warning"), message)
+    })
   }
 }
 
@@ -269,7 +273,9 @@ func Message_info (message string) {
 
   // Show libui box if main window has been set with Set_main_window
   if main_window != nil {
-    ui.MsgBox(main_window, xlate.Get("Info"), message)
+    ui.QueueMain(func () {
+      ui.MsgBox(main_window, xlate.Get("Info"), message)
+    })
   }
 }
 

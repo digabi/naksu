@@ -2,6 +2,7 @@ package start
 
 import (
 	"mebroutines"
+	"progress"
 )
 
 func Do_start_server() {
@@ -11,6 +12,7 @@ func Do_start_server() {
 	}
 
 	// Start VM
+	progress.Set_message_xlate("Starting Exam server. This takes a while.")
 	run_params_up := []string{"up"}
 	mebroutines.Run_vagrant(run_params_up)
 }

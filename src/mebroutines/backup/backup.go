@@ -1,7 +1,6 @@
 package backup
 
 import (
-  "xlate"
 
   "os"
   "fmt"
@@ -10,14 +9,18 @@ import (
   "time"
 
   "mebroutines"
+  "progress"
+  "xlate"
 )
 
 func Do_make_backup (path_backup string) {
   // Get box
+  progress.Set_message_xlate("Getting vagrantbox ID")
   box_id := get_vagrantbox_id()
   mebroutines.Message_debug(fmt.Sprintf("Vagrantbox ID: %s", box_id))
 
   // Get disk UUID
+  progress.Set_message_xlate("Getting disk UUID")
   disk_uuid := get_disk_uuid(box_id)
   mebroutines.Message_debug(fmt.Sprintf("Disk UUID: %s", disk_uuid))
 
@@ -25,11 +28,14 @@ func Do_make_backup (path_backup string) {
   if (mebroutines.ExistsFile(path_backup)) {
     mebroutines.Message_error(fmt.Sprintf(xlate.Get("File %s already exists"), path_backup))
   }
+  progress.Set_message_xlate("Making backup. This takes a while.")
   make_clone(disk_uuid, path_backup)
 
   // Close backup media (detach it from VirtualBox disk management)
+  progress.Set_message_xlate("Detaching backup disk from disk management")
   delete_clone(path_backup)
 
+  progress.Set_message(fmt.Sprintf(xlate.Get("Backup can be found at %s"), path_backup))
   mebroutines.Message_info(fmt.Sprintf(xlate.Get("Backup has been made to %s"), path_backup))
 }
 
