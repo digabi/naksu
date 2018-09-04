@@ -178,9 +178,24 @@ func Get_vagrantbox_version () string {
     return ""
   }
 
+  if json_data["machines"] == nil {
+    return ""
+  }
   json_machines := json_data["machines"].(map[string]interface{})
+
+  if json_machines[box_index_uuid] == nil {
+    return ""
+  }
   json_our_machine := json_machines[box_index_uuid].(map[string]interface{})
+
+  if json_our_machine["extra_data"] == nil {
+    return ""
+  }
   json_extra_data := json_our_machine["extra_data"].(map[string]interface{})
+
+  if json_extra_data["box"] == nil {
+    return ""
+  }
   json_box := json_extra_data["box"].(map[string]interface{})
 
   box_string := fmt.Sprintf("%s (%s %s)", Get_vagrantbox_type(json_box["name"].(string)), json_box["name"], json_box["version"] )
