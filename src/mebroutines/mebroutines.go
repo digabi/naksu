@@ -13,6 +13,7 @@ import (
   "regexp"
   "bytes"
   "errors"
+  "time"
   "encoding/json"
 
   "github.com/andlabs/ui"
@@ -20,6 +21,7 @@ import (
 
 var is_debug bool
 var main_window *ui.Window
+var debug_filename string
 
 func Run(command_args []string) error {
 	Message_debug(fmt.Sprintf("run: %s", strings.Join(command_args, " ")))
@@ -316,6 +318,7 @@ func Set_main_window (win *ui.Window) {
 
 func Message_error (message string) {
   fmt.Printf("FATAL ERROR: %s\n\n", message)
+  append_logfile(fmt.Sprintf("FATAL ERROR: %s", message))
 
   // Show libui box if main window has been set with Set_main_window
   if main_window != nil {
@@ -330,6 +333,7 @@ func Message_error (message string) {
 
 func Message_warning (message string) {
   fmt.Printf("WARNING: %s\n", message)
+  append_logfile(fmt.Sprintf("WARNING: %s", message))
 
   // Show libui box if main window has been set with Set_main_window
   if main_window != nil {
@@ -341,6 +345,7 @@ func Message_warning (message string) {
 
 func Message_info (message string) {
   fmt.Printf("INFO: %s\n", message)
+  append_logfile(fmt.Sprintf("INFO: %s", message))
 
   // Show libui box if main window has been set with Set_main_window
   if main_window != nil {
@@ -350,8 +355,40 @@ func Message_info (message string) {
   }
 }
 
+func append_logfile (message string) {
+  if (debug_filename != "") {
+    // Append only if the logfile has been set
+
+    // Current timestamp
+    t := time.Now()
+
+    f, err := os.OpenFile(debug_filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0660);
+    if (err != nil) {
+      panic(fmt.Sprintf("Could not append to log file %s: %s", debug_filename, err))
+    }
+
+    defer f.Close()
+
+    _, _ = f.WriteString(fmt.Sprintf("[%s] %s\n", t.Format("2006-01-02 15:04:05"), message))
+    f.Sync()
+    f.Close()
+  }
+}
+
 func Set_debug (new_value bool) {
   is_debug = new_value
+}
+
+func Set_debug_filename (new_filename string) {
+  debug_filename = new_filename
+
+  if debug_filename != "" && ExistsFile(debug_filename) {
+    // Re-create the log file
+    err := os.Remove(debug_filename)
+    if (err != nil) {
+      panic(fmt.Sprintf("Could not open log file %s: %s", debug_filename, err))
+    }
+  }
 }
 
 func Is_debug () bool {
@@ -362,4 +399,6 @@ func Message_debug (message string) {
   if (Is_debug()) {
     fmt.Printf("DEBUG: %s\n", message)
   }
+
+  append_logfile(fmt.Sprintf("DEBUG: %s", message))
 }

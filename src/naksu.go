@@ -61,6 +61,14 @@ func main() {
 
   mebroutines.Set_debug(is_debug)
 
+  // Determine/set path for debug log
+  log_path := mebroutines.Get_vagrant_directory()
+  if mebroutines.ExistsDir(log_path) {
+    mebroutines.Set_debug_filename(log_path + "/naksu_lastlog.txt")
+  } else {
+    mebroutines.Set_debug_filename(os.TempDir() + "/naksu_lastlog.txt")
+  }
+
   // Check whether we have a terminal (restart with x-terminal-emulator, if missing)
   if (! mebroutines.ExistsStdin()) {
     path_to_me, _ := osext.Executable()
