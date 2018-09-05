@@ -98,7 +98,7 @@ func main() {
 
     button_lang_fi := ui.NewButton("Suomeksi")
     button_lang_sv := ui.NewButton("På svenska")
-    button_lang_en := ui.NewButton("in English")
+    button_lang_en := ui.NewButton("In English")
 
     label_box := ui.NewLabel("")
     label_status := ui.NewLabel("")
