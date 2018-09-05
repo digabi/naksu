@@ -88,11 +88,15 @@ func Run_vagrant (args []string) {
   run_args := append(vagrantpath_arr, args...)
   vagrant_output,err := Run_get_error(run_args)
   if (err != nil) {
-    matched,err_re := regexp.MatchString("Timed out while waiting for the machine to boot", vagrant_output)
-    if err_re == nil && matched {
+    matched_timeout,err_timeout := regexp.MatchString("Timed out while waiting for the machine to boot", vagrant_output)
+    matched_macaddress,err_macaddress := regexp.MatchString("error: --macaddress: RTGetOpt: Command line option needs argument", vagrant_output)
+    if err_timeout == nil && matched_timeout {
       // We've obviously started the VM
       Message_debug("Running vagrant gives me timeout - things are probably ok, complete output:")
       Message_debug(vagrant_output)
+    } else if err_macaddress == nil && matched_macaddress {
+      // Vagrant in Windows host give this error message - just restart vagrant and you're good
+      Message_info(xlate.Get("Server failed to start. This is typical in Windows after an update. Please try again."))
     } else {
       Message_debug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(run_args, " ")))
       Message_debug(vagrant_output)
