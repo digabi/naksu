@@ -113,6 +113,12 @@ Things to consider later:
 
 ## Changelog
 
+### 1.4.1 (05-SEP-2018)
+
+ * Always create debug file to `~ktp/naksu_lastlog.txt` or `TEMP/naksu_lastlog.txt`
+ * Give more informative error message when vagrant exits with `--macaddress` error message
+ * Bugfix: get Linux temporary path from `TempDir()` instead of `TEMP` env var
+
 ### 1.4.0 (31-AUG-2018)
 
  * Show current server version
