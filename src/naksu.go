@@ -423,6 +423,11 @@ func main() {
   		mebroutines.Message_error(xlate.Get("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?"))
   	}
 
+    // Check if home directory contains non-american characters which may cause problems to vagrant
+    if (mebroutines.If_intl_chars_in_path(mebroutines.Get_home_directory())) {
+      mebroutines.Message_warning(fmt.Sprintf(xlate.Get("Your home directory path (%s) contains characters which may cause problems to Vagrant."), mebroutines.Get_home_directory()))
+    }
+
   })
 
   if err != nil {

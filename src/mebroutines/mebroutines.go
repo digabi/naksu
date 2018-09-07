@@ -296,6 +296,15 @@ func CopyFile (src, dst string) (err error) {
   return
 }
 
+func If_intl_chars_in_path (path string) bool {
+  matched,err := regexp.MatchString("[^a-zA-Z0-9_\\-\\/\\: ]", path)
+  if err == nil && matched {
+    return true
+  }
+
+  return false
+}
+
 func Get_home_directory () string {
   home_win := os.Getenv("HOMEDRIVE")+os.Getenv("HOMEPATH")
   if (home_win != "") {
