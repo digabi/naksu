@@ -96,7 +96,7 @@ func SetLanguage(new_language string) {
       "Did not get a path for a new Vagrantfile": "Ge sökvägen för den nya Vagrantfile-filen",
       "Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?": "Utförandet av programmet Vagrant misslyckades. Är du säker, att HashiCorp Vagrant har installerats på datorn?",
       "Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?": "Utförandet av programmet VBoxManage misslyckades. Är du säker, att Oracle VirtualBox har installerats på datorn?",
-      "Your home directory path (%s) contains characters which may cause problems to Vagrant.": "SV:Kotihakemistosi (%s) polku sisältää merkkejä, jotka voivat aiheuttaa ongelmia Vagrantille.",
+      "Your home directory path (%s) contains characters which may cause problems to Vagrant.": "Sökvägen till din hemkatalog (%s) innehåller tecken, som orsakar problem för Vagrant.",
 
       // Backup dialog
       "naksu: SaveTo": "naksu: Spara till ",
