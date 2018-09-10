@@ -341,8 +341,13 @@ func main() {
         // Wait until you have path_new_vagrantfile
         path_new_vagrantfile := <- ch_path_new_vagrantfile
 
+        // Path to ~/ktp/Vagrantfile
+        path_the_vagrantfile := mebroutines.Get_vagrant_directory()+string(os.PathSeparator)+"Vagrantfile"
+
         if path_new_vagrantfile == "" {
           mebroutines.Message_error(xlate.Get("Did not get a path for a new Vagrantfile"))
+        } else if path_new_vagrantfile == path_the_vagrantfile {
+          mebroutines.Message_error(xlate.Get("Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)"))
         } else {
           go func () {
             buttons_disable()
