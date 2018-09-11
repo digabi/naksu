@@ -85,10 +85,10 @@ func SetLanguage(new_language string) {
       "Status": "Status",
 
       // Main window, buttons
-      "Start Stickless Exam Server": "Starta sticklös provlokalsserver",
-      "Install or update Abitti Stickless Exam Server": "Installera eller uppdatera sticklös server för Abitti",
-      "Install or update Stickless Matriculation Exam Server": "Installera eller uppdatera sticklös server för studentexamen",
-      "Make Stickless Exam Server Backup": "Säkerhetskopiera den sticklösa servern",
+      "Start Stickless Exam Server": "Starta virtuell provlokalsserver",
+      "Install or update Abitti Stickless Exam Server": "Installera eller uppdatera virtuell server för Abitti",
+      "Install or update Stickless Matriculation Exam Server": "Installera eller uppdatera virtuell server för studentexamen",
+      "Make Stickless Exam Server Backup": "Säkerhetskopiera den virtuella servern",
       "Exit": "Stäng",
 
       // Main window, other
