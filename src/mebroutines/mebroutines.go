@@ -96,7 +96,7 @@ func Run_vagrant (args []string) {
       Message_debug(vagrant_output)
     } else if err_macaddress == nil && matched_macaddress {
       // Vagrant in Windows host give this error message - just restart vagrant and you're good
-      Message_info(xlate.Get("Server failed to start. This is typical in Windows after an update. Please try again."))
+      Message_info(xlate.Get("Server failed to start. This is typical in Windows after an update. Please try again to start the server."))
     } else {
       Message_debug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(run_args, " ")))
       Message_debug(vagrant_output)
