@@ -297,7 +297,7 @@ func CopyFile (src, dst string) (err error) {
 }
 
 func If_intl_chars_in_path (path string) bool {
-  matched,err := regexp.MatchString("[^a-zA-Z0-9_\\-\\/\\: ]", path)
+  matched,err := regexp.MatchString("[^a-zA-Z0-9_\\-\\/\\:\\\\ ]", path)
   if err == nil && matched {
     return true
   }
