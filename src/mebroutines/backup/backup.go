@@ -7,6 +7,7 @@ import (
   "io/ioutil"
   "regexp"
   "time"
+  "errors"
 
   "mebroutines"
   "progress"
@@ -14,6 +15,21 @@ import (
 )
 
 func Do_make_backup (path_backup string) {
+  progress.Set_message_xlate("Check that there is no existing backup file")
+  if (mebroutines.ExistsFile(path_backup)) {
+    mebroutines.Message_error(fmt.Sprintf(xlate.Get("File %s already exists"), path_backup))
+  }
+
+  // Check if path_backup is writeable
+  progress.Set_message_xlate("Check that backup path is writeable")
+  wr_err := mebroutines.CreateFile(path_backup)
+  if wr_err != nil {
+    mebroutines.Message_warning(fmt.Sprintf(xlate.Get("Could not write backup file %s. Try another location."), path_backup))
+    return
+  } else {
+    _ = os.Remove(path_backup)
+  }
+
   // Get box
   progress.Set_message_xlate("Getting vagrantbox ID")
   box_id := get_vagrantbox_id()
@@ -25,11 +41,12 @@ func Do_make_backup (path_backup string) {
   mebroutines.Message_debug(fmt.Sprintf("Disk UUID: %s", disk_uuid))
 
   // Make clone to path_backup
-  if (mebroutines.ExistsFile(path_backup)) {
-    mebroutines.Message_error(fmt.Sprintf(xlate.Get("File %s already exists"), path_backup))
-  }
   progress.Set_message_xlate("Making backup. This takes a while.")
-  make_clone(disk_uuid, path_backup)
+  clone_err := make_clone(disk_uuid, path_backup)
+  if clone_err != nil {
+    progress.Set_message_xlate("Backup failed.")
+    return
+  }
 
   // Close backup media (detach it from VirtualBox disk management)
   progress.Set_message_xlate("Detaching backup disk from disk management")
@@ -70,7 +87,7 @@ func get_disk_uuid(box_id string) string {
   return ""
 }
 
-func make_clone(disk_uuid string, path_backup string) {
+func make_clone(disk_uuid string, path_backup string) error {
   vboxmanage_output := mebroutines.Run_vboxmanage([]string{"clonemedium", disk_uuid, path_backup})
 
   // Check whether clone was successful or not
@@ -78,7 +95,10 @@ func make_clone(disk_uuid string, path_backup string) {
   if err_re != nil || !matched {
     // Failure
     mebroutines.Message_error(fmt.Sprintf(xlate.Get("Could not back up disk %s to %s"), disk_uuid, path_backup))
+    return errors.New("Backup failed")
   }
+
+  return nil
 }
 
 func delete_clone(path_backup string) {

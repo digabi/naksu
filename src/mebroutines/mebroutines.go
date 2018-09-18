@@ -269,6 +269,12 @@ func CreateDir (path string) error {
   return err
 }
 
+func CreateFile (path string) error {
+  f, err := os.Create(path)
+  defer f.Close()
+  return err
+}
+
 func CopyFile (src, dst string) (err error) {
   if ! ExistsFile(src) {
     return errors.New("Could not find source file")

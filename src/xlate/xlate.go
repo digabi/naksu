@@ -55,6 +55,8 @@ func SetLanguage(new_language string) {
       "Could not get vagrantbox ID: %d": "Vagrantboxin ID:tä ei voitu lukea: %d",
       "Could not make backup: failed to get disk UUID": "Varmuuskopion ottaminen epäonnistui: levyn UUID:tä ei löytynyt",
       "Could not back up disk %s to %s": "Varmuuskopion ottaminen levystä %s tiedostoon %s epäonnistui",
+      "Could not write backup file %s. Try another location.": "Varmuuskopion kirjoittaminen tiedostoon %s epäonnistui. Kokeile toista tallennuspaikkaa.",
+      "Backup failed.": "Varmuuskopiointi epäonnistui.",
 
       // backup, getmediapath
       "Home directory": "Kotihakemisto",
@@ -124,6 +126,8 @@ func SetLanguage(new_language string) {
       "Could not get vagrantbox ID: %d": "Det gick inte att läsa ID:n på Vagrantboxen: %d",
       "Could not make backup: failed to get disk UUID": "Säkerhetskopieringen misslyckades: skivans UUID hittades inte",
       "Could not back up disk %s to %s": "Säkerhetskopieringen av skivan %s i filen %s misslyckades",
+      "Could not write backup file %s. Try another location.": "SV:Varmuuskopion kirjoittaminen tiedostoon %s epäonnistui. Kokeile toista tallennuspaikkaa.",
+      "Backup failed.": "SV:Varmuuskopiointi epäonnistui.",
 
       // backup, getmediapath
       "Home directory": "Hemkatalog",
