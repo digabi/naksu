@@ -101,7 +101,7 @@ func SetLanguage(new_language string) {
       "Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?": "Utförandet av programmet Vagrant misslyckades. Är du säker, att HashiCorp Vagrant har installerats på datorn?",
       "Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?": "Utförandet av programmet VBoxManage misslyckades. Är du säker, att Oracle VirtualBox har installerats på datorn?",
       "Your home directory path (%s) contains characters which may cause problems to Vagrant.": "Sökvägen till din hemkatalog (%s) innehåller tecken, som orsakar problem för Vagrant.",
-      "Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)": "SV:Sijoita yo-kokeen Vagrantfile johonkin toiseen paikkaan (esim. työpöydälle tai kotihakemistoon)",
+      "Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)": "Placera Vagrantfile-filen för studentexamen på ett annat ställe (t.ex. på skrivbordet eller i hemkatalogen).",
 
       // Backup dialog
       "naksu: SaveTo": "naksu: Spara till ",
@@ -126,8 +126,8 @@ func SetLanguage(new_language string) {
       "Could not get vagrantbox ID: %d": "Det gick inte att läsa ID:n på Vagrantboxen: %d",
       "Could not make backup: failed to get disk UUID": "Säkerhetskopieringen misslyckades: skivans UUID hittades inte",
       "Could not back up disk %s to %s": "Säkerhetskopieringen av skivan %s i filen %s misslyckades",
-      "Could not write backup file %s. Try another location.": "SV:Varmuuskopion kirjoittaminen tiedostoon %s epäonnistui. Kokeile toista tallennuspaikkaa.",
-      "Backup failed.": "SV:Varmuuskopiointi epäonnistui.",
+      "Could not write backup file %s. Try another location.": "Det gick inte att säkerhetskopiera till filen %s. Pröva att spara filen på ett annat ställe.",
+      "Backup failed.": "Säkerhetskopieringen misslyckades.",
 
       // backup, getmediapath
       "Home directory": "Hemkatalog",
