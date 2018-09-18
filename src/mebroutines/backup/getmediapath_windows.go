@@ -18,6 +18,11 @@ func Get_backup_media () map[string]string {
   }
   if (os.Getenv("USERPROFILE") != "") {
     media[os.Getenv("USERPROFILE")] = xlate.Get("Profile directory")
+
+    desktop_path := os.Getenv("USERPROFILE") + string(os.PathSeparator) + "Desktop"
+    if mebroutines.ExistsDir(desktop_path) {
+      media[desktop_path] = xlate.Get("Desktop")
+    }
   }
 
   return media

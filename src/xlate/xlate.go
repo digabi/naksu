@@ -60,6 +60,7 @@ func SetLanguage(new_language string) {
       "Home directory": "Kotihakemisto",
       "Temporary files": "Tilapäishakemisto",
       "Profile directory": "Profiilihakemisto",
+      "Desktop": "Työpöytä",
 
       // install
       "Could not change to vagrant directory ~/ktp": "Vagrant-hakemistoon ~/ktp siirtyminen epäonnistui",
@@ -128,6 +129,7 @@ func SetLanguage(new_language string) {
       "Home directory": "Hemkatalog",
       "Temporary files": "Tillfällig katalog",
       "Profile directory": "Profilkatalog",
+      "Desktop": "Skrivbord",
 
       // install
       "Could not change to vagrant directory ~/ktp": "Förflyttningen till Vagrant-katalogen ~/ktp misslyckades",

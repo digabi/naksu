@@ -16,6 +16,18 @@ func Get_backup_media () map[string]string {
   // Add some entries from environment variables
   if (os.Getenv("HOME") != "") {
     media[os.Getenv("HOME")] = xlate.Get("Home directory")
+
+    // Try ~/Desktop
+    desktop_path := os.Getenv("HOME") + string(os.PathSeparator) + "Desktop"
+    if mebroutines.ExistsDir(desktop_path) {
+      media[desktop_path] = xlate.Get("Desktop")
+    }
+
+    // Try ~/desktop
+    desktop_path = os.Getenv("HOME") + string(os.PathSeparator) + "desktop"
+    if mebroutines.ExistsDir(desktop_path) {
+      media[desktop_path] = xlate.Get("Desktop")
+    }
   }
   if (os.TempDir() != "") {
     media[os.TempDir()] = xlate.Get("Temporary files")
