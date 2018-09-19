@@ -38,6 +38,9 @@ update_libs:
 	GOOS=windows GOPATH=$(current_dir)/ $(GO) get github.com/StackExchange/wmi
 	GOPATH=$(current_dir)/ $(GO) get golang.org/x/text/encoding/charmap
 
+clean:
+	rm -f bin/naksu bin/naksu.exe
+
 phony_get-server:
 	VAGRANTPATH=phony-scripts/vagrant VBOXMANAGEPATH=phony-scripts/VBoxManage bin/get-server
 
