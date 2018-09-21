@@ -65,6 +65,7 @@ func SetLanguage(new_language string) {
       "Desktop": "Työpöytä",
 
       // install
+      "Could not update Abitti stickless server. Please check your network connection.": "Tikuttoman Abitti-palvelimen päivitys epäonnistui. Tarkista verkkoyhteytesi.",
       "Could not change to vagrant directory ~/ktp": "Vagrant-hakemistoon ~/ktp siirtyminen epäonnistui",
       "Error while copying new Vagrantfile: %d": "Uuden Vagrantfile-tiedoston kopiointi epäonnistui: %d",
       "Could not create ~/ktp to %s": "Hakemiston ~/ktp luominen sijaintiin %s epäonnistui",
@@ -136,6 +137,7 @@ func SetLanguage(new_language string) {
       "Desktop": "Skrivbord",
 
       // install
+      "Could not update Abitti stickless server. Please check your network connection.": "SV:Tikuttoman Abitti-palvelimen päivitys epäonnistui. Tarkista verkkoyhteytesi.",
       "Could not change to vagrant directory ~/ktp": "Förflyttningen till Vagrant-katalogen ~/ktp misslyckades",
       "Error while copying new Vagrantfile: %d": "Kopieringen av en ny Vagrantfile-fil misslyckades: %d",
       "Could not create ~/ktp to %s": "Det gick inte att skapa katalogen ~/ktp i sökvägen %s",

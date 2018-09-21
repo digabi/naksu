@@ -276,17 +276,22 @@ func CreateFile (path string) error {
 }
 
 func CopyFile (src, dst string) (err error) {
+  Message_debug(fmt.Sprintf("Copying file %s to %s", src, dst))
+
   if ! ExistsFile(src) {
+    Message_debug("Copying failed, could not find source file")
     return errors.New("Could not find source file")
   }
 
   in, err := os.Open(src)
   if err != nil {
+    Message_debug(fmt.Sprintf("Copying failed while opening source file: %v", err))
     return
   }
   defer in.Close()
   out, err := os.Create(dst)
   if err != nil {
+    Message_debug(fmt.Sprintf("Copying failed while opening destination file: %v", err))
     return
   }
   defer func() {
