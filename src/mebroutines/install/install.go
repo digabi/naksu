@@ -129,3 +129,16 @@ func download_file (url string, filepath string) {
 
 	mebroutines.Message_debug(fmt.Sprintf("Finished download from URL %s to file %s", url, filepath))
 }
+
+func If_http_get (url string) bool {
+	resp, err := http.Get(url)
+	if err != nil {
+		mebroutines.Message_debug(fmt.Sprintf("Testing HTTP GET %s and got error %v", url, err.Error()))
+		return false
+	}
+	defer resp.Body.Close()
+
+	mebroutines.Message_debug(fmt.Sprintf("Testing HTTP GET %s succeeded", url))
+
+	return true
+}

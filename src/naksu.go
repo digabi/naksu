@@ -25,6 +25,8 @@ import (
 
 const version = "1.4.1"
 const low_disk_limit = 5000000 // 5 Gb
+// Test URL for checking network connection
+const URL_TEST = "http://static.abitti.fi/usbimg/qa/latest.txt"
 
 var is_debug bool
 
@@ -161,37 +163,74 @@ func main() {
       os.Exit(0)
     }
 
-    // We define enable/disable as lambda functions as Go does not have nested functions
-    // and we need these function-wide vars
-    buttons_disable := func () {
-      ui.QueueMain(func() {
-        button_lang_fi.Disable()
-        button_lang_sv.Disable()
-        button_lang_en.Disable()
+    // Define command channel & goroutine for disabling/enabling main UI buttons
+    main_ui_status := make(chan string)
+    main_ui_netupdate := time.NewTicker(5 * time.Second)
+    go func() {
+      last_status := ""
+      for {
+        select {
+        case <- main_ui_netupdate.C:
+          if last_status == "enable" {
+            // Require network connection for install/update
+            if install.If_http_get(URL_TEST) {
+              button_get_server.Enable()
+              button_switch_server.Enable()
+            } else {
+              button_get_server.Disable()
+              button_switch_server.Disable()
+            }
+          }
+        case new_status := <- main_ui_status:
+          mebroutines.Message_debug(fmt.Sprintf("main_ui_status: %s", new_status))
+          // Got new status
+          if new_status == "enable" {
+            mebroutines.Message_debug("enable ui")
 
-        button_start_server.Disable()
-        button_exit.Disable()
+            ui.QueueMain(func() {
+              button_lang_fi.Enable()
+              button_lang_sv.Enable()
+              button_lang_en.Enable()
 
-        button_get_server.Disable()
-        button_switch_server.Disable()
-        button_make_backup.Disable()
-      })
-    }
+              button_start_server.Enable()
+              button_exit.Enable()
 
-    buttons_enable := func() {
-      ui.QueueMain(func() {
-        button_lang_fi.Enable()
-        button_lang_sv.Enable()
-        button_lang_en.Enable()
+              // Require network connection for install/update
+              if install.If_http_get(URL_TEST) {
+                button_get_server.Enable()
+                button_switch_server.Enable()
+              } else {
+                button_get_server.Disable()
+                button_switch_server.Disable()
+              }
+              button_make_backup.Enable()
+            })
 
-        button_start_server.Enable()
-        button_exit.Enable()
+            last_status = new_status
+          }
+          if new_status == "disable" {
+            mebroutines.Message_debug("disable ui")
 
-        button_get_server.Enable()
-        button_switch_server.Enable()
-        button_make_backup.Enable()
-      })
-    }
+            ui.QueueMain(func () {
+              button_lang_fi.Disable()
+              button_lang_sv.Disable()
+              button_lang_en.Disable()
+
+              button_start_server.Disable()
+              button_exit.Disable()
+
+              button_get_server.Disable()
+              button_switch_server.Disable()
+              button_make_backup.Disable()
+            })
+
+            last_status = new_status
+          }
+        }
+      }
+    }()
+
+    main_ui_status <- "enable"
 
     window.SetMargined(true)
 		window.SetChild(box)
@@ -265,9 +304,9 @@ func main() {
     // Define actions for main window
     button_start_server.OnClicked(func(*ui.Button) {
       go func () {
-        buttons_disable()
+        main_ui_status <- "disable"
         start.Do_start_server()
-        buttons_enable()
+        main_ui_status <- "enable"
         progress.Set_message("")
       }()
     })
@@ -297,10 +336,10 @@ func main() {
         <- ch_disk_low_popup
 
         go func () {
-          buttons_disable()
+          main_ui_status <- "disable"
           install.Do_get_server("")
           rewrite_ui_labels()
-          buttons_enable()
+          main_ui_status <- "enable"
           progress.Set_message("")
         }()
       }()
@@ -350,10 +389,10 @@ func main() {
           mebroutines.Message_error(xlate.Get("Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)"))
         } else {
           go func () {
-            buttons_disable()
+            main_ui_status <- "disable"
             install.Do_get_server(path_new_vagrantfile)
             rewrite_ui_labels()
-            buttons_enable()
+            main_ui_status <- "enable"
             progress.Set_message("")
           }()
         }
@@ -361,7 +400,7 @@ func main() {
     })
 
     button_make_backup.OnClicked(func(*ui.Button) {
-      buttons_disable()
+      main_ui_status <- "disable"
       backup_window.Show()
     })
 
@@ -398,14 +437,14 @@ func main() {
         go func () {
           backup_window.Hide()
           backup.Do_make_backup(path_backup)
-          buttons_enable()
+          main_ui_status <- "enable"
         }()
       }()
     })
 
     backup_button_cancel.OnClicked(func(*ui.Button) {
       backup_window.Hide()
-      buttons_enable()
+      main_ui_status <- "enable"
     })
 
     window.OnClosing(func(*ui.Window) bool {
@@ -415,7 +454,7 @@ func main() {
     })
 
     window.Show()
-    buttons_enable()
+    main_ui_status <- "enable"
     backup_window.Hide()
 
     // Make sure we have vagrant
