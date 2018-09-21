@@ -173,13 +173,16 @@ func main() {
         case <- main_ui_netupdate.C:
           if last_status == "enable" {
             // Require network connection for install/update
-            if install.If_http_get(URL_TEST) {
-              button_get_server.Enable()
-              button_switch_server.Enable()
-            } else {
-              button_get_server.Disable()
-              button_switch_server.Disable()
-            }
+
+            ui.QueueMain(func () {
+              if install.If_http_get(URL_TEST) {
+                button_get_server.Enable()
+                button_switch_server.Enable()
+              } else {
+                button_get_server.Disable()
+                button_switch_server.Disable()
+              }
+            })
           }
         case new_status := <- main_ui_status:
           mebroutines.Message_debug(fmt.Sprintf("main_ui_status: %s", new_status))
