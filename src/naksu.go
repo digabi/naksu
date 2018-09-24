@@ -323,7 +323,12 @@ func main() {
       // Check free disk
       // Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
       go func () {
-        free_disk,_ := mebroutines.Get_disk_free(mebroutines.Get_vagrant_directory())
+        free_disk := 0
+        if mebroutines.ExistsDir(mebroutines.Get_vagrant_directory()) {
+          free_disk,_ = mebroutines.Get_disk_free(mebroutines.Get_vagrant_directory())
+        } else {
+          free_disk,_ = mebroutines.Get_disk_free(mebroutines.Get_home_directory())
+        }
         ch_free_disk <- free_disk
       }()
 
@@ -358,7 +363,12 @@ func main() {
       // Check free disk
       // Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
       go func () {
-        free_disk,_ := mebroutines.Get_disk_free(mebroutines.Get_vagrant_directory())
+        free_disk := 0
+        if mebroutines.ExistsDir(mebroutines.Get_vagrant_directory()) {
+          free_disk,_ = mebroutines.Get_disk_free(mebroutines.Get_vagrant_directory())
+        } else {
+          free_disk,_ = mebroutines.Get_disk_free(mebroutines.Get_home_directory())
+        }
         ch_free_disk <- free_disk
       }()
 
