@@ -71,6 +71,8 @@ func main() {
     mebroutines.Set_debug_filename(os.TempDir() + "/naksu_lastlog.txt")
   }
 
+  mebroutines.Message_debug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
+
   // Check whether we have a terminal (restart with x-terminal-emulator, if missing)
   if (! mebroutines.ExistsStdin()) {
     path_to_me, _ := osext.Executable()
