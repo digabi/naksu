@@ -9,18 +9,14 @@ func SetLanguage(new_language string) {
 
   if current_language == "fi" {
     xlate_strings = map[string]string {
-      // Main window, groups
-      "Language": "Kieli",
-      "Basic Functions": "Perustoiminnot",
-      "Abitti": "Abitti-koe",
-      "Matriculation Exam": "Ylioppilaskoe",
-      "Status": "Tila",
-
       // Main window, buttons
       "Install or update Abitti Stickless Exam Server": "Asenna tai päivitä Abitin tikuton palvelin",
       "Install or update Stickless Matriculation Exam Server": "Asenna tai päivitä yo-kokeen tikuton palvelin",
       "Make Stickless Exam Server Backup": "Tee tikuttomasta palvelimesta varmuuskopio",
       "Exit": "Poistu",
+
+      // Main window, checkboxes
+      "Show management features": "Näytä hallintaominaisuudet",
 
       // Main window, other
       "Current version: %s": "Asennettu versio: %s",
@@ -81,19 +77,15 @@ func SetLanguage(new_language string) {
     }
   } else if current_language == "sv" {
     xlate_strings = map[string]string {
-      // Main window, groups
-      "Language": "Språk",
-      "Basic Functions": "Grundfunktionaliteter",
-      "Abitti": "Abitti-prov",
-      "Matriculation Exam": "Studentprov",
-      "Status": "Status",
-
       // Main window, buttons
       "Start Stickless Exam Server": "Starta virtuell provlokalsserver",
       "Install or update Abitti Stickless Exam Server": "Installera eller uppdatera virtuell server för Abitti",
       "Install or update Stickless Matriculation Exam Server": "Installera eller uppdatera virtuell server för studentexamen",
       "Make Stickless Exam Server Backup": "Säkerhetskopiera den virtuella servern",
       "Exit": "Stäng",
+
+      // Main window, checkboxes
+      "Show management features": "SV:Näytä hallintaominaisuudet",
 
       // Main window, other
       "Current version: %s": "Installerad version: %s",

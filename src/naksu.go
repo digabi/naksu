@@ -100,59 +100,40 @@ func main() {
     button_make_backup := ui.NewButton("Make Stickless Exam Server Backup")
     button_exit := ui.NewButton("Exit")
 
-    button_lang_fi := ui.NewButton("Suomeksi")
-    button_lang_sv := ui.NewButton("På svenska")
-    button_lang_en := ui.NewButton("In English")
+    combobox_lang := ui.NewCombobox()
+    combobox_lang.Append("Suomeksi")
+    combobox_lang.Append("På svenska")
+    combobox_lang.Append("In English")
+    combobox_lang.SetSelected(0)
 
     label_box := ui.NewLabel("")
     label_status := ui.NewLabel("")
 
-    group_language := ui.NewGroup("")
-    group_language.SetMargined(true)
-    box_language := ui.NewHorizontalBox()
-    box_language.SetPadded(true)
-    box_language.Append(button_lang_fi, true)
-    box_language.Append(button_lang_sv, true)
-    box_language.Append(button_lang_en, true)
-    group_language.SetChild(box_language)
+    checkbox_advanced := ui.NewCheckbox("")
 
-    group_common := ui.NewGroup("")
-    group_common.SetMargined(true)
-    box_common := ui.NewVerticalBox()
-    box_common.SetPadded(true)
-    box_common.Append(label_box, false)
-    box_common.Append(button_start_server, false)
-    box_common.Append(button_exit, false)
-    group_common.SetChild(box_common)
+    // Box version and language selection dropdown
+    box_basic_upper := ui.NewHorizontalBox()
+    box_basic_upper.SetPadded(true)
+    box_basic_upper.Append(label_box, true)
+    box_basic_upper.Append(combobox_lang, false)
 
-    group_abitti := ui.NewGroup("")
-    group_abitti.SetMargined(true)
-    box_abitti := ui.NewVerticalBox()
-    box_abitti.SetPadded(true)
-    box_abitti.Append(button_get_server, false)
-    group_abitti.SetChild(box_abitti)
+    box_basic := ui.NewVerticalBox()
+    box_basic.SetPadded(true)
+    box_basic.Append(box_basic_upper, true)
+    box_basic.Append(label_status, true)
+    box_basic.Append(button_start_server, true)
+    box_basic.Append(button_exit, true)
+    box_basic.Append(checkbox_advanced, true)
 
-    group_matric := ui.NewGroup("")
-    group_matric.SetMargined(true)
-    box_matric := ui.NewVerticalBox()
-    box_matric.SetPadded(true)
-    box_matric.Append(button_switch_server, false)
-    box_matric.Append(button_make_backup, false)
-    group_matric.SetChild(box_matric)
-
-    group_status := ui.NewGroup("")
-    group_status.SetMargined(true)
-    box_status := ui.NewVerticalBox()
-    box_status.SetPadded(true)
-    box_status.Append(label_status, false)
-    group_status.SetChild(box_status)
+    box_advanced := ui.NewVerticalBox()
+    box_advanced.SetPadded(true)
+    box_advanced.Append(button_get_server, true)
+    box_advanced.Append(button_switch_server, true)
+    box_advanced.Append(button_make_backup, true)
 
     box := ui.NewVerticalBox()
-    box.Append(group_language, false)
-    box.Append(group_common, false)
-    box.Append(group_abitti, false)
-    box.Append(group_matric, false)
-    box.Append(group_status, false)
+    box.Append(box_basic, false)
+    box.Append(box_advanced, false)
 
     window := ui.NewWindow(fmt.Sprintf("naksu %s", version), 1, 1, false)
 
@@ -193,9 +174,7 @@ func main() {
             mebroutines.Message_debug("enable ui")
 
             ui.QueueMain(func() {
-              button_lang_fi.Enable()
-              button_lang_sv.Enable()
-              button_lang_en.Enable()
+              combobox_lang.Enable()
 
               button_start_server.Enable()
               button_exit.Enable()
@@ -217,9 +196,7 @@ func main() {
             mebroutines.Message_debug("disable ui")
 
             ui.QueueMain(func () {
-              button_lang_fi.Disable()
-              button_lang_sv.Disable()
-              button_lang_en.Disable()
+              combobox_lang.Disable()
 
               button_start_server.Disable()
               button_exit.Disable()
@@ -239,6 +216,9 @@ func main() {
 
     window.SetMargined(true)
 		window.SetChild(box)
+
+    // Advanced group is hidden by default
+    box_advanced.Hide()
 
     // Define Backup SaveAs window/dialog
     backup_label := ui.NewLabel("Please select target path")
@@ -264,12 +244,6 @@ func main() {
 
     // (Re)write UI labels
     rewrite_ui_labels := func () {
-      group_language.SetTitle(xlate.Get("Language"))
-      group_common.SetTitle(xlate.Get("Basic Functions"))
-      group_abitti.SetTitle(xlate.Get("Abitti"))
-      group_matric.SetTitle(xlate.Get("Matriculation Exam"))
-      group_status.SetTitle(xlate.Get("Status"))
-
       button_start_server.SetText(xlate.Get("Start Stickless Exam Server"))
       button_get_server.SetText(xlate.Get("Install or update Abitti Stickless Exam Server"))
       button_switch_server.SetText(xlate.Get("Install or update Stickless Matriculation Exam Server"))
@@ -277,6 +251,8 @@ func main() {
       button_exit.SetText(xlate.Get("Exit"))
 
       label_box.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.Get_vagrantbox_version()))
+
+      checkbox_advanced.SetText(xlate.Get("Show management features"))
 
       backup_window.SetTitle(xlate.Get("naksu: SaveTo"))
       backup_label.SetText(xlate.Get("Please select target path"))
@@ -287,23 +263,27 @@ func main() {
     // Set UI labels with default language
     rewrite_ui_labels()
 
-    // Define language selection buttons for main window
-    button_lang_fi.OnClicked(func(*ui.Button) {
-      xlate.SetLanguage("fi")
-      // Note: We don't recreate backup_media_path
+    // Define language selection action main window
+    combobox_lang.OnSelected(func(*ui.Combobox) {
+      switch combobox_lang.Selected() {
+      case 0: xlate.SetLanguage("fi")
+      case 1: xlate.SetLanguage("sv")
+      case 2: xlate.SetLanguage("en")
+      }
+
       rewrite_ui_labels()
     })
 
-    button_lang_sv.OnClicked(func(*ui.Button) {
-      xlate.SetLanguage("sv")
-      // Note: We don't recreate backup_media_path
-      rewrite_ui_labels()
-    })
-
-    button_lang_en.OnClicked(func(*ui.Button) {
-      xlate.SetLanguage("en")
-      // Note: We don't recreate backup_media_path
-      rewrite_ui_labels()
+    // Show/hide advanced features
+    checkbox_advanced.OnToggled(func(*ui.Checkbox) {
+      switch checkbox_advanced.Checked() {
+      case true: {
+        box_advanced.Show()
+      }
+      case false: {
+        box_advanced.Hide()
+      }
+      }
     })
 
     // Define actions for main window
