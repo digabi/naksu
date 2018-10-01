@@ -98,7 +98,7 @@ func main() {
     button_get_server := ui.NewButton("Install or update Abitti Stickless Exam Server")
     button_switch_server := ui.NewButton("Install or update Stickless Matriculation Exam Server")
     button_make_backup := ui.NewButton("Make Stickless Exam Server Backup")
-    button_exit := ui.NewButton("Exit")
+    button_mebshare := ui.NewButton("Open virtual USB stick (ktp-jako)")
 
     combobox_lang := ui.NewCombobox()
     combobox_lang.Append("Suomeksi")
@@ -122,7 +122,7 @@ func main() {
     box_basic.Append(box_basic_upper, true)
     box_basic.Append(label_status, true)
     box_basic.Append(button_start_server, true)
-    box_basic.Append(button_exit, true)
+    box_basic.Append(button_mebshare, true)
     box_basic.Append(checkbox_advanced, true)
 
     box_advanced := ui.NewVerticalBox()
@@ -177,7 +177,7 @@ func main() {
               combobox_lang.Enable()
 
               button_start_server.Enable()
-              button_exit.Enable()
+              button_mebshare.Enable()
 
               // Require network connection for install/update
               if install.If_http_get(URL_TEST) {
@@ -199,7 +199,7 @@ func main() {
               combobox_lang.Disable()
 
               button_start_server.Disable()
-              button_exit.Disable()
+              button_mebshare.Enable()
 
               button_get_server.Disable()
               button_switch_server.Disable()
@@ -248,7 +248,7 @@ func main() {
       button_get_server.SetText(xlate.Get("Install or update Abitti Stickless Exam Server"))
       button_switch_server.SetText(xlate.Get("Install or update Stickless Matriculation Exam Server"))
       button_make_backup.SetText(xlate.Get("Make Stickless Exam Server Backup"))
-      button_exit.SetText(xlate.Get("Exit"))
+      button_mebshare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
 
       label_box.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.Get_vagrantbox_version()))
 
@@ -399,9 +399,9 @@ func main() {
       backup_window.Show()
     })
 
-    button_exit.OnClicked(func(*ui.Button) {
-      mebroutines.Message_debug("Exiting by user request")
-      ui.Quit()
+    button_mebshare.OnClicked(func(*ui.Button) {
+      mebroutines.Message_debug("Opening MEB share (~/ktp-jako)")
+      mebroutines.Open_meb_share()
     })
 
     // Define actions for SaveAs window/dialog

@@ -338,6 +338,10 @@ func Get_vagrantd_directory () string {
   return Get_home_directory()+string(os.PathSeparator)+".vagrant.d"
 }
 
+func Get_mebshare_directory () string {
+  return Get_home_directory()+string(os.PathSeparator)+"ktp-jako"
+}
+
 func Chdir_vagrant_directory () bool {
   path_vagrant := Get_vagrant_directory()
   Message_debug(fmt.Sprintf("chdir %s", path_vagrant))

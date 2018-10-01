@@ -10,17 +10,17 @@ func SetLanguage(new_language string) {
   if current_language == "fi" {
     xlate_strings = map[string]string {
       // Main window, buttons
+      "Start Stickless Exam Server": "Käynnistä tikuton koetilan palvelin",
       "Install or update Abitti Stickless Exam Server": "Asenna tai päivitä Abitin tikuton palvelin",
       "Install or update Stickless Matriculation Exam Server": "Asenna tai päivitä yo-kokeen tikuton palvelin",
       "Make Stickless Exam Server Backup": "Tee tikuttomasta palvelimesta varmuuskopio",
-      "Exit": "Poistu",
+      "Open virtual USB stick (ktp-jako)": "Avaa virtuaalinen siirtotikku (ktp-jako)",
 
       // Main window, checkboxes
       "Show management features": "Näytä hallintaominaisuudet",
 
       // Main window, other
       "Current version: %s": "Asennettu versio: %s",
-      "Start Stickless Exam Server": "Käynnistä tikuton koetilan palvelin",
       "Naksu update failed. Maybe you don't have network connection?\n\nError: %s": "Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n\nVirhe: %s",
       "Did not get a path for a new Vagrantfile": "Uuden Vagrantfile-tiedoston sijainti on annettava",
       "Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?": "Ohjelman Vagrant käynnistys epäonnistui. Oletko varma, että koneeseen on asennettu HashiCorp Vagrant?",
@@ -82,7 +82,7 @@ func SetLanguage(new_language string) {
       "Install or update Abitti Stickless Exam Server": "Installera eller uppdatera virtuell server för Abitti",
       "Install or update Stickless Matriculation Exam Server": "Installera eller uppdatera virtuell server för studentexamen",
       "Make Stickless Exam Server Backup": "Säkerhetskopiera den virtuella servern",
-      "Exit": "Stäng",
+      "Open virtual USB stick (ktp-jako)": "SV:Avaa virtuaalinen siirtotikku (ktp-jako)",
 
       // Main window, checkboxes
       "Show management features": "SV:Näytä hallintaominaisuudet",
