@@ -6,6 +6,13 @@ GO=go
 RSRC=$(HOME)/go/bin/rsrc
 MINGW_LIB?=$(HOME)/mingw-w64/current/lib
 
+docker: clean
+	mkdir -p bin
+	-docker rm naksu-build
+	docker build -t naksu-build-img -f Dockerfile.build .
+	docker create --name naksu-build naksu-build-img
+	docker cp naksu-build:/app/bin/ .
+
 all: windows linux
 
 windows: naksu.exe
