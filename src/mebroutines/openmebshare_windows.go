@@ -14,12 +14,18 @@ func Open_meb_share () {
     return
   }
 
-  run_params := []string{"explorer.exe", meb_share_path}
+  run_params := []string{"explorer", meb_share_path}
 
-  output,err := Run_get_output(run_params)
+  // For some not-obvious reason Run_get_output() results err
+  output,err := Run_get_error(run_params)
 
   if err != nil {
-    Message_warning("Could not open MEB share directory")
+    err_str := fmt.Sprintf("%v", err)
+    // Opening explorer results exit code 1
+    if err_str != "exit status 1" {
+      Message_warning("Could not open MEB share directory")
+      Message_debug(fmt.Sprintf("Could not open MEB share directory: %v", err))
+    }
   }
 
   Message_debug("MEB share directory open output:")
