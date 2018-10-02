@@ -90,13 +90,17 @@ func Run_vagrant (args []string) {
   if (err != nil) {
     matched_timeout,err_timeout := regexp.MatchString("Timed out while waiting for the machine to boot", vagrant_output)
     matched_macaddress,err_macaddress := regexp.MatchString("error: --macaddress: RTGetOpt: Command line option needs argument", vagrant_output)
+    matched_connectionrefused,err_connectionrefused := regexp.MatchString("The guest machine entered an invalid state", vagrant_output)
     if err_timeout == nil && matched_timeout {
       // We've obviously started the VM
-      Message_debug("Running vagrant gives me timeout - things are probably ok, complete output:")
+      Message_debug("Running vagrant gives me timeout - things are probably ok. User was not notified. Complete output:")
       Message_debug(vagrant_output)
     } else if err_macaddress == nil && matched_macaddress {
       // Vagrant in Windows host give this error message - just restart vagrant and you're good
       Message_info(xlate.Get("Server failed to start. This is typical in Windows after an update. Please try again to start the server."))
+    } else if err_connectionrefused == nil && matched_connectionrefused {
+      Message_debug("Vagrant entered invalid state while booting. We expect this to occur because user has closed the VM window. User was not notified. Complete output:")
+      Message_debug(vagrant_output)
     } else {
       Message_debug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(run_args, " ")))
       Message_debug(vagrant_output)
