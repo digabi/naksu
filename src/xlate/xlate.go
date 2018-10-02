@@ -10,10 +10,10 @@ func SetLanguage(new_language string) {
   if current_language == "fi" {
     xlate_strings = map[string]string {
       // Main window, buttons
-      "Start Stickless Exam Server": "Käynnistä tikuton koetilan palvelin",
-      "Install or update Abitti Stickless Exam Server": "Asenna tai päivitä Abitin tikuton palvelin",
-      "Install or update Stickless Matriculation Exam Server": "Asenna tai päivitä yo-kokeen tikuton palvelin",
-      "Make Stickless Exam Server Backup": "Tee tikuttomasta palvelimesta varmuuskopio",
+      "Start Stickless Exam Server": "Käynnistä virtuaalinen koetilan palvelin",
+      "Install or update Abitti Stickless Exam Server": "Asenna tai päivitä Abitin virtuaalinen palvelin",
+      "Install or update Stickless Matriculation Exam Server": "Asenna tai päivitä yo-kokeen virtuaalinen palvelin",
+      "Make Stickless Exam Server Backup": "Tee virtuaalisesta palvelimesta varmuuskopio",
       "Open virtual USB stick (ktp-jako)": "Avaa virtuaalinen siirtotikku (ktp-jako)",
 
       // Main window, checkboxes
@@ -61,7 +61,7 @@ func SetLanguage(new_language string) {
       "Desktop": "Työpöytä",
 
       // install
-      "Could not update Abitti stickless server. Please check your network connection.": "Tikuttoman Abitti-palvelimen päivitys epäonnistui. Tarkista verkkoyhteytesi.",
+      "Could not update Abitti stickless server. Please check your network connection.": "virtuaalisen Abitti-palvelimen päivitys epäonnistui. Tarkista verkkoyhteytesi.",
       "Could not change to vagrant directory ~/ktp": "Vagrant-hakemistoon ~/ktp siirtyminen epäonnistui",
       "Error while copying new Vagrantfile: %d": "Uuden Vagrantfile-tiedoston kopiointi epäonnistui: %d",
       "Could not create ~/ktp to %s": "Hakemiston ~/ktp luominen sijaintiin %s epäonnistui",
@@ -82,10 +82,10 @@ func SetLanguage(new_language string) {
       "Install or update Abitti Stickless Exam Server": "Installera eller uppdatera virtuell server för Abitti",
       "Install or update Stickless Matriculation Exam Server": "Installera eller uppdatera virtuell server för studentexamen",
       "Make Stickless Exam Server Backup": "Säkerhetskopiera den virtuella servern",
-      "Open virtual USB stick (ktp-jako)": "SV:Avaa virtuaalinen siirtotikku (ktp-jako)",
+      "Open virtual USB stick (ktp-jako)": "Öppna den virtuellaöverföringsstickan (ktp-jako)",
 
       // Main window, checkboxes
-      "Show management features": "SV:Näytä hallintaominaisuudet",
+      "Show management features": "Visa hanteringsegenskaper",
 
       // Main window, other
       "Current version: %s": "Installerad version: %s",
@@ -129,7 +129,7 @@ func SetLanguage(new_language string) {
       "Desktop": "Skrivbord",
 
       // install
-      "Could not update Abitti stickless server. Please check your network connection.": "SV:Tikuttoman Abitti-palvelimen päivitys epäonnistui. Tarkista verkkoyhteytesi.",
+      "Could not update Abitti stickless server. Please check your network connection.": "Det gick inte att uppdatera den virtuella Abitti-servern. Kontrollera din nätförbindelse.",
       "Could not change to vagrant directory ~/ktp": "Förflyttningen till Vagrant-katalogen ~/ktp misslyckades",
       "Error while copying new Vagrantfile: %d": "Kopieringen av en ny Vagrantfile-fil misslyckades: %d",
       "Could not create ~/ktp to %s": "Det gick inte att skapa katalogen ~/ktp i sökvägen %s",
