@@ -113,6 +113,24 @@ Things to consider later:
 
 ## Changelog
 
+### 1.5.0 (2-OCT-2018)
+
+User interface
+
+ * Hide management buttons behind a checkbox
+ * Removed Exit button in favour of Open ktp-jako button
+ * Refuse to install/update without network connection by disabling the buttons
+
+Other changes
+
+ * Warn user if home path contains 8-bit characters
+ * Refuse to import Vagrantfile from ~/ktp/Vagrantfile
+ * Added desktop as a valid backup target location
+ * Make sure the selected backup target location is writeable
+ * Hide 'Invalid state while booting' errors from UI
+ * Use term "virtual server" instead of "stickless server"
+ * Improvements which make it easier to build Naksi using a continuous integration server
+
 ### 1.4.1 (05-SEP-2018)
 
  * Always create debug file to `~ktp/naksu_lastlog.txt` or `TEMP/naksu_lastlog.txt`

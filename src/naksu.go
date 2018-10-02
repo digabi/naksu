@@ -23,7 +23,7 @@ import (
   "progress"
 )
 
-const version = "1.4.1"
+const version = "1.5.0"
 const low_disk_limit = 5000000 // 5 Gb
 // Test URL for checking network connection
 const URL_TEST = "http://static.abitti.fi/usbimg/qa/latest.txt"
