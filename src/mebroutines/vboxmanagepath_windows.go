@@ -11,7 +11,7 @@ func get_vboxmanage_path () string {
 	} else {
     var path_virtualbox = os.Getenv("VBOX_MSI_INSTALL_PATH")
     if (path_virtualbox != "") {
-      path = path_virtualbox+"\\"+path
+      path = path_virtualbox+string(os.PathSeparator)+path
     }
   }
 

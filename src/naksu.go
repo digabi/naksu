@@ -66,9 +66,9 @@ func main() {
   // Determine/set path for debug log
   log_path := mebroutines.Get_vagrant_directory()
   if mebroutines.ExistsDir(log_path) {
-    mebroutines.Set_debug_filename(log_path + "/naksu_lastlog.txt")
+    mebroutines.Set_debug_filename(log_path + string(os.PathSeparator) + "naksu_lastlog.txt")
   } else {
-    mebroutines.Set_debug_filename(os.TempDir() + "/naksu_lastlog.txt")
+    mebroutines.Set_debug_filename(os.TempDir() + string(os.PathSeparator)+ "naksu_lastlog.txt")
   }
 
   mebroutines.Message_debug(fmt.Sprintf("This is Naksu %s. Hello world!", version))

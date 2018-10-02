@@ -81,7 +81,7 @@ func Do_get_server(path_new_vagrantfile string) {
 
 
 func create_dir_ktp () string {
-	var path_ktp = mebroutines.Get_home_directory() + "/ktp"
+	var path_ktp = mebroutines.Get_vagrant_directory()
 
   if (! mebroutines.ExistsDir(path_ktp)) {
     if (mebroutines.CreateDir(path_ktp) != nil) {
@@ -93,7 +93,7 @@ func create_dir_ktp () string {
 }
 
 func create_dir_ktpjako () string {
-	var path_ktpjako = mebroutines.Get_home_directory() + "/ktp-jako"
+	var path_ktpjako = mebroutines.Get_mebshare_directory()
 
   if (! mebroutines.ExistsDir(path_ktpjako)) {
     if (mebroutines.CreateDir(path_ktpjako) != nil) {
