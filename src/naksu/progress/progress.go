@@ -3,8 +3,8 @@ package progress
 import (
   "fmt"
 
-  "xlate"
-  "mebroutines"
+  "naksu/xlate"
+  "naksu/mebroutines"
 
   "github.com/andlabs/ui"
 )

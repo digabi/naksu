@@ -15,12 +15,12 @@ import (
   "github.com/andlabs/ui"
   "github.com/kardianos/osext"
 
-  "mebroutines"
-  "mebroutines/install"
-  "mebroutines/start"
-  "mebroutines/backup"
-  "xlate"
-  "progress"
+  "naksu/mebroutines"
+  "naksu/mebroutines/install"
+  "naksu/mebroutines/start"
+  "naksu/mebroutines/backup"
+  "naksu/xlate"
+  "naksu/progress"
 )
 
 const version = "1.5.0"
