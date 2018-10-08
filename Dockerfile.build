@@ -1,4 +1,4 @@
-FROM debian:stretch
-RUN echo 'deb http://deb.debian.org/debian stretch-backports main' > /etc/apt/sources.list.d/backports.list && apt-get update && apt-get -y install golang-1.10 libgtk-3-dev gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64 git
+FROM debian:sid
+RUN apt-get update && apt-get -y install golang-1.10 libgtk-3-dev gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64 git
 COPY . app
 RUN cd app && make linux windows GO=/usr/lib/go-1.10/bin/go MINGW_LIB=/usr/x86_64-w64-mingw32/lib
