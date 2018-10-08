@@ -40,6 +40,7 @@ naksu_packages: all
 
 update_libs: clean ./bin/trash
 	./bin/trash
+	# NOTE: this symbolic linking is necessary because go does not seem to find the vendor dirs otherwise. this smells like some kind of bug
 	ln -s ../vendor/github.com src/github.com
 	ln -s ../vendor/golang.org src/golang.org
 
