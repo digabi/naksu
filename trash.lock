@@ -1,0 +1,32 @@
+package: src/naksu/
+import:
+- package: github.com/StackExchange/wmi
+  version: b12b22c5341f0c26d88c4d66176330500e84db68
+- package: github.com/andlabs/ui
+  version: 867a9e5a498d85e2722730ed88c5f00560c7c354
+- package: github.com/blang/semver
+  version: v3.5.1
+- package: github.com/go-ole/go-ole
+  version: 7a0fa49edf48
+- package: github.com/go-ole/go-ole/oleutil
+  version: 7a0fa49edf48
+- package: github.com/google/go-github/github
+  version: fa0b351592
+- package: github.com/google/go-querystring/query
+  version: 44c6ddd0a
+- package: github.com/inconshreveable/go-update
+  version: 8152e7eb6ccf
+- package: github.com/kardianos/osext
+  version: ae77be60afb1dcacde03767a8c37337fad28ac14
+- package: github.com/rhysd/go-github-selfupdate/selfupdate
+  version: c7abcd03e15759eec298112afa59121fe47f8f97
+- package: github.com/tcnksm/go-gitconfig
+  version: 6411ba19847
+- package: github.com/ulikunitz/xz
+  version: 636d36a76670
+- package: golang.org/x/net/context
+  version: HEAD
+- package: golang.org/x/net/context/ctxhttp
+  version: HEAD
+- package: golang.org/x/oauth2
+  version: HEAD
