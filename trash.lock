@@ -3,7 +3,7 @@ import:
 - package: github.com/StackExchange/wmi
   version: b12b22c5341f0c26d88c4d66176330500e84db68
 - package: github.com/andlabs/ui
-  version: 867a9e5a498d85e2722730ed88c5f00560c7c354
+  version: 6c3bda44d3039e3721c06516b
 - package: github.com/blang/semver
   version: v3.5.1
 - package: github.com/go-ole/go-ole
