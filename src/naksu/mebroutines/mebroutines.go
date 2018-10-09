@@ -2,7 +2,7 @@
 package mebroutines
 
 import (
-  "xlate"
+  "naksu/xlate"
 
   "fmt"
   "os"

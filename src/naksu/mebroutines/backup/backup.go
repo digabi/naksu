@@ -9,9 +9,9 @@ import (
   "time"
   "errors"
 
-  "mebroutines"
-  "progress"
-  "xlate"
+  "naksu/mebroutines"
+  "naksu/progress"
+  "naksu/xlate"
 )
 
 func Do_make_backup (path_backup string) {

@@ -1,8 +1,9 @@
 # Ignore binaries
 bin/
 # Get these packages with make update_libs
-src/github.com/
-src/golang.org/
+src/github.com
+src/golang.org
 pkg/
+vendor/
 # Ignore GitHub release packages
 *.zip

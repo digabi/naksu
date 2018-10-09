@@ -1,10 +1,10 @@
 package install
 
 import (
-	"xlate"
-	"progress"
+	"naksu/xlate"
+	"naksu/progress"
+	"naksu/mebroutines"
 
-	"mebroutines"
 	"fmt"
 	"os"
 	"io"

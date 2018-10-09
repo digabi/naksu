@@ -1,8 +1,8 @@
 package start
 
 import (
-	"mebroutines"
-	"progress"
+	"naksu/mebroutines"
+	"naksu/progress"
 )
 
 func Do_start_server() {

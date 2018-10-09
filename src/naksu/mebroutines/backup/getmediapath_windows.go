@@ -6,8 +6,8 @@ import (
 
   "github.com/StackExchange/wmi"
 
-  "mebroutines"
-  "xlate"
+  "naksu/mebroutines"
+  "naksu/xlate"
 )
 
 func Get_backup_media () map[string]string {
