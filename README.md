@@ -12,27 +12,27 @@ These scripts are currently under planning/proof-of-concept stage. The executabl
 
 ### Fresh Install / Update
 
- 1. Make sure you have `vagrant` executable
- 1. Make sure Oracle VirtualBox is installed
- 1. Create `~/ktp` if it does not exist
- 1. Create `~/ktp-jako` if it does not exist
- 1. If `~/ktp/Vagrantfile` exists execute `vagrant destroy -f` (we expect that there is existing installation)
- 1. Delete `~/ktp/Vagrantfile.bak`
- 1. Rename `~/ktp/Vagrantfile` to `~/ktp/Vagrantfile.bak`
- 1. Retrieve `http://static.abitti.fi/usbimg/qa/vagrant/Vagrantfile` to `~/ktp/Vagrantfile`
- 1. Execute `vagrant box update`
- 1. Execute `vagrant box prune`
+1.  Make sure you have `vagrant` executable
+1.  Make sure Oracle VirtualBox is installed
+1.  Create `~/ktp` if it does not exist
+1.  Create `~/ktp-jako` if it does not exist
+1.  If `~/ktp/Vagrantfile` exists execute `vagrant destroy -f` (we expect that there is existing installation)
+1.  Delete `~/ktp/Vagrantfile.bak`
+1.  Rename `~/ktp/Vagrantfile` to `~/ktp/Vagrantfile.bak`
+1.  Retrieve `http://static.abitti.fi/usbimg/qa/vagrant/Vagrantfile` to `~/ktp/Vagrantfile`
+1.  Execute `vagrant box update`
+1.  Execute `vagrant box prune`
 
 ### Switch Between Abitti and Matriculation Examination Server
 
- Same as install/update procedure but the user is able to select `Vagrantfile`. The
- file must be downloaded beforehand by the school principal.
+Same as install/update procedure but the user is able to select `Vagrantfile`. The
+file must be downloaded beforehand by the school principal.
 
 ### Start Virtual Server
 
- 1. Make sure you have `vagrant` executable
- 1. Make sure Oracle VirtualBox is installed
- 1. Execute `vagrant up`
+1.  Make sure you have `vagrant` executable
+1.  Make sure Oracle VirtualBox is installed
+1.  Execute `vagrant up`
 
 ### Make Backup of Server Hard Drive
 
@@ -56,12 +56,28 @@ Make sure `go` points to your compiler or set `GO` to point your go binary (in `
 
 ### Requirements
 
- * Install `libgtk-3-dev` which is required by `libui`.
- * Run `make update_libs` to get all required golang dependencies.
+- Install `dep` using [these instructions](https://golang.github.io/dep/docs/installation.html)
+- Install Docker daemon
+
+### Build both versions using Docker
+
+`make docker`
+
+Resulting binaries are saved to `bin/` directory as `naksu` and `naksu.exe`
+
+## Compilation details
+
+Preferred way to compile `naksu` is using Docker.
 
 ### Building Linux version
 
-`make linux`
+This currently works most reliably in Ubuntu Xenial. Later Ubuntu versions
+have compiled system libraries in different way, and this causes linux build
+to fail.
+
+- Install `libgtk-3-dev` which is required by `libui`.
+- Run `make update_libs` to get all required golang dependencies.
+- `make linux`
 
 ### Cross-Compiling Windows version
 
@@ -71,12 +87,14 @@ mingw-w64 libs. Build it from source if your pre-packaged version is older:
 1. Make sure your pre-packaged mingw-w64 is installed (Debian/Ubuntu: `mingw-w64`).
 1. Get mingw-w64 from https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release/
 1. Build:
-  ```
-  mkdir ~/mingw-w64/current
-  ./configure --prefix=$HOME/mingw-w64/current --host=x86_64-w64-mingw32
-  make -j4
-  make install
-  ```
+
+```
+mkdir ~/mingw-w64/current
+./configure --prefix=$HOME/mingw-w64/current --host=x86_64-w64-mingw32
+make -j4
+make install
+```
+
 1. By default the `Makefile` expects mingw-w64 at `$HOME/mingw-w64/current`.
    This can be changed by editing `CGO_LDFLAGS="-L$(HOME)/mingw-w64/current/lib"`
    in the `naksu.exe` rule. The path should point to `lib` under your mingw-w64 install path.
@@ -105,7 +123,7 @@ However, please report these problems since we would like to make naksu as easy 
 
 Things to consider later:
 
- * Avoid asking administrator rights (Windows): [Github](https://stackoverflow.com/questions/31558066/how-to-ask-for-administer-privileges-on-windows-with-go)
+- Avoid asking administrator rights (Windows): [Github](https://stackoverflow.com/questions/31558066/how-to-ask-for-administer-privileges-on-windows-with-go)
 
 ## License
 
@@ -117,46 +135,46 @@ Things to consider later:
 
 User interface
 
- * Hide management buttons behind a checkbox
- * Removed Exit button in favour of Open ktp-jako button
- * Refuse to install/update without network connection by disabling the buttons
+- Hide management buttons behind a checkbox
+- Removed Exit button in favour of Open ktp-jako button
+- Refuse to install/update without network connection by disabling the buttons
 
 Other changes
 
- * Warn user if home path contains 8-bit characters
- * Refuse to import Vagrantfile from ~/ktp/Vagrantfile
- * Added desktop as a valid backup target location
- * Make sure the selected backup target location is writeable
- * Hide 'Invalid state while booting' errors from UI
- * Use term "virtual server" instead of "stickless server"
- * Improvements which make it easier to build Naksi using a continuous integration server
+- Warn user if home path contains 8-bit characters
+- Refuse to import Vagrantfile from ~/ktp/Vagrantfile
+- Added desktop as a valid backup target location
+- Make sure the selected backup target location is writeable
+- Hide 'Invalid state while booting' errors from UI
+- Use term "virtual server" instead of "stickless server"
+- Improvements which make it easier to build Naksi using a continuous integration server
 
 ### 1.4.1 (05-SEP-2018)
 
- * Always create debug file to `~ktp/naksu_lastlog.txt` or `TEMP/naksu_lastlog.txt`
- * Give more informative error message when vagrant exits with `--macaddress` error message
- * Bugfix: get Linux temporary path from `TempDir()` instead of `TEMP` env var
+- Always create debug file to `~ktp/naksu_lastlog.txt` or `TEMP/naksu_lastlog.txt`
+- Give more informative error message when vagrant exits with `--macaddress` error message
+- Bugfix: get Linux temporary path from `TempDir()` instead of `TEMP` env var
 
 ### 1.4.0 (31-AUG-2018)
 
- * Show current server version
- * Show status messages when working with vagrant/VBoxManage
- * UI Language support (Finnish, Swedish)
+- Show current server version
+- Show status messages when working with vagrant/VBoxManage
+- UI Language support (Finnish, Swedish)
 
 ### 1.3.0 (13-AUG-2018)
 
- * Restart with `x-terminal-emulator` if started via file manager (Linux)
- * Warn user if there is less than 5 Gb free disk before install, update or backup
- * Bugfix: Don't panic if media does not have vendor/model (Linux)
- * Get vendor/model strings for removable media directly from WMI without `wmic` (Windows)
- * Application icon (Windows)
- * Added logging (use `-debug` switch to show debug messages)
+- Restart with `x-terminal-emulator` if started via file manager (Linux)
+- Warn user if there is less than 5 Gb free disk before install, update or backup
+- Bugfix: Don't panic if media does not have vendor/model (Linux)
+- Get vendor/model strings for removable media directly from WMI without `wmic` (Windows)
+- Application icon (Windows)
+- Added logging (use `-debug` switch to show debug messages)
 
 ### 1.2.0 (09-AUG-2018)
 
- * User can create a backup (clone) from VM hard drive
- * Continues execution although binary update fails
+- User can create a backup (clone) from VM hard drive
+- Continues execution although binary update fails
 
 ### 1.1.0 (05-JUL-2018)
 
- * User can switch between Abitti and Matriculation Exam servers
+- User can switch between Abitti and Matriculation Exam servers
