@@ -6,16 +6,14 @@ GO=go
 RSRC=$(HOME)/go/bin/rsrc
 MINGW_LIB?=$(HOME)/mingw-w64/current/lib
 
-docker: clean update_libs
+docker: clean
 	mkdir -p bin
 	-docker rm naksu-build
-	docker build -t naksu-build-img -f Dockerfile.build .
+	docker build -t naksu-build-img:latest -f Dockerfile.build .
 	docker create --name naksu-build naksu-build-img
 	docker cp naksu-build:/app/bin/ .
-
-./bin/trash:
-	GOPATH=$(current_dir) $(GO) get -u github.com/rancher/trash
-	rm -rf src/github.com
+	docker cp naksu-build:/app/naksu_linux_amd64.zip .
+	docker cp naksu-build:/app/naksu_windows_amd64.zip .
 
 all: windows linux
 
@@ -30,7 +28,7 @@ naksu.exe: src/*
 	GOPATH=$(current_dir)/ GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ CGO_LDFLAGS="-L$(MINGW_LIB)" $(GO) build -o bin/naksu.exe naksu
 
 naksu: src/*
-	GOPATH=$(current_dir)/ GOOS=linux GOARCH=amd64 $(GO) build -o bin/naksu naksu
+	GOPATH=$(current_dir)/ GOOS=linux GOARCH=amd64 CGO_ENABLED=1 $(GO) build -o bin/naksu naksu
 
 naksu_packages: all
 	rm -f naksu_linux_amd64.zip
@@ -38,15 +36,11 @@ naksu_packages: all
 	rm -f naksu_windows_amd64.zip
 	zip -j naksu_windows_amd64 bin/naksu.exe
 
-update_libs: clean ./bin/trash
-	./bin/trash
-	# NOTE: this symbolic linking is necessary because go does not seem to find the vendor dirs otherwise. this smells like some kind of bug
-	ln -s ../vendor/github.com src/github.com
-	ln -s ../vendor/golang.org src/golang.org
+update_libs: clean
+	cd src/naksu && dep ensure
 
 clean:
 	rm -f bin/naksu bin/naksu.exe
-	rm -rf src/github.com src/golang.org
 
 phony_get-server:
 	VAGRANTPATH=phony-scripts/vagrant VBOXMANAGEPATH=phony-scripts/VBoxManage bin/get-server
