@@ -1,27 +1,28 @@
 package mebroutines
 
 import (
-  "fmt"
+	"fmt"
 )
 
-func Open_meb_share () {
-  meb_share_path := Get_mebshare_directory()
+// OpenMebShare command executes command that opens file browser to meb share directory
+func OpenMebShare() {
+	mebSharePath := GetMebshareDirectory()
 
-  Message_debug(fmt.Sprintf("MEB share directory: %s", meb_share_path))
+	LogDebug(fmt.Sprintf("MEB share directory: %s", mebSharePath))
 
-  if ! ExistsDir(meb_share_path) {
-    Message_warning("Cannot open MEB share directory since it does not exist")
-    return
-  }
+	if !ExistsDir(mebSharePath) {
+		ShowWarningMessage("Cannot open MEB share directory since it does not exist")
+		return
+	}
 
-  run_params := []string{"xdg-open", meb_share_path}
+	runParams := []string{"open", mebSharePath}
 
-  output,err := Run_get_output(run_params)
+	output, err := RunAndGetOutput(runParams)
 
-  if err != nil {
-    Message_warning("Could not open MEB share directory")
-  }
+	if err != nil {
+		ShowWarningMessage("Could not open MEB share directory")
+	}
 
-  Message_debug("MEB share directory open output:")
-  Message_debug(output)
+	LogDebug("MEB share directory open output:")
+	LogDebug(output)
 }

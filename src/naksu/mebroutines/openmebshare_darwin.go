@@ -4,19 +4,20 @@ import (
 	"fmt"
 )
 
-func Open_meb_share() {
-	meb_share_path := GetMebshareDirectory()
+// OpenMebShare opens file explorer with meb share path
+func OpenMebShare() {
+	mebSharePath := GetMebshareDirectory()
 
-	LogDebug(fmt.Sprintf("MEB share directory: %s", meb_share_path))
+	LogDebug(fmt.Sprintf("MEB share directory: %s", mebSharePath))
 
-	if !ExistsDir(meb_share_path) {
+	if !ExistsDir(mebSharePath) {
 		ShowWarningMessage("Cannot open MEB share directory since it does not exist")
 		return
 	}
 
-	run_params := []string{"open", meb_share_path}
+	runParams := []string{"open", mebSharePath}
 
-	output, err := RunAndGetOutput(run_params)
+	output, err := RunAndGetOutput(runParams)
 
 	if err != nil {
 		ShowWarningMessage("Could not open MEB share directory")

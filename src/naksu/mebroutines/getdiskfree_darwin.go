@@ -6,10 +6,11 @@ import (
 	"strconv"
 )
 
-func Get_disk_free(path string) (int, error) {
-	run_params := []string{"df", "--output=avail", path}
+// GetDiskFree returns disk space usage as float
+func GetDiskFree(path string) (int, error) {
+	runParams := []string{"df", "--output=avail", path}
 
-	output, err := RunAndGetOutput(run_params)
+	output, err := RunAndGetOutput(runParams)
 
 	if err != nil {
 		return -1, err
@@ -20,9 +21,9 @@ func Get_disk_free(path string) (int, error) {
 	result := pattern.FindStringSubmatch(output)
 
 	if len(result) > 1 {
-		result_float, _ := strconv.ParseFloat(result[1], 10)
-		LogDebug(fmt.Sprintf("Disk free for path %s: %d", path, int(result_float)))
-		return int(result_float), nil
+		floatResult, _ := strconv.ParseFloat(result[1], 10)
+		LogDebug(fmt.Sprintf("Disk free for path %s: %d", path, int(floatResult)))
+		return int(floatResult), nil
 	}
 
 	return -1, nil

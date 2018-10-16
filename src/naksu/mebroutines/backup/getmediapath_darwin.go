@@ -8,23 +8,24 @@ import (
 	"os"
 )
 
-func Get_backup_media() map[string]string {
-	media := get_backup_media_linux()
+// GetBackupMedia returns map of backup medias
+func GetBackupMedia() map[string]string {
+	media := getBackupMediaLinux()
 
 	// Add some entries from environment variables
 	if os.Getenv("HOME") != "" {
 		media[os.Getenv("HOME")] = xlate.Get("Home directory")
 
 		// Try ~/Desktop
-		desktop_path := os.Getenv("HOME") + string(os.PathSeparator) + "Desktop"
-		if mebroutines.ExistsDir(desktop_path) {
-			media[desktop_path] = xlate.Get("Desktop")
+		desktopPath := os.Getenv("HOME") + string(os.PathSeparator) + "Desktop"
+		if mebroutines.ExistsDir(desktopPath) {
+			media[desktopPath] = xlate.Get("Desktop")
 		}
 
 		// Try ~/desktop
-		desktop_path = os.Getenv("HOME") + string(os.PathSeparator) + "desktop"
-		if mebroutines.ExistsDir(desktop_path) {
-			media[desktop_path] = xlate.Get("Desktop")
+		desktopPath = os.Getenv("HOME") + string(os.PathSeparator) + "desktop"
+		if mebroutines.ExistsDir(desktopPath) {
+			media[desktopPath] = xlate.Get("Desktop")
 		}
 	}
 	if os.TempDir() != "" {
@@ -34,40 +35,40 @@ func Get_backup_media() map[string]string {
 	return media
 }
 
-func get_backup_media_linux() map[string]string {
+func getBackupMediaLinux() map[string]string {
 	var media = map[string]string{}
 
-	run_params := []string{"lsblk", "-J", "-o", "NAME,FSTYPE,MOUNTPOINT,VENDOR,MODEL,HOTPLUG"}
+	runParams := []string{"lsblk", "-J", "-o", "NAME,FSTYPE,MOUNTPOINT,VENDOR,MODEL,HOTPLUG"}
 
-	lsblk_json, lsblk_err := mebroutines.RunAndGetOutput(run_params)
+	lsblkJSON, lsblkErr := mebroutines.RunAndGetOutput(runParams)
 
 	mebroutines.LogDebug("lsblk says:")
-	mebroutines.LogDebug(lsblk_json)
+	mebroutines.LogDebug(lsblkJSON)
 
-	if lsblk_err != nil {
+	if lsblkErr != nil {
 		mebroutines.LogDebug("Failed to run lsblk")
 		// Return empty set of media
 		return media
 	}
 
-	var json_data map[string]interface{}
+	var jsonData map[string]interface{}
 
-	json_err := json.Unmarshal([]byte(lsblk_json), &json_data)
-	if json_err != nil {
+	jsonErr := json.Unmarshal([]byte(lsblkJSON), &jsonData)
+	if jsonErr != nil {
 		mebroutines.LogDebug("Unable on decode lsblk response:")
-		mebroutines.LogDebug(fmt.Sprintf("%s", json_err))
+		mebroutines.LogDebug(fmt.Sprintf("%s", jsonErr))
 		// Return empty set of media
 		return media
 	}
 
-	blockdevices := json_data["blockdevices"].([]interface{})
+	blockdevices := jsonData["blockdevices"].([]interface{})
 
-	media = get_removable_disks(blockdevices)
+	media = getRemovableDisks(blockdevices)
 
 	return media
 }
 
-func get_removable_disks(blockdevices []interface{}) map[string]string {
+func getRemovableDisks(blockdevices []interface{}) map[string]string {
 	var media = map[string]string{}
 	//media_n := 0
 
@@ -75,18 +76,18 @@ func get_removable_disks(blockdevices []interface{}) map[string]string {
 		return media
 	}
 
-	for blockdevice_n := range blockdevices {
+	for blockdeviceIndex := range blockdevices {
 		//fmt.Println(blockdevices[blockdevice_n])
-		this_blockdevice := blockdevices[blockdevice_n].(map[string]interface{})
-		if device_field_string(this_blockdevice["hotplug"]) == "1" && this_blockdevice["children"] != nil {
-			this_children := this_blockdevice["children"].([]interface{})
+		blockdevice := blockdevices[blockdeviceIndex].(map[string]interface{})
+		if deviceFieldString(blockdevice["hotplug"]) == "1" && blockdevice["children"] != nil {
+			children := blockdevice["children"].([]interface{})
 
-			for this_child_n := range this_children {
-				this_child := this_children[this_child_n].(map[string]interface{})
+			for childIndex := range children {
+				child := children[childIndex].(map[string]interface{})
 
-				this_mountpoint := device_field_string(this_child["mountpoint"])
-				if this_mountpoint != "" {
-					media[this_mountpoint] = fmt.Sprintf("%s, %s", device_field_string(this_blockdevice["vendor"]), device_field_string(this_blockdevice["model"]))
+				mountpoint := deviceFieldString(child["mountpoint"])
+				if mountpoint != "" {
+					media[mountpoint] = fmt.Sprintf("%s, %s", deviceFieldString(blockdevice["vendor"]), deviceFieldString(blockdevice["model"]))
 				}
 			}
 		}
@@ -95,10 +96,10 @@ func get_removable_disks(blockdevices []interface{}) map[string]string {
 	return media
 }
 
-func device_field_string(this_field interface{}) string {
-	if this_field == nil {
+func deviceFieldString(field interface{}) string {
+	if field == nil {
 		return ""
 	}
 
-	return this_field.(string)
+	return field.(string)
 }

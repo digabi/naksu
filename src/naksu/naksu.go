@@ -1,492 +1,496 @@
-package main
-
 // required by selfupdate (needs context)
 // +build go1.7
 
+package main
+
 import (
-  "os"
-  "fmt"
-  "flag"
-  "time"
-  "strings"
+	"flag"
+	"fmt"
+	"naksu/mebroutines"
+	"naksu/mebroutines/backup"
+	"naksu/mebroutines/install"
+	"naksu/mebroutines/start"
+	"naksu/progress"
+	"naksu/xlate"
+	"os"
+	"strings"
+	"time"
 
-  "github.com/blang/semver"
-  "github.com/rhysd/go-github-selfupdate/selfupdate"
-  "github.com/andlabs/ui"
-  "github.com/kardianos/osext"
-
-  "naksu/mebroutines"
-  "naksu/mebroutines/install"
-  "naksu/mebroutines/start"
-  "naksu/mebroutines/backup"
-  "naksu/xlate"
-  "naksu/progress"
+	"github.com/andlabs/ui"
+	"github.com/blang/semver"
+	"github.com/kardianos/osext"
+	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
 
 const version = "1.5.0"
-const low_disk_limit = 5000000 // 5 Gb
-// Test URL for checking network connection
-const URL_TEST = "http://static.abitti.fi/usbimg/qa/latest.txt"
+const lowDiskLimit = 5000000 // 5 Gb
 
-var is_debug bool
+// URLTest is testing URL for checking network connection
+const URLTest = "http://static.abitti.fi/usbimg/qa/latest.txt"
+
+var isDebug bool
 
 func doSelfUpdate() bool {
-  v := semver.MustParse(version)
+	v := semver.MustParse(version)
 
-  if (mebroutines.Is_debug()) {
-    selfupdate.EnableLog()
-  }
+	if mebroutines.IsDebug() {
+		selfupdate.EnableLog()
+	}
 
-  latest, err := selfupdate.UpdateSelf(v, "digabi/naksu")
-  if err != nil {
-    mebroutines.Message_warning(fmt.Sprintf(xlate.Get("Naksu update failed. Maybe you don't have network connection?\n\nError: %s"), err))
-    return false
-  }
-  if latest.Version.Equals(v) {
-    // latest version is the same as current version. It means current binary is up to date.
-    mebroutines.Message_debug(fmt.Sprintf("Current binary is the latest version: %s", version))
-    return false
-  } else {
-    mebroutines.Message_debug(fmt.Sprintf("Successfully updated to version: %s", latest.Version))
-    return true
-    //log.Println("Release note:\n", latest.ReleaseNotes)
-  }
+	latest, err := selfupdate.UpdateSelf(v, "digabi/naksu")
+	if err != nil {
+		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Naksu update failed. Maybe you don't have network connection?\n\nError: %s"), err))
+		return false
+	}
+	if latest.Version.Equals(v) {
+		// latest version is the same as current version. It means current binary is up to date.
+		mebroutines.LogDebug(fmt.Sprintf("Current binary is the latest version: %s", version))
+		return false
+	}
+	mebroutines.LogDebug(fmt.Sprintf("Successfully updated to version: %s", latest.Version))
+	return true
+	//log.Println("Release note:\n", latest.ReleaseNotes)
 }
 
 func main() {
-  // Set default UI language
-  xlate.SetLanguage("fi")
+	// Set default UI language
+	xlate.SetLanguage("fi")
 
-  // Process command line parameters
-  flag.BoolVar(&is_debug, "debug", false, "Turn debugging on")
-  flag.Parse()
+	// Process command line parameters
+	flag.BoolVar(&isDebug, "debug", false, "Turn debugging on")
+	flag.Parse()
 
-  mebroutines.Set_debug(is_debug)
+	mebroutines.SetDebug(isDebug)
 
-  // Determine/set path for debug log
-  log_path := mebroutines.Get_vagrant_directory()
-  if mebroutines.ExistsDir(log_path) {
-    mebroutines.Set_debug_filename(log_path + string(os.PathSeparator) + "naksu_lastlog.txt")
-  } else {
-    mebroutines.Set_debug_filename(os.TempDir() + string(os.PathSeparator)+ "naksu_lastlog.txt")
-  }
+	// Determine/set path for debug log
+	logPath := mebroutines.GetVagrantDirectory()
+	if mebroutines.ExistsDir(logPath) {
+		mebroutines.SetDebugFilename(logPath + string(os.PathSeparator) + "naksu_lastlog.txt")
+	} else {
+		mebroutines.SetDebugFilename(os.TempDir() + string(os.PathSeparator) + "naksu_lastlog.txt")
+	}
 
-  mebroutines.Message_debug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
+	mebroutines.LogDebug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
 
-  // Check whether we have a terminal (restart with x-terminal-emulator, if missing)
-  if (! mebroutines.ExistsStdin()) {
-    path_to_me, _ := osext.Executable()
-    command_args := []string{"x-terminal-emulator", "-e", path_to_me}
+	// Check whether we have a terminal (restart with x-terminal-emulator, if missing)
+	if !mebroutines.ExistsStdin() {
+		pathToMe, _ := osext.Executable()
+		commandArgs := []string{"x-terminal-emulator", "-e", pathToMe}
 
-    mebroutines.Message_debug(fmt.Sprintf("No stdin, restarting with terminal: %s", strings.Join(command_args, " ")))
-    _, _ = mebroutines.Run_get_output(command_args)
-    mebroutines.Message_debug(fmt.Sprintf("No stdin, returned from %s", strings.Join(command_args, " ")))
+		mebroutines.LogDebug(fmt.Sprintf("No stdin, restarting with terminal: %s", strings.Join(commandArgs, " ")))
+		_, _ = mebroutines.RunAndGetOutput(commandArgs)
+		mebroutines.LogDebug(fmt.Sprintf("No stdin, returned from %s", strings.Join(commandArgs, " ")))
 
-    // Normal termination
-    os.Exit(0)
-  }
+		// Normal termination
+		os.Exit(0)
+	}
 
-  // Get list of backup locations (as there is not SaveAs/directory dialog in libui)
-  // We do this before starting GUI to avoid "cannot change thread mode" in Windows WMI call
-  backup_media := backup.Get_backup_media()
+	// Get list of backup locations (as there is not SaveAs/directory dialog in libui)
+	// We do this before starting GUI to avoid "cannot change thread mode" in Windows WMI call
+	backupMedia := backup.GetBackupMedia()
 
-  // UI (main menu)
+	// UI (main menu)
 
-  err := ui.Main(func () {
-    // Define main window
-    button_start_server := ui.NewButton(xlate.Get("Start Stickless Exam Server"))
-    button_get_server := ui.NewButton("Install or update Abitti Stickless Exam Server")
-    button_switch_server := ui.NewButton("Install or update Stickless Matriculation Exam Server")
-    button_make_backup := ui.NewButton("Make Stickless Exam Server Backup")
-    button_mebshare := ui.NewButton("Open virtual USB stick (ktp-jako)")
+	err := ui.Main(func() {
+		// Define main window
+		buttonStartServer := ui.NewButton(xlate.Get("Start Stickless Exam Server"))
+		buttonGetServer := ui.NewButton("Install or update Abitti Stickless Exam Server")
+		buttonSwitchServer := ui.NewButton("Install or update Stickless Matriculation Exam Server")
+		buttonMakeBackup := ui.NewButton("Make Stickless Exam Server Backup")
+		buttonMebshare := ui.NewButton("Open virtual USB stick (ktp-jako)")
 
-    combobox_lang := ui.NewCombobox()
-    combobox_lang.Append("Suomeksi")
-    combobox_lang.Append("På svenska")
-    combobox_lang.Append("In English")
-    combobox_lang.SetSelected(0)
+		comboboxLang := ui.NewCombobox()
+		comboboxLang.Append("Suomeksi")
+		comboboxLang.Append("På svenska")
+		comboboxLang.Append("In English")
+		comboboxLang.SetSelected(0)
 
-    label_box := ui.NewLabel("")
-    label_status := ui.NewLabel("")
+		labelBox := ui.NewLabel("")
+		labelStatus := ui.NewLabel("")
 
-    checkbox_advanced := ui.NewCheckbox("")
+		checkboxAdvanced := ui.NewCheckbox("")
 
-    // Box version and language selection dropdown
-    box_basic_upper := ui.NewHorizontalBox()
-    box_basic_upper.SetPadded(true)
-    box_basic_upper.Append(label_box, true)
-    box_basic_upper.Append(combobox_lang, false)
+		// Box version and language selection dropdown
+		boxBasicUpper := ui.NewHorizontalBox()
+		boxBasicUpper.SetPadded(true)
+		boxBasicUpper.Append(labelBox, true)
+		boxBasicUpper.Append(comboboxLang, false)
 
-    box_basic := ui.NewVerticalBox()
-    box_basic.SetPadded(true)
-    box_basic.Append(box_basic_upper, true)
-    box_basic.Append(label_status, true)
-    box_basic.Append(button_start_server, true)
-    box_basic.Append(button_mebshare, true)
-    box_basic.Append(checkbox_advanced, true)
+		boxBasic := ui.NewVerticalBox()
+		boxBasic.SetPadded(true)
+		boxBasic.Append(boxBasicUpper, true)
+		boxBasic.Append(labelStatus, true)
+		boxBasic.Append(buttonStartServer, true)
+		boxBasic.Append(buttonMebshare, true)
+		boxBasic.Append(checkboxAdvanced, true)
 
-    box_advanced := ui.NewVerticalBox()
-    box_advanced.SetPadded(true)
-    box_advanced.Append(button_get_server, true)
-    box_advanced.Append(button_switch_server, true)
-    box_advanced.Append(button_make_backup, true)
+		boxAdvanced := ui.NewVerticalBox()
+		boxAdvanced.SetPadded(true)
+		boxAdvanced.Append(buttonGetServer, true)
+		boxAdvanced.Append(buttonSwitchServer, true)
+		boxAdvanced.Append(buttonMakeBackup, true)
 
-    box := ui.NewVerticalBox()
-    box.Append(box_basic, false)
-    box.Append(box_advanced, false)
+		box := ui.NewVerticalBox()
+		box.Append(boxBasic, false)
+		box.Append(boxAdvanced, false)
 
-    window := ui.NewWindow(fmt.Sprintf("naksu %s", version), 1, 1, false)
+		window := ui.NewWindow(fmt.Sprintf("naksu %s", version), 1, 1, false)
 
-    mebroutines.Set_main_window(window)
-    progress.Set_label_object(label_status)
+		mebroutines.SetMainWindow(window)
+		progress.SetProgressLabel(labelStatus)
 
-    // Run auto-update
-    if doSelfUpdate() {
-      mebroutines.Message_warning("naksu has been automatically updated. Please restart naksu.")
-      os.Exit(0)
-    }
+		// Run auto-update
+		if doSelfUpdate() {
+			mebroutines.ShowWarningMessage("naksu has been automatically updated. Please restart naksu.")
+			os.Exit(0)
+		}
 
-    // Define command channel & goroutine for disabling/enabling main UI buttons
-    main_ui_status := make(chan string)
-    main_ui_netupdate := time.NewTicker(5 * time.Second)
-    go func() {
-      last_status := ""
-      for {
-        select {
-        case <- main_ui_netupdate.C:
-          if last_status == "enable" {
-            // Require network connection for install/update
+		// Define command channel & goroutine for disabling/enabling main UI buttons
+		mainUIStatus := make(chan string)
+		mainUINetupdate := time.NewTicker(5 * time.Second)
+		go func() {
+			lastStatus := ""
+			for {
+				select {
+				case <-mainUINetupdate.C:
+					if lastStatus == "enable" {
+						// Require network connection for install/update
 
-            ui.QueueMain(func () {
-              if install.If_http_get(URL_TEST) {
-                button_get_server.Enable()
-                button_switch_server.Enable()
-              } else {
-                button_get_server.Disable()
-                button_switch_server.Disable()
-              }
-            })
-          }
-        case new_status := <- main_ui_status:
-          mebroutines.Message_debug(fmt.Sprintf("main_ui_status: %s", new_status))
-          // Got new status
-          if new_status == "enable" {
-            mebroutines.Message_debug("enable ui")
+						ui.QueueMain(func() {
+							if install.TestHTTPGet(URLTest) {
+								buttonGetServer.Enable()
+								buttonSwitchServer.Enable()
+							} else {
+								buttonGetServer.Disable()
+								buttonSwitchServer.Disable()
+							}
+						})
+					}
+				case newStatus := <-mainUIStatus:
+					mebroutines.LogDebug(fmt.Sprintf("main_ui_status: %s", newStatus))
+					// Got new status
+					if newStatus == "enable" {
+						mebroutines.LogDebug("enable ui")
 
-            ui.QueueMain(func() {
-              combobox_lang.Enable()
+						ui.QueueMain(func() {
+							comboboxLang.Enable()
 
-              button_start_server.Enable()
-              button_mebshare.Enable()
+							buttonStartServer.Enable()
+							buttonMebshare.Enable()
 
-              // Require network connection for install/update
-              if install.If_http_get(URL_TEST) {
-                button_get_server.Enable()
-                button_switch_server.Enable()
-              } else {
-                button_get_server.Disable()
-                button_switch_server.Disable()
-              }
-              button_make_backup.Enable()
-            })
+							// Require network connection for install/update
+							if install.TestHTTPGet(URLTest) {
+								buttonGetServer.Enable()
+								buttonSwitchServer.Enable()
+							} else {
+								buttonGetServer.Disable()
+								buttonSwitchServer.Disable()
+							}
+							buttonMakeBackup.Enable()
+						})
 
-            last_status = new_status
-          }
-          if new_status == "disable" {
-            mebroutines.Message_debug("disable ui")
+						lastStatus = newStatus
+					}
+					if newStatus == "disable" {
+						mebroutines.LogDebug("disable ui")
 
-            ui.QueueMain(func () {
-              combobox_lang.Disable()
+						ui.QueueMain(func() {
+							comboboxLang.Disable()
 
-              button_start_server.Disable()
-              button_mebshare.Enable()
+							buttonStartServer.Disable()
+							buttonMebshare.Enable()
 
-              button_get_server.Disable()
-              button_switch_server.Disable()
-              button_make_backup.Disable()
-            })
+							buttonGetServer.Disable()
+							buttonSwitchServer.Disable()
+							buttonMakeBackup.Disable()
+						})
 
-            last_status = new_status
-          }
-        }
-      }
-    }()
+						lastStatus = newStatus
+					}
+				}
+			}
+		}()
 
-    main_ui_status <- "enable"
+		mainUIStatus <- "enable"
 
-    window.SetMargined(true)
+		window.SetMargined(true)
 		window.SetChild(box)
 
-    // Advanced group is hidden by default
-    box_advanced.Hide()
+		// Advanced group is hidden by default
+		boxAdvanced.Hide()
 
-    // Define Backup SaveAs window/dialog
-    backup_label := ui.NewLabel("Please select target path")
+		// Define Backup SaveAs window/dialog
+		backupLabel := ui.NewLabel("Please select target path")
 
-    backup_combobox := ui.NewCombobox()
-    // Refresh media selection
-    backup_media_path := backup_combobox_populate(backup_media, backup_combobox)
+		backupCombobox := ui.NewCombobox()
+		// Refresh media selection
+		backupMediaPath := backupComboboxPopulate(backupMedia, backupCombobox)
 
-    backup_button_save := ui.NewButton("Save")
-    backup_button_cancel := ui.NewButton("Cancel")
+		backupButtonSave := ui.NewButton("Save")
+		backupButtonCancel := ui.NewButton("Cancel")
 
-    backup_box := ui.NewVerticalBox()
-    backup_box.SetPadded(true)
-    backup_box.Append(backup_label, false)
-    backup_box.Append(backup_combobox, false)
-    backup_box.Append(backup_button_save, false)
-    backup_box.Append(backup_button_cancel, false)
+		backupBox := ui.NewVerticalBox()
+		backupBox.SetPadded(true)
+		backupBox.Append(backupLabel, false)
+		backupBox.Append(backupCombobox, false)
+		backupBox.Append(backupButtonSave, false)
+		backupBox.Append(backupButtonCancel, false)
 
-    backup_window := ui.NewWindow("", 1, 1, false)
+		backupWindow := ui.NewWindow("", 1, 1, false)
 
-    backup_window.SetMargined(true)
-    backup_window.SetChild(backup_box)
+		backupWindow.SetMargined(true)
+		backupWindow.SetChild(backupBox)
 
-    // (Re)write UI labels
-    rewrite_ui_labels := func () {
-      button_start_server.SetText(xlate.Get("Start Stickless Exam Server"))
-      button_get_server.SetText(xlate.Get("Install or update Abitti Stickless Exam Server"))
-      button_switch_server.SetText(xlate.Get("Install or update Stickless Matriculation Exam Server"))
-      button_make_backup.SetText(xlate.Get("Make Stickless Exam Server Backup"))
-      button_mebshare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
+		// (Re)write UI labels
+		rewriteUILabels := func() {
+			buttonStartServer.SetText(xlate.Get("Start Stickless Exam Server"))
+			buttonGetServer.SetText(xlate.Get("Install or update Abitti Stickless Exam Server"))
+			buttonSwitchServer.SetText(xlate.Get("Install or update Stickless Matriculation Exam Server"))
+			buttonMakeBackup.SetText(xlate.Get("Make Stickless Exam Server Backup"))
+			buttonMebshare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
 
-      label_box.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.Get_vagrantbox_version()))
+			labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.GetVagrantBoxVersion()))
 
-      checkbox_advanced.SetText(xlate.Get("Show management features"))
+			checkboxAdvanced.SetText(xlate.Get("Show management features"))
 
-      backup_window.SetTitle(xlate.Get("naksu: SaveTo"))
-      backup_label.SetText(xlate.Get("Please select target path"))
-      backup_button_save.SetText(xlate.Get("Save"))
-      backup_button_cancel.SetText(xlate.Get("Cancel"))
-    }
+			backupWindow.SetTitle(xlate.Get("naksu: SaveTo"))
+			backupLabel.SetText(xlate.Get("Please select target path"))
+			backupButtonSave.SetText(xlate.Get("Save"))
+			backupButtonCancel.SetText(xlate.Get("Cancel"))
+		}
 
-    // Set UI labels with default language
-    rewrite_ui_labels()
+		// Set UI labels with default language
+		rewriteUILabels()
 
-    // Define language selection action main window
-    combobox_lang.OnSelected(func(*ui.Combobox) {
-      switch combobox_lang.Selected() {
-      case 0: xlate.SetLanguage("fi")
-      case 1: xlate.SetLanguage("sv")
-      case 2: xlate.SetLanguage("en")
-      }
+		// Define language selection action main window
+		comboboxLang.OnSelected(func(*ui.Combobox) {
+			switch comboboxLang.Selected() {
+			case 0:
+				xlate.SetLanguage("fi")
+			case 1:
+				xlate.SetLanguage("sv")
+			case 2:
+				xlate.SetLanguage("en")
+			}
 
-      rewrite_ui_labels()
-    })
+			rewriteUILabels()
+		})
 
-    // Show/hide advanced features
-    checkbox_advanced.OnToggled(func(*ui.Checkbox) {
-      switch checkbox_advanced.Checked() {
-      case true: {
-        box_advanced.Show()
-      }
-      case false: {
-        box_advanced.Hide()
-      }
-      }
-    })
+		// Show/hide advanced features
+		checkboxAdvanced.OnToggled(func(*ui.Checkbox) {
+			switch checkboxAdvanced.Checked() {
+			case true:
+				{
+					boxAdvanced.Show()
+				}
+			case false:
+				{
+					boxAdvanced.Hide()
+				}
+			}
+		})
 
-    // Define actions for main window
-    button_start_server.OnClicked(func(*ui.Button) {
-      go func () {
-        main_ui_status <- "disable"
-        start.Do_start_server()
-        main_ui_status <- "enable"
-        progress.Set_message("")
-      }()
-    })
+		// Define actions for main window
+		buttonStartServer.OnClicked(func(*ui.Button) {
+			go func() {
+				mainUIStatus <- "disable"
+				start.StartServer()
+				mainUIStatus <- "enable"
+				progress.SetMessage("")
+			}()
+		})
 
-    button_get_server.OnClicked(func(*ui.Button) {
-      ch_free_disk := make(chan int)
-      ch_disk_low_popup := make(chan bool)
+		buttonGetServer.OnClicked(func(*ui.Button) {
+			chFreeDisk := make(chan int)
+			chDiskLowPopup := make(chan bool)
 
-      // Check free disk
-      // Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
-      go func () {
-        free_disk := 0
-        if mebroutines.ExistsDir(mebroutines.Get_vagrant_directory()) {
-          free_disk,_ = mebroutines.Get_disk_free(mebroutines.Get_vagrant_directory())
-        } else {
-          free_disk,_ = mebroutines.Get_disk_free(mebroutines.Get_home_directory())
-        }
-        ch_free_disk <- free_disk
-      }()
+			// Check free disk
+			// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+			go func() {
+				freeDisk := 0
+				if mebroutines.ExistsDir(mebroutines.GetVagrantDirectory()) {
+					freeDisk, _ = mebroutines.GetDiskFree(mebroutines.GetVagrantDirectory())
+				} else {
+					freeDisk, _ = mebroutines.GetDiskFree(mebroutines.GetHomeDirectory())
+				}
+				chFreeDisk <- freeDisk
+			}()
 
-      go func () {
-        free_disk := <- ch_free_disk
-        if (free_disk != -1 && free_disk < low_disk_limit) {
-          mebroutines.Message_warning("Your free disk size is getting low. If update/install process fails please consider freeing some disk space.")
-        }
+			go func() {
+				freeDisk := <-chFreeDisk
+				if freeDisk != -1 && freeDisk < lowDiskLimit {
+					mebroutines.ShowWarningMessage("Your free disk size is getting low. If update/install process fails please consider freeing some disk space.")
+				}
 
-        ch_disk_low_popup <- true
-      }()
+				chDiskLowPopup <- true
+			}()
 
-      go func () {
-        // Wait until disk low popup has been processed
-        <- ch_disk_low_popup
+			go func() {
+				// Wait until disk low popup has been processed
+				<-chDiskLowPopup
 
-        go func () {
-          main_ui_status <- "disable"
-          install.Do_get_server("")
-          rewrite_ui_labels()
-          main_ui_status <- "enable"
-          progress.Set_message("")
-        }()
-      }()
-    })
+				go func() {
+					mainUIStatus <- "disable"
+					install.GetServer("")
+					rewriteUILabels()
+					mainUIStatus <- "enable"
+					progress.SetMessage("")
+				}()
+			}()
+		})
 
-    button_switch_server.OnClicked(func(*ui.Button) {
-      ch_free_disk := make(chan int)
-      ch_disk_low_popup := make(chan bool)
-      ch_path_new_vagrantfile := make(chan string)
+		buttonSwitchServer.OnClicked(func(*ui.Button) {
+			chFreeDisk := make(chan int)
+			chDiskLowPopup := make(chan bool)
+			chPathNewVagrantfile := make(chan string)
 
-      // Check free disk
-      // Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
-      go func () {
-        free_disk := 0
-        if mebroutines.ExistsDir(mebroutines.Get_vagrant_directory()) {
-          free_disk,_ = mebroutines.Get_disk_free(mebroutines.Get_vagrant_directory())
-        } else {
-          free_disk,_ = mebroutines.Get_disk_free(mebroutines.Get_home_directory())
-        }
-        ch_free_disk <- free_disk
-      }()
+			// Check free disk
+			// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+			go func() {
+				freeDisk := 0
+				if mebroutines.ExistsDir(mebroutines.GetVagrantDirectory()) {
+					freeDisk, _ = mebroutines.GetDiskFree(mebroutines.GetVagrantDirectory())
+				} else {
+					freeDisk, _ = mebroutines.GetDiskFree(mebroutines.GetHomeDirectory())
+				}
+				chFreeDisk <- freeDisk
+			}()
 
-      go func () {
-        free_disk := <- ch_free_disk
-        if (free_disk != -1 && free_disk < low_disk_limit) {
-          mebroutines.Message_warning("Your free disk size is getting low. If update/install process fails please consider freeing some disk space.")
-        }
+			go func() {
+				freeDisk := <-chFreeDisk
+				if freeDisk != -1 && freeDisk < lowDiskLimit {
+					mebroutines.ShowWarningMessage("Your free disk size is getting low. If update/install process fails please consider freeing some disk space.")
+				}
 
-        ch_disk_low_popup <- true
-      }()
+				chDiskLowPopup <- true
+			}()
 
-      go func () {
-        // Wait until free disk check has been carried out
-        <- ch_disk_low_popup
+			go func() {
+				// Wait until free disk check has been carried out
+				<-chDiskLowPopup
 
-        ui.QueueMain(func () {
-          path_new_vagrantfile := ui.OpenFile(window)
-          ch_path_new_vagrantfile <- path_new_vagrantfile
-        })
-      }()
+				ui.QueueMain(func() {
+					pathNewVagrantfile := ui.OpenFile(window)
+					chPathNewVagrantfile <- pathNewVagrantfile
+				})
+			}()
 
-      go func () {
-        // Wait until you have path_new_vagrantfile
-        path_new_vagrantfile := <- ch_path_new_vagrantfile
+			go func() {
+				// Wait until you have path_new_vagrantfile
+				pathNewVagrantfile := <-chPathNewVagrantfile
 
-        // Path to ~/ktp/Vagrantfile
-        path_the_vagrantfile := mebroutines.Get_vagrant_directory()+string(os.PathSeparator)+"Vagrantfile"
+				// Path to ~/ktp/Vagrantfile
+				pathOldVagrantfile := mebroutines.GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile"
 
-        if path_new_vagrantfile == "" {
-          mebroutines.Message_error(xlate.Get("Did not get a path for a new Vagrantfile"))
-        } else if path_new_vagrantfile == path_the_vagrantfile {
-          mebroutines.Message_error(xlate.Get("Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)"))
-        } else {
-          go func () {
-            main_ui_status <- "disable"
-            install.Do_get_server(path_new_vagrantfile)
-            rewrite_ui_labels()
-            main_ui_status <- "enable"
-            progress.Set_message("")
-          }()
-        }
-      }()
-    })
+				if pathNewVagrantfile == "" {
+					mebroutines.ShowErrorMessage(xlate.Get("Did not get a path for a new Vagrantfile"))
+				} else if pathNewVagrantfile == pathOldVagrantfile {
+					mebroutines.ShowErrorMessage(xlate.Get("Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)"))
+				} else {
+					go func() {
+						mainUIStatus <- "disable"
+						install.GetServer(pathNewVagrantfile)
+						rewriteUILabels()
+						mainUIStatus <- "enable"
+						progress.SetMessage("")
+					}()
+				}
+			}()
+		})
 
-    button_make_backup.OnClicked(func(*ui.Button) {
-      main_ui_status <- "disable"
-      backup_window.Show()
-    })
+		buttonMakeBackup.OnClicked(func(*ui.Button) {
+			mainUIStatus <- "disable"
+			backupWindow.Show()
+		})
 
-    button_mebshare.OnClicked(func(*ui.Button) {
-      mebroutines.Message_debug("Opening MEB share (~/ktp-jako)")
-      mebroutines.Open_meb_share()
-    })
+		buttonMebshare.OnClicked(func(*ui.Button) {
+			mebroutines.LogDebug("Opening MEB share (~/ktp-jako)")
+			mebroutines.OpenMebShare()
+		})
 
-    // Define actions for SaveAs window/dialog
-    backup_button_save.OnClicked(func(*ui.Button) {
-      path_backup := fmt.Sprintf("%s%s%s", backup_media_path[backup_combobox.Selected()], string(os.PathSeparator), backup.Get_backup_filename(time.Now()))
+		// Define actions for SaveAs window/dialog
+		backupButtonSave.OnClicked(func(*ui.Button) {
+			pathBackup := fmt.Sprintf("%s%s%s", backupMediaPath[backupCombobox.Selected()], string(os.PathSeparator), backup.GetBackupFilename(time.Now()))
 
-      ch_free_disk := make(chan int)
-      ch_disk_low_popup := make(chan bool)
+			chFreeDisk := make(chan int)
+			chDiskLowPopup := make(chan bool)
 
-      // Check free disk
-      // Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
-      go func () {
-        free_disk,_ := mebroutines.Get_disk_free(fmt.Sprintf("%s%s", backup_media_path[backup_combobox.Selected()], string(os.PathSeparator)))
-        ch_free_disk <- free_disk
-      }()
+			// Check free disk
+			// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+			go func() {
+				freeDisk, _ := mebroutines.GetDiskFree(fmt.Sprintf("%s%s", backupMediaPath[backupCombobox.Selected()], string(os.PathSeparator)))
+				chFreeDisk <- freeDisk
+			}()
 
-      go func () {
-        free_disk := <- ch_free_disk
-        if (free_disk != -1 && free_disk < low_disk_limit) {
-          mebroutines.Message_warning("Your free disk size is getting low. If backup process fails please consider freeing some disk space.")
-        }
-        ch_disk_low_popup <- true
-      }()
+			go func() {
+				freeDisk := <-chFreeDisk
+				if freeDisk != -1 && freeDisk < lowDiskLimit {
+					mebroutines.ShowWarningMessage("Your free disk size is getting low. If backup process fails please consider freeing some disk space.")
+				}
+				chDiskLowPopup <- true
+			}()
 
-      go func () {
-        <- ch_disk_low_popup
+			go func() {
+				<-chDiskLowPopup
 
-        go func () {
-          backup_window.Hide()
-          backup.Do_make_backup(path_backup)
-          main_ui_status <- "enable"
-        }()
-      }()
-    })
+				go func() {
+					backupWindow.Hide()
+					backup.MakeBackup(pathBackup)
+					mainUIStatus <- "enable"
+				}()
+			}()
+		})
 
-    backup_button_cancel.OnClicked(func(*ui.Button) {
-      backup_window.Hide()
-      main_ui_status <- "enable"
-    })
+		backupButtonCancel.OnClicked(func(*ui.Button) {
+			backupWindow.Hide()
+			mainUIStatus <- "enable"
+		})
 
-    window.OnClosing(func(*ui.Window) bool {
-      mebroutines.Message_debug("User exists through window exit")
-      ui.Quit()
-      return true
-    })
+		window.OnClosing(func(*ui.Window) bool {
+			mebroutines.LogDebug("User exists through window exit")
+			ui.Quit()
+			return true
+		})
 
-    window.Show()
-    main_ui_status <- "enable"
-    backup_window.Hide()
+		window.Show()
+		mainUIStatus <- "enable"
+		backupWindow.Hide()
 
-    // Make sure we have vagrant
-  	if (! mebroutines.If_found_vagrant()) {
-  		mebroutines.Message_error(xlate.Get("Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?"))
-  	}
+		// Make sure we have vagrant
+		if !mebroutines.IfFoundVagrant() {
+			mebroutines.ShowErrorMessage(xlate.Get("Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?"))
+		}
 
-  	// Make sure we have VBoxManage
-  	if (! mebroutines.If_found_vboxmanage()) {
-  		mebroutines.Message_error(xlate.Get("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?"))
-  	}
+		// Make sure we have VBoxManage
+		if !mebroutines.IfFoundVBoxManage() {
+			mebroutines.ShowErrorMessage(xlate.Get("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?"))
+		}
 
-    // Check if home directory contains non-american characters which may cause problems to vagrant
-    if (mebroutines.If_intl_chars_in_path(mebroutines.Get_home_directory())) {
-      mebroutines.Message_warning(fmt.Sprintf(xlate.Get("Your home directory path (%s) contains characters which may cause problems to Vagrant."), mebroutines.Get_home_directory()))
-    }
+		// Check if home directory contains non-american characters which may cause problems to vagrant
+		if mebroutines.IfIntlCharsInPath(mebroutines.GetHomeDirectory()) {
+			mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your home directory path (%s) contains characters which may cause problems to Vagrant."), mebroutines.GetHomeDirectory()))
+		}
 
-  })
+	})
 
-  if err != nil {
-    panic(err)
-  }
+	if err != nil {
+		panic(err)
+	}
 
-  mebroutines.Message_debug("Exiting GUI loop")
+	mebroutines.LogDebug("Exiting GUI loop")
 }
 
-func backup_combobox_populate (backup_media map[string]string, combobox *ui.Combobox) []string {
-  // Collect all paths to this slice
-  media_path := make([]string, len(backup_media))
-  media_path_n := 0
+func backupComboboxPopulate(backupMedia map[string]string, combobox *ui.Combobox) []string {
+	// Collect all paths to this slice
+	mediaPath := make([]string, len(backupMedia))
+	mediaPathN := 0
 
-  for this_path := range backup_media {
-    combobox.Append(fmt.Sprintf("%s [%s]", backup_media[this_path], this_path))
+	for thisPath := range backupMedia {
+		combobox.Append(fmt.Sprintf("%s [%s]", backupMedia[thisPath], thisPath))
 
-    media_path[media_path_n] = this_path
-    media_path_n++
-  }
+		mediaPath[mediaPathN] = thisPath
+		mediaPathN++
+	}
 
-  return media_path
+	return mediaPath
 }

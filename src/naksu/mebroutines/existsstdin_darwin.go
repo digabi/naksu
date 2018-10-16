@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+// ExistsStdin checks if app has stdin
 func ExistsStdin() bool {
 	fi, err := os.Stdin.Stat()
 	if err != nil {
