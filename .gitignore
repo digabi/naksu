@@ -7,3 +7,5 @@ pkg/
 vendor/
 # Ignore GitHub release packages
 *.zip
+# Ignore tool files
+.vscode
