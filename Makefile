@@ -6,12 +6,23 @@ GO=go
 RSRC=$(HOME)/go/bin/rsrc
 MINGW_LIB?=$(HOME)/mingw-w64/current/lib
 
+bin/gometalinter:
+	curl https://raw.githubusercontent.com/alecthomas/gometalinter/master/scripts/install.sh | sh
+
+checkstyle: bin/gometalinter
+	-./bin/gometalinter --deadline=240s --vendor --checkstyle ./src/naksu/... > checkstyle.xml
+
+lint: bin/gometalinter
+	./bin/gometalinter --deadline=240s --vendor ./src/naksu/...
+
 docker: clean
 	mkdir -p bin
 	-docker rm naksu-build
 	docker build -t naksu-build-img:latest -f Dockerfile.build .
 	docker create --name naksu-build naksu-build-img
-	docker cp naksu-build:/app/bin/ .
+	docker cp naksu-build:/app/checkstyle.xml .
+	docker cp naksu-build:/app/bin/naksu bin/naksu
+	docker cp naksu-build:/app/bin/naksu.exe bin/naksu.exe
 	docker cp naksu-build:/app/naksu_linux_amd64.zip .
 	docker cp naksu-build:/app/naksu_windows_amd64.zip .
 
