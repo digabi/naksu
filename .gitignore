@@ -9,4 +9,5 @@ vendor/
 *.zip
 # Ignore tool files
 .vscode
-checkstyle.xml
+checkstyle-linux.xml
+checkstyle-windows.xml
