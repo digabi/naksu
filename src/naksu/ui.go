@@ -214,6 +214,14 @@ func translateUILabels() {
 
 }
 
+func disableUI(mainUIStatus chan string) {
+	mainUIStatus <- "disable"
+}
+
+func enableUI(mainUIStatus chan string) {
+	mainUIStatus <- "enable"
+}
+
 func bindLanguageSwitching() {
 	// Define language selection action main window
 	comboboxLang.OnSelected(func(*ui.Combobox) {
@@ -250,9 +258,9 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 	// Define actions for main window
 	buttonStartServer.OnClicked(func(*ui.Button) {
 		go func() {
-			mainUIStatus <- "disable"
+			disableUI(mainUIStatus)
 			start.StartServer()
-			mainUIStatus <- "enable"
+			enableUI(mainUIStatus)
 			progress.SetMessage("")
 		}()
 	})
@@ -290,10 +298,10 @@ func bindOnGetServer(mainUIStatus chan string) {
 			<-chDiskLowPopup
 
 			go func() {
-				mainUIStatus <- "disable"
+				disableUI(mainUIStatus)
 				install.GetServer("")
 				translateUILabels()
-				mainUIStatus <- "enable"
+				enableUI(mainUIStatus)
 				progress.SetMessage("")
 			}()
 		}()
@@ -350,10 +358,10 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 				mebroutines.ShowErrorMessage(xlate.Get("Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)"))
 			} else {
 				go func() {
-					mainUIStatus <- "disable"
+					disableUI(mainUIStatus)
 					install.GetServer(pathNewVagrantfile)
 					translateUILabels()
-					mainUIStatus <- "enable"
+					enableUI(mainUIStatus)
 					progress.SetMessage("")
 				}()
 			}
@@ -364,7 +372,7 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 
 func bindOnMakeBackup(mainUIStatus chan string) {
 	buttonMakeBackup.OnClicked(func(*ui.Button) {
-		mainUIStatus <- "disable"
+		disableUI(mainUIStatus)
 		backupWindow.Show()
 	})
 }
@@ -405,14 +413,14 @@ func bindOnBackup(mainUIStatus chan string) {
 			go func() {
 				backupWindow.Hide()
 				backup.MakeBackup(pathBackup)
-				mainUIStatus <- "enable"
+				enableUI(mainUIStatus)
 			}()
 		}()
 	})
 
 	backupButtonCancel.OnClicked(func(*ui.Button) {
 		backupWindow.Hide()
-		mainUIStatus <- "enable"
+		enableUI(mainUIStatus)
 	})
 }
 
@@ -439,7 +447,7 @@ func RunUI() error {
 
 		setupMainLoop(mainUIStatus, mainUINetupdate)
 
-		mainUIStatus <- "enable"
+		enableUI(mainUIStatus)
 
 		window.SetMargined(true)
 		window.SetChild(box)
