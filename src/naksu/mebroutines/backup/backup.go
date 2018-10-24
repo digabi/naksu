@@ -26,7 +26,10 @@ func MakeBackup(backupPath string) {
 		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not write backup file %s. Try another location."), backupPath))
 		return
 	}
-	_ = os.Remove(backupPath)
+	err := os.Remove(backupPath)
+	if err != nil {
+		mebroutines.LogDebug("Backup remove returned error code")
+	}
 
 	// Get box
 	progress.TranslateAndSetMessage("Getting vagrantbox ID")
