@@ -267,22 +267,33 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 
 }
 
+func checkFreeDisk(chFreeDisk chan int) {
+	// Check free disk
+	// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+	go func() {
+		freeDisk := 0
+		var err error
+		if mebroutines.ExistsDir(mebroutines.GetVagrantDirectory()) {
+			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetVagrantDirectory())
+			if err != nil {
+				mebroutines.LogDebug("Getting free disk space from Vagrant directory failed")
+			}
+		} else {
+			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetHomeDirectory())
+			if err != nil {
+				mebroutines.LogDebug("Getting free disk space from home directory failed")
+			}
+		}
+		chFreeDisk <- freeDisk
+	}()
+}
+
 func bindOnGetServer(mainUIStatus chan string) {
 	buttonGetServer.OnClicked(func(*ui.Button) {
 		chFreeDisk := make(chan int)
 		chDiskLowPopup := make(chan bool)
 
-		// Check free disk
-		// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
-		go func() {
-			freeDisk := 0
-			if mebroutines.ExistsDir(mebroutines.GetVagrantDirectory()) {
-				freeDisk, _ = mebroutines.GetDiskFree(mebroutines.GetVagrantDirectory())
-			} else {
-				freeDisk, _ = mebroutines.GetDiskFree(mebroutines.GetHomeDirectory())
-			}
-			chFreeDisk <- freeDisk
-		}()
+		checkFreeDisk(chFreeDisk)
 
 		go func() {
 			freeDisk := <-chFreeDisk
@@ -314,17 +325,7 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 		chDiskLowPopup := make(chan bool)
 		chPathNewVagrantfile := make(chan string)
 
-		// Check free disk
-		// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
-		go func() {
-			freeDisk := 0
-			if mebroutines.ExistsDir(mebroutines.GetVagrantDirectory()) {
-				freeDisk, _ = mebroutines.GetDiskFree(mebroutines.GetVagrantDirectory())
-			} else {
-				freeDisk, _ = mebroutines.GetDiskFree(mebroutines.GetHomeDirectory())
-			}
-			chFreeDisk <- freeDisk
-		}()
+		checkFreeDisk(chFreeDisk)
 
 		go func() {
 			freeDisk := <-chFreeDisk
@@ -392,12 +393,7 @@ func bindOnBackup(mainUIStatus chan string) {
 		chFreeDisk := make(chan int)
 		chDiskLowPopup := make(chan bool)
 
-		// Check free disk
-		// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
-		go func() {
-			freeDisk, _ := mebroutines.GetDiskFree(fmt.Sprintf("%s%s", backupMediaPath[backupCombobox.Selected()], string(os.PathSeparator)))
-			chFreeDisk <- freeDisk
-		}()
+		checkFreeDisk(chFreeDisk)
 
 		go func() {
 			freeDisk := <-chFreeDisk
