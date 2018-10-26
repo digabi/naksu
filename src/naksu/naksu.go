@@ -43,11 +43,17 @@ func main() {
 
 	// Check whether we have a terminal (restart with x-terminal-emulator, if missing)
 	if !mebroutines.ExistsStdin() {
-		pathToMe, _ := osext.Executable()
+		pathToMe, err := osext.Executable()
+		if err != nil {
+			mebroutines.LogDebug("Failed to get executable path")
+		}
 		commandArgs := []string{"x-terminal-emulator", "-e", pathToMe}
 
 		mebroutines.LogDebug(fmt.Sprintf("No stdin, restarting with terminal: %s", strings.Join(commandArgs, " ")))
-		_, _ = mebroutines.RunAndGetOutput(commandArgs)
+		_, err = mebroutines.RunAndGetOutput(commandArgs)
+		if err != nil {
+			mebroutines.LogDebug(fmt.Sprintf("Failed to restart with terminal: %d", err))
+		}
 		mebroutines.LogDebug(fmt.Sprintf("No stdin, returned from %s", strings.Join(commandArgs, " ")))
 
 		// Normal termination
