@@ -123,16 +123,17 @@ func downloadFile(url string, filepath string) error {
 	mebroutines.LogDebug(fmt.Sprintf("Starting download from URL %s to file %s", url, filepath))
 
 	out, err1 := os.Create(filepath)
-	defer out.Close()
 	if err1 != nil {
 		return errors.New("Failed to create file")
 	}
+	defer mebroutines.Close(out)
 
+	/* #nosec */
 	resp, err2 := http.Get(url)
 	if err2 != nil {
 		return errors.New("Failed to retrieve file")
 	}
-	defer resp.Body.Close()
+	defer mebroutines.Close(resp.Body)
 
 	_, err3 := io.Copy(out, resp.Body)
 	if err3 != nil {
@@ -145,12 +146,13 @@ func downloadFile(url string, filepath string) error {
 
 // TestHTTPGet tests whether HTTP get succeeds to given URL
 func TestHTTPGet(url string) bool {
+	/* #nosec */
 	resp, err := http.Get(url)
 	if err != nil {
 		mebroutines.LogDebug(fmt.Sprintf("Testing HTTP GET %s and got error %v", url, err.Error()))
 		return false
 	}
-	defer resp.Body.Close()
+	defer mebroutines.Close(resp.Body)
 
 	mebroutines.LogDebug(fmt.Sprintf("Testing HTTP GET %s succeeded", url))
 

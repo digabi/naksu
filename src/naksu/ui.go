@@ -259,7 +259,7 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 	buttonStartServer.OnClicked(func(*ui.Button) {
 		go func() {
 			disableUI(mainUIStatus)
-			start.StartServer()
+			start.Server()
 			enableUI(mainUIStatus)
 			progress.SetMessage("")
 		}()

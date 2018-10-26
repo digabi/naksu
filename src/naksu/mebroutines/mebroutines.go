@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"naksu/xlate"
 	"os"
 	"os/exec"
@@ -22,9 +23,18 @@ var isDebug bool
 var mainWindow *ui.Window
 var debugFilename string
 
+// Close gracefully handles closing of closable item. defer Close(item)
+func Close(c io.Closer) {
+	err := c.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 // Run executes command with arguments
 func Run(commandArgs []string) error {
 	LogDebug(fmt.Sprintf("run: %s", strings.Join(commandArgs, " ")))
+	/* #nosec */
 	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
@@ -40,6 +50,7 @@ func Run(commandArgs []string) error {
 // RunAndGetOutput runs command with arguments and returns output as a string
 func RunAndGetOutput(commandArgs []string) (string, error) {
 	LogDebug(fmt.Sprintf("RunAndGetOutput: %s", strings.Join(commandArgs, " ")))
+	/* #nosec */
 	out, err := exec.Command(commandArgs[0], commandArgs[1:]...).CombinedOutput()
 	if err != nil {
 		// Executing failed, return error condition
@@ -63,6 +74,7 @@ func RunAndGetError(commandArgs []string) (string, error) {
 
 	var stderr bytes.Buffer
 
+	/* #nosec */
 	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
@@ -174,6 +186,7 @@ func GetVagrantBoxVersion() string {
 	}
 
 	indexFilename := GetVagrantdDirectory() + string(os.PathSeparator) + "data" + string(os.PathSeparator) + "machine-index" + string(os.PathSeparator) + "index"
+	/* #nosec */
 	fileContent, err := ioutil.ReadFile(indexFilename)
 	if err != nil {
 		LogDebug(fmt.Sprintf("Could not read from %s", indexFilename))
@@ -237,6 +250,7 @@ func GetVagrantBoxIndexUUID() string {
 
 	pathID := pathVagrant + string(os.PathSeparator) + ".vagrant" + string(os.PathSeparator) + "machines" + string(os.PathSeparator) + "default" + string(os.PathSeparator) + "virtualbox" + string(os.PathSeparator) + "index_uuid"
 
+	/* #nosec */
 	fileContent, err := ioutil.ReadFile(pathID)
 	if err != nil {
 		LogDebug(fmt.Sprintf(xlate.Get("Could not get vagrantbox index UUID: %d"), err))
@@ -288,7 +302,9 @@ func CreateDir(path string) error {
 // CreateFile creates empty new file
 func CreateFile(path string) error {
 	f, err := os.Create(path)
-	defer f.Close()
+	if err == nil {
+		defer Close(f)
+	}
 	return err
 }
 
@@ -301,12 +317,14 @@ func CopyFile(src, dst string) (err error) {
 		return errors.New("Could not find source file")
 	}
 
+	/* #nosec */
 	in, err := os.Open(src)
 	if err != nil {
 		LogDebug(fmt.Sprintf("Copying failed while opening source file: %v", err))
 		return
 	}
-	defer in.Close()
+	defer Close(in)
+
 	out, err := os.Create(dst)
 	if err != nil {
 		LogDebug(fmt.Sprintf("Copying failed while opening destination file: %v", err))
@@ -432,16 +450,19 @@ func appendLogFile(message string) {
 		// Current timestamp
 		t := time.Now()
 
+		/* #nosec */
 		f, err := os.OpenFile(debugFilename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0660)
 		if err != nil {
 			panic(fmt.Sprintf("Could not append to log file %s: %s", debugFilename, err))
 		}
+		defer Close(f)
 
-		defer f.Close()
-
-		_, _ = f.WriteString(fmt.Sprintf("[%s] %s\n", t.Format("2006-01-02 15:04:05"), message))
-		f.Sync()
-		f.Close()
+		_, err = f.WriteString(fmt.Sprintf("[%s] %s\n", t.Format("2006-01-02 15:04:05"), message))
+		if err != nil {
+			if f.Sync() != nil {
+				defer Close(f)
+			}
+		}
 	}
 }
 

@@ -62,6 +62,7 @@ func getVagrantBoxID() string {
 
 	pathID := vagrantPath + string(os.PathSeparator) + ".vagrant" + string(os.PathSeparator) + "machines" + string(os.PathSeparator) + "default" + string(os.PathSeparator) + "virtualbox" + string(os.PathSeparator) + "id"
 
+	/* #nosec */
 	fileContent, err := ioutil.ReadFile(pathID)
 	if err != nil {
 		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not get vagrantbox ID: %d"), err))

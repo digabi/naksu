@@ -5,8 +5,8 @@ import (
 	"naksu/progress"
 )
 
-// StartServer starts exam server by running vagrant
-func StartServer() {
+// Server starts exam server by running vagrant
+func Server() {
 	// chdir ~/ktp
 	if !mebroutines.ChdirVagrantDirectory() {
 		mebroutines.ShowErrorMessage("Could not change to vagrant directory ~/ktp")
