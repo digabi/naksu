@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-// GetDiskFree returns available disk space
+// GetDiskFree returns disk space usage as float
 func GetDiskFree(path string) (int, error) {
 	runParams := []string{"df", "--output=avail", path}
 
@@ -17,16 +17,13 @@ func GetDiskFree(path string) (int, error) {
 	}
 
 	// Extract server disk image path
-	pattern := regexp.MustCompile(`(\d+)`)
+	pattern := regexp.MustCompile("(\\d+)")
 	result := pattern.FindStringSubmatch(output)
 
 	if len(result) > 1 {
-		resultFloat, err := strconv.ParseFloat(result[1], 10)
-		if err != nil {
-			LogDebug(fmt.Sprintf("result parsing failed for string %s", result[1]))
-		}
-		LogDebug(fmt.Sprintf("Disk free for path %s: %d", path, int(resultFloat)))
-		return int(resultFloat), nil
+		floatResult, _ := strconv.ParseFloat(result[1], 10)
+		LogDebug(fmt.Sprintf("Disk free for path %s: %d", path, int(floatResult)))
+		return int(floatResult), nil
 	}
 
 	return -1, nil

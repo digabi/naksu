@@ -1,27 +1,29 @@
 package progress
 
 import (
-  "fmt"
+	"fmt"
+	"naksu/mebroutines"
+	"naksu/xlate"
 
-  "naksu/xlate"
-  "naksu/mebroutines"
-
-  "github.com/andlabs/ui"
+	"github.com/andlabs/ui"
 )
 
-var progress_label *ui.Label
+var progressLabel *ui.Label
 
-func Set_label_object (new_progress_label *ui.Label) {
-  progress_label = new_progress_label
+// SetProgressLabel sets the object label object
+func SetProgressLabel(newProgressLabel *ui.Label) {
+	progressLabel = newProgressLabel
 }
 
-func Set_message (message string) {
-  mebroutines.Message_debug(fmt.Sprintf("Progress message: %s", message))
-  ui.QueueMain(func () {
-    progress_label.SetText(message)
-  })
+// SetMessage sets progress label text
+func SetMessage(message string) {
+	mebroutines.LogDebug(fmt.Sprintf("Progress message: %s", message))
+	ui.QueueMain(func() {
+		progressLabel.SetText(message)
+	})
 }
 
-func Set_message_xlate (message string) {
-  Set_message(xlate.Get(message))
+// TranslateAndSetMessage translates and sets progress label text
+func TranslateAndSetMessage(message string) {
+	SetMessage(xlate.Get(message))
 }

@@ -1,110 +1,114 @@
 package backup
 
 import (
-
-  "os"
-  "fmt"
-  "io/ioutil"
-  "regexp"
-  "time"
-  "errors"
-
-  "naksu/mebroutines"
-  "naksu/progress"
-  "naksu/xlate"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"naksu/mebroutines"
+	"naksu/progress"
+	"naksu/xlate"
+	"os"
+	"regexp"
+	"time"
 )
 
-func Do_make_backup (path_backup string) {
-  progress.Set_message_xlate("Check that there is no existing backup file")
-  if (mebroutines.ExistsFile(path_backup)) {
-    mebroutines.Message_error(fmt.Sprintf(xlate.Get("File %s already exists"), path_backup))
-  }
+// MakeBackup creates virtual maching backup to path
+func MakeBackup(backupPath string) {
+	progress.TranslateAndSetMessage("Check that there is no existing backup file")
+	if mebroutines.ExistsFile(backupPath) {
+		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("File %s already exists"), backupPath))
+	}
 
-  // Check if path_backup is writeable
-  progress.Set_message_xlate("Check that backup path is writeable")
-  wr_err := mebroutines.CreateFile(path_backup)
-  if wr_err != nil {
-    mebroutines.Message_warning(fmt.Sprintf(xlate.Get("Could not write backup file %s. Try another location."), path_backup))
-    return
-  } else {
-    _ = os.Remove(path_backup)
-  }
+	// Check if path_backup is writeable
+	progress.TranslateAndSetMessage("Check that backup path is writeable")
+	wrErr := mebroutines.CreateFile(backupPath)
+	if wrErr != nil {
+		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not write backup file %s. Try another location."), backupPath))
+		return
+	}
+	err := os.Remove(backupPath)
+	if err != nil {
+		mebroutines.LogDebug("Backup remove returned error code")
+	}
 
-  // Get box
-  progress.Set_message_xlate("Getting vagrantbox ID")
-  box_id := get_vagrantbox_id()
-  mebroutines.Message_debug(fmt.Sprintf("Vagrantbox ID: %s", box_id))
+	// Get box
+	progress.TranslateAndSetMessage("Getting vagrantbox ID")
+	boxID := getVagrantBoxID()
+	mebroutines.LogDebug(fmt.Sprintf("Vagrantbox ID: %s", boxID))
 
-  // Get disk UUID
-  progress.Set_message_xlate("Getting disk UUID")
-  disk_uuid := get_disk_uuid(box_id)
-  mebroutines.Message_debug(fmt.Sprintf("Disk UUID: %s", disk_uuid))
+	// Get disk UUID
+	progress.TranslateAndSetMessage("Getting disk UUID")
+	diskUUID := getDiskUUID(boxID)
+	mebroutines.LogDebug(fmt.Sprintf("Disk UUID: %s", diskUUID))
 
-  // Make clone to path_backup
-  progress.Set_message_xlate("Making backup. This takes a while.")
-  clone_err := make_clone(disk_uuid, path_backup)
-  if clone_err != nil {
-    progress.Set_message_xlate("Backup failed.")
-    return
-  }
+	// Make clone to path_backup
+	progress.TranslateAndSetMessage("Making backup. This takes a while.")
+	cloneErr := makeClone(diskUUID, backupPath)
+	if cloneErr != nil {
+		progress.TranslateAndSetMessage("Backup failed.")
+		return
+	}
 
-  // Close backup media (detach it from VirtualBox disk management)
-  progress.Set_message_xlate("Detaching backup disk from disk management")
-  delete_clone(path_backup)
+	// Close backup media (detach it from VirtualBox disk management)
+	progress.TranslateAndSetMessage("Detaching backup disk from disk management")
+	deleteClone(backupPath)
 
-  progress.Set_message(fmt.Sprintf(xlate.Get("Backup can be found at %s"), path_backup))
-  mebroutines.Message_info(fmt.Sprintf(xlate.Get("Backup has been made to %s"), path_backup))
+	progress.SetMessage(fmt.Sprintf(xlate.Get("Backup can be found at %s"), backupPath))
+	mebroutines.ShowInfoMessage(fmt.Sprintf(xlate.Get("Backup has been made to %s"), backupPath))
 }
 
-func get_vagrantbox_id () string {
-  path_vagrant := mebroutines.Get_vagrant_directory()
+func getVagrantBoxID() string {
+	vagrantPath := mebroutines.GetVagrantDirectory()
 
-  path_id := path_vagrant + string(os.PathSeparator) + ".vagrant" + string(os.PathSeparator) + "machines" + string(os.PathSeparator) + "default" + string(os.PathSeparator) + "virtualbox" + string(os.PathSeparator) + "id"
+	pathID := vagrantPath + string(os.PathSeparator) + ".vagrant" + string(os.PathSeparator) + "machines" + string(os.PathSeparator) + "default" + string(os.PathSeparator) + "virtualbox" + string(os.PathSeparator) + "id"
 
-  file_content, err := ioutil.ReadFile(path_id)
-  if err != nil {
-    mebroutines.Message_error(fmt.Sprintf(xlate.Get("Could not get vagrantbox ID: %d"), err))
-  }
+	/* #nosec */
+	fileContent, err := ioutil.ReadFile(pathID)
+	if err != nil {
+		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not get vagrantbox ID: %d"), err))
+	}
 
-  return string(file_content)
+	return string(fileContent)
 }
 
-func get_disk_uuid(box_id string) string {
-  vboxmanage_output := mebroutines.Run_vboxmanage([]string{"showvminfo", "-machinereadable", box_id})
+func getDiskUUID(boxID string) string {
+	vBoxManageOutput := mebroutines.RunVBoxManage([]string{"showvminfo", "-machinereadable", boxID})
 
-  // Extract server disk image path
-  pattern := regexp.MustCompile("\"SATA Controller-ImageUUID-0-0\"=\"(.*?)\"")
-  result := pattern.FindStringSubmatch(vboxmanage_output)
+	// Extract server disk image path
+	pattern := regexp.MustCompile("\"SATA Controller-ImageUUID-0-0\"=\"(.*?)\"")
+	result := pattern.FindStringSubmatch(vBoxManageOutput)
 
-  if (len(result)>1) {
-    return result[1]
-  }
+	if len(result) > 1 {
+		return result[1]
+	}
 
-  // No match
-  mebroutines.Message_debug(vboxmanage_output)
-  mebroutines.Message_error(xlate.Get("Could not make backup: failed to get disk UUID"))
+	// No match
+	mebroutines.LogDebug(vBoxManageOutput)
+	mebroutines.ShowErrorMessage(xlate.Get("Could not make backup: failed to get disk UUID"))
 
-  return ""
+	return ""
 }
 
-func make_clone(disk_uuid string, path_backup string) error {
-  vboxmanage_output := mebroutines.Run_vboxmanage([]string{"clonemedium", disk_uuid, path_backup})
+func makeClone(diskUUID string, backupPath string) error {
+	vBoxManageOutput := mebroutines.RunVBoxManage([]string{"clonemedium", diskUUID, backupPath})
 
-  // Check whether clone was successful or not
-  matched,err_re := regexp.MatchString("Clone medium created in format 'VMDK'", vboxmanage_output)
-  if err_re != nil || !matched {
-    // Failure
-    mebroutines.Message_error(fmt.Sprintf(xlate.Get("Could not back up disk %s to %s"), disk_uuid, path_backup))
-    return errors.New("Backup failed")
-  }
+	// Check whether clone was successful or not
+	matched, errRe := regexp.MatchString("Clone medium created in format 'VMDK'", vBoxManageOutput)
+	if errRe != nil || !matched {
+		// Failure
+		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not back up disk %s to %s"), diskUUID, backupPath))
+		return errors.New("Backup failed")
+	}
 
-  return nil
+	return nil
 }
 
-func delete_clone(path_backup string) {
-  _ = mebroutines.Run_vboxmanage([]string{"closemedium", path_backup})
+func deleteClone(backupPath string) {
+	_ = mebroutines.RunVBoxManage([]string{"closemedium", backupPath})
 }
 
-func Get_backup_filename (timestamp time.Time) string {
-  return timestamp.Format("2006-01-02_15-04-05.vmdk")
+// GetBackupFilename returns generated filename
+func GetBackupFilename(timestamp time.Time) string {
+	// Don't get confused by fixed date, this is correct. see: https://golang.org/src/time/format.go
+	return timestamp.Format("2006-01-02_15-04-05.vmdk")
 }

@@ -7,3 +7,7 @@ pkg/
 vendor/
 # Ignore GitHub release packages
 *.zip
+# Ignore tool files
+.vscode
+checkstyle-linux.xml
+checkstyle-windows.xml

@@ -1,158 +1,160 @@
 package install
 
 import (
-	"naksu/xlate"
-	"naksu/progress"
-	"naksu/mebroutines"
-
-	"fmt"
-	"os"
-	"io"
-	"net/http"
 	"errors"
+	"fmt"
+	"io"
+	"naksu/mebroutines"
+	"naksu/progress"
+	"naksu/xlate"
+	"net/http"
+	"os"
 )
 
-func Do_get_server(path_new_vagrantfile string) {
-	const URL_VAGRANT = "http://static.abitti.fi/usbimg/qa/vagrant/Vagrantfile"
+// GetServer downloads vagrantfile and starts server
+func GetServer(newVagrantfilePath string) {
+	const VagrantURL = "http://static.abitti.fi/usbimg/qa/vagrant/Vagrantfile"
 
 	// Create ~/ktp if missing
-	progress.Set_message_xlate("Creating ~/ktp")
-	var path_ktp = create_dir_ktp()
-	mebroutines.Message_debug(fmt.Sprintf("path_ktp is %s", path_ktp))
+	progress.TranslateAndSetMessage("Creating ~/ktp")
+	var ktpPath = createKtpDir()
+	mebroutines.LogDebug(fmt.Sprintf("ktpPath is %s", ktpPath))
 
-  // Create ~/ktp-jako if missing
-	progress.Set_message_xlate("Creating ~/ktp-jako")
-	var path_ktpjako = create_dir_ktpjako()
-	mebroutines.Message_debug(fmt.Sprintf("path_ktpjako is %s", path_ktpjako))
+	// Create ~/ktp-jako if missing
+	progress.TranslateAndSetMessage("Creating ~/ktp-jako")
+	var ktpJakoPath = createKtpJakoDir()
+	mebroutines.LogDebug(fmt.Sprintf("ktpJakoPath is %s", ktpJakoPath))
 
-	var path_vagrantfile = path_ktp + string(os.PathSeparator) + "Vagrantfile"
+	var vagrantfilePath = ktpPath + string(os.PathSeparator) + "Vagrantfile"
 
 	// If no given Vagrantfile try to download one
-	if path_new_vagrantfile == "" {
+	if newVagrantfilePath == "" {
 		// Download Vagrantfile (Abitti)
-		path_abitti_vagrantfile := path_vagrantfile + ".abitti"
+		abittiVagrantfilePath := vagrantfilePath + ".abitti"
 
-		progress.Set_message_xlate("Downloading Abitti Vagrantfile")
-		err_download := download_file(URL_VAGRANT, path_abitti_vagrantfile)
-		if err_download != nil {
-			mebroutines.Message_debug(fmt.Sprintf("Download failed: %v", err_download))
-			mebroutines.Message_warning(xlate.Get("Could not update Abitti stickless server. Please check your network connection."))
+		progress.TranslateAndSetMessage("Downloading Abitti Vagrantfile")
+		errDownload := downloadFile(VagrantURL, abittiVagrantfilePath)
+		if errDownload != nil {
+			mebroutines.LogDebug(fmt.Sprintf("Download failed: %v", errDownload))
+			mebroutines.ShowWarningMessage(xlate.Get("Could not update Abitti stickless server. Please check your network connection."))
 			return
 		}
 
-		path_new_vagrantfile = path_abitti_vagrantfile
+		newVagrantfilePath = abittiVagrantfilePath
 	}
 
 	// chdir ~/ktp
-	if (! mebroutines.Chdir_vagrant_directory()) {
-		mebroutines.Message_error("Could not change to vagrant directory ~/ktp")
+	if !mebroutines.ChdirVagrantDirectory() {
+		mebroutines.ShowErrorMessage("Could not change to vagrant directory ~/ktp")
 	}
 
 	// If there is ~/ktp/Vagrantfile
-	if (mebroutines.ExistsFile(path_vagrantfile)) {
+	if mebroutines.ExistsFile(vagrantfilePath) {
 		// Destroy current VM
-		progress.Set_message_xlate("Destroying existing server")
-		run_params_destroy := []string{"destroy","-f"}
-		mebroutines.Run_vagrant(run_params_destroy)
+		progress.TranslateAndSetMessage("Destroying existing server")
+		destroyRunParams := []string{"destroy", "-f"}
+		mebroutines.RunVagrant(destroyRunParams)
 
-		remove_vagrantfile(path_vagrantfile)
+		removeVagrantfile(vagrantfilePath)
 	}
 
-	progress.Set_message_xlate("Copying Vagrantfile")
-	err := mebroutines.CopyFile(path_new_vagrantfile, path_vagrantfile)
+	progress.TranslateAndSetMessage("Copying Vagrantfile")
+	err := mebroutines.CopyFile(newVagrantfilePath, vagrantfilePath)
 
-	if (err != nil) {
-		mebroutines.Message_debug(fmt.Sprintf("Copying failed, error: %v", err))
-		mebroutines.Message_error(fmt.Sprintf(xlate.Get("Error while copying new Vagrantfile: %d"), err))
+	if err != nil {
+		mebroutines.LogDebug(fmt.Sprintf("Copying failed, error: %v", err))
+		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Error while copying new Vagrantfile: %d"), err))
 	}
 
-	progress.Set_message_xlate("Installing/updating VM: box update")
-	run_params_update := []string{"box","update"}
-	mebroutines.Run_vagrant(run_params_update)
+	progress.TranslateAndSetMessage("Installing/updating VM: box update")
+	updateRunParams := []string{"box", "update"}
+	mebroutines.RunVagrant(updateRunParams)
 
-	progress.Set_message_xlate("Installing/updating VM: box prune")
-	run_params_prune := []string{"box","prune"}
-	mebroutines.Run_vagrant(run_params_prune)
+	progress.TranslateAndSetMessage("Installing/updating VM: box prune")
+	pruneRunParams := []string{"box", "prune"}
+	mebroutines.RunVagrant(pruneRunParams)
 
-	progress.Set_message_xlate("Downloading stickless server and starting it for the first time. This takes a long time...\n\nIf the server fails to start please try to start it again from the Naksu main menu.")
-	run_params_up := []string{"up"}
-	mebroutines.Run_vagrant(run_params_up)
+	progress.TranslateAndSetMessage("Downloading stickless server and starting it for the first time. This takes a long time...\n\nIf the server fails to start please try to start it again from the Naksu main menu.")
+	upRunParams := []string{"up"}
+	mebroutines.RunVagrant(upRunParams)
 }
 
+func createKtpDir() string {
+	var ktpPath = mebroutines.GetVagrantDirectory()
 
-func create_dir_ktp () string {
-	var path_ktp = mebroutines.Get_vagrant_directory()
+	if !mebroutines.ExistsDir(ktpPath) {
+		if mebroutines.CreateDir(ktpPath) != nil {
+			mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not create ~/ktp to %s"), ktpPath))
+		}
+	}
 
-  if (! mebroutines.ExistsDir(path_ktp)) {
-    if (mebroutines.CreateDir(path_ktp) != nil) {
-			mebroutines.Message_error(fmt.Sprintf(xlate.Get("Could not create ~/ktp to %s"), path_ktp))
-    }
-  }
-
-	return path_ktp
+	return ktpPath
 }
 
-func create_dir_ktpjako () string {
-	var path_ktpjako = mebroutines.Get_mebshare_directory()
+func createKtpJakoDir() string {
+	var ktpJakoPath = mebroutines.GetMebshareDirectory()
 
-  if (! mebroutines.ExistsDir(path_ktpjako)) {
-    if (mebroutines.CreateDir(path_ktpjako) != nil) {
-			mebroutines.Message_error(fmt.Sprintf(xlate.Get("Could not create ~/ktp-jako to %s"), path_ktpjako))
-    }
-  }
+	if !mebroutines.ExistsDir(ktpJakoPath) {
+		if mebroutines.CreateDir(ktpJakoPath) != nil {
+			mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not create ~/ktp-jako to %s"), ktpJakoPath))
+		}
+	}
 
-	return path_ktpjako
+	return ktpJakoPath
 }
 
-func remove_vagrantfile (path_vagrantfile string) {
+func removeVagrantfile(vagrantfilePath string) {
 	// Delete Vagrantfile.bak
-	if (mebroutines.ExistsFile(path_vagrantfile+".bak")) {
-		err := os.Remove(path_vagrantfile+".bak")
-		if (err != nil) {
-			mebroutines.Message_warning(fmt.Sprintf(xlate.Get("Failed to delete %s"), path_vagrantfile+".bak"))
+	if mebroutines.ExistsFile(vagrantfilePath + ".bak") {
+		err := os.Remove(vagrantfilePath + ".bak")
+		if err != nil {
+			mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Failed to delete %s"), vagrantfilePath+".bak"))
 		}
 	}
 
 	// Rename Vagrantfile to Vagrantfile.bak
-	err := os.Rename(path_vagrantfile, path_vagrantfile+".bak")
-	if (err != nil) {
-		mebroutines.Message_warning(fmt.Sprintf(xlate.Get("Failed to rename %s to %s"), path_vagrantfile, path_vagrantfile+".bak"))
+	err := os.Rename(vagrantfilePath, vagrantfilePath+".bak")
+	if err != nil {
+		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Failed to rename %s to %s"), vagrantfilePath, vagrantfilePath+".bak"))
 	}
 }
 
-func download_file (url string, filepath string) error {
-	mebroutines.Message_debug(fmt.Sprintf("Starting download from URL %s to file %s", url, filepath))
+func downloadFile(url string, filepath string) error {
+	mebroutines.LogDebug(fmt.Sprintf("Starting download from URL %s to file %s", url, filepath))
 
 	out, err1 := os.Create(filepath)
-	defer out.Close()
-	if (err1 != nil) {
+	if err1 != nil {
 		return errors.New("Failed to create file")
 	}
+	defer mebroutines.Close(out)
 
+	/* #nosec */
 	resp, err2 := http.Get(url)
-	if (err2 != nil) {
+	if err2 != nil {
 		return errors.New("Failed to retrieve file")
 	}
-	defer resp.Body.Close()
+	defer mebroutines.Close(resp.Body)
 
 	_, err3 := io.Copy(out, resp.Body)
-	if (err3 != nil) {
+	if err3 != nil {
 		return errors.New("Failed to copy body")
 	}
 
-	mebroutines.Message_debug(fmt.Sprintf("Finished download from URL %s to file %s", url, filepath))
+	mebroutines.LogDebug(fmt.Sprintf("Finished download from URL %s to file %s", url, filepath))
 	return nil
 }
 
-func If_http_get (url string) bool {
+// TestHTTPGet tests whether HTTP get succeeds to given URL
+func TestHTTPGet(url string) bool {
+	/* #nosec */
 	resp, err := http.Get(url)
 	if err != nil {
-		mebroutines.Message_debug(fmt.Sprintf("Testing HTTP GET %s and got error %v", url, err.Error()))
+		mebroutines.LogDebug(fmt.Sprintf("Testing HTTP GET %s and got error %v", url, err.Error()))
 		return false
 	}
-	defer resp.Body.Close()
+	defer mebroutines.Close(resp.Body)
 
-	mebroutines.Message_debug(fmt.Sprintf("Testing HTTP GET %s succeeded", url))
+	mebroutines.LogDebug(fmt.Sprintf("Testing HTTP GET %s succeeded", url))
 
 	return true
 }

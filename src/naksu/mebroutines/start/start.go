@@ -5,14 +5,15 @@ import (
 	"naksu/progress"
 )
 
-func Do_start_server() {
+// Server starts exam server by running vagrant
+func Server() {
 	// chdir ~/ktp
-	if (! mebroutines.Chdir_vagrant_directory()) {
-		mebroutines.Message_error("Could not change to vagrant directory ~/ktp")
+	if !mebroutines.ChdirVagrantDirectory() {
+		mebroutines.ShowErrorMessage("Could not change to vagrant directory ~/ktp")
 	}
 
 	// Start VM
-	progress.Set_message_xlate("Starting Exam server. This takes a while.")
-	run_params_up := []string{"up"}
-	mebroutines.Run_vagrant(run_params_up)
+	progress.TranslateAndSetMessage("Starting Exam server. This takes a while.")
+	upRunParams := []string{"up"}
+	mebroutines.RunVagrant(upRunParams)
 }

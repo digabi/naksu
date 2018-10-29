@@ -1,33 +1,34 @@
 package mebroutines
 
 import (
-  "fmt"
+	"fmt"
 )
 
-func Open_meb_share () {
-  meb_share_path := Get_mebshare_directory()
+// OpenMebShare executes command that opens meb share directory
+func OpenMebShare() {
+	mebSharePath := GetMebshareDirectory()
 
-  Message_debug(fmt.Sprintf("MEB share directory: %s", meb_share_path))
+	LogDebug(fmt.Sprintf("MEB share directory: %s", mebSharePath))
 
-  if ! ExistsDir(meb_share_path) {
-    Message_warning("Cannot open MEB share directory since it does not exist")
-    return
-  }
+	if !ExistsDir(mebSharePath) {
+		ShowWarningMessage("Cannot open MEB share directory since it does not exist")
+		return
+	}
 
-  run_params := []string{"explorer", meb_share_path}
+	runParams := []string{"explorer", mebSharePath}
 
-  // For some not-obvious reason Run_get_output() results err
-  output,err := Run_get_error(run_params)
+	// For some not-obvious reason Run_get_output() results err
+	output, err := RunAndGetError(runParams)
 
-  if err != nil {
-    err_str := fmt.Sprintf("%v", err)
-    // Opening explorer results exit code 1
-    if err_str != "exit status 1" {
-      Message_warning("Could not open MEB share directory")
-      Message_debug(fmt.Sprintf("Could not open MEB share directory: %v", err))
-    }
-  }
+	if err != nil {
+		errStr := fmt.Sprintf("%v", err)
+		// Opening explorer results exit code 1
+		if errStr != "exit status 1" {
+			ShowWarningMessage("Could not open MEB share directory")
+			LogDebug(fmt.Sprintf("Could not open MEB share directory: %v", err))
+		}
+	}
 
-  Message_debug("MEB share directory open output:")
-  Message_debug(output)
+	LogDebug("MEB share directory open output:")
+	LogDebug(output)
 }

@@ -1,19 +1,19 @@
 package mebroutines
 
 import (
-  "os"
+	"os"
 )
 
-func get_vboxmanage_path () string {
-  var path = "VBoxManage"
-	if (os.Getenv("VBOXMANAGEPATH") != "") {
+func getVBoxManagePath() string {
+	var path = "VBoxManage"
+	if os.Getenv("VBOXMANAGEPATH") != "" {
 		path = os.Getenv("VBOXMANAGEPATH")
 	} else {
-    var path_virtualbox = os.Getenv("VBOX_MSI_INSTALL_PATH")
-    if (path_virtualbox != "") {
-      path = path_virtualbox+string(os.PathSeparator)+path
-    }
-  }
+		var pathVirtualbox = os.Getenv("VBOX_MSI_INSTALL_PATH")
+		if pathVirtualbox != "" {
+			path = pathVirtualbox + string(os.PathSeparator) + path
+		}
+	}
 
-  return path
+	return path
 }

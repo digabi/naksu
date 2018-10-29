@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-// OpenMebShare command executes command that opens file browser to meb share directory
+// OpenMebShare opens file explorer with meb share path
 func OpenMebShare() {
 	mebSharePath := GetMebshareDirectory()
 

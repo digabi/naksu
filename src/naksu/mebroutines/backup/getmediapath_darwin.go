@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-// GetBackupMedia returns backup media path
+// GetBackupMedia returns map of backup medias
 func GetBackupMedia() map[string]string {
 	media := getBackupMediaLinux()
 
@@ -78,16 +78,16 @@ func getRemovableDisks(blockdevices []interface{}) map[string]string {
 
 	for blockdeviceIndex := range blockdevices {
 		//fmt.Println(blockdevices[blockdevice_n])
-		thisBlockdevice := blockdevices[blockdeviceIndex].(map[string]interface{})
-		if deviceFieldString(thisBlockdevice["hotplug"]) == "1" && thisBlockdevice["children"] != nil {
-			thisChildren := thisBlockdevice["children"].([]interface{})
+		blockdevice := blockdevices[blockdeviceIndex].(map[string]interface{})
+		if deviceFieldString(blockdevice["hotplug"]) == "1" && blockdevice["children"] != nil {
+			children := blockdevice["children"].([]interface{})
 
-			for thisChildIndex := range thisChildren {
-				thisChild := thisChildren[thisChildIndex].(map[string]interface{})
+			for childIndex := range children {
+				child := children[childIndex].(map[string]interface{})
 
-				thisMountpoint := deviceFieldString(thisChild["mountpoint"])
-				if thisMountpoint != "" {
-					media[thisMountpoint] = fmt.Sprintf("%s, %s", deviceFieldString(thisBlockdevice["vendor"]), deviceFieldString(thisBlockdevice["model"]))
+				mountpoint := deviceFieldString(child["mountpoint"])
+				if mountpoint != "" {
+					media[mountpoint] = fmt.Sprintf("%s, %s", deviceFieldString(blockdevice["vendor"]), deviceFieldString(blockdevice["model"]))
 				}
 			}
 		}
@@ -96,10 +96,10 @@ func getRemovableDisks(blockdevices []interface{}) map[string]string {
 	return media
 }
 
-func deviceFieldString(thisField interface{}) string {
-	if thisField == nil {
+func deviceFieldString(field interface{}) string {
+	if field == nil {
 		return ""
 	}
 
-	return thisField.(string)
+	return field.(string)
 }
