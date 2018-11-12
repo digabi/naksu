@@ -345,7 +345,7 @@ func CopyFile(src, dst string) (err error) {
 
 // IfIntlCharsInPath returns true if path contains non-ASCII characters
 func IfIntlCharsInPath(path string) bool {
-	matched, err := regexp.MatchString("[^a-zA-Z0-9_\\-\\/\\:\\\\ ]", path)
+	matched, err := regexp.MatchString("[^a-zA-Z0-9_\\-\\/\\:\\\\ \\.]", path)
 	if err == nil && matched {
 		return true
 	}

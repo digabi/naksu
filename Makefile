@@ -16,6 +16,9 @@ checkstyle: bin/gometalinter
 lint: bin/gometalinter
 	./bin/gometalinter --deadline=240s --vendor ./src/naksu/...
 
+test:
+	GOPATH=$(current_dir)/ go test src/naksu/mebroutines/*_test.go
+
 docker: clean
 	mkdir -p bin
 	-docker rm naksu-build
