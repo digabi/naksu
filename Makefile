@@ -18,6 +18,7 @@ lint: bin/gometalinter
 
 test:
 	GOPATH=$(current_dir)/ go test src/naksu/mebroutines/*_test.go
+	GOPATH=$(current_dir)/ go test src/naksu/bytecount/*_test.go
 
 docker: clean
 	mkdir -p bin
