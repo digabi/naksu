@@ -331,7 +331,7 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 		go func() {
 			freeDisk := <-chFreeDisk
 			if freeDisk != -1 && freeDisk < lowDiskLimit {
-				mebroutines.ShowWarningMessage("Your free disk size is getting low. If update/install process fails please consider freeing some disk space.")
+				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(uint64(freeDisk))))
 			}
 
 			chDiskLowPopup <- true
