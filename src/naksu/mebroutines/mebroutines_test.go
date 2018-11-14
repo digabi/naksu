@@ -25,9 +25,9 @@ func TestIfIntlCharsInPath (t *testing.T) {
   }
 
   for _, table := range tables {
-    is_intl := mebroutines.IfIntlCharsInPath(table.path)
-    if is_intl != table.result {
-      t.Errorf("IfIntlCharsInPath gives '%t' instead of '%t' for path '%s'", is_intl, table.result, table.path)
+    isIntl := mebroutines.IfIntlCharsInPath(table.path)
+    if isIntl != table.result {
+      t.Errorf("IfIntlCharsInPath gives '%t' instead of '%t' for path '%s'", isIntl, table.result, table.path)
     }
   }
 }

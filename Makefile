@@ -18,7 +18,6 @@ lint: bin/gometalinter
 
 test:
 	GOPATH=$(current_dir)/ go test src/naksu/mebroutines/*_test.go
-	GOPATH=$(current_dir)/ go test src/naksu/bytecount/*_test.go
 
 docker: clean
 	mkdir -p bin
@@ -32,7 +31,7 @@ docker: clean
 	docker cp naksu-build:/app/naksu_linux_amd64.zip .
 	docker cp naksu-build:/app/naksu_windows_amd64.zip .
 
-all: windows linux
+all: test windows linux
 
 windows: naksu.exe
 

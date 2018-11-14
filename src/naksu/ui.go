@@ -8,11 +8,11 @@ import (
 	"naksu/mebroutines/start"
 	"naksu/progress"
 	"naksu/xlate"
-	"naksu/bytecount"
 	"os"
 	"time"
 
 	"github.com/andlabs/ui"
+	"github.com/dustin/go-humanize"
 )
 
 var window *ui.Window
@@ -299,7 +299,7 @@ func bindOnGetServer(mainUIStatus chan string) {
 		go func() {
 			freeDisk := <-chFreeDisk
 			if freeDisk != -1 && freeDisk < lowDiskLimit {
-				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), bytecount.BytesToHumanIEC(int64(freeDisk))))
+				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(uint64(freeDisk))))
 			}
 
 			chDiskLowPopup <- true
