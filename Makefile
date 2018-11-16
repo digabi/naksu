@@ -1,7 +1,7 @@
 current_dir = $(shell pwd)
 GO=go
 # Give path of your go executable
-#GO=/usr/lib/go-1.10/bin/go
+# GO=/usr/lib/go-1.10/bin/go
 # Path to your rsrc executable (see README.md)
 RSRC=$(HOME)/go/bin/rsrc
 MINGW_LIB?=$(HOME)/mingw-w64/current/lib
