@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/andlabs/ui"
+	"github.com/dustin/go-humanize"
 )
 
 var window *ui.Window
@@ -197,21 +198,22 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 }
 
 func translateUILabels() {
-	buttonStartServer.SetText(xlate.Get("Start Stickless Exam Server"))
-	buttonGetServer.SetText(xlate.Get("Install or update Abitti Stickless Exam Server"))
-	buttonSwitchServer.SetText(xlate.Get("Install or update Stickless Matriculation Exam Server"))
-	buttonMakeBackup.SetText(xlate.Get("Make Stickless Exam Server Backup"))
-	buttonMebShare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
+	ui.QueueMain(func() {
+		buttonStartServer.SetText(xlate.Get("Start Stickless Exam Server"))
+		buttonGetServer.SetText(xlate.Get("Install or update Abitti Stickless Exam Server"))
+		buttonSwitchServer.SetText(xlate.Get("Install or update Stickless Matriculation Exam Server"))
+		buttonMakeBackup.SetText(xlate.Get("Make Stickless Exam Server Backup"))
+		buttonMebShare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
 
-	labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.GetVagrantBoxVersion()))
+		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.GetVagrantBoxVersion()))
 
-	checkboxAdvanced.SetText(xlate.Get("Show management features"))
+		checkboxAdvanced.SetText(xlate.Get("Show management features"))
 
-	backupWindow.SetTitle(xlate.Get("naksu: SaveTo"))
-	backupLabel.SetText(xlate.Get("Please select target path"))
-	backupButtonSave.SetText(xlate.Get("Save"))
-	backupButtonCancel.SetText(xlate.Get("Cancel"))
-
+		backupWindow.SetTitle(xlate.Get("naksu: SaveTo"))
+		backupLabel.SetText(xlate.Get("Please select target path"))
+		backupButtonSave.SetText(xlate.Get("Save"))
+		backupButtonCancel.SetText(xlate.Get("Cancel"))
+	})
 }
 
 func disableUI(mainUIStatus chan string) {
@@ -298,7 +300,7 @@ func bindOnGetServer(mainUIStatus chan string) {
 		go func() {
 			freeDisk := <-chFreeDisk
 			if freeDisk != -1 && freeDisk < lowDiskLimit {
-				mebroutines.ShowWarningMessage("Your free disk size is getting low. If update/install process fails please consider freeing some disk space.")
+				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(uint64(freeDisk))))
 			}
 
 			chDiskLowPopup <- true
@@ -330,7 +332,7 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 		go func() {
 			freeDisk := <-chFreeDisk
 			if freeDisk != -1 && freeDisk < lowDiskLimit {
-				mebroutines.ShowWarningMessage("Your free disk size is getting low. If update/install process fails please consider freeing some disk space.")
+				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(uint64(freeDisk))))
 			}
 
 			chDiskLowPopup <- true

@@ -11,4 +11,5 @@ vendor/
 .vscode
 checkstyle-linux.xml
 checkstyle-windows.xml
+tests.xml
 *.code-workspace

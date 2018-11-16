@@ -12,7 +12,7 @@ import (
 )
 
 const version = "1.5.0"
-const lowDiskLimit = 5000000 // 5 Gb
+const lowDiskLimit = 50 * 1024 * 1024 // 50 Gb
 
 // URLTest is testing URL for checking network connection
 const URLTest = "http://static.abitti.fi/usbimg/qa/latest.txt"

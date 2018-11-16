@@ -15,7 +15,7 @@ func OpenMebShare() {
 		return
 	}
 
-	runParams := []string{"open", mebSharePath}
+	runParams := []string{"xdg-open", mebSharePath}
 
 	output, err := RunAndGetOutput(runParams)
 

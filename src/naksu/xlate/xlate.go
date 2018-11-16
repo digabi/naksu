@@ -27,6 +27,7 @@ func SetLanguage(newLanguage string) {
 			"Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?":           "Ohjelman VBoxManage käynnistys epäonnistui. Oletko varma, että koneeseen on asennettu Oracle VirtualBox?",
 			"Your home directory path (%s) contains characters which may cause problems to Vagrant.":     "Kotihakemistosi (%s) polku sisältää merkkejä, jotka voivat aiheuttaa ongelmia Vagrantille.",
 			"Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)": "Sijoita yo-kokeen Vagrantfile johonkin toiseen paikkaan (esim. työpöydälle tai kotihakemistoon)",
+			"Your free disk size is getting low (%s).":                                                   "Levytilasi on loppumassa (jäljellä %s).",
 
 			// Backup dialog
 			"naksu: SaveTo":             "naksu: Tallennuspaikka",
@@ -95,6 +96,7 @@ func SetLanguage(newLanguage string) {
 			"Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?":           "Utförandet av programmet VBoxManage misslyckades. Är du säker, att Oracle VirtualBox har installerats på datorn?",
 			"Your home directory path (%s) contains characters which may cause problems to Vagrant.":     "Sökvägen till din hemkatalog (%s) innehåller tecken, som orsakar problem för Vagrant.",
 			"Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)": "Placera Vagrantfile-filen för studentexamen på ett annat ställe (t.ex. på skrivbordet eller i hemkatalogen).",
+			"Your free disk size is getting low (%s).":                                                   "Ditt diskutrymme börjar ta slut (kvar %s).",
 
 			// Backup dialog
 			"naksu: SaveTo":             "naksu: Spara till ",

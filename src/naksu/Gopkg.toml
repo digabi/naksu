@@ -45,6 +45,10 @@
   name = "github.com/rhysd/go-github-selfupdate"
   version = "1.0.0"
 
+[[constraint]]
+  name = "github.com/dustin/go-humanize"
+  version = "1.0.0"
+  
 [prune]
   go-tests = true
   unused-packages = true
