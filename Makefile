@@ -64,6 +64,7 @@ update_libs: clean
 
 clean:
 	rm -f bin/naksu bin/naksu.exe
+	rm -f tests.xml
 
 phony_get-server:
 	VAGRANTPATH=phony-scripts/vagrant VBOXMANAGEPATH=phony-scripts/VBoxManage bin/get-server
