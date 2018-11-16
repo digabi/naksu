@@ -9,6 +9,9 @@ MINGW_LIB?=$(HOME)/mingw-w64/current/lib
 bin/gometalinter:
 	curl https://raw.githubusercontent.com/alecthomas/gometalinter/master/scripts/install.sh | sh
 
+bin/go2xunit:
+	GOPATH=$(current_dir)/ go get github.com/tebeka/go2xunit
+
 checkstyle: bin/gometalinter
 	-GOOS=linux GOARCH=amd64 CGO_ENABLED=1 ./bin/gometalinter --deadline=240s --vendor --checkstyle ./src/naksu/... > checkstyle-linux.xml
 	-GOOS=windows GOARCH=amd64 CGO_ENABLED=1 ./bin/gometalinter --deadline=240s --vendor --checkstyle ./src/naksu/... > checkstyle-windows.xml
@@ -16,8 +19,11 @@ checkstyle: bin/gometalinter
 lint: bin/gometalinter
 	./bin/gometalinter --deadline=240s --vendor ./src/naksu/...
 
+ci-test: bin/go2xunit
+	2>&1 GOPATH=$(current_dir)/ go test -v naksu/mebroutines | ./bin/go2xunit -output tests.xml
+
 test:
-	GOPATH=$(current_dir)/ go test src/naksu/mebroutines/*_test.go
+	GOPATH=$(current_dir)/ go test naksu/mebroutines
 
 docker: clean
 	mkdir -p bin
@@ -26,6 +32,7 @@ docker: clean
 	docker create --name naksu-build naksu-build-img
 	docker cp naksu-build:/app/checkstyle-linux.xml .
 	docker cp naksu-build:/app/checkstyle-windows.xml .
+	docker cp naksu-build:/app/tests.xml .
 	docker cp naksu-build:/app/bin/naksu bin/naksu
 	docker cp naksu-build:/app/bin/naksu.exe bin/naksu.exe
 	docker cp naksu-build:/app/naksu_linux_amd64.zip .
@@ -53,7 +60,7 @@ naksu_packages: all
 	zip -j naksu_windows_amd64 bin/naksu.exe
 
 update_libs: clean
-	cd src/naksu && dep ensure
+	cd src/naksu && GOPATH=$(current_dir) dep ensure
 
 clean:
 	rm -f bin/naksu bin/naksu.exe
