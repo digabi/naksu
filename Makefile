@@ -29,7 +29,7 @@ docker: clean
 	mkdir -p bin
 	-docker rm naksu-build
 	docker build -t naksu-build-img:latest -f Dockerfile.build .
-	docker create --name naksu-build naksu-build-img
+	docker run -w /app --name naksu-build naksu-build-img:latest make ci-test
 	docker cp naksu-build:/app/checkstyle-linux.xml .
 	docker cp naksu-build:/app/checkstyle-windows.xml .
 	docker cp naksu-build:/app/tests.xml .
