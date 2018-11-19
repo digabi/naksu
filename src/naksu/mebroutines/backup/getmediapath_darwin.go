@@ -1,8 +1,6 @@
 package backup
 
 import (
-	"encoding/json"
-	"fmt"
 	"naksu/mebroutines"
 	"naksu/xlate"
 	"os"
@@ -10,7 +8,7 @@ import (
 
 // GetBackupMedia returns map of backup medias
 func GetBackupMedia() map[string]string {
-	media := getBackupMediaLinux()
+	media := make(map[string]string)
 
 	// Add some entries from environment variables
 	if os.Getenv("HOME") != "" {
@@ -33,73 +31,4 @@ func GetBackupMedia() map[string]string {
 	}
 
 	return media
-}
-
-func getBackupMediaLinux() map[string]string {
-	var media = map[string]string{}
-
-	runParams := []string{"lsblk", "-J", "-o", "NAME,FSTYPE,MOUNTPOINT,VENDOR,MODEL,HOTPLUG"}
-
-	lsblkJSON, lsblkErr := mebroutines.RunAndGetOutput(runParams)
-
-	mebroutines.LogDebug("lsblk says:")
-	mebroutines.LogDebug(lsblkJSON)
-
-	if lsblkErr != nil {
-		mebroutines.LogDebug("Failed to run lsblk")
-		// Return empty set of media
-		return media
-	}
-
-	var jsonData map[string]interface{}
-
-	jsonErr := json.Unmarshal([]byte(lsblkJSON), &jsonData)
-	if jsonErr != nil {
-		mebroutines.LogDebug("Unable on decode lsblk response:")
-		mebroutines.LogDebug(fmt.Sprintf("%s", jsonErr))
-		// Return empty set of media
-		return media
-	}
-
-	blockdevices := jsonData["blockdevices"].([]interface{})
-
-	media = getRemovableDisks(blockdevices)
-
-	return media
-}
-
-func getRemovableDisks(blockdevices []interface{}) map[string]string {
-	var media = map[string]string{}
-	//media_n := 0
-
-	if blockdevices == nil {
-		return media
-	}
-
-	for blockdeviceIndex := range blockdevices {
-		//fmt.Println(blockdevices[blockdevice_n])
-		blockdevice := blockdevices[blockdeviceIndex].(map[string]interface{})
-		if deviceFieldString(blockdevice["hotplug"]) == "1" && blockdevice["children"] != nil {
-			children := blockdevice["children"].([]interface{})
-
-			for childIndex := range children {
-				child := children[childIndex].(map[string]interface{})
-
-				mountpoint := deviceFieldString(child["mountpoint"])
-				if mountpoint != "" {
-					media[mountpoint] = fmt.Sprintf("%s, %s", deviceFieldString(blockdevice["vendor"]), deviceFieldString(blockdevice["model"]))
-				}
-			}
-		}
-	}
-
-	return media
-}
-
-func deviceFieldString(field interface{}) string {
-	if field == nil {
-		return ""
-	}
-
-	return field.(string)
 }
