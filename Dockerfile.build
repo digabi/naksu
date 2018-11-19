@@ -8,4 +8,5 @@ COPY res /app/res
 COPY Makefile /app/
 COPY src /app/src
 ENV GOPATH=/app
-RUN cd /app && make update_libs test ci-test checkstyle linux windows naksu_packages GO=/usr/lib/go-1.10/bin/go MINGW_LIB=/root/mingw/lib
+RUN cd /app && make bin/gometalinter bin/go2xunit
+RUN cd /app && make update_libs test checkstyle linux windows naksu_packages GO=/usr/lib/go-1.10/bin/go MINGW_LIB=/root/mingw/lib
