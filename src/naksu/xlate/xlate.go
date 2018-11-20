@@ -10,10 +10,10 @@ func SetLanguage(newLanguage string) {
 	if currentLanguage == "fi" {
 		xlateStrings = map[string]string{
 			// Main window, buttons
-			"Start Stickless Exam Server":                           "Käynnistä virtuaalinen koetilan palvelin",
-			"Install or update Abitti Stickless Exam Server":        "Asenna tai päivitä Abitin virtuaalinen palvelin",
-			"Install or update Stickless Matriculation Exam Server": "Asenna tai päivitä yo-kokeen virtuaalinen palvelin",
-			"Make Stickless Exam Server Backup":                     "Tee virtuaalisesta palvelimesta varmuuskopio",
+			"Start Exam Server":                                     "Käynnistä koetilan palvelin",
+			"Abitti Exam":                                           "Abitti-koe",
+			"Matriculation Exam":                                    "Yo-koe",
+			"Make Exam Server Backup":                               "Tee palvelimesta varmuuskopio",
 			"Open virtual USB stick (ktp-jako)":                     "Avaa virtuaalinen siirtotikku (ktp-jako)",
 
 			// Main window, checkboxes
@@ -21,6 +21,7 @@ func SetLanguage(newLanguage string) {
 
 			// Main window, other
 			"Current version: %s": "Asennettu versio: %s",
+			"Install/update server for:": "Asenna tai päivitä palvelin:",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n\nVirhe: %s",
 			"Did not get a path for a new Vagrantfile":                                                   "Uuden Vagrantfile-tiedoston sijainti on annettava",
 			"Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?":              "Ohjelman Vagrant käynnistys epäonnistui. Oletko varma, että koneeseen on asennettu HashiCorp Vagrant?",
@@ -79,10 +80,10 @@ func SetLanguage(newLanguage string) {
 	} else if currentLanguage == "sv" {
 		xlateStrings = map[string]string{
 			// Main window, buttons
-			"Start Stickless Exam Server":                           "Starta virtuell provlokalsserver",
-			"Install or update Abitti Stickless Exam Server":        "Installera eller uppdatera virtuell server för Abitti",
-			"Install or update Stickless Matriculation Exam Server": "Installera eller uppdatera virtuell server för studentexamen",
-			"Make Stickless Exam Server Backup":                     "Säkerhetskopiera den virtuella servern",
+			"Start Exam Server":                                     "Starta provlokalsserver",
+			"Abitti Exam":                                           "Abitti-prov",
+			"Matriculation Exam":                                    "Studentprovet",
+			"Make Exam Server Backup":                               "Säkerhetskopiera servern",
 			"Open virtual USB stick (ktp-jako)":                     "Öppna den virtuellaöverföringsstickan (ktp-jako)",
 
 			// Main window, checkboxes
@@ -90,6 +91,7 @@ func SetLanguage(newLanguage string) {
 
 			// Main window, other
 			"Current version: %s": "Installerad version: %s",
+			"Install/update server for:": "Installera eller uppdatera server för:",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Uppdateringen av Naksu misslyckades. Du saknar möjligtvis nätförbindelse för tillfället?\n\nFel: %s",
 			"Did not get a path for a new Vagrantfile":                                                   "Ge sökvägen för den nya Vagrantfile-filen",
 			"Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?":              "Utförandet av programmet Vagrant misslyckades. Är du säker, att HashiCorp Vagrant har installerats på datorn?",

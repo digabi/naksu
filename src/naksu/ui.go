@@ -27,11 +27,13 @@ var comboboxLang *ui.Combobox
 
 var labelBox *ui.Label
 var labelStatus *ui.Label
+var labelAdvancedUpdate *ui.Label
 
 var checkboxAdvanced *ui.Checkbox
 
 var boxBasicUpper *ui.Box
 var boxBasic *ui.Box
+var boxAdvancedUpdate *ui.Box
 var boxAdvanced *ui.Box
 var box *ui.Box
 
@@ -49,10 +51,10 @@ var backupMediaPath []string
 
 func createMainWindowElements() {
 	// Define main window
-	buttonStartServer = ui.NewButton(xlate.Get("Start Stickless Exam Server"))
-	buttonGetServer = ui.NewButton("Install or update Abitti Stickless Exam Server")
-	buttonSwitchServer = ui.NewButton("Install or update Stickless Matriculation Exam Server")
-	buttonMakeBackup = ui.NewButton("Make Stickless Exam Server Backup")
+	buttonStartServer = ui.NewButton(xlate.Get("Start Exam Server"))
+	buttonGetServer = ui.NewButton("Abitti Exam")
+	buttonSwitchServer = ui.NewButton("Matriculation Exam")
+	buttonMakeBackup = ui.NewButton("Make Exam Server Backup")
 	buttonMebShare = ui.NewButton("Open virtual USB stick (ktp-jako)")
 
 	comboboxLang = ui.NewCombobox()
@@ -63,6 +65,7 @@ func createMainWindowElements() {
 
 	labelBox = ui.NewLabel("")
 	labelStatus = ui.NewLabel("")
+	labelAdvancedUpdate = ui.NewLabel("")
 
 	checkboxAdvanced = ui.NewCheckbox("")
 
@@ -80,11 +83,16 @@ func createMainWindowElements() {
 	boxBasic.Append(buttonMebShare, true)
 	boxBasic.Append(checkboxAdvanced, true)
 
+	boxAdvancedUpdate = ui.NewHorizontalBox()
+	boxAdvancedUpdate.SetPadded(true)
+	boxAdvancedUpdate.Append(buttonGetServer, true)
+	boxAdvancedUpdate.Append(buttonSwitchServer, true)
+
 	boxAdvanced = ui.NewVerticalBox()
 	boxAdvanced.SetPadded(true)
-	boxAdvanced.Append(buttonGetServer, true)
-	boxAdvanced.Append(buttonSwitchServer, true)
 	boxAdvanced.Append(buttonMakeBackup, true)
+	boxAdvanced.Append(labelAdvancedUpdate, false)
+	boxAdvanced.Append(boxAdvancedUpdate, true)
 
 	box = ui.NewVerticalBox()
 	box.Append(boxBasic, false)
@@ -199,15 +207,16 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 
 func translateUILabels() {
 	ui.QueueMain(func() {
-		buttonStartServer.SetText(xlate.Get("Start Stickless Exam Server"))
-		buttonGetServer.SetText(xlate.Get("Install or update Abitti Stickless Exam Server"))
-		buttonSwitchServer.SetText(xlate.Get("Install or update Stickless Matriculation Exam Server"))
-		buttonMakeBackup.SetText(xlate.Get("Make Stickless Exam Server Backup"))
+		buttonStartServer.SetText(xlate.Get("Start Exam Server"))
+		buttonGetServer.SetText(xlate.Get("Abitti Exam"))
+		buttonSwitchServer.SetText(xlate.Get("Matriculation Exam"))
+		buttonMakeBackup.SetText(xlate.Get("Make Exam Server Backup"))
 		buttonMebShare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
 
 		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.GetVagrantBoxVersion()))
 
 		checkboxAdvanced.SetText(xlate.Get("Show management features"))
+		labelAdvancedUpdate.SetText(xlate.Get("Install/update server for:"))
 
 		backupWindow.SetTitle(xlate.Get("naksu: SaveTo"))
 		backupLabel.SetText(xlate.Get("Please select target path"))
