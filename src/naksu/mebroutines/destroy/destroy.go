@@ -5,7 +5,7 @@ import (
 	"naksu/progress"
 )
 
-// Server starts exam server by running vagrant
+// Server destroys existing exam server
 func Server() {
 	// chdir ~/ktp
 	if !mebroutines.ChdirVagrantDirectory() {
