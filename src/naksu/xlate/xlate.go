@@ -13,6 +13,7 @@ func SetLanguage(newLanguage string) {
 			"Start Exam Server":                                     "Käynnistä koetilan palvelin",
 			"Abitti Exam":                                           "Abitti-koe",
 			"Matriculation Exam":                                    "Yo-koe",
+			"Destroy":                                               "Tyhjennä",
 			"Make Exam Server Backup":                               "Tee palvelimesta varmuuskopio",
 			"Open virtual USB stick (ktp-jako)":                     "Avaa virtuaalinen siirtotikku (ktp-jako)",
 
@@ -22,6 +23,7 @@ func SetLanguage(newLanguage string) {
 			// Main window, other
 			"Current version: %s": "Asennettu versio: %s",
 			"Install/update server for:": "Asenna tai päivitä palvelin:",
+			"DANGER! Annihilate your server:": "VAARA! Palvelimen tuhoaminen:",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n\nVirhe: %s",
 			"Did not get a path for a new Vagrantfile":                                                   "Uuden Vagrantfile-tiedoston sijainti on annettava",
 			"Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?":              "Ohjelman Vagrant käynnistys epäonnistui. Oletko varma, että koneeseen on asennettu HashiCorp Vagrant?",
@@ -35,6 +37,13 @@ func SetLanguage(newLanguage string) {
 			"Please select target path": "Valitse tallennuspaikka",
 			"Save":                      "Tallenna",
 			"Cancel":                    "Peruuta",
+
+			// Destroy dialog
+			"naksu: Destroy Server":              "naksu: Tyhjennä palvelin",
+			"Destroying server restores its initial status.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "Palvelimen tyhjennus palauttaa sen alkutilaansa.\nKaikki tiedot palvelimelta poistetaan peruuttamattomasti.\nOn suositeltavaa ottaa palvelimesta varmuuskopiointi ennen tyhjennustä.",
+			"Do you wish to destroy the server?": "Haluatko tyhjentää palvelimen?",
+			"Yes, Destroy":                       "Kyllä, tyhjennä",
+			// Already defined: "Cancel"
 
 			// mebroutines
 			"Abitti server":         "Abitti-palvelin",
@@ -83,6 +92,7 @@ func SetLanguage(newLanguage string) {
 			"Start Exam Server":                                     "Starta provlokalsserver",
 			"Abitti Exam":                                           "Abitti-prov",
 			"Matriculation Exam":                                    "Studentprovet",
+			"Destroy":                                               "FIXME: Tyhjennä",
 			"Make Exam Server Backup":                               "Säkerhetskopiera servern",
 			"Open virtual USB stick (ktp-jako)":                     "Öppna den virtuellaöverföringsstickan (ktp-jako)",
 
@@ -92,6 +102,7 @@ func SetLanguage(newLanguage string) {
 			// Main window, other
 			"Current version: %s": "Installerad version: %s",
 			"Install/update server for:": "Installera eller uppdatera server för:",
+			"DANGER! Annihilate your server:": "FIXME: VAARA! Palvelimen tuhoaminen:",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Uppdateringen av Naksu misslyckades. Du saknar möjligtvis nätförbindelse för tillfället?\n\nFel: %s",
 			"Did not get a path for a new Vagrantfile":                                                   "Ge sökvägen för den nya Vagrantfile-filen",
 			"Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?":              "Utförandet av programmet Vagrant misslyckades. Är du säker, att HashiCorp Vagrant har installerats på datorn?",
@@ -105,6 +116,13 @@ func SetLanguage(newLanguage string) {
 			"Please select target path": "Välj sökväg",
 			"Save":                      "Spara",
 			"Cancel":                    "Avbryt",
+
+			// Destroy dialog
+			"naksu: Destroy Server":              "FIXME: naksu: Tyhjennä palvelin",
+			"Destroying server restores its initial status.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "FIXME: Palvelimen tyhjennus palauttaa sen alkutilaansa.\nKaikki tiedot palvelimelta poistetaan peruuttamattomasti.\nOn suositeltavaa ottaa palvelimesta varmuuskopiointi ennen tyhjennustä.",
+			"Do you wish to destroy the server?": "FIXME: Haluatko tyhjentää palvelimen?",
+			"Yes, Destroy":                       "FIXME: Kyllä, tyhjennä",
+			// Already defined: "Cancel"
 
 			// mebroutines
 			"Abitti server":         "Abitti-server",
