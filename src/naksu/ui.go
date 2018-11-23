@@ -7,6 +7,7 @@ import (
 	"naksu/mebroutines/install"
 	"naksu/mebroutines/start"
 	"naksu/mebroutines/destroy"
+	"naksu/mebroutines/remove"
 	"naksu/progress"
 	"naksu/xlate"
 	"os"
@@ -22,6 +23,7 @@ var buttonStartServer *ui.Button
 var buttonGetServer *ui.Button
 var buttonSwitchServer *ui.Button
 var buttonDestroyServer *ui.Button
+var buttonRemoveServer *ui.Button
 var buttonMakeBackup *ui.Button
 var buttonMebShare *ui.Button
 
@@ -65,12 +67,25 @@ var destroyBox *ui.Box
 var destroyInfoLabel *ui.Label
 var destroyQuestionLabel *ui.Label
 
+// Remove Confirmation Window
+var removeWindow *ui.Window
+
+var removeButtonRemove *ui.Button
+var removeButtonCancel *ui.Button
+
+var removeBox *ui.Box
+
+var removeInfoLabel *ui.Label
+var removeQuestionLabel *ui.Label
+
+
 func createMainWindowElements() {
 	// Define main window
 	buttonStartServer = ui.NewButton(xlate.Get("Start Exam Server"))
 	buttonGetServer = ui.NewButton("Abitti Exam")
 	buttonSwitchServer = ui.NewButton("Matriculation Exam")
 	buttonDestroyServer = ui.NewButton("Destroy")
+	buttonRemoveServer = ui.NewButton("Remove")
 	buttonMakeBackup = ui.NewButton("Make Exam Server Backup")
 	buttonMebShare = ui.NewButton("Open virtual USB stick (ktp-jako)")
 
@@ -109,6 +124,7 @@ func createMainWindowElements() {
 	boxAdvancedAnnihilate = ui.NewHorizontalBox()
 	boxAdvancedAnnihilate.SetPadded(true)
 	boxAdvancedAnnihilate.Append(buttonDestroyServer, true)
+	boxAdvancedAnnihilate.Append(buttonRemoveServer, true)
 
 	boxAdvanced = ui.NewVerticalBox()
 	boxAdvanced.SetPadded(true)
@@ -170,6 +186,27 @@ func createDestroyElements() {
 	destroyWindow.SetChild(destroyBox)
 }
 
+func createRemoveElements() {
+	// Define Destroy Confirmation window/dialog
+	removeInfoLabel = ui.NewLabel("removeInfoLabel")
+	removeQuestionLabel = ui.NewLabel("removeQuestionLabel")
+
+	removeButtonRemove = ui.NewButton("Remove")
+	removeButtonCancel = ui.NewButton("Cancel")
+
+	removeBox = ui.NewVerticalBox()
+	removeBox.SetPadded(true)
+	removeBox.Append(removeInfoLabel,true)
+	removeBox.Append(removeQuestionLabel, true)
+	removeBox.Append(removeButtonRemove, false)
+	removeBox.Append(removeButtonCancel, false)
+
+	removeWindow = ui.NewWindow("", 1, 1, false)
+
+	removeWindow.SetMargined(true)
+	removeWindow.SetChild(removeBox)
+}
+
 func populateBackupCombobox(backupMedia map[string]string, combobox *ui.Combobox) []string {
 	// Collect all paths to this slice
 	mediaPath := make([]string, len(backupMedia))
@@ -226,6 +263,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 						}
 						buttonMakeBackup.Enable()
 						buttonDestroyServer.Enable()
+						buttonRemoveServer.Enable()
 					})
 
 					lastStatus = newStatus
@@ -243,6 +281,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 						buttonSwitchServer.Disable()
 						buttonMakeBackup.Disable()
 						buttonDestroyServer.Disable()
+						buttonRemoveServer.Disable()
 					})
 
 					lastStatus = newStatus
@@ -258,6 +297,7 @@ func translateUILabels() {
 		buttonGetServer.SetText(xlate.Get("Abitti Exam"))
 		buttonSwitchServer.SetText(xlate.Get("Matriculation Exam"))
 		buttonDestroyServer.SetText(xlate.Get("Destroy"))
+		buttonRemoveServer.SetText(xlate.Get("Remove"))
 		buttonMakeBackup.SetText(xlate.Get("Make Exam Server Backup"))
 		buttonMebShare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
 
@@ -277,6 +317,12 @@ func translateUILabels() {
 		destroyQuestionLabel.SetText(xlate.Get("Do you wish to destroy the server?"))
 		destroyButtonDestroy.SetText(xlate.Get("Yes, Destroy"))
 		destroyButtonCancel.SetText(xlate.Get("Cancel"))
+
+		removeWindow.SetTitle(xlate.Get("naksu: Remove Server"))
+		removeInfoLabel.SetText(xlate.Get("Removing server destoroys it and all downloaded disk images.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this."))
+		removeQuestionLabel.SetText(xlate.Get("Do you wish to remove the server?"))
+		removeButtonRemove.SetText(xlate.Get("Yes, Remove"))
+		removeButtonCancel.SetText(xlate.Get("Cancel"))
 	})
 }
 
@@ -438,12 +484,19 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 }
 
 func bindOnDestroyServer(mainUIStatus chan string) {
-	// Define actions for main window
+	// Define actions for Destroy popup/window
 	buttonDestroyServer.OnClicked(func(*ui.Button) {
 		disableUI(mainUIStatus)
 		destroyWindow.Show()
 	})
+}
 
+func bindOnRemoveServer(mainUIStatus chan string) {
+	// Define actions for Remove popup/window
+	buttonRemoveServer.OnClicked(func(*ui.Button) {
+		disableUI(mainUIStatus)
+		removeWindow.Show()
+	})
 }
 
 func bindOnMakeBackup(mainUIStatus chan string) {
@@ -512,6 +565,32 @@ func bindOnDestroy(mainUIStatus chan string) {
 	})
 }
 
+func bindOnRemove(mainUIStatus chan string) {
+	// Define actions for Remove window/dialog
+
+	removeButtonRemove.OnClicked(func(*ui.Button) {
+		go func () {
+			removeWindow.Hide()
+
+			err := remove.Server()
+			if err != nil {
+				mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Error while removing server: %v"), err))
+				progress.SetMessage(fmt.Sprintf(xlate.Get("Error while removing server: %v"), err))
+			} else {
+				mebroutines.ShowInfoMessage(xlate.Get("Server was removed succesfully."))
+				progress.TranslateAndSetMessage("Server was removed succesfully.")
+			}
+
+			enableUI(mainUIStatus)
+		}()
+	})
+
+	removeButtonCancel.OnClicked(func(*ui.Button) {
+		removeWindow.Hide()
+		enableUI(mainUIStatus)
+	})
+}
+
 // RunUI sets up user interface and starts running it. function exists when application exits
 func RunUI() error {
 
@@ -526,6 +605,7 @@ func RunUI() error {
 
 		createBackupElements(backupMedia)
 		createDestroyElements()
+		createRemoveElements()
 
 		mebroutines.SetMainWindow(window)
 		progress.SetProgressLabel(labelStatus)
@@ -557,10 +637,12 @@ func RunUI() error {
 		bindOnSwitchServer(mainUIStatus)
 		bindOnMakeBackup(mainUIStatus)
 		bindOnDestroyServer(mainUIStatus)
+		bindOnRemoveServer(mainUIStatus)
 		bindOnMebShare()
 
 		bindOnBackup(mainUIStatus)
 		bindOnDestroy(mainUIStatus)
+		bindOnRemove(mainUIStatus)
 
 		window.OnClosing(func(*ui.Window) bool {
 			mebroutines.LogDebug("User exists through window exit")

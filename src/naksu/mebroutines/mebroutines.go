@@ -308,6 +308,12 @@ func CreateFile(path string) error {
 	return err
 }
 
+// RemoveDir removes directory and all its contents
+func RemoveDir(path string) error {
+	err := os.RemoveAll(path)
+	return err
+}
+
 // CopyFile copies existing file
 func CopyFile(src, dst string) (err error) {
 	LogDebug(fmt.Sprintf("Copying file %s to %s", src, dst))
@@ -381,6 +387,16 @@ func GetVagrantdDirectory() string {
 // GetMebshareDirectory returns ktp-jako path from under home directory
 func GetMebshareDirectory() string {
 	return GetHomeDirectory() + string(os.PathSeparator) + "ktp-jako"
+}
+
+// GetVirtualBoxHiddenDirectory returns ".VirtualBox" path from under home directory
+func GetVirtualBoxHiddenDirectory() string {
+	return GetHomeDirectory() + string(os.PathSeparator) + ".VirtualBox"
+}
+
+// GetVirtualBoxVMsDirectory returns "VirtualBox VMs" path from under home directory
+func GetVirtualBoxVMsDirectory() string {
+	return GetHomeDirectory() + string(os.PathSeparator) + "VirtualBox VMs"
 }
 
 // ChdirVagrantDirectory changes current working directory to vagrant path (ktp)

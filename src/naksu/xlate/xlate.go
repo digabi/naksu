@@ -14,6 +14,7 @@ func SetLanguage(newLanguage string) {
 			"Abitti Exam":                                           "Abitti-koe",
 			"Matriculation Exam":                                    "Yo-koe",
 			"Destroy":                                               "Tyhjennä",
+			"Remove":                                                "Poista",
 			"Make Exam Server Backup":                               "Tee palvelimesta varmuuskopio",
 			"Open virtual USB stick (ktp-jako)":                     "Avaa virtuaalinen siirtotikku (ktp-jako)",
 
@@ -44,6 +45,15 @@ func SetLanguage(newLanguage string) {
 			"Do you wish to destroy the server?": "Haluatko tyhjentää palvelimen?",
 			"Yes, Destroy":                       "Kyllä, tyhjennä",
 			// Already defined: "Cancel"
+
+			// Remove dialog
+			"naksu: Remove Server":               "naksu: Poista palvelin",
+			"Removing server destoroys it and all downloaded disk images.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "Palvelimen poistaminen tuhoaa sen ja kaikki ladatut levynkuvat.\nKaikki tiedot palvelimelta poistetaan peruuttamattomasti.\nOn suositeltavaa ottaa palvelimesta varmuuskopiointi ennen tyhjennustä.",
+			"Do you wish to remove the server?":  "Halutko poistaa palvelimen?",
+			"Yes, Remove":                        "Kyllä, poista",
+			// Already defined: "Cancel"
+			"Error while removing server: %v":    "Palvelimen poistaminen epäonnistui: %v",
+			"Server was removed succesfully.":    "Palvelimen poistaminen onnistui.",
 
 			// mebroutines
 			"Abitti server":         "Abitti-palvelin",
@@ -93,6 +103,7 @@ func SetLanguage(newLanguage string) {
 			"Abitti Exam":                                           "Abitti-prov",
 			"Matriculation Exam":                                    "Studentprovet",
 			"Destroy":                                               "FIXME: Tyhjennä",
+			"Remove":                                                "FIXME: Poista",
 			"Make Exam Server Backup":                               "Säkerhetskopiera servern",
 			"Open virtual USB stick (ktp-jako)":                     "Öppna den virtuellaöverföringsstickan (ktp-jako)",
 
@@ -123,6 +134,15 @@ func SetLanguage(newLanguage string) {
 			"Do you wish to destroy the server?": "FIXME: Haluatko tyhjentää palvelimen?",
 			"Yes, Destroy":                       "FIXME: Kyllä, tyhjennä",
 			// Already defined: "Cancel"
+
+			// Remove dialog
+			"naksu: Remove Server":               "FIXME: naksu: Poista palvelin",
+			"Removing server destoroys it and all downloaded disk images.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "FIXME: Palvelimen poistaminen tuhoaa sen ja kaikki ladatut levynkuvat.\nKaikki tiedot palvelimelta poistetaan peruuttamattomasti.\nOn suositeltavaa ottaa palvelimesta varmuuskopiointi ennen tyhjennustä.",
+			"Do you wish to remove the server?":  "FIXME: Halutko poistaa palvelimen?",
+			"Yes, Remove":                        "FIXME: Kyllä, poista",
+			// Already defined: "Cancel"
+			"Error while removing server: %v":    "FIXME: Palvelimen poistaminen epäonnistui: %v",
+			"Server was removed succesfully.":    "FIXME: Palvelimen poistaminen onnistui.",
 
 			// mebroutines
 			"Abitti server":         "Abitti-server",
