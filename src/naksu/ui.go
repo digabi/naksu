@@ -546,6 +546,12 @@ func bindOnBackup(mainUIStatus chan string) {
 		backupWindow.Hide()
 		enableUI(mainUIStatus)
 	})
+
+	backupWindow.OnClosing(func(*ui.Window) bool {
+		backupWindow.Hide()
+		enableUI(mainUIStatus)
+		return true
+	})
 }
 
 func bindOnDestroy(mainUIStatus chan string) {
@@ -562,6 +568,12 @@ func bindOnDestroy(mainUIStatus chan string) {
 	destroyButtonCancel.OnClicked(func(*ui.Button) {
 		destroyWindow.Hide()
 		enableUI(mainUIStatus)
+	})
+
+	destroyWindow.OnClosing(func(*ui.Window) bool {
+		destroyWindow.Hide()
+		enableUI(mainUIStatus)
+		return true
 	})
 }
 
@@ -588,6 +600,12 @@ func bindOnRemove(mainUIStatus chan string) {
 	removeButtonCancel.OnClicked(func(*ui.Button) {
 		removeWindow.Hide()
 		enableUI(mainUIStatus)
+	})
+
+	removeWindow.OnClosing(func(*ui.Window) bool {
+		removeWindow.Hide()
+		enableUI(mainUIStatus)
+		return true
 	})
 }
 
