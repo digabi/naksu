@@ -64,8 +64,7 @@ var destroyButtonCancel *ui.Button
 
 var destroyBox *ui.Box
 
-var destroyInfoLabel *ui.Label
-var destroyQuestionLabel *ui.Label
+var destroyInfoLabel [5]*ui.Label
 
 // Remove Confirmation Window
 var removeWindow *ui.Window
@@ -75,8 +74,7 @@ var removeButtonCancel *ui.Button
 
 var removeBox *ui.Box
 
-var removeInfoLabel *ui.Label
-var removeQuestionLabel *ui.Label
+var removeInfoLabel [5]*ui.Label
 
 
 func createMainWindowElements() {
@@ -167,16 +165,18 @@ func createBackupElements(backupMedia map[string]string) {
 
 func createDestroyElements() {
 	// Define Destroy Confirmation window/dialog
-	destroyInfoLabel = ui.NewLabel("destroyInfoLabel")
-	destroyQuestionLabel = ui.NewLabel("destroyQuestionLabel")
+	for i:=0; i<=4; i++ {
+		destroyInfoLabel[i] = ui.NewLabel("destroyInfoLabel")
+	}
 
 	destroyButtonDestroy = ui.NewButton("Yes, Remove")
 	destroyButtonCancel = ui.NewButton("Cancel")
 
 	destroyBox = ui.NewVerticalBox()
 	destroyBox.SetPadded(true)
-	destroyBox.Append(destroyInfoLabel,true)
-	destroyBox.Append(destroyQuestionLabel, true)
+	for i:=0; i<=4; i++ {
+		destroyBox.Append(destroyInfoLabel[i], false)
+	}
 	destroyBox.Append(destroyButtonDestroy, false)
 	destroyBox.Append(destroyButtonCancel, false)
 
@@ -188,16 +188,18 @@ func createDestroyElements() {
 
 func createRemoveElements() {
 	// Define Destroy Confirmation window/dialog
-	removeInfoLabel = ui.NewLabel("removeInfoLabel")
-	removeQuestionLabel = ui.NewLabel("removeQuestionLabel")
+	for i:=0; i<=4; i++ {
+		removeInfoLabel[i] = ui.NewLabel("removeInfoLabel")
+	}
 
 	removeButtonRemove = ui.NewButton("Yes, Remove")
 	removeButtonCancel = ui.NewButton("Cancel")
 
 	removeBox = ui.NewVerticalBox()
 	removeBox.SetPadded(true)
-	removeBox.Append(removeInfoLabel,true)
-	removeBox.Append(removeQuestionLabel, true)
+	for i:=0; i<=4; i++ {
+		removeBox.Append(removeInfoLabel[i], false)
+	}
 	removeBox.Append(removeButtonRemove, false)
 	removeBox.Append(removeButtonCancel, false)
 
@@ -313,14 +315,20 @@ func translateUILabels() {
 		backupButtonCancel.SetText(xlate.Get("Cancel"))
 
 		destroyWindow.SetTitle(xlate.Get("naksu: Remove Exams"))
-		destroyInfoLabel.SetText(xlate.Get("Remove Exams restores server to its initial status.\nExams, responses and logs in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this."))
-		destroyQuestionLabel.SetText(xlate.Get("Do you wish to remove all exams?"))
+		destroyInfoLabel[0].SetText(xlate.Get("Remove Exams restores server to its initial status."))
+		destroyInfoLabel[1].SetText(xlate.Get("Exams, responses and logs in the server will be irreversibly deleted."))
+		destroyInfoLabel[2].SetText(xlate.Get("It is recommended to back up your server before removing exams."))
+		destroyInfoLabel[3].SetText(xlate.Get(""))
+		destroyInfoLabel[4].SetText(xlate.Get("Do you wish to remove all exams?"))
 		destroyButtonDestroy.SetText(xlate.Get("Yes, Remove"))
 		destroyButtonCancel.SetText(xlate.Get("Cancel"))
 
 		removeWindow.SetTitle(xlate.Get("naksu: Remove Server"))
-		removeInfoLabel.SetText(xlate.Get("Removing server destroys it and all downloaded disk images.\nExams, responses and logs in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this."))
-		removeQuestionLabel.SetText(xlate.Get("Do you wish to remove the server?"))
+		removeInfoLabel[0].SetText(xlate.Get("Removing server destroys it and all downloaded disk images."))
+		removeInfoLabel[1].SetText(xlate.Get("Exams, responses and logs in the server will be irreversibly deleted."))
+		removeInfoLabel[2].SetText(xlate.Get("It is recommended to back up your server before removing server."))
+		removeInfoLabel[3].SetText(xlate.Get(""))
+		removeInfoLabel[4].SetText(xlate.Get("Do you wish to remove the server?"))
 		removeButtonRemove.SetText(xlate.Get("Yes, Remove"))
 		removeButtonCancel.SetText(xlate.Get("Cancel"))
 	})
