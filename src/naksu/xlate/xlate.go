@@ -102,8 +102,8 @@ func SetLanguage(newLanguage string) {
 			"Start Exam Server":                                     "Starta provlokalsserver",
 			"Abitti Exam":                                           "Abitti-prov",
 			"Matriculation Exam":                                    "Studentprovet",
-			"Destroy":                                               "FIXME: Tyhjennä",
-			"Remove":                                                "FIXME: Poista",
+			"Destroy":                                               "Töm",
+			"Remove":                                                "Avlägsna",
 			"Make Exam Server Backup":                               "Säkerhetskopiera servern",
 			"Open virtual USB stick (ktp-jako)":                     "Öppna den virtuellaöverföringsstickan (ktp-jako)",
 
@@ -113,7 +113,7 @@ func SetLanguage(newLanguage string) {
 			// Main window, other
 			"Current version: %s": "Installerad version: %s",
 			"Install/update server for:": "Installera eller uppdatera server för:",
-			"DANGER! Annihilate your server:": "FIXME: VAARA! Palvelimen tuhoaminen:",
+			"DANGER! Annihilate your server:": "FARA! Förstörning av servern:",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Uppdateringen av Naksu misslyckades. Du saknar möjligtvis nätförbindelse för tillfället?\n\nFel: %s",
 			"Did not get a path for a new Vagrantfile":                                                   "Ge sökvägen för den nya Vagrantfile-filen",
 			"Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?":              "Utförandet av programmet Vagrant misslyckades. Är du säker, att HashiCorp Vagrant har installerats på datorn?",
@@ -129,20 +129,20 @@ func SetLanguage(newLanguage string) {
 			"Cancel":                    "Avbryt",
 
 			// Destroy dialog
-			"naksu: Destroy Server":              "FIXME: naksu: Tyhjennä palvelin",
-			"Destroying server restores its initial status.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "FIXME: Palvelimen tyhjennus palauttaa sen alkutilaansa.\nKaikki tiedot palvelimelta poistetaan peruuttamattomasti.\nOn suositeltavaa ottaa palvelimesta varmuuskopiointi ennen tyhjennustä.",
-			"Do you wish to destroy the server?": "FIXME: Haluatko tyhjentää palvelimen?",
-			"Yes, Destroy":                       "FIXME: Kyllä, tyhjennä",
+			"naksu: Destroy Server":              "naksu: Töm servern",
+			"Destroying server restores its initial status.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "Tömning av servern återställer den till sitt ursprungsläge.\nAll information på servern avlägsnas oåterkalleligt.\nDet är rekommenderat att ta en säkerhetskopia av servern före den förstörs.",
+			"Do you wish to destroy the server?": "Vill du tömma servern?",
+			"Yes, Destroy":                       "Ja, töm",
 			// Already defined: "Cancel"
 
 			// Remove dialog
-			"naksu: Remove Server":               "FIXME: naksu: Poista palvelin",
-			"Removing server destoroys it and all downloaded disk images.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "FIXME: Palvelimen poistaminen tuhoaa sen ja kaikki ladatut levynkuvat.\nKaikki tiedot palvelimelta poistetaan peruuttamattomasti.\nOn suositeltavaa ottaa palvelimesta varmuuskopiointi ennen tyhjennustä.",
-			"Do you wish to remove the server?":  "FIXME: Halutko poistaa palvelimen?",
-			"Yes, Remove":                        "FIXME: Kyllä, poista",
+			"naksu: Remove Server":               "naksu: Avlägsna servern",
+			"Removing server destoroys it and all downloaded disk images.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "Avlägsning av servern avlägsnar den och alla laddade skivavbilder.\n\nAll information på servern avlägsnas oåterkalleligt.\nDet är rekommenderat att ta en säkerhetskopia av servern före den avlägsnas.",
+			"Do you wish to remove the server?":  "Vill du avlägsna servern?",
+			"Yes, Remove":                        "Ja, avlägsna",
 			// Already defined: "Cancel"
-			"Error while removing server: %v":    "FIXME: Palvelimen poistaminen epäonnistui: %v",
-			"Server was removed succesfully.":    "FIXME: Palvelimen poistaminen onnistui.",
+			"Error while removing server: %v":    "Avlägsning av servern misslyckades: %v",
+			"Server was removed succesfully.":    "Avlägsning av servern lyckades.",
 
 			// mebroutines
 			"Abitti server":         "Abitti-server",
