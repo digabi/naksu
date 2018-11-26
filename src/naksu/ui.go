@@ -84,8 +84,8 @@ func createMainWindowElements() {
 	buttonStartServer = ui.NewButton(xlate.Get("Start Exam Server"))
 	buttonGetServer = ui.NewButton("Abitti Exam")
 	buttonSwitchServer = ui.NewButton("Matriculation Exam")
-	buttonDestroyServer = ui.NewButton("Destroy")
-	buttonRemoveServer = ui.NewButton("Remove")
+	buttonDestroyServer = ui.NewButton("Remove Exams")
+	buttonRemoveServer = ui.NewButton("Remove Server")
 	buttonMakeBackup = ui.NewButton("Make Exam Server Backup")
 	buttonMebShare = ui.NewButton("Open virtual USB stick (ktp-jako)")
 
@@ -170,7 +170,7 @@ func createDestroyElements() {
 	destroyInfoLabel = ui.NewLabel("destroyInfoLabel")
 	destroyQuestionLabel = ui.NewLabel("destroyQuestionLabel")
 
-	destroyButtonDestroy = ui.NewButton("Destroy")
+	destroyButtonDestroy = ui.NewButton("Yes, Remove")
 	destroyButtonCancel = ui.NewButton("Cancel")
 
 	destroyBox = ui.NewVerticalBox()
@@ -191,7 +191,7 @@ func createRemoveElements() {
 	removeInfoLabel = ui.NewLabel("removeInfoLabel")
 	removeQuestionLabel = ui.NewLabel("removeQuestionLabel")
 
-	removeButtonRemove = ui.NewButton("Remove")
+	removeButtonRemove = ui.NewButton("Yes, Remove")
 	removeButtonCancel = ui.NewButton("Cancel")
 
 	removeBox = ui.NewVerticalBox()
@@ -296,8 +296,8 @@ func translateUILabels() {
 		buttonStartServer.SetText(xlate.Get("Start Exam Server"))
 		buttonGetServer.SetText(xlate.Get("Abitti Exam"))
 		buttonSwitchServer.SetText(xlate.Get("Matriculation Exam"))
-		buttonDestroyServer.SetText(xlate.Get("Destroy"))
-		buttonRemoveServer.SetText(xlate.Get("Remove"))
+		buttonDestroyServer.SetText(xlate.Get("Remove Exams"))
+		buttonRemoveServer.SetText(xlate.Get("Remove Server"))
 		buttonMakeBackup.SetText(xlate.Get("Make Exam Server Backup"))
 		buttonMebShare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
 
@@ -312,14 +312,14 @@ func translateUILabels() {
 		backupButtonSave.SetText(xlate.Get("Save"))
 		backupButtonCancel.SetText(xlate.Get("Cancel"))
 
-		destroyWindow.SetTitle(xlate.Get("naksu: Destroy Server"))
-		destroyInfoLabel.SetText(xlate.Get("Destroying server restores its initial status.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this."))
-		destroyQuestionLabel.SetText(xlate.Get("Do you wish to destroy the server?"))
-		destroyButtonDestroy.SetText(xlate.Get("Yes, Destroy"))
+		destroyWindow.SetTitle(xlate.Get("naksu: Remove Exams"))
+		destroyInfoLabel.SetText(xlate.Get("Remove Exams restores server to its initial status.\nExams, responses and logs in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this."))
+		destroyQuestionLabel.SetText(xlate.Get("Do you wish to remove all exams?"))
+		destroyButtonDestroy.SetText(xlate.Get("Yes, Remove"))
 		destroyButtonCancel.SetText(xlate.Get("Cancel"))
 
 		removeWindow.SetTitle(xlate.Get("naksu: Remove Server"))
-		removeInfoLabel.SetText(xlate.Get("Removing server destoroys it and all downloaded disk images.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this."))
+		removeInfoLabel.SetText(xlate.Get("Removing server destroys it and all downloaded disk images.\nExams, responses and logs in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this."))
 		removeQuestionLabel.SetText(xlate.Get("Do you wish to remove the server?"))
 		removeButtonRemove.SetText(xlate.Get("Yes, Remove"))
 		removeButtonCancel.SetText(xlate.Get("Cancel"))

@@ -13,8 +13,8 @@ func SetLanguage(newLanguage string) {
 			"Start Exam Server":                                     "Käynnistä koetilan palvelin",
 			"Abitti Exam":                                           "Abitti-koe",
 			"Matriculation Exam":                                    "Yo-koe",
-			"Destroy":                                               "Tyhjennä",
-			"Remove":                                                "Poista",
+			"Remove Exams":                                          "Poista kokeet",
+			"Remove Server":                                         "Poista palvelin",
 			"Make Exam Server Backup":                               "Tee palvelimesta varmuuskopio",
 			"Open virtual USB stick (ktp-jako)":                     "Avaa virtuaalinen siirtotikku (ktp-jako)",
 
@@ -40,17 +40,17 @@ func SetLanguage(newLanguage string) {
 			"Cancel":                    "Peruuta",
 
 			// Destroy dialog
-			"naksu: Destroy Server":              "naksu: Tyhjennä palvelin",
-			"Destroying server restores its initial status.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "Palvelimen tyhjennus palauttaa sen alkutilaansa.\nKaikki tiedot palvelimelta poistetaan peruuttamattomasti.\nOn suositeltavaa ottaa palvelimesta varmuuskopiointi ennen tyhjennustä.",
-			"Do you wish to destroy the server?": "Haluatko tyhjentää palvelimen?",
-			"Yes, Destroy":                       "Kyllä, tyhjennä",
+			"naksu: Remove Exams":                "naksu: Poista kokeet",
+			"Remove Exams restores server to its initial status.\nExams, responses and logs in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "Kokeiden poistaminen palauttaa palvelimen alkutilaan.\nKokeet, suoritukset ja lokitiedot poistetaan peruuttamattomasti.\nOn suositeltavaa ottaa palvelimesta varmuuskopio ennen kokeiden poistamista.",
+			"Do you wish to remove all exams?":   "Haluatko poistaa kaikki kokeet?",
+			"Yes, Remove":                        "Kyllä, poista",
 			// Already defined: "Cancel"
 
 			// Remove dialog
 			"naksu: Remove Server":               "naksu: Poista palvelin",
-			"Removing server destoroys it and all downloaded disk images.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "Palvelimen poistaminen tuhoaa sen ja kaikki ladatut levynkuvat.\nKaikki tiedot palvelimelta poistetaan peruuttamattomasti.\nOn suositeltavaa ottaa palvelimesta varmuuskopiointi ennen tyhjennustä.",
+			"Removing server destroys it and all downloaded disk images.\nExams, responses and logs in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "Palvelimen poistaminen tuhoaa sen ja kaikki ladatut levynkuvat.\nKokeet, suoritukset ja lokitiedot poistetaan peruuttamattomasti.\nOn suositeltavaa ottaa palvelimesta varmuuskopio ennen poistamista.",
 			"Do you wish to remove the server?":  "Halutko poistaa palvelimen?",
-			"Yes, Remove":                        "Kyllä, poista",
+			// Already defined: "Yes, Remove"
 			// Already defined: "Cancel"
 			"Error while removing server: %v":    "Palvelimen poistaminen epäonnistui: %v",
 			"Server was removed succesfully.":    "Palvelimen poistaminen onnistui.",
@@ -102,8 +102,8 @@ func SetLanguage(newLanguage string) {
 			"Start Exam Server":                                     "Starta provlokalsserver",
 			"Abitti Exam":                                           "Abitti-prov",
 			"Matriculation Exam":                                    "Studentprovet",
-			"Destroy":                                               "Töm",
-			"Remove":                                                "Avlägsna",
+			"Remove Exams":                                          "Avlägsna proven",
+			"Remove Server":                                         "Avlägsna servern",
 			"Make Exam Server Backup":                               "Säkerhetskopiera servern",
 			"Open virtual USB stick (ktp-jako)":                     "Öppna den virtuellaöverföringsstickan (ktp-jako)",
 
@@ -129,17 +129,17 @@ func SetLanguage(newLanguage string) {
 			"Cancel":                    "Avbryt",
 
 			// Destroy dialog
-			"naksu: Destroy Server":              "naksu: Töm servern",
-			"Destroying server restores its initial status.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "Tömning av servern återställer den till sitt ursprungsläge.\nAll information på servern avlägsnas oåterkalleligt.\nDet är rekommenderat att ta en säkerhetskopia av servern före den förstörs.",
-			"Do you wish to destroy the server?": "Vill du tömma servern?",
-			"Yes, Destroy":                       "Ja, töm",
+			"naksu: Remove Exams":                "naksu: Avlägsna proven",
+			"Remove Exams restores server to its initial status.\nExams, responses and logs in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "Avlägsnandet av proven återställer servern till sitt ursprungsläge.\nAlla prov, loggfiler och svar på servern avlägsnas oåterkalleligt.\nDet är rekommenderat att ta en säkerhetskopia av servern före proven avlägsnas.",
+			"Do you wish to remove all exams?":   "Vill du avlägsna alla prov?",
+			"Yes, Remove":                        "Ja, avlägsna",
 			// Already defined: "Cancel"
 
 			// Remove dialog
 			"naksu: Remove Server":               "naksu: Avlägsna servern",
-			"Removing server destoroys it and all downloaded disk images.\nAll data in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "Avlägsning av servern avlägsnar den och alla laddade skivavbilder.\n\nAll information på servern avlägsnas oåterkalleligt.\nDet är rekommenderat att ta en säkerhetskopia av servern före den avlägsnas.",
+			"Removing server destroys it and all downloaded disk images.\nExams, responses and logs in the server will be irreversibly deleted.\nIt is recommended to back up your server before doing this.": "Avlägsnandet av servern förstör den och alla nerladdade skivavbilder.\nAlla prov, loggfiler och svar på servern avlägsnas oåterkalleligt.\nDet är rekommenderat att ta en säkerhetskopia av servern före den avlägsnas.",
 			"Do you wish to remove the server?":  "Vill du avlägsna servern?",
-			"Yes, Remove":                        "Ja, avlägsna",
+			// Already defined: "Yes, Remove"
 			// Already defined: "Cancel"
 			"Error while removing server: %v":    "Avlägsning av servern misslyckades: %v",
 			"Server was removed succesfully.":    "Avlägsning av servern lyckades.",
