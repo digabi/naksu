@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"path/filepath"
 
 	"github.com/andlabs/ui"
 )
@@ -183,7 +184,7 @@ func GetVagrantFileVersion (paramPathVagrantfile string) string {
 			pathVagrantfile = GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile"
 	}
 
-	fileContent, err := ioutil.ReadFile(pathVagrantfile)
+	fileContent, err := ioutil.ReadFile(filepath.Clean(pathVagrantfile))
 	if err != nil {
 		LogDebug(fmt.Sprintf("Could not read from %s", pathVagrantfile))
 		return ""
