@@ -31,6 +31,9 @@ func Server() error {
     return err
   }
 
+  // Set new filename for debug log (we probably just deleted previous one above)
+  mebroutines.SetDebugFilename(mebroutines.GetNewDebugFilename())
+
   progress.TranslateAndSetMessage("Deleting ~/VirtualBox VMs")
   err = mebroutines.RemoveDir(mebroutines.GetVirtualBoxVMsDirectory())
   if err != nil {

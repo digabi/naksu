@@ -500,6 +500,21 @@ func SetDebugFilename(newFilename string) {
 	}
 }
 
+// GetNewDebugFilename suggests a new debug log filename
+func GetNewDebugFilename() string {
+	newDebugFilename := ""
+
+	logPath := GetVagrantDirectory()
+	if ExistsDir(logPath) {
+		newDebugFilename = logPath + string(os.PathSeparator) + "naksu_lastlog.txt"
+	} else {
+		newDebugFilename = os.TempDir() + string(os.PathSeparator) + "naksu_lastlog.txt"
+	}
+
+	return newDebugFilename
+}
+
+
 // IsDebug returns true if we need to log debug information
 func IsDebug() bool {
 	return isDebug
