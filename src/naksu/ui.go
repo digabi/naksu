@@ -303,7 +303,7 @@ func translateUILabels() {
 		buttonMakeBackup.SetText(xlate.Get("Make Exam Server Backup"))
 		buttonMebShare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
 
-		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.GetVagrantBoxVersion()))
+		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.GetVagrantFileVersion("")))
 
 		checkboxAdvanced.SetText(xlate.Get("Show management features"))
 		labelAdvancedUpdate.SetText(xlate.Get("Install/update server for:"))
@@ -569,6 +569,11 @@ func bindOnDestroy(mainUIStatus chan string) {
 		go func () {
 			destroyWindow.Hide()
 			destroy.Server()
+			progress.SetMessage("")
+
+			// Update installed version label
+			translateUILabels()
+
 			enableUI(mainUIStatus)
 		}()
 	})
@@ -600,6 +605,9 @@ func bindOnRemove(mainUIStatus chan string) {
 				mebroutines.ShowInfoMessage(xlate.Get("Server was removed succesfully."))
 				progress.TranslateAndSetMessage("Server was removed succesfully.")
 			}
+
+			// Update installed version label
+			translateUILabels()
 
 			enableUI(mainUIStatus)
 		}()
