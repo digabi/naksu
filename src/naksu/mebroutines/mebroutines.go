@@ -352,17 +352,26 @@ func GetVirtualBoxVMsDirectory() string {
 	return GetHomeDirectory() + string(os.PathSeparator) + "VirtualBox VMs"
 }
 
-// ChdirVagrantDirectory changes current working directory to vagrant path (ktp)
-func ChdirVagrantDirectory() bool {
-	pathVagrant := GetVagrantDirectory()
-	LogDebug(fmt.Sprintf("chdir %s", pathVagrant))
-	err := os.Chdir(pathVagrant)
+// chdir changes current working directory to the given directory
+func chdir(chdirTo string) bool {
+	LogDebug(fmt.Sprintf("chdir %s", chdirTo))
+	err := os.Chdir(chdirTo)
 	if err != nil {
-		ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not chdir to %s"), pathVagrant))
+		ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not chdir to %s"), chdirTo))
 		return false
 	}
 
 	return true
+}
+
+// ChdirVagrantDirectory changes current working directory to vagrant path (ktp)
+func ChdirVagrantDirectory() bool {
+	return chdir(GetVagrantDirectory())
+}
+
+// ChdirHomeDirectory changes current working directory to home directory
+func ChdirHomeDirectory() bool {
+	return chdir(GetHomeDirectory())
 }
 
 // SetMainWindow sets libui main window pointer used by ShowErrorMessage and ShowWarningMessage

@@ -2,6 +2,7 @@ package remove
 
 import (
   "fmt"
+  "errors"
 	"naksu/mebroutines"
 	"naksu/progress"
 )
@@ -9,6 +10,14 @@ import (
 // Server removes all directories related to Vagrant and VirtualBox
 func Server() error {
   var err error
+
+  // Chdir to home directory to avoid problems with Windows where deleting
+  // a directory where a
+  progress.TranslateAndSetMessage("Chmod ~")
+  success := mebroutines.ChdirHomeDirectory()
+  if ! success {
+    return errors.New("Could not chmod to home directory")
+  }
 
   progress.TranslateAndSetMessage("Deleting ~/.vagrant.d")
   err = mebroutines.RemoveDir(mebroutines.GetVagrantdDirectory())
