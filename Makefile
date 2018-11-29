@@ -44,6 +44,8 @@ windows: naksu.exe
 
 linux: naksu
 
+mac: naksu-darwin
+
 src/naksu.syso: res/windows/*
 	$(RSRC) -arch="amd64" -ico="res/windows/naksu.ico" -o src/naksu.syso
 
@@ -52,6 +54,9 @@ naksu.exe: src/*
 
 naksu: src/*
 	GOPATH=$(current_dir)/ GOOS=linux GOARCH=amd64 CGO_ENABLED=1 $(GO) build -o bin/naksu naksu
+
+naksu-darwin: src/*
+	GOPATH=$(current_dir)/ GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 $(GO) build -o bin/naksu-darwin naksu
 
 naksu_packages: all
 	rm -f naksu_linux_amd64.zip
