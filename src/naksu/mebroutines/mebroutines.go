@@ -178,15 +178,14 @@ func IfFoundVBoxManage() bool {
 }
 
 // GetVagrantFileVersion returns version string for a given Vagrantfile (with "" defaults to ~/ktp/Vagrantfile)
-func GetVagrantFileVersion (paramPathVagrantfile string) string {
-	pathVagrantfile := paramPathVagrantfile
-	if pathVagrantfile == "" {
-			pathVagrantfile = GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile"
+func GetVagrantFileVersion (vagrantFilePath string) string {
+	if vagrantFilePath == "" {
+			vagrantFilePath = GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile"
 	}
 
-	fileContent, err := ioutil.ReadFile(filepath.Clean(pathVagrantfile))
+	fileContent, err := ioutil.ReadFile(filepath.Clean(vagrantFilePath))
 	if err != nil {
-		LogDebug(fmt.Sprintf("Could not read from %s", pathVagrantfile))
+		LogDebug(fmt.Sprintf("Could not read from %s", vagrantFilePath))
 		return ""
 	}
 

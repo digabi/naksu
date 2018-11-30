@@ -79,7 +79,7 @@ var removeInfoLabel [5]*ui.Label
 
 func createMainWindowElements() {
 	// Define main window
-	buttonStartServer = ui.NewButton(xlate.Get("Start Exam Server"))
+	buttonStartServer = ui.NewButton("Start Exam Server")
 	buttonGetServer = ui.NewButton("Abitti Exam")
 	buttonSwitchServer = ui.NewButton("Matriculation Exam")
 	buttonDestroyServer = ui.NewButton("Remove Exams")

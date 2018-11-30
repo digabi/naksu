@@ -3,8 +3,8 @@ package remove
 import (
   "fmt"
   "errors"
-	"naksu/mebroutines"
-	"naksu/progress"
+  "naksu/mebroutines"
+  "naksu/progress"
 )
 
 // Server removes all directories related to Vagrant and VirtualBox
