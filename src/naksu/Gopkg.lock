@@ -26,6 +26,22 @@
   version = "v3.5.1"
 
 [[projects]]
+  digest = "1:6f9339c912bbdda81302633ad7e99a28dfa5a639c864061f1929510a9a64aa74"
+  name = "github.com/dustin/go-humanize"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9f541cc9db5d55bce703bd99987c9d5cb8eea45e"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:15e27372d379b45b18ac917b9dafc45c45485239490ece18cca97a12f9591146"
+  name = "github.com/go-ini/ini"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9c8236e659b76e87bf02044d06fde8683008ff3e"
+  version = "v1.39.0"
+
+[[projects]]
   digest = "1:64a5a67c69b70c2420e607a8545d674a23778ed9c3e80607bfd17b77c6c87f6a"
   name = "github.com/go-ole/go-ole"
   packages = [
@@ -154,6 +170,8 @@
     "github.com/StackExchange/wmi",
     "github.com/andlabs/ui",
     "github.com/blang/semver",
+    "github.com/dustin/go-humanize",
+    "github.com/go-ini/ini",
     "github.com/kardianos/osext",
     "github.com/rhysd/go-github-selfupdate/selfupdate",
   ]
