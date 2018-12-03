@@ -20,7 +20,8 @@ func main() {
 	// Load configuration if it exists
 	config.Load()
 	// Set default UI language
-	xlate.SetLanguage("fi")
+	xlate.SetLanguage(config.GetLanguage())
+
 
 	// Process command line parameters
 	flag.BoolVar(&isDebug, "debug", false, "Turn debugging on")
