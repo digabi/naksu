@@ -131,6 +131,23 @@ Things to consider later:
 
 ## Changelog
 
+### 1.6.0 (3-DEC-2018)
+
+User interface
+
+- Added button for removing exams (`vagrant destroy -f`)
+- Added button for removing servers (delete `~/.vagrant.d`, `~/.VirtualBox`, `~/ktp` and `~/VirtualBox VMs`)
+- Detect installed VM version from `~/ktp/Vagrantfile` instead of Vagrant data files
+- Changed the low disk warning level from 5 Gb to 50 Gb
+- Added . (period) to the list of accepted characters in the home directory path
+- User can cancel confirmation dialogs by closing the window
+
+Other changes
+
+- Major rewrite of code
+- Build and test on a Docker environment instead of local workstation
+- Added support for compiling and executing Naksu on Darwin (needed by some of the developers)
+
 ### 1.5.0 (2-OCT-2018)
 
 User interface

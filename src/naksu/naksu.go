@@ -11,7 +11,7 @@ import (
 	"github.com/kardianos/osext"
 )
 
-const version = "1.5.0"
+const version = "1.6.0"
 const lowDiskLimit = 50 * 1024 * 1024 // 50 Gb
 
 // URLTest is testing URL for checking network connection
