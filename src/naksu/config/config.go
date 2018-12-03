@@ -27,7 +27,6 @@ func initDefaults() {
 		defaultValue{"common", "iniVersion", strconv.FormatInt(1, 10)},
 		defaultValue{"common", "language", "fi"},
 		defaultValue{"selfupdate", "disabled", strconv.FormatBool(false)},
-		defaultValue{"selfupdate", "useBeta", strconv.FormatBool(false)},
 	}
 }
 
@@ -86,12 +85,7 @@ func IsSelfUpdateDisabled() bool {
 	return getBoolean("selfupdate", "disabled")
 }
 
-// SetReleaseChannel sets the release channel to selected value. Default is "release"
-func SetReleaseChannel(channel string) {
-	setValue("selfupdate", "channel", channel)
-}
-
-// GetReleaseChannel returns selected release channel. Default is "release"
-func GetReleaseChannel() string {
-	return getValue("selfupdate", "channel").String()
+// SetSelfUpdateDisabled sets the state of self-update functionality
+func SetSelfUpdateDisabled(isSelfUpdateDisabled bool) {
+	setValue("selfupdate", "disabled", strconv.FormatBool(isSelfUpdateDisabled))
 }

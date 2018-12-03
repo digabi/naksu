@@ -90,6 +90,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:4bb169ce06341a7c5e6c9a6734b25c606f59e2f765703301f92d159cf999672e"
+  name = "github.com/jessevdk/go-flags"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5de817a9aa209ed35a164cb04aec82b7df1a47a6"
+
+[[projects]]
+  branch = "master"
   digest = "1:caf6db28595425c0e0f2301a00257d11712f65c1878e12cffc42f6b9a9cf3f23"
   name = "github.com/kardianos/osext"
   packages = ["."]
@@ -172,6 +180,7 @@
     "github.com/blang/semver",
     "github.com/dustin/go-humanize",
     "github.com/go-ini/ini",
+    "github.com/jessevdk/go-flags",
     "github.com/kardianos/osext",
     "github.com/rhysd/go-github-selfupdate/selfupdate",
   ]
