@@ -17,6 +17,8 @@ const lowDiskLimit = 50 * 1024 * 1024 // 50 Gb
 var isDebug bool
 
 func main() {
+	// Load configuration if it exists
+	config.Load()
 	// Set default UI language
 	xlate.SetLanguage("fi")
 
@@ -57,6 +59,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	config.Save()
 
 	mebroutines.LogDebug("Exiting GUI loop")
 }
