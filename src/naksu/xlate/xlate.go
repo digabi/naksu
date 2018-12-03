@@ -10,10 +10,12 @@ func SetLanguage(newLanguage string) {
 	if currentLanguage == "fi" {
 		xlateStrings = map[string]string{
 			// Main window, buttons
-			"Start Stickless Exam Server":                           "Käynnistä virtuaalinen koetilan palvelin",
-			"Install or update Abitti Stickless Exam Server":        "Asenna tai päivitä Abitin virtuaalinen palvelin",
-			"Install or update Stickless Matriculation Exam Server": "Asenna tai päivitä yo-kokeen virtuaalinen palvelin",
-			"Make Stickless Exam Server Backup":                     "Tee virtuaalisesta palvelimesta varmuuskopio",
+			"Start Exam Server":                                     "Käynnistä koetilan palvelin",
+			"Abitti Exam":                                           "Abitti-koe",
+			"Matriculation Exam":                                    "Yo-koe",
+			"Remove Exams":                                          "Poista kokeet",
+			"Remove Server":                                         "Poista palvelin",
+			"Make Exam Server Backup":                               "Tee palvelimesta varmuuskopio",
 			"Open virtual USB stick (ktp-jako)":                     "Avaa virtuaalinen siirtotikku (ktp-jako)",
 
 			// Main window, checkboxes
@@ -21,6 +23,8 @@ func SetLanguage(newLanguage string) {
 
 			// Main window, other
 			"Current version: %s": "Asennettu versio: %s",
+			"Install/update server for:": "Asenna tai päivitä palvelin:",
+			"DANGER! Annihilate your server:": "VAARA! Palvelimen tuhoaminen:",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n\nVirhe: %s",
 			"Did not get a path for a new Vagrantfile":                                                   "Uuden Vagrantfile-tiedoston sijainti on annettava",
 			"Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?":              "Ohjelman Vagrant käynnistys epäonnistui. Oletko varma, että koneeseen on asennettu HashiCorp Vagrant?",
@@ -34,6 +38,26 @@ func SetLanguage(newLanguage string) {
 			"Please select target path": "Valitse tallennuspaikka",
 			"Save":                      "Tallenna",
 			"Cancel":                    "Peruuta",
+
+			// Destroy dialog
+			"naksu: Remove Exams":                                                   "naksu: Poista kokeet",
+			"Remove Exams restores server to its initial status.":                   "Kokeiden poistaminen palauttaa palvelimen alkutilaan.",
+			"Exams, responses and logs in the server will be irreversibly deleted.": "Kokeet, suoritukset ja lokitiedot poistetaan peruuttamattomasti.",
+			"It is recommended to back up your server before removing exams.":       "On suositeltavaa ottaa palvelimesta varmuuskopio ennen kokeiden poistamista.",
+			"Do you wish to remove all exams?":                                      "Haluatko poistaa kaikki kokeet?",
+			"Yes, Remove":                                                           "Kyllä, poista",
+			// Already defined: "Cancel"
+
+			// Remove dialog
+			"naksu: Remove Server":                                                  "naksu: Poista palvelin",
+			"Removing server destroys it and all downloaded disk images.":           "Palvelimen poistaminen tuhoaa sen ja kaikki ladatut levynkuvat.",
+			// Already defined: "Exams, responses and logs in the server will be irreversibly deleted."
+			"It is recommended to back up your server before removing server.":      "On suositeltavaa ottaa palvelimesta varmuuskopio ennen poistamista.",
+			"Do you wish to remove the server?":                                     "Halutko poistaa palvelimen?",
+			// Already defined: "Yes, Remove"
+			// Already defined: "Cancel"
+			"Error while removing server: %v":    "Palvelimen poistaminen epäonnistui: %v",
+			"Server was removed succesfully.":    "Palvelimen poistaminen onnistui.",
 
 			// mebroutines
 			"Abitti server":         "Abitti-palvelin",
@@ -79,10 +103,12 @@ func SetLanguage(newLanguage string) {
 	} else if currentLanguage == "sv" {
 		xlateStrings = map[string]string{
 			// Main window, buttons
-			"Start Stickless Exam Server":                           "Starta virtuell provlokalsserver",
-			"Install or update Abitti Stickless Exam Server":        "Installera eller uppdatera virtuell server för Abitti",
-			"Install or update Stickless Matriculation Exam Server": "Installera eller uppdatera virtuell server för studentexamen",
-			"Make Stickless Exam Server Backup":                     "Säkerhetskopiera den virtuella servern",
+			"Start Exam Server":                                     "Starta provlokalsserver",
+			"Abitti Exam":                                           "Abitti-prov",
+			"Matriculation Exam":                                    "Studentprovet",
+			"Remove Exams":                                          "Avlägsna proven",
+			"Remove Server":                                         "Avlägsna servern",
+			"Make Exam Server Backup":                               "Säkerhetskopiera servern",
 			"Open virtual USB stick (ktp-jako)":                     "Öppna den virtuellaöverföringsstickan (ktp-jako)",
 
 			// Main window, checkboxes
@@ -90,6 +116,8 @@ func SetLanguage(newLanguage string) {
 
 			// Main window, other
 			"Current version: %s": "Installerad version: %s",
+			"Install/update server for:": "Installera eller uppdatera server för:",
+			"DANGER! Annihilate your server:": "FARA! Förstörning av servern:",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Uppdateringen av Naksu misslyckades. Du saknar möjligtvis nätförbindelse för tillfället?\n\nFel: %s",
 			"Did not get a path for a new Vagrantfile":                                                   "Ge sökvägen för den nya Vagrantfile-filen",
 			"Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?":              "Utförandet av programmet Vagrant misslyckades. Är du säker, att HashiCorp Vagrant har installerats på datorn?",
@@ -103,6 +131,26 @@ func SetLanguage(newLanguage string) {
 			"Please select target path": "Välj sökväg",
 			"Save":                      "Spara",
 			"Cancel":                    "Avbryt",
+
+			// Destroy dialog
+			"naksu: Remove Exams":                                                   "naksu: Avlägsna proven",
+			"Remove Exams restores server to its initial status.":                   "Avlägsnandet av proven återställer servern till sitt ursprungsläge.",
+			"Exams, responses and logs in the server will be irreversibly deleted.": "Alla prov, loggfiler och svar på servern avlägsnas oåterkalleligt.",
+			"It is recommended to back up your server before removing exams.":       "Det är rekommenderat att ta en säkerhetskopia av servern före proven avlägsnas.",
+			"Do you wish to remove all exams?":                                      "Vill du avlägsna alla prov?",
+			"Yes, Remove":                                                           "Ja, avlägsna",
+			// Already defined: "Cancel"
+
+			// Remove dialog
+			"naksu: Remove Server":                                                  "naksu: Avlägsna servern",
+			"Removing server destroys it and all downloaded disk images.":           "Avlägsnandet av servern förstör den och alla nerladdade skivavbilder.",
+			// Already defined: "Exams, responses and logs in the server will be irreversibly deleted."
+			"It is recommended to back up your server before removing server.":      "Det är rekommenderat att ta en säkerhetskopia av servern före den avlägsnas.",
+			"Do you wish to remove the server?":                                     "Vill du avlägsna servern?",
+			// Already defined: "Yes, Remove"
+			// Already defined: "Cancel"
+			"Error while removing server: %v":    "Avlägsning av servern misslyckades: %v",
+			"Server was removed succesfully.":    "Avlägsning av servern lyckades.",
 
 			// mebroutines
 			"Abitti server":         "Abitti-server",

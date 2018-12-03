@@ -6,6 +6,8 @@ import (
 	"naksu/mebroutines/backup"
 	"naksu/mebroutines/install"
 	"naksu/mebroutines/start"
+	"naksu/mebroutines/destroy"
+	"naksu/mebroutines/remove"
 	"naksu/progress"
 	"naksu/xlate"
 	"os"
@@ -20,6 +22,8 @@ var window *ui.Window
 var buttonStartServer *ui.Button
 var buttonGetServer *ui.Button
 var buttonSwitchServer *ui.Button
+var buttonDestroyServer *ui.Button
+var buttonRemoveServer *ui.Button
 var buttonMakeBackup *ui.Button
 var buttonMebShare *ui.Button
 
@@ -27,14 +31,19 @@ var comboboxLang *ui.Combobox
 
 var labelBox *ui.Label
 var labelStatus *ui.Label
+var labelAdvancedUpdate *ui.Label
+var labelAdvancedAnnihilate *ui.Label
 
 var checkboxAdvanced *ui.Checkbox
 
 var boxBasicUpper *ui.Box
 var boxBasic *ui.Box
+var boxAdvancedUpdate *ui.Box
+var boxAdvancedAnnihilate *ui.Box
 var boxAdvanced *ui.Box
 var box *ui.Box
 
+// Backup Dialog Window
 var backupWindow *ui.Window
 
 var backupCombobox *ui.Combobox
@@ -47,12 +56,35 @@ var backupLabel *ui.Label
 
 var backupMediaPath []string
 
+// Destroy Confirmation Window
+var destroyWindow *ui.Window
+
+var destroyButtonDestroy *ui.Button
+var destroyButtonCancel *ui.Button
+
+var destroyBox *ui.Box
+
+var destroyInfoLabel [5]*ui.Label
+
+// Remove Confirmation Window
+var removeWindow *ui.Window
+
+var removeButtonRemove *ui.Button
+var removeButtonCancel *ui.Button
+
+var removeBox *ui.Box
+
+var removeInfoLabel [5]*ui.Label
+
+
 func createMainWindowElements() {
 	// Define main window
-	buttonStartServer = ui.NewButton(xlate.Get("Start Stickless Exam Server"))
-	buttonGetServer = ui.NewButton("Install or update Abitti Stickless Exam Server")
-	buttonSwitchServer = ui.NewButton("Install or update Stickless Matriculation Exam Server")
-	buttonMakeBackup = ui.NewButton("Make Stickless Exam Server Backup")
+	buttonStartServer = ui.NewButton("Start Exam Server")
+	buttonGetServer = ui.NewButton("Abitti Exam")
+	buttonSwitchServer = ui.NewButton("Matriculation Exam")
+	buttonDestroyServer = ui.NewButton("Remove Exams")
+	buttonRemoveServer = ui.NewButton("Remove Server")
+	buttonMakeBackup = ui.NewButton("Make Exam Server Backup")
 	buttonMebShare = ui.NewButton("Open virtual USB stick (ktp-jako)")
 
 	comboboxLang = ui.NewCombobox()
@@ -63,6 +95,8 @@ func createMainWindowElements() {
 
 	labelBox = ui.NewLabel("")
 	labelStatus = ui.NewLabel("")
+	labelAdvancedUpdate = ui.NewLabel("")
+	labelAdvancedAnnihilate = ui.NewLabel("")
 
 	checkboxAdvanced = ui.NewCheckbox("")
 
@@ -80,11 +114,23 @@ func createMainWindowElements() {
 	boxBasic.Append(buttonMebShare, true)
 	boxBasic.Append(checkboxAdvanced, true)
 
+	boxAdvancedUpdate = ui.NewHorizontalBox()
+	boxAdvancedUpdate.SetPadded(true)
+	boxAdvancedUpdate.Append(buttonGetServer, true)
+	boxAdvancedUpdate.Append(buttonSwitchServer, true)
+
+	boxAdvancedAnnihilate = ui.NewHorizontalBox()
+	boxAdvancedAnnihilate.SetPadded(true)
+	boxAdvancedAnnihilate.Append(buttonDestroyServer, true)
+	boxAdvancedAnnihilate.Append(buttonRemoveServer, true)
+
 	boxAdvanced = ui.NewVerticalBox()
 	boxAdvanced.SetPadded(true)
-	boxAdvanced.Append(buttonGetServer, true)
-	boxAdvanced.Append(buttonSwitchServer, true)
 	boxAdvanced.Append(buttonMakeBackup, true)
+	boxAdvanced.Append(labelAdvancedUpdate, false)
+	boxAdvanced.Append(boxAdvancedUpdate, true)
+	boxAdvanced.Append(labelAdvancedAnnihilate, false)
+	boxAdvanced.Append(boxAdvancedAnnihilate, true)
 
 	box = ui.NewVerticalBox()
 	box.Append(boxBasic, false)
@@ -115,6 +161,52 @@ func createBackupElements(backupMedia map[string]string) {
 
 	backupWindow.SetMargined(true)
 	backupWindow.SetChild(backupBox)
+}
+
+func createDestroyElements() {
+	// Define Destroy Confirmation window/dialog
+	for i:=0; i<=4; i++ {
+		destroyInfoLabel[i] = ui.NewLabel("destroyInfoLabel")
+	}
+
+	destroyButtonDestroy = ui.NewButton("Yes, Remove")
+	destroyButtonCancel = ui.NewButton("Cancel")
+
+	destroyBox = ui.NewVerticalBox()
+	destroyBox.SetPadded(true)
+	for i:=0; i<=4; i++ {
+		destroyBox.Append(destroyInfoLabel[i], false)
+	}
+	destroyBox.Append(destroyButtonDestroy, false)
+	destroyBox.Append(destroyButtonCancel, false)
+
+	destroyWindow = ui.NewWindow("", 1, 1, false)
+
+	destroyWindow.SetMargined(true)
+	destroyWindow.SetChild(destroyBox)
+}
+
+func createRemoveElements() {
+	// Define Destroy Confirmation window/dialog
+	for i:=0; i<=4; i++ {
+		removeInfoLabel[i] = ui.NewLabel("removeInfoLabel")
+	}
+
+	removeButtonRemove = ui.NewButton("Yes, Remove")
+	removeButtonCancel = ui.NewButton("Cancel")
+
+	removeBox = ui.NewVerticalBox()
+	removeBox.SetPadded(true)
+	for i:=0; i<=4; i++ {
+		removeBox.Append(removeInfoLabel[i], false)
+	}
+	removeBox.Append(removeButtonRemove, false)
+	removeBox.Append(removeButtonCancel, false)
+
+	removeWindow = ui.NewWindow("", 1, 1, false)
+
+	removeWindow.SetMargined(true)
+	removeWindow.SetChild(removeBox)
 }
 
 func populateBackupCombobox(backupMedia map[string]string, combobox *ui.Combobox) []string {
@@ -172,6 +264,8 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 							buttonSwitchServer.Disable()
 						}
 						buttonMakeBackup.Enable()
+						buttonDestroyServer.Enable()
+						buttonRemoveServer.Enable()
 					})
 
 					lastStatus = newStatus
@@ -188,6 +282,8 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 						buttonGetServer.Disable()
 						buttonSwitchServer.Disable()
 						buttonMakeBackup.Disable()
+						buttonDestroyServer.Disable()
+						buttonRemoveServer.Disable()
 					})
 
 					lastStatus = newStatus
@@ -199,20 +295,42 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 
 func translateUILabels() {
 	ui.QueueMain(func() {
-		buttonStartServer.SetText(xlate.Get("Start Stickless Exam Server"))
-		buttonGetServer.SetText(xlate.Get("Install or update Abitti Stickless Exam Server"))
-		buttonSwitchServer.SetText(xlate.Get("Install or update Stickless Matriculation Exam Server"))
-		buttonMakeBackup.SetText(xlate.Get("Make Stickless Exam Server Backup"))
+		buttonStartServer.SetText(xlate.Get("Start Exam Server"))
+		buttonGetServer.SetText(xlate.Get("Abitti Exam"))
+		buttonSwitchServer.SetText(xlate.Get("Matriculation Exam"))
+		buttonDestroyServer.SetText(xlate.Get("Remove Exams"))
+		buttonRemoveServer.SetText(xlate.Get("Remove Server"))
+		buttonMakeBackup.SetText(xlate.Get("Make Exam Server Backup"))
 		buttonMebShare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
 
-		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.GetVagrantBoxVersion()))
+		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.GetVagrantFileVersion("")))
 
 		checkboxAdvanced.SetText(xlate.Get("Show management features"))
+		labelAdvancedUpdate.SetText(xlate.Get("Install/update server for:"))
+		labelAdvancedAnnihilate.SetText(xlate.Get("DANGER! Annihilate your server:"))
 
 		backupWindow.SetTitle(xlate.Get("naksu: SaveTo"))
 		backupLabel.SetText(xlate.Get("Please select target path"))
 		backupButtonSave.SetText(xlate.Get("Save"))
 		backupButtonCancel.SetText(xlate.Get("Cancel"))
+
+		destroyWindow.SetTitle(xlate.Get("naksu: Remove Exams"))
+		destroyInfoLabel[0].SetText(xlate.Get("Remove Exams restores server to its initial status."))
+		destroyInfoLabel[1].SetText(xlate.Get("Exams, responses and logs in the server will be irreversibly deleted."))
+		destroyInfoLabel[2].SetText(xlate.Get("It is recommended to back up your server before removing exams."))
+		destroyInfoLabel[3].SetText(xlate.Get(""))
+		destroyInfoLabel[4].SetText(xlate.Get("Do you wish to remove all exams?"))
+		destroyButtonDestroy.SetText(xlate.Get("Yes, Remove"))
+		destroyButtonCancel.SetText(xlate.Get("Cancel"))
+
+		removeWindow.SetTitle(xlate.Get("naksu: Remove Server"))
+		removeInfoLabel[0].SetText(xlate.Get("Removing server destroys it and all downloaded disk images."))
+		removeInfoLabel[1].SetText(xlate.Get("Exams, responses and logs in the server will be irreversibly deleted."))
+		removeInfoLabel[2].SetText(xlate.Get("It is recommended to back up your server before removing server."))
+		removeInfoLabel[3].SetText(xlate.Get(""))
+		removeInfoLabel[4].SetText(xlate.Get("Do you wish to remove the server?"))
+		removeButtonRemove.SetText(xlate.Get("Yes, Remove"))
+		removeButtonCancel.SetText(xlate.Get("Cancel"))
 	})
 }
 
@@ -373,6 +491,22 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 
 }
 
+func bindOnDestroyServer(mainUIStatus chan string) {
+	// Define actions for Destroy popup/window
+	buttonDestroyServer.OnClicked(func(*ui.Button) {
+		disableUI(mainUIStatus)
+		destroyWindow.Show()
+	})
+}
+
+func bindOnRemoveServer(mainUIStatus chan string) {
+	// Define actions for Remove popup/window
+	buttonRemoveServer.OnClicked(func(*ui.Button) {
+		disableUI(mainUIStatus)
+		removeWindow.Show()
+	})
+}
+
 func bindOnMakeBackup(mainUIStatus chan string) {
 	buttonMakeBackup.OnClicked(func(*ui.Button) {
 		disableUI(mainUIStatus)
@@ -420,6 +554,75 @@ func bindOnBackup(mainUIStatus chan string) {
 		backupWindow.Hide()
 		enableUI(mainUIStatus)
 	})
+
+	backupWindow.OnClosing(func(*ui.Window) bool {
+		backupWindow.Hide()
+		enableUI(mainUIStatus)
+		return true
+	})
+}
+
+func bindOnDestroy(mainUIStatus chan string) {
+	// Define actions for Destroy window/dialog
+
+	destroyButtonDestroy.OnClicked(func(*ui.Button) {
+		go func () {
+			destroyWindow.Hide()
+			destroy.Server()
+			progress.SetMessage("")
+
+			// Update installed version label
+			translateUILabels()
+
+			enableUI(mainUIStatus)
+		}()
+	})
+
+	destroyButtonCancel.OnClicked(func(*ui.Button) {
+		destroyWindow.Hide()
+		enableUI(mainUIStatus)
+	})
+
+	destroyWindow.OnClosing(func(*ui.Window) bool {
+		destroyWindow.Hide()
+		enableUI(mainUIStatus)
+		return true
+	})
+}
+
+func bindOnRemove(mainUIStatus chan string) {
+	// Define actions for Remove window/dialog
+
+	removeButtonRemove.OnClicked(func(*ui.Button) {
+		go func () {
+			removeWindow.Hide()
+
+			err := remove.Server()
+			if err != nil {
+				mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Error while removing server: %v"), err))
+				progress.SetMessage(fmt.Sprintf(xlate.Get("Error while removing server: %v"), err))
+			} else {
+				mebroutines.ShowInfoMessage(xlate.Get("Server was removed succesfully."))
+				progress.TranslateAndSetMessage("Server was removed succesfully.")
+			}
+
+			// Update installed version label
+			translateUILabels()
+
+			enableUI(mainUIStatus)
+		}()
+	})
+
+	removeButtonCancel.OnClicked(func(*ui.Button) {
+		removeWindow.Hide()
+		enableUI(mainUIStatus)
+	})
+
+	removeWindow.OnClosing(func(*ui.Window) bool {
+		removeWindow.Hide()
+		enableUI(mainUIStatus)
+		return true
+	})
 }
 
 // RunUI sets up user interface and starts running it. function exists when application exits
@@ -435,6 +638,8 @@ func RunUI() error {
 		createMainWindowElements()
 
 		createBackupElements(backupMedia)
+		createDestroyElements()
+		createRemoveElements()
 
 		mebroutines.SetMainWindow(window)
 		progress.SetProgressLabel(labelStatus)
@@ -465,9 +670,13 @@ func RunUI() error {
 		bindOnGetServer(mainUIStatus)
 		bindOnSwitchServer(mainUIStatus)
 		bindOnMakeBackup(mainUIStatus)
+		bindOnDestroyServer(mainUIStatus)
+		bindOnRemoveServer(mainUIStatus)
 		bindOnMebShare()
 
 		bindOnBackup(mainUIStatus)
+		bindOnDestroy(mainUIStatus)
+		bindOnRemove(mainUIStatus)
 
 		window.OnClosing(func(*ui.Window) bool {
 			mebroutines.LogDebug("User exists through window exit")

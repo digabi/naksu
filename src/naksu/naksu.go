@@ -32,12 +32,7 @@ func main() {
 	mebroutines.SetDebug(isDebug)
 
 	// Determine/set path for debug log
-	logPath := mebroutines.GetVagrantDirectory()
-	if mebroutines.ExistsDir(logPath) {
-		mebroutines.SetDebugFilename(logPath + string(os.PathSeparator) + "naksu_lastlog.txt")
-	} else {
-		mebroutines.SetDebugFilename(os.TempDir() + string(os.PathSeparator) + "naksu_lastlog.txt")
-	}
+	mebroutines.SetDebugFilename(mebroutines.GetNewDebugFilename())
 
 	mebroutines.LogDebug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
 

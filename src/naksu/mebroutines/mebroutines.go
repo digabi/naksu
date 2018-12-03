@@ -3,7 +3,6 @@ package mebroutines
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -15,6 +14,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"path/filepath"
 
 	"github.com/andlabs/ui"
 )
@@ -177,58 +177,29 @@ func IfFoundVBoxManage() bool {
 	return true
 }
 
-// GetVagrantBoxVersion returns version string for vagrant box
-func GetVagrantBoxVersion() string {
-	boxIndexUUID := GetVagrantBoxIndexUUID()
-	if boxIndexUUID == "" {
-		// We did not get machine index UUID so we cannot return any version string
-		return ""
+// GetVagrantFileVersion returns version string for a given Vagrantfile (with "" defaults to ~/ktp/Vagrantfile)
+func GetVagrantFileVersion (vagrantFilePath string) string {
+	if vagrantFilePath == "" {
+			vagrantFilePath = GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile"
 	}
 
-	indexFilename := GetVagrantdDirectory() + string(os.PathSeparator) + "data" + string(os.PathSeparator) + "machine-index" + string(os.PathSeparator) + "index"
-	/* #nosec */
-	fileContent, err := ioutil.ReadFile(indexFilename)
+	fileContent, err := ioutil.ReadFile(filepath.Clean(vagrantFilePath))
 	if err != nil {
-		LogDebug(fmt.Sprintf("Could not read from %s", indexFilename))
+		LogDebug(fmt.Sprintf("Could not read from %s", vagrantFilePath))
 		return ""
 	}
 
-	LogDebug("Vagrant machine-index/index:")
-	LogDebug(fmt.Sprintf("%s", fileContent))
+	boxRegexp := regexp.MustCompile(`config.vm.box = "(.+)"`)
+	versionRegexp := regexp.MustCompile(`vb.name = ".+v(\d+)"`)
 
-	// Get version from JSON structure
-	var jsonData map[string]interface{}
+	boxMatches := boxRegexp.FindStringSubmatch(string(fileContent))
+	versionMatches := versionRegexp.FindStringSubmatch(string(fileContent))
 
-	jsonErr := json.Unmarshal(fileContent, &jsonData)
-	if jsonErr != nil {
-		LogDebug("Unable on decode machine-index/index response:")
-		LogDebug(fmt.Sprintf("%s", jsonErr))
-		return ""
+	if len(boxMatches) == 2 && len(versionMatches) == 2 {
+		return fmt.Sprintf("%s (%s %s)", GetVagrantBoxType(boxMatches[1]), boxMatches[1], versionMatches[1])
 	}
 
-	if jsonData["machines"] == nil {
-		return ""
-	}
-	jsonMachines := jsonData["machines"].(map[string]interface{})
-
-	if jsonMachines[boxIndexUUID] == nil {
-		return ""
-	}
-	jsonOurMachine := jsonMachines[boxIndexUUID].(map[string]interface{})
-
-	if jsonOurMachine["extra_data"] == nil {
-		return ""
-	}
-	jsonExtraData := jsonOurMachine["extra_data"].(map[string]interface{})
-
-	if jsonExtraData["box"] == nil {
-		return ""
-	}
-	jsonBox := jsonExtraData["box"].(map[string]interface{})
-
-	boxString := fmt.Sprintf("%s (%s %s)", GetVagrantBoxType(jsonBox["name"].(string)), jsonBox["name"], jsonBox["version"])
-
-	return boxString
+	return ""
 }
 
 // GetVagrantBoxType returns the type string (Abitti server or Matric Exam server) for vagrant box name
@@ -242,24 +213,6 @@ func GetVagrantBoxType(name string) string {
 	}
 
 	return xlate.Get("Matric Exam server")
-}
-
-// GetVagrantBoxIndexUUID return vagrant box index UUID for current vagrant box
-func GetVagrantBoxIndexUUID() string {
-	pathVagrant := GetVagrantDirectory()
-
-	pathID := pathVagrant + string(os.PathSeparator) + ".vagrant" + string(os.PathSeparator) + "machines" + string(os.PathSeparator) + "default" + string(os.PathSeparator) + "virtualbox" + string(os.PathSeparator) + "index_uuid"
-
-	/* #nosec */
-	fileContent, err := ioutil.ReadFile(pathID)
-	if err != nil {
-		LogDebug(fmt.Sprintf(xlate.Get("Could not get vagrantbox index UUID: %d"), err))
-		return ""
-	}
-
-	LogDebug(fmt.Sprintf("Vagrantbox index UUID is %s", string(fileContent)))
-
-	return string(fileContent)
 }
 
 func getFileMode(path string) (os.FileMode, error) {
@@ -305,6 +258,12 @@ func CreateFile(path string) error {
 	if err == nil {
 		defer Close(f)
 	}
+	return err
+}
+
+// RemoveDir removes directory and all its contents
+func RemoveDir(path string) error {
+	err := os.RemoveAll(path)
 	return err
 }
 
@@ -383,17 +342,36 @@ func GetMebshareDirectory() string {
 	return GetHomeDirectory() + string(os.PathSeparator) + "ktp-jako"
 }
 
-// ChdirVagrantDirectory changes current working directory to vagrant path (ktp)
-func ChdirVagrantDirectory() bool {
-	pathVagrant := GetVagrantDirectory()
-	LogDebug(fmt.Sprintf("chdir %s", pathVagrant))
-	err := os.Chdir(pathVagrant)
+// GetVirtualBoxHiddenDirectory returns ".VirtualBox" path from under home directory
+func GetVirtualBoxHiddenDirectory() string {
+	return GetHomeDirectory() + string(os.PathSeparator) + ".VirtualBox"
+}
+
+// GetVirtualBoxVMsDirectory returns "VirtualBox VMs" path from under home directory
+func GetVirtualBoxVMsDirectory() string {
+	return GetHomeDirectory() + string(os.PathSeparator) + "VirtualBox VMs"
+}
+
+// chdir changes current working directory to the given directory
+func chdir(chdirTo string) bool {
+	LogDebug(fmt.Sprintf("chdir %s", chdirTo))
+	err := os.Chdir(chdirTo)
 	if err != nil {
-		ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not chdir to %s"), pathVagrant))
+		ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not chdir to %s"), chdirTo))
 		return false
 	}
 
 	return true
+}
+
+// ChdirVagrantDirectory changes current working directory to vagrant path (ktp)
+func ChdirVagrantDirectory() bool {
+	return chdir(GetVagrantDirectory())
+}
+
+// ChdirHomeDirectory changes current working directory to home directory
+func ChdirHomeDirectory() bool {
+	return chdir(GetHomeDirectory())
 }
 
 // SetMainWindow sets libui main window pointer used by ShowErrorMessage and ShowWarningMessage
@@ -483,6 +461,21 @@ func SetDebugFilename(newFilename string) {
 		}
 	}
 }
+
+// GetNewDebugFilename suggests a new debug log filename
+func GetNewDebugFilename() string {
+	newDebugFilename := ""
+
+	logPath := GetVagrantDirectory()
+	if ExistsDir(logPath) {
+		newDebugFilename = logPath + string(os.PathSeparator) + "naksu_lastlog.txt"
+	} else {
+		newDebugFilename = os.TempDir() + string(os.PathSeparator) + "naksu_lastlog.txt"
+	}
+
+	return newDebugFilename
+}
+
 
 // IsDebug returns true if we need to log debug information
 func IsDebug() bool {
