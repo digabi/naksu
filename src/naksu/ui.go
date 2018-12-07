@@ -252,7 +252,13 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					ui.QueueMain(func() {
 						comboboxLang.Enable()
 
-						buttonStartServer.Enable()
+						// Require installed version to start server
+						if mebroutines.GetVagrantFileVersion("") == "" {
+							buttonStartServer.Disable()
+						} else {
+							buttonStartServer.Enable()
+						}
+
 						buttonMebShare.Enable()
 
 						// Require network connection for install/update
