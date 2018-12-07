@@ -305,6 +305,12 @@ func translateUILabels() {
 
 		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.GetVagrantFileVersion("")))
 
+		// Suggest VM install if none installed
+		emptyVersionProgressMessage := "Start by installing a server: Show management features"
+		if (progress.GetLastMessage() == "" || progress.GetLastMessage() == emptyVersionProgressMessage) && mebroutines.GetVagrantFileVersion("") == "" {
+			progress.TranslateAndSetMessage(emptyVersionProgressMessage)
+		}
+
 		checkboxAdvanced.SetText(xlate.Get("Show management features"))
 		labelAdvancedUpdate.SetText(xlate.Get("Install/update server for:"))
 		labelAdvancedAnnihilate.SetText(xlate.Get("DANGER! Annihilate your server:"))
