@@ -234,7 +234,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					// Require network connection for install/update
 
 					ui.QueueMain(func() {
-						if install.TestHTTPGet(URLTest) {
+						if install.TestHTTPGet(URLTest, URLTestTimeout) {
 							buttonGetServer.Enable()
 							buttonSwitchServer.Enable()
 						} else {
@@ -262,7 +262,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 						buttonMebShare.Enable()
 
 						// Require network connection for install/update
-						if install.TestHTTPGet(URLTest) {
+						if install.TestHTTPGet(URLTest, URLTestTimeout) {
 							buttonGetServer.Enable()
 							buttonSwitchServer.Enable()
 						} else {
