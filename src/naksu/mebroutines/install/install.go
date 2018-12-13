@@ -9,7 +9,6 @@ import (
 	"naksu/xlate"
 	"net/http"
 	"os"
-	"time"
 )
 
 // GetServer downloads vagrantfile and starts server
@@ -143,25 +142,4 @@ func downloadFile(url string, filepath string) error {
 
 	mebroutines.LogDebug(fmt.Sprintf("Finished download from URL %s to file %s", url, filepath))
 	return nil
-}
-
-// TestHTTPGet tests whether HTTP get succeeds to given URL in given timeout (seconds)
-func TestHTTPGet(url string, timeout int) bool {
-	// Set timeout for a HTTP client
-	timeoutSeconds := time.Duration(timeout) * time.Second
-	client := http.Client{
-		Timeout: timeoutSeconds,
-	}
-
-	/* #nosec */
-	resp, err := client.Get(url)
-	if err != nil {
-		mebroutines.LogDebug(fmt.Sprintf("Testing HTTP GET %s and got error %v", url, err.Error()))
-		return false
-	}
-	defer mebroutines.Close(resp.Body)
-
-	mebroutines.LogDebug(fmt.Sprintf("Testing HTTP GET %s succeeded", url))
-
-	return true
 }

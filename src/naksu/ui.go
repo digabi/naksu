@@ -8,6 +8,7 @@ import (
 	"naksu/mebroutines/start"
 	"naksu/mebroutines/destroy"
 	"naksu/mebroutines/remove"
+	"naksu/network"
 	"naksu/progress"
 	"naksu/xlate"
 	"os"
@@ -234,7 +235,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					// Require network connection for install/update
 
 					ui.QueueMain(func() {
-						if install.TestHTTPGet(URLTest, URLTestTimeout) {
+						if network.CheckIfNetworkAvailable() {
 							buttonGetServer.Enable()
 							buttonSwitchServer.Enable()
 						} else {
@@ -262,7 +263,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 						buttonMebShare.Enable()
 
 						// Require network connection for install/update
-						if install.TestHTTPGet(URLTest, URLTestTimeout) {
+						if network.CheckIfNetworkAvailable() {
 							buttonGetServer.Enable()
 							buttonSwitchServer.Enable()
 						} else {

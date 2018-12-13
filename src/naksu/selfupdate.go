@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"naksu/mebroutines"
 	"naksu/xlate"
-	"naksu/mebroutines/install"
+	"naksu/network"
 	"os"
 
 	"github.com/blang/semver"
@@ -31,7 +31,7 @@ func doSelfUpdate() bool {
 	}
 
 	// Test network connection here with a timeout
-	if !install.TestHTTPGet(URLTest, URLTestTimeout) {
+	if !network.CheckIfNetworkAvailable() {
 		mebroutines.ShowWarningMessage(xlate.Get("Naksu could not check for updates as there is no network connection."))
 		return false
 	}
