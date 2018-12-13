@@ -14,9 +14,6 @@ import (
 const version = "1.6.0"
 const lowDiskLimit = 50 * 1024 * 1024 // 50 Gb
 
-// URLTest is testing URL for checking network connection
-const URLTest = "http://static.abitti.fi/usbimg/qa/latest.txt"
-
 var isDebug bool
 
 func main() {

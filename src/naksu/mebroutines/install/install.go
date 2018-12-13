@@ -143,18 +143,3 @@ func downloadFile(url string, filepath string) error {
 	mebroutines.LogDebug(fmt.Sprintf("Finished download from URL %s to file %s", url, filepath))
 	return nil
 }
-
-// TestHTTPGet tests whether HTTP get succeeds to given URL
-func TestHTTPGet(url string) bool {
-	/* #nosec */
-	resp, err := http.Get(url)
-	if err != nil {
-		mebroutines.LogDebug(fmt.Sprintf("Testing HTTP GET %s and got error %v", url, err.Error()))
-		return false
-	}
-	defer mebroutines.Close(resp.Body)
-
-	mebroutines.LogDebug(fmt.Sprintf("Testing HTTP GET %s succeeded", url))
-
-	return true
-}

@@ -25,6 +25,7 @@ func SetLanguage(newLanguage string) {
 			"Current version: %s": "Asennettu versio: %s",
 			"Install/update server for:": "Asenna tai päivitä palvelin:",
 			"DANGER! Annihilate your server:": "VAARA! Palvelimen tuhoaminen:",
+			"Naksu could not check for updates as there is no network connection.":                       "Naksu ei voinut etsiä uusia versioita, koska verkkoyhteys puuttuu.",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n\nVirhe: %s",
 			"Did not get a path for a new Vagrantfile":                                                   "Uuden Vagrantfile-tiedoston sijainti on annettava",
 			"Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?":              "Ohjelman Vagrant käynnistys epäonnistui. Oletko varma, että koneeseen on asennettu HashiCorp Vagrant?",
@@ -32,6 +33,7 @@ func SetLanguage(newLanguage string) {
 			"Your home directory path (%s) contains characters which may cause problems to Vagrant.":     "Kotihakemistosi (%s) polku sisältää merkkejä, jotka voivat aiheuttaa ongelmia Vagrantille.",
 			"Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)": "Sijoita yo-kokeen Vagrantfile johonkin toiseen paikkaan (esim. työpöydälle tai kotihakemistoon)",
 			"Your free disk size is getting low (%s).":                                                   "Levytilasi on loppumassa (jäljellä %s).",
+			"Start by installing a server: Show management features":                                     "Aloita asentamalla palvelin: Näytä hallintaominaisuudet",
 
 			// Backup dialog
 			"naksu: SaveTo":             "naksu: Tallennuspaikka",
@@ -118,6 +120,7 @@ func SetLanguage(newLanguage string) {
 			"Current version: %s": "Installerad version: %s",
 			"Install/update server for:": "Installera eller uppdatera server för:",
 			"DANGER! Annihilate your server:": "FARA! Förstörning av servern:",
+			"Naksu could not check for updates as there is no network connection.":                       "Naksu kunde inte söka nya uppdateringar för att nätförbindelse saknades.",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Uppdateringen av Naksu misslyckades. Du saknar möjligtvis nätförbindelse för tillfället?\n\nFel: %s",
 			"Did not get a path for a new Vagrantfile":                                                   "Ge sökvägen för den nya Vagrantfile-filen",
 			"Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?":              "Utförandet av programmet Vagrant misslyckades. Är du säker, att HashiCorp Vagrant har installerats på datorn?",
@@ -125,6 +128,7 @@ func SetLanguage(newLanguage string) {
 			"Your home directory path (%s) contains characters which may cause problems to Vagrant.":     "Sökvägen till din hemkatalog (%s) innehåller tecken, som orsakar problem för Vagrant.",
 			"Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)": "Placera Vagrantfile-filen för studentexamen på ett annat ställe (t.ex. på skrivbordet eller i hemkatalogen).",
 			"Your free disk size is getting low (%s).":                                                   "Ditt diskutrymme börjar ta slut (kvar %s).",
+			"Start by installing a server: Show management features":                                     "Börja med att installera servern: Visa hanteringsegenskaper",
 
 			// Backup dialog
 			"naksu: SaveTo":             "naksu: Spara till ",

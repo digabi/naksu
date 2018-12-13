@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"naksu/mebroutines"
 	"naksu/xlate"
+	"naksu/network"
 	"os"
 
 	"github.com/blang/semver"
@@ -27,6 +28,12 @@ func doSelfUpdate() bool {
 
 	if mebroutines.IsDebug() {
 		selfupdate.EnableLog()
+	}
+
+	// Test network connection here with a timeout
+	if !network.CheckIfNetworkAvailable() {
+		mebroutines.ShowWarningMessage(xlate.Get("Naksu could not check for updates as there is no network connection."))
+		return false
 	}
 
 	latest, err := selfupdate.UpdateSelf(v, "digabi/naksu")

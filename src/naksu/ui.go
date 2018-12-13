@@ -8,6 +8,7 @@ import (
 	"naksu/mebroutines/start"
 	"naksu/mebroutines/destroy"
 	"naksu/mebroutines/remove"
+	"naksu/network"
 	"naksu/progress"
 	"naksu/xlate"
 	"os"
@@ -234,7 +235,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					// Require network connection for install/update
 
 					ui.QueueMain(func() {
-						if install.TestHTTPGet(URLTest) {
+						if network.CheckIfNetworkAvailable() {
 							buttonGetServer.Enable()
 							buttonSwitchServer.Enable()
 						} else {
@@ -252,11 +253,17 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					ui.QueueMain(func() {
 						comboboxLang.Enable()
 
-						buttonStartServer.Enable()
+						// Require installed version to start server
+						if mebroutines.GetVagrantFileVersion("") == "" {
+							buttonStartServer.Disable()
+						} else {
+							buttonStartServer.Enable()
+						}
+
 						buttonMebShare.Enable()
 
 						// Require network connection for install/update
-						if install.TestHTTPGet(URLTest) {
+						if network.CheckIfNetworkAvailable() {
 							buttonGetServer.Enable()
 							buttonSwitchServer.Enable()
 						} else {
@@ -304,6 +311,12 @@ func translateUILabels() {
 		buttonMebShare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
 
 		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.GetVagrantFileVersion("")))
+
+		// Suggest VM install if none installed
+		emptyVersionProgressMessage := "Start by installing a server: Show management features"
+		if (progress.GetLastMessage() == "" || progress.GetLastMessage() == emptyVersionProgressMessage) && mebroutines.GetVagrantFileVersion("") == "" {
+			progress.TranslateAndSetMessage(emptyVersionProgressMessage)
+		}
 
 		checkboxAdvanced.SetText(xlate.Get("Show management features"))
 		labelAdvancedUpdate.SetText(xlate.Get("Install/update server for:"))
