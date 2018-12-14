@@ -48,14 +48,12 @@ Unfortunately, libui SaveFile dialog [does not support folders](https://github.c
 
 ## Compiling
 
-`naksu` can be used in Linux and Windows environments. The compiling is supported
-only on Linux. You need at least Go 1.7 to build naksu. In
-Debian/Ubuntu environment install `golang-1.9` or `golang-1.10`.
-
-Make sure `go` points to your compiler or set `GO` to point your go binary (in `Makefile`).
+Compilation is usually done in Docker container. This means that you can compile Naksu in almost any environment
+that supports Docker and make.
 
 ### Requirements
 
+- Install make
 - Install `dep` using [these instructions](https://golang.github.io/dep/docs/installation.html)
 - Install Docker daemon
 
@@ -68,6 +66,12 @@ Resulting binaries are saved to `bin/` directory as `naksu` and `naksu.exe`
 ## Compilation details
 
 Preferred way to compile `naksu` is using Docker.
+
+`naksu` can be used in Linux and Windows environments. The compiling is supported
+only on Linux. You need at least Go 1.7 to build naksu. In
+Debian/Ubuntu environment install `golang-1.9` or `golang-1.10`.
+
+Make sure `go` points to your compiler or set `GO` to point your go binary (in `Makefile`).
 
 ### Building Linux version
 
