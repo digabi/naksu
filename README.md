@@ -147,6 +147,13 @@ Things to consider later:
 
 ## Changelog
 
+### 1.6.1 (14-DEC-2018)
+
+User interface
+
+- Network connection check uses 4 second timeout to prevent network check getting stuck indefinitely
+- Start server button is disabled if server has not yet been installed (with message to first install the server)
+
 ### 1.6.0 (3-DEC-2018)
 
 User interface
