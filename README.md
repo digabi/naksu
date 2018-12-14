@@ -63,6 +63,8 @@ that supports Docker and make.
 
 Resulting binaries are saved to `bin/` directory as `naksu` and `naksu.exe`
 
+Build also produces release bundles as `naksu_linux_amd64.zip` and `naksu_windows_amd64.zip`.
+
 ## Compilation details
 
 Preferred way to compile `naksu` is using Docker.
