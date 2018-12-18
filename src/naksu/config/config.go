@@ -63,7 +63,10 @@ func Load() {
 
 // Save configuration to disk
 func save() {
-	cfg.SaveTo("naksu.ini")
+	err := cfg.SaveTo("naksu.ini")
+	if err != nil {
+		mebroutines.LogDebug(fmt.Sprintf("naksu.ini save failed: %v", err))
+	}
 }
 
 // GetLanguage returns user language preference. defaults to fi
