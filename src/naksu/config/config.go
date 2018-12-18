@@ -69,14 +69,32 @@ func save() {
 	}
 }
 
+var languages = map[string]bool{
+	"en": true,
+	"fi": true,
+	"sv": true,
+}
+
 // GetLanguage returns user language preference. defaults to fi
 func GetLanguage() string {
-	return getValue("common", "language").String()
+	value := getValue("common", "language").String()
+	_, ok := languages[value]
+	if ok {
+		return value
+	} else {
+		setValue("common", "language", "fi")
+		return "fi"
+	}
 }
 
 // SetLanguage stores user language preference
 func SetLanguage(language string) {
-	setValue("common", "language", language)
+	_, ok := languages[language]
+	if ok {
+		setValue("common", "language", language)
+	} else {
+		setValue("common", "language", "fi")
+	}
 }
 
 // IsSelfUpdateDisabled returns true, if self-update functionality should be disabled

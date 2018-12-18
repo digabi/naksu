@@ -5,10 +5,10 @@ import (
 	"naksu/config"
 	"naksu/mebroutines"
 	"naksu/mebroutines/backup"
-	"naksu/mebroutines/install"
-	"naksu/mebroutines/start"
 	"naksu/mebroutines/destroy"
+	"naksu/mebroutines/install"
 	"naksu/mebroutines/remove"
+	"naksu/mebroutines/start"
 	"naksu/network"
 	"naksu/progress"
 	"naksu/xlate"
@@ -78,7 +78,6 @@ var removeBox *ui.Box
 
 var removeInfoLabel [5]*ui.Label
 
-
 func createMainWindowElements() {
 	// Define main window
 	buttonStartServer = ui.NewButton("Start Exam Server")
@@ -99,7 +98,9 @@ func createMainWindowElements() {
 	case "sv":
 		comboboxLang.SetSelected(1)
 	case "en":
-		comboboxLang.SetSelected(1)
+		comboboxLang.SetSelected(2)
+	default:
+		comboboxLang.SetSelected(0)
 	}
 
 	labelBox = ui.NewLabel("")
@@ -174,7 +175,7 @@ func createBackupElements(backupMedia map[string]string) {
 
 func createDestroyElements() {
 	// Define Destroy Confirmation window/dialog
-	for i:=0; i<=4; i++ {
+	for i := 0; i <= 4; i++ {
 		destroyInfoLabel[i] = ui.NewLabel("destroyInfoLabel")
 	}
 
@@ -183,7 +184,7 @@ func createDestroyElements() {
 
 	destroyBox = ui.NewVerticalBox()
 	destroyBox.SetPadded(true)
-	for i:=0; i<=4; i++ {
+	for i := 0; i <= 4; i++ {
 		destroyBox.Append(destroyInfoLabel[i], false)
 	}
 	destroyBox.Append(destroyButtonDestroy, false)
@@ -197,7 +198,7 @@ func createDestroyElements() {
 
 func createRemoveElements() {
 	// Define Destroy Confirmation window/dialog
-	for i:=0; i<=4; i++ {
+	for i := 0; i <= 4; i++ {
 		removeInfoLabel[i] = ui.NewLabel("removeInfoLabel")
 	}
 
@@ -206,7 +207,7 @@ func createRemoveElements() {
 
 	removeBox = ui.NewVerticalBox()
 	removeBox.SetPadded(true)
-	for i:=0; i<=4; i++ {
+	for i := 0; i <= 4; i++ {
 		removeBox.Append(removeInfoLabel[i], false)
 	}
 	removeBox.Append(removeButtonRemove, false)
@@ -373,6 +374,8 @@ func bindLanguageSwitching() {
 			config.SetLanguage("sv")
 		case 2:
 			config.SetLanguage("en")
+		default:
+			config.SetLanguage("fi")
 		}
 
 		xlate.SetLanguage(config.GetLanguage())
@@ -588,7 +591,7 @@ func bindOnDestroy(mainUIStatus chan string) {
 	// Define actions for Destroy window/dialog
 
 	destroyButtonDestroy.OnClicked(func(*ui.Button) {
-		go func () {
+		go func() {
 			destroyWindow.Hide()
 			destroy.Server()
 			progress.SetMessage("")
@@ -616,7 +619,7 @@ func bindOnRemove(mainUIStatus chan string) {
 	// Define actions for Remove window/dialog
 
 	removeButtonRemove.OnClicked(func(*ui.Button) {
-		go func () {
+		go func() {
 			removeWindow.Hide()
 
 			err := remove.Server()
