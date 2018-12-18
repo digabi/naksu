@@ -20,17 +20,12 @@ type defaultValue struct {
 	section, key, value string
 }
 
-var defaults []defaultValue
-
-func initDefaults() {
-	defaults = []defaultValue{
+func fillDefaults() {
+	defaults := []defaultValue{
 		defaultValue{"common", "iniVersion", strconv.FormatInt(1, 10)},
 		defaultValue{"common", "language", "fi"},
 		defaultValue{"selfupdate", "disabled", strconv.FormatBool(false)},
 	}
-}
-
-func fillDefaults() {
 	for _, defaultValue := range defaults {
 		setIfMissing(defaultValue.section, defaultValue.key, defaultValue.value)
 	}
@@ -51,11 +46,11 @@ func getValue(section string, key string) *ini.Key {
 
 func setValue(section string, key string, value string) {
 	cfg.Section(section).Key(key).SetValue(value)
+	save()
 }
 
 // Load or initialize configuration to empty object
 func Load() {
-	initDefaults()
 	var err error
 	cfg, err = ini.Load("naksu.ini")
 	if err != nil {
@@ -63,10 +58,11 @@ func Load() {
 		cfg = ini.Empty()
 	}
 	fillDefaults()
+	save()
 }
 
 // Save configuration to disk
-func Save() {
+func save() {
 	cfg.SaveTo("naksu.ini")
 }
 

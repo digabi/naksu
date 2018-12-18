@@ -65,7 +65,6 @@ func main() {
 		} else {
 			config.SetSelfUpdateDisabled(false)
 		}
-		config.Save()
 	})
 
 	RunSelfUpdate()
@@ -101,8 +100,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	config.Save()
 
 	mebroutines.LogDebug("Exiting GUI loop")
 }
