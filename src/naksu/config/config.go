@@ -32,7 +32,7 @@ func fillDefaults() {
 }
 
 func getBoolean(section string, key string) bool {
-	value, err := getValue("selfupdate", "disabled").Bool()
+	value, err := getValue(section, key).Bool()
 	if err != nil {
 		mebroutines.LogDebug(fmt.Sprintf("Parsing key %s / %s as bool failed", section, key))
 		panic(fmt.Sprintf("Invalid boolean configuration flag! section: %s, key: %s", section, key))
