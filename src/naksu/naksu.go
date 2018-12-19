@@ -21,7 +21,7 @@ var isDebug bool
 type Options struct {
 	IsDebug    bool   `short:"D" long:"debug" description:"Turn debugging on" optional:"true"`
 	Version    bool   `short:"v" long:"version" description:"Print naksu version" optional:"true"`
-	SelfUpdate string `long:"self-update" choice:"enabled" choice:"disabled" description:"Control self-update behaviour. Naksu will always warn if your version is out-of-date" optional:"true"`
+	SelfUpdate string `long:"self-update" choice:"enabled" choice:"disabled" description:"Control self-update behaviour. Naksu will always warn if your version is out-of-date. This flag will store the setting to ini-file." optional:"true"`
 }
 
 var options Options
