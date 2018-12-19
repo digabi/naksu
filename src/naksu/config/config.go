@@ -20,28 +20,44 @@ type defaultValue struct {
 	section, key, value string
 }
 
+var defaults = []defaultValue{
+	defaultValue{"common", "iniVersion", strconv.FormatInt(1, 10)},
+	defaultValue{"common", "language", "fi"},
+	defaultValue{"selfupdate", "disabled", strconv.FormatBool(false)},
+}
+
 func fillDefaults() {
-	defaults := []defaultValue{
-		defaultValue{"common", "iniVersion", strconv.FormatInt(1, 10)},
-		defaultValue{"common", "language", "fi"},
-		defaultValue{"selfupdate", "disabled", strconv.FormatBool(false)},
-	}
 	for _, defaultValue := range defaults {
 		setIfMissing(defaultValue.section, defaultValue.key, defaultValue.value)
 	}
 }
 
+func getDefault(section string, key string) string {
+	for _, defaultValue := range defaults {
+		if defaultValue.section == section && defaultValue.key == key {
+			return defaultValue.value
+		}
+	}
+	panic(fmt.Sprintf("Default for %v / %v is not defined!", section, key))
+}
+
+func getIniKey(section string, key string) *ini.Key {
+	return cfg.Section(section).Key(key)
+}
+
 func getBoolean(section string, key string) bool {
-	value, err := getValue(section, key).Bool()
+	value, err := getIniKey(section, key).Bool()
 	if err != nil {
 		mebroutines.LogDebug(fmt.Sprintf("Parsing key %s / %s as bool failed", section, key))
-		panic(fmt.Sprintf("Invalid boolean configuration flag! section: %s, key: %s", section, key))
+		defaultValue := getDefault(section, key)
+		value, err = strconv.ParseBool(defaultValue)
+		setValue(section, key, defaultValue)
 	}
 	return value
 }
 
-func getValue(section string, key string) *ini.Key {
-	return cfg.Section(section).Key(key)
+func getString(section string, key string) string {
+	return getIniKey(section, key).String()
 }
 
 func setValue(section string, key string, value string) {
@@ -61,6 +77,18 @@ func Load() {
 	save()
 }
 
+func validateStringChoice(section string, key string, choices *map[string]bool) string {
+	value := getString(section, key)
+	_, ok := languages[value]
+	if ok {
+		return value
+	}
+	defaultValue := getDefault(section, key)
+	mebroutines.LogDebug(fmt.Sprintf("Correcting malformed ini-key %v / %v to default value %v", section, key, defaultValue))
+	setValue(section, key, defaultValue)
+	return defaultValue
+}
+
 // Save configuration to disk
 func save() {
 	err := cfg.SaveTo("naksu.ini")
@@ -77,14 +105,7 @@ var languages = map[string]bool{
 
 // GetLanguage returns user language preference. defaults to fi
 func GetLanguage() string {
-	value := getValue("common", "language").String()
-	_, ok := languages[value]
-	if ok {
-		return value
-	} else {
-		setValue("common", "language", "fi")
-		return "fi"
-	}
+	return validateStringChoice("common", "language", &languages)
 }
 
 // SetLanguage stores user language preference
@@ -93,7 +114,7 @@ func SetLanguage(language string) {
 	if ok {
 		setValue("common", "language", language)
 	} else {
-		setValue("common", "language", "fi")
+		setValue("common", "language", getDefault("common", "language"))
 	}
 }
 
