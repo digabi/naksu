@@ -153,6 +153,19 @@ Things to consider later:
 
 ## Changelog
 
+### 1.7.0 (19-DEC-2018)
+
+User interface
+
+- User interface remembers user language selection
+- Automatic self-update can be disabled via ini-file or command-line parameter. This setting is meant for centralized installations and should not be enabled otherwise. User will still get notified
+  if `naksu` is out of date via warning popup.
+
+Other changes
+
+- Naksu has minimal command-line interface. see `naksu -h`
+- Naksu tries to persist some settings to `naksu.ini`. This ini file is stored to same path as `naksu`
+
 ### 1.6.1 (14-DEC-2018)
 
 User interface

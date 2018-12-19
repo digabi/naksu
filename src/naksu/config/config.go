@@ -51,6 +51,9 @@ func getBoolean(section string, key string) bool {
 		mebroutines.LogDebug(fmt.Sprintf("Parsing key %s / %s as bool failed", section, key))
 		defaultValue := getDefault(section, key)
 		value, err = strconv.ParseBool(defaultValue)
+		if err != nil {
+			panic(fmt.Sprintf("Default boolean parsing for %v / %v (%v) failed to parse to boolean!", section, key, defaultValue))
+		}
 		setValue(section, key, defaultValue)
 	}
 	return value
