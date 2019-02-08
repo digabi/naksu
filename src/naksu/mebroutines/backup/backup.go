@@ -97,7 +97,7 @@ func makeClone(diskUUID string, backupPath string) error {
 	if errRe != nil || !matched {
 		// Failure
 		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not back up disk %s to %s"), diskUUID, backupPath))
-		return errors.New("Backup failed")
+		return errors.New("backup failed")
 	}
 
 	return nil

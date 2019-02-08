@@ -273,7 +273,7 @@ func CopyFile(src, dst string) (err error) {
 
 	if !ExistsFile(src) {
 		LogDebug("Copying failed, could not find source file")
-		return errors.New("Could not find source file")
+		return errors.New("could not find source file")
 	}
 
 	/* #nosec */

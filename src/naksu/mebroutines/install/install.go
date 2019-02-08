@@ -124,20 +124,20 @@ func downloadFile(url string, filepath string) error {
 
 	out, err1 := os.Create(filepath)
 	if err1 != nil {
-		return errors.New("Failed to create file")
+		return errors.New("failed to create file")
 	}
 	defer mebroutines.Close(out)
 
 	/* #nosec */
 	resp, err2 := http.Get(url)
 	if err2 != nil {
-		return errors.New("Failed to retrieve file")
+		return errors.New("failed to retrieve file")
 	}
 	defer mebroutines.Close(resp.Body)
 
 	_, err3 := io.Copy(out, resp.Body)
 	if err3 != nil {
-		return errors.New("Failed to copy body")
+		return errors.New("failed to copy body")
 	}
 
 	mebroutines.LogDebug(fmt.Sprintf("Finished download from URL %s to file %s", url, filepath))
