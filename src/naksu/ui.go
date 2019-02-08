@@ -435,6 +435,8 @@ func checkFreeDisk(chFreeDisk chan int) {
 
 func bindOnGetServer(mainUIStatus chan string) {
 	buttonGetServer.OnClicked(func(*ui.Button) {
+		mebroutines.LogDebug("Starting Abitti box update")
+
 		chFreeDisk := make(chan int)
 		chDiskLowPopup := make(chan bool)
 
@@ -459,6 +461,8 @@ func bindOnGetServer(mainUIStatus chan string) {
 				translateUILabels()
 				enableUI(mainUIStatus)
 				progress.SetMessage("")
+
+				mebroutines.LogDebug(fmt.Sprintf("Finished Abitti box update, version is: %s", mebroutines.GetVagrantFileVersion("")))
 			}()
 		}()
 	})
@@ -466,6 +470,8 @@ func bindOnGetServer(mainUIStatus chan string) {
 
 func bindOnSwitchServer(mainUIStatus chan string) {
 	buttonSwitchServer.OnClicked(func(*ui.Button) {
+		mebroutines.LogDebug("Starting Matriculation Examination box update")
+
 		chFreeDisk := make(chan int)
 		chDiskLowPopup := make(chan bool)
 		chPathNewVagrantfile := make(chan string)
@@ -509,6 +515,8 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 					translateUILabels()
 					enableUI(mainUIStatus)
 					progress.SetMessage("")
+
+					mebroutines.LogDebug(fmt.Sprintf("Finished Matriculation Examination box update, new version is: %s", mebroutines.GetVagrantFileVersion("")))
 				}()
 			}
 		}()
@@ -550,6 +558,7 @@ func bindOnBackup(mainUIStatus chan string) {
 	// Define actions for SaveAs window/dialog
 	backupButtonSave.OnClicked(func(*ui.Button) {
 		pathBackup := fmt.Sprintf("%s%s%s", backupMediaPath[backupCombobox.Selected()], string(os.PathSeparator), backup.GetBackupFilename(time.Now()))
+		mebroutines.LogDebug(fmt.Sprintf("Starting backup to: %s", pathBackup))
 
 		chFreeDisk := make(chan int)
 		chDiskLowPopup := make(chan bool)
@@ -571,6 +580,8 @@ func bindOnBackup(mainUIStatus chan string) {
 				backupWindow.Hide()
 				backup.MakeBackup(pathBackup)
 				enableUI(mainUIStatus)
+
+				mebroutines.LogDebug("Finished creating backup")
 			}()
 		}()
 	})
@@ -592,6 +603,8 @@ func bindOnDestroy(mainUIStatus chan string) {
 
 	destroyButtonDestroy.OnClicked(func(*ui.Button) {
 		go func() {
+			mebroutines.LogDebug("Starting server destroy")
+
 			destroyWindow.Hide()
 			destroy.Server()
 			progress.SetMessage("")
@@ -600,6 +613,8 @@ func bindOnDestroy(mainUIStatus chan string) {
 			translateUILabels()
 
 			enableUI(mainUIStatus)
+
+			mebroutines.LogDebug("Finished server destroy")
 		}()
 	})
 
@@ -620,6 +635,8 @@ func bindOnRemove(mainUIStatus chan string) {
 
 	removeButtonRemove.OnClicked(func(*ui.Button) {
 		go func() {
+			mebroutines.LogDebug("Starting server remove")
+
 			removeWindow.Hide()
 
 			err := remove.Server()
@@ -635,6 +652,8 @@ func bindOnRemove(mainUIStatus chan string) {
 			translateUILabels()
 
 			enableUI(mainUIStatus)
+
+			mebroutines.LogDebug("Finished server remove")
 		}()
 	})
 

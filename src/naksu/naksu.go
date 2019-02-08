@@ -75,6 +75,7 @@ func main() {
 	mebroutines.SetDebugFilename(mebroutines.GetNewDebugFilename())
 
 	mebroutines.LogDebug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
+	mebroutines.LogDebug(fmt.Sprintf("Currently installed box: %s", mebroutines.GetVagrantFileVersion("")))
 
 	// Check whether we have a terminal (restart with x-terminal-emulator, if missing)
 	if !mebroutines.ExistsStdin() {
