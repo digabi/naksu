@@ -33,6 +33,28 @@ func handleOptionalArgument(longName string, parser *flags.Parser, function func
 	}
 }
 
+func logDirectoryPaths() {
+	listDirs := []struct {
+		dirName string
+		dirPath string
+	}{
+		{"Home directory (~)", mebroutines.GetHomeDirectory()},
+		{"Vagrant directory (~/ktp)", mebroutines.GetVagrantDirectory()},
+		{"MEB share directory (~/ktp-jako)", mebroutines.GetMebshareDirectory()},
+		{"Vagrant internal settings directory (~/vagrant.d)", mebroutines.GetVagrantdDirectory()},
+		{"VirtualBox hidden directory (~/.VirtualBox)", mebroutines.GetVirtualBoxHiddenDirectory()},
+		{"VirtualBox VMs directory (~/VirtualBox VMs)", mebroutines.GetVirtualBoxVMsDirectory()},
+	}
+
+	for _, thisDir := range listDirs {
+		if mebroutines.ExistsDir(thisDir.dirPath) {
+			mebroutines.LogDebug(fmt.Sprintf("%s: %s [Directory exists]", thisDir.dirName, thisDir.dirPath))
+		} else {
+			mebroutines.LogDebug(fmt.Sprintf("%s: %s [Directory does not exist]", thisDir.dirName, thisDir.dirPath))
+		}
+  }
+}
+
 func main() {
 	// Load configuration if it exists
 	config.Load()
@@ -75,6 +97,9 @@ func main() {
 	mebroutines.SetDebugFilename(mebroutines.GetNewDebugFilename())
 
 	mebroutines.LogDebug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
+
+	logDirectoryPaths()
+
 	mebroutines.LogDebug(fmt.Sprintf("Currently installed box: %s", mebroutines.GetVagrantFileVersion("")))
 
 	// Check whether we have a terminal (restart with x-terminal-emulator, if missing)
