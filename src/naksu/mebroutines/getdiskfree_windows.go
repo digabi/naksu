@@ -22,7 +22,7 @@ func GetDiskFree(path string) (int, error) {
 	if len(patternResult) < 2 {
 		LogDebug(fmt.Sprintf("Could not detect drive letter from path: %s", path))
 
-		return -1, errors.New("Could not detect drive letter")
+		return -1, errors.New("could not detect drive letter")
 	}
 
 	diskletter := patternResult[1]
@@ -33,7 +33,7 @@ func GetDiskFree(path string) (int, error) {
 	err := wmi.Query(query, &dst)
 	if err != nil {
 		LogDebug(fmt.Sprintf("Get_disk_free() could not make WMI query: %s", fmt.Sprint(err)))
-		return -1, errors.New("Get_disk_free() could not detect free disk size as it could not query WMI")
+		return -1, errors.New("could not detect free disk size as it could not query wmi")
 	}
 
 	if len(dst) > 0 {
@@ -42,5 +42,5 @@ func GetDiskFree(path string) (int, error) {
 		return freeSpace, nil
 	}
 
-	return -1, errors.New("Get_disk_free() could not detect free disk size")
+	return -1, errors.New("could not detect free disk size")
 }

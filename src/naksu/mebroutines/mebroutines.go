@@ -262,7 +262,7 @@ func GetVagrantBoxAvailVersionDetails () (string, string, error) {
 	LogDebug(fmt.Sprintf("boxMatches: %d", len(boxMatches)))
 	LogDebug(fmt.Sprintf("versioMatches: %d", len(versionMatches)))
 
-	if len(boxMatches) == 2 && len(versionMatches) == 2 {
+	if (len(boxMatches) == 2 && len(versionMatches) == 2) {
 		return boxMatches[1], versionMatches[1], nil
 	}
 
@@ -279,24 +279,21 @@ func GetVagrantBoxType(name string) string {
 		return xlate.Get("Matric Exam server")
 	}
 
+
 	return "-"
 }
 
+// GetVagrantBoxTypeIsAbitti returns true if given box name string
+// belongs to an Abitti vagrant box
 func GetVagrantBoxTypeIsAbitti(name string) bool {
-	if name == "digabi/ktp-qa" {
-		return true
-	}
-
-	return false
+	return (name == "digabi/ktp-qa")
 }
 
+// GetVagrantBoxTypeIsMatricExam returns true if given box name string
+// belongs to a Matriculation Examination vagrant box
 func GetVagrantBoxTypeIsMatricExam(name string) bool {
 	re := regexp.MustCompile(`[ksKS]*\d\d\d\d[ksKS]*-\d+`)
-	if re.MatchString(name) {
-		return true
-	}
-
-	return false
+	return re.MatchString(name)
 }
 
 func getFileMode(path string) (os.FileMode, error) {

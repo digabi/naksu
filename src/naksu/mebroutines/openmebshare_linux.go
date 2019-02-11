@@ -19,8 +19,8 @@ func OpenMebShare() {
 	// Hopefully we have at least one of them installed!
 	openers := [3]string {"xdg-open", "gnome-open", "nautilus"}
 
-	for _, this_opener := range openers {
-		runParams := []string{this_opener, mebSharePath}
+	for _, thisOpener := range openers {
+		runParams := []string{thisOpener, mebSharePath}
 		output, err := RunAndGetOutput(runParams, false)
 
 		if err == nil {
