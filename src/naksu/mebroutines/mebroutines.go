@@ -259,9 +259,6 @@ func GetVagrantBoxAvailVersionDetails () (string, string, error) {
 	boxMatches := boxRegexp.FindStringSubmatch(vagrantOutput)
 	versionMatches := versionRegexp.FindStringSubmatch(vagrantOutput)
 
-	LogDebug(fmt.Sprintf("boxMatches: %d", len(boxMatches)))
-	LogDebug(fmt.Sprintf("versioMatches: %d", len(versionMatches)))
-
 	if (len(boxMatches) == 2 && len(versionMatches) == 2) {
 		return boxMatches[1], versionMatches[1], nil
 	}
