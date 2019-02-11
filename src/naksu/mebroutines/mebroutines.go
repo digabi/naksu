@@ -291,7 +291,7 @@ func GetVagrantBoxTypeIsAbitti(name string) bool {
 }
 
 func GetVagrantBoxTypeIsMatricExam(name string) bool {
-	re := regexp.MustCompile(`^digabi/ktp-[ks]\d\d\d\d-\d+`)
+	re := regexp.MustCompile(`[ksKS]*\d\d\d\d[ksKS]*-\d+`)
 	if re.MatchString(name) {
 		return true
 	}
