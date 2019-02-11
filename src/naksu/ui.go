@@ -318,27 +318,58 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 	}()
 }
 
+// checkAbittiUpdate checks
+// 1) if currently installed box is Abitti
+// 2) and there is a new version available
+func checkAbittiUpdate() (bool, string, string) {
+	abittiUpdate := false
+	currentAbittiVersion := ""
+	availAbittiVersion := ""
+
+	currentBoxType, currentBoxVersion, errCurrent := mebroutines.GetVagrantFileVersionDetails(mebroutines.GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile")
+	if (errCurrent == nil && mebroutines.GetVagrantBoxTypeIsAbitti(currentBoxType)) {
+		currentAbittiVersion = currentBoxVersion
+		_, availBoxVersion, errAvail := mebroutines.GetVagrantBoxAvailVersionDetails()
+		if (errAvail == nil && availBoxVersion != "") {
+			abittiUpdate = true
+			availAbittiVersion = availBoxVersion
+		}
+	}
+
+	return abittiUpdate, currentAbittiVersion, availAbittiVersion
+}
+
 // updateVagrantBoxAvailLabel updates UI "update available" label if the currently
 // installed box is Abitti and there is new version available
+// Make sure you call this inside ui.Queuemain() only
 func updateVagrantBoxAvailLabel () {
-	vagrantBoxTypeString, _, errBox := mebroutines.GetVagrantFileVersionDetails(mebroutines.GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile")
-	if (errBox == nil && mebroutines.GetVagrantBoxTypeIsAbitti(vagrantBoxTypeString)) {
-		vagrantBoxAvailVersion := mebroutines.GetVagrantBoxAvailVersion()
-		mebroutines.LogDebug(fmt.Sprintf("Update available (none means we have the latest or unable to get the new version string): %s", vagrantBoxAvailVersion))
-		if vagrantBoxAvailVersion != "" {
-			labelBoxAvailable.SetText(fmt.Sprintf(xlate.Get("Update available: %s"), vagrantBoxAvailVersion))
-		} else {
-			labelBoxAvailable.SetText("")
-		}
+	abittiUpdate, _, _ := checkAbittiUpdate()
+	if abittiUpdate {
+		labelBoxAvailable.SetText(fmt.Sprintf(xlate.Get("Update available: %s"), mebroutines.GetVagrantBoxAvailVersion()))
+		// Select "advanced features" checkbox
+		checkboxAdvanced.SetChecked(true)
+		boxAdvanced.Show()
 	} else {
 		labelBoxAvailable.SetText("")
+	}
+}
+
+// updateGetServerButtonLabel updates UI "Abitti update" button label
+// If there is new version available it shows current and new version numbers
+// Make sure you call this inside ui.Queuemain() only
+func updateGetServerButtonLabel() {
+	abittiUpdate, currentAbittiVersion, availAbittiVersion := checkAbittiUpdate()
+	if abittiUpdate {
+		buttonGetServer.SetText(fmt.Sprintf(xlate.Get("Abitti Exam (v%s > v%s)"), currentAbittiVersion, availAbittiVersion))
+	} else {
+		buttonGetServer.SetText(xlate.Get("Abitti Exam"))
 	}
 }
 
 func translateUILabels() {
 	ui.QueueMain(func() {
 		buttonStartServer.SetText(xlate.Get("Start Exam Server"))
-		buttonGetServer.SetText(xlate.Get("Abitti Exam"))
+		updateGetServerButtonLabel()
 		buttonSwitchServer.SetText(xlate.Get("Matriculation Exam"))
 		buttonDestroyServer.SetText(xlate.Get("Remove Exams"))
 		buttonRemoveServer.SetText(xlate.Get("Remove Server"))
