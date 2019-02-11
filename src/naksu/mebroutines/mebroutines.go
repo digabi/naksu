@@ -48,13 +48,17 @@ func Run(commandArgs []string) error {
 }
 
 // RunAndGetOutput runs command with arguments and returns output as a string
-func RunAndGetOutput(commandArgs []string) (string, error) {
+func RunAndGetOutput(commandArgs []string, showWarningOnError bool) (string, error) {
 	LogDebug(fmt.Sprintf("RunAndGetOutput: %s", strings.Join(commandArgs, " ")))
 	/* #nosec */
 	out, err := exec.Command(commandArgs[0], commandArgs[1:]...).CombinedOutput()
 	if err != nil {
 		// Executing failed, return error condition
-		ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
+		if showWarningOnError {
+			ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
+		} else {
+			LogDebug(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
+		}
 		return string(out), err
 	}
 
@@ -128,7 +132,7 @@ func RunVagrant(args []string) {
 func RunVBoxManage(args []string) string {
 	vboxmanagepathArr := []string{getVBoxManagePath()}
 	runArgs := append(vboxmanagepathArr, args...)
-	vBoxManageOutput, err := RunAndGetOutput(runArgs)
+	vBoxManageOutput, err := RunAndGetOutput(runArgs, false)
 	if err != nil {
 		LogDebug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(runArgs, " ")))
 		LogDebug(vBoxManageOutput)
@@ -144,7 +148,7 @@ func IfFoundVagrant() bool {
 
 	runParams := []string{vagrantpath, "--version"}
 
-	vagrantVersion, err := RunAndGetOutput(runParams)
+	vagrantVersion, err := RunAndGetOutput(runParams, false)
 	if err != nil {
 		// No vagrant was found
 		return false
@@ -166,7 +170,7 @@ func IfFoundVBoxManage() bool {
 
 	runParams := []string{vboxmanagepath, "--version"}
 
-	vBoxManageVersion, err := RunAndGetOutput(runParams)
+	vBoxManageVersion, err := RunAndGetOutput(runParams, false)
 	if err != nil {
 		// No VBoxManage was found
 		return false
@@ -177,16 +181,31 @@ func IfFoundVBoxManage() bool {
 	return true
 }
 
-// GetVagrantFileVersion returns version string for a given Vagrantfile (with "" defaults to ~/ktp/Vagrantfile)
+// GetVagrantFileVersion returns a human-readable localised version string
+// for a given Vagrantfile (with "" defaults to ~/ktp/Vagrantfile)
 func GetVagrantFileVersion (vagrantFilePath string) string {
 	if vagrantFilePath == "" {
 			vagrantFilePath = GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile"
 	}
 
-	fileContent, err := ioutil.ReadFile(filepath.Clean(vagrantFilePath))
+	boxString, boxVersion, err := GetVagrantFileVersionDetails(vagrantFilePath)
 	if err != nil {
 		LogDebug(fmt.Sprintf("Could not read from %s", vagrantFilePath))
 		return ""
+	}
+
+	boxType := GetVagrantBoxType(boxString)
+
+	return fmt.Sprintf("%s (%s %s)", boxType, boxString, boxVersion)
+}
+
+// GetVagrantFileVersionDetails returns version string (e.g. "digabi/ktp-qa") and
+// version number (e.g. "66") from the given vagrantFilePath
+func GetVagrantFileVersionDetails (vagrantFilePath string) (string, string, error) {
+	fileContent, err := ioutil.ReadFile(filepath.Clean(vagrantFilePath))
+	if err != nil {
+		LogDebug(fmt.Sprintf("Could not read from %s", vagrantFilePath))
+		return "", "", err
 	}
 
 	boxRegexp := regexp.MustCompile(`config.vm.box = "(.+)"`)
@@ -196,23 +215,88 @@ func GetVagrantFileVersion (vagrantFilePath string) string {
 	versionMatches := versionRegexp.FindStringSubmatch(string(fileContent))
 
 	if len(boxMatches) == 2 && len(versionMatches) == 2 {
-		return fmt.Sprintf("%s (%s %s)", GetVagrantBoxType(boxMatches[1]), boxMatches[1], versionMatches[1])
+		return boxMatches[1], versionMatches[1], nil
 	}
 
-	return ""
+	return "", "", errors.New("did not find values from vagrantfile")
+}
+
+// GetVagrantBoxAvailVersion returns a human-readable localised version string
+// for a vagrant box available with update
+func GetVagrantBoxAvailVersion () string {
+	boxString, boxVersion, err := GetVagrantBoxAvailVersionDetails()
+	if err != nil {
+		LogDebug("Could not get available version string")
+		return ""
+	}
+
+	boxType := GetVagrantBoxType(boxString)
+
+	return fmt.Sprintf("%s (%s %s)", boxType, boxString, boxVersion)
+}
+
+// GetVagrantBoxAvailVersionDetails returns version string (e.g. "digabi/ktp-qa") and
+// version number (e.g. "69") by issuing command "vagrant box outdated"
+func GetVagrantBoxAvailVersionDetails () (string, string, error) {
+	var vagrantpath = getVagrantPath()
+
+	runParams := []string{vagrantpath, "box", "outdated"}
+
+	vagrantOutput, err := RunAndGetOutput(runParams, false)
+	if err != nil {
+		// No vagrant was found
+		return "", "", errors.New("could not execute vagrant box oudated")
+	}
+
+	if vagrantOutput == "" {
+		// No output - no new version available
+		return "", "", nil
+	}
+
+	boxRegexp := regexp.MustCompile(`of the box '(.+)' for`)
+	versionRegexp := regexp.MustCompile(`'(\d+)'. Run `)
+
+	boxMatches := boxRegexp.FindStringSubmatch(vagrantOutput)
+	versionMatches := versionRegexp.FindStringSubmatch(vagrantOutput)
+
+	LogDebug(fmt.Sprintf("boxMatches: %d", len(boxMatches)))
+	LogDebug(fmt.Sprintf("versioMatches: %d", len(versionMatches)))
+
+	if len(boxMatches) == 2 && len(versionMatches) == 2 {
+		return boxMatches[1], versionMatches[1], nil
+	}
+
+	return "", "", errors.New("did not find values from vagrant output")
 }
 
 // GetVagrantBoxType returns the type string (Abitti server or Matric Exam server) for vagrant box name
 func GetVagrantBoxType(name string) string {
-	if name == "" {
-		return "-"
-	}
-
-	if name == "digabi/ktp-qa" {
+	if GetVagrantBoxTypeIsAbitti(name) {
 		return xlate.Get("Abitti server")
 	}
 
-	return xlate.Get("Matric Exam server")
+	if GetVagrantBoxTypeIsMatricExam(name) {
+		return xlate.Get("Matric Exam server")
+	}
+
+	return "-"
+}
+
+func GetVagrantBoxTypeIsAbitti(name string) bool {
+	if name == "digabi/ktp-qa" {
+		return true
+	}
+
+	return false
+}
+
+func GetVagrantBoxTypeIsMatricExam(name string) bool {
+	re := regexp.MustCompile(`^digabi/ktp-[ks]\d\d\d\d-\d+`)
+	if re.MatchString(name) {
+		return true
+	}
+
+	return false
 }
 
 func getFileMode(path string) (os.FileMode, error) {

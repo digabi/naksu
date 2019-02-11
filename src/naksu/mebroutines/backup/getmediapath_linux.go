@@ -40,7 +40,7 @@ func getBackupMediaLinux() map[string]string {
 
 	runParams := []string{"lsblk", "-J", "-o", "NAME,FSTYPE,MOUNTPOINT,VENDOR,MODEL,HOTPLUG"}
 
-	lsblkJSON, lsblkErr := mebroutines.RunAndGetOutput(runParams)
+	lsblkJSON, lsblkErr := mebroutines.RunAndGetOutput(runParams, true)
 
 	mebroutines.LogDebug("lsblk says:")
 	mebroutines.LogDebug(lsblkJSON)

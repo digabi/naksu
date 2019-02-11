@@ -86,7 +86,7 @@ func main() {
 		commandArgs := []string{"x-terminal-emulator", "-e", pathToMe}
 
 		mebroutines.LogDebug(fmt.Sprintf("No stdin, restarting with terminal: %s", strings.Join(commandArgs, " ")))
-		_, err = mebroutines.RunAndGetOutput(commandArgs)
+		_, err = mebroutines.RunAndGetOutput(commandArgs, true)
 		if err != nil {
 			mebroutines.LogDebug(fmt.Sprintf("Failed to restart with terminal: %d", err))
 		}

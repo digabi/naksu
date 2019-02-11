@@ -17,7 +17,7 @@ func OpenMebShare() {
 
 	runParams := []string{"xdg-open", mebSharePath}
 
-	output, err := RunAndGetOutput(runParams)
+	output, err := RunAndGetOutput(runParams, false)
 
 	if err != nil {
 		ShowWarningMessage("Could not open MEB share directory")

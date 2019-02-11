@@ -32,12 +32,14 @@ var buttonMebShare *ui.Button
 var comboboxLang *ui.Combobox
 
 var labelBox *ui.Label
+var labelBoxAvailable *ui.Label
 var labelStatus *ui.Label
 var labelAdvancedUpdate *ui.Label
 var labelAdvancedAnnihilate *ui.Label
 
 var checkboxAdvanced *ui.Checkbox
 
+var boxVersions *ui.Box
 var boxBasicUpper *ui.Box
 var boxBasic *ui.Box
 var boxAdvancedUpdate *ui.Box
@@ -104,24 +106,31 @@ func createMainWindowElements() {
 	}
 
 	labelBox = ui.NewLabel("")
+	labelBoxAvailable = ui.NewLabel("")
 	labelStatus = ui.NewLabel("")
 	labelAdvancedUpdate = ui.NewLabel("")
 	labelAdvancedAnnihilate = ui.NewLabel("")
 
 	checkboxAdvanced = ui.NewCheckbox("")
 
+	// Box versions
+	boxVersions = ui.NewVerticalBox()
+	boxVersions.SetPadded(true)
+	boxVersions.Append(labelBox, true)
+	boxVersions.Append(labelBoxAvailable, true)
+
 	// Box version and language selection dropdown
 	boxBasicUpper = ui.NewHorizontalBox()
 	boxBasicUpper.SetPadded(true)
-	boxBasicUpper.Append(labelBox, true)
+	boxBasicUpper.Append(boxVersions, true)
 	boxBasicUpper.Append(comboboxLang, false)
 
 	boxBasic = ui.NewVerticalBox()
 	boxBasic.SetPadded(true)
-	boxBasic.Append(boxBasicUpper, true)
+	boxBasic.Append(boxBasicUpper, false)
 	boxBasic.Append(labelStatus, true)
-	boxBasic.Append(buttonStartServer, true)
-	boxBasic.Append(buttonMebShare, true)
+	boxBasic.Append(buttonStartServer, false)
+	boxBasic.Append(buttonMebShare, false)
 	boxBasic.Append(checkboxAdvanced, true)
 
 	boxAdvancedUpdate = ui.NewHorizontalBox()
@@ -309,6 +318,23 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 	}()
 }
 
+// updateVagrantBoxAvailLabel updates UI "update available" label if the currently
+// installed box is Abitti and there is new version available
+func updateVagrantBoxAvailLabel () {
+	vagrantBoxTypeString, _, errBox := mebroutines.GetVagrantFileVersionDetails(mebroutines.GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile")
+	if (errBox == nil && mebroutines.GetVagrantBoxTypeIsAbitti(vagrantBoxTypeString)) {
+		vagrantBoxAvailVersion := mebroutines.GetVagrantBoxAvailVersion()
+		mebroutines.LogDebug(fmt.Sprintf("Update available (none means we have the latest or unable to get the new version string): %s", vagrantBoxAvailVersion))
+		if vagrantBoxAvailVersion != "" {
+			labelBoxAvailable.SetText(fmt.Sprintf(xlate.Get("Update available: %s"), vagrantBoxAvailVersion))
+		} else {
+			labelBoxAvailable.SetText("")
+		}
+	} else {
+		labelBoxAvailable.SetText("")
+	}
+}
+
 func translateUILabels() {
 	ui.QueueMain(func() {
 		buttonStartServer.SetText(xlate.Get("Start Exam Server"))
@@ -320,6 +346,9 @@ func translateUILabels() {
 		buttonMebShare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
 
 		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), mebroutines.GetVagrantFileVersion("")))
+
+		// Show available box version if we have a Abitti box
+		updateVagrantBoxAvailLabel()
 
 		// Suggest VM install if none installed
 		emptyVersionProgressMessage := "Start by installing a server: Show management features"

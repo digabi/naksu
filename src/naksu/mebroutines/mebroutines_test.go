@@ -8,6 +8,64 @@ import (
   "io/ioutil"
 )
 
+func TestGetVagrantBoxType (t *testing.T) {
+  tables := []struct {
+    vagrantVersionString string
+    vagrantBoxTypeString string
+  }{
+    {"", "-"},
+    {"digabi/foobar", "-"},
+    {"digabi/ktp-qa", "Abitti server"},
+    {"digabi/ktp-k2018-45489", "Matric Exam server"},
+  }
+
+  for _, table := range tables {
+    boxType := mebroutines.GetVagrantBoxType(table.vagrantVersionString)
+    if boxType != table.vagrantBoxTypeString {
+      t.Errorf("GetVagrantBoxType gives '%s' instead of '%s'", boxType, table.vagrantBoxTypeString)
+    }
+  }
+}
+
+func TestGetVagrantBoxTypeIsAbitti (t *testing.T) {
+  tables := []struct {
+    vagrantVersionString string
+    vagrantVersionIsAbitti bool
+  }{
+    {"", false},
+    {"digabi/foobar", false},
+    {"digabi/ktp-qa", true},
+    {"digabi/ktp-k2018-45489", false},
+  }
+
+  for _, table := range tables {
+    boxIsAbitti := mebroutines.GetVagrantBoxTypeIsAbitti(table.vagrantVersionString)
+    if boxIsAbitti != table.vagrantVersionIsAbitti {
+      t.Errorf("GetVagrantBoxTypeIsAbitti fails with parameter '%s'", table.vagrantVersionString)
+    }
+  }
+}
+
+func TestGetVagrantBoxTypeIsMatricExam (t *testing.T) {
+  tables := []struct {
+    vagrantVersionString string
+    vagrantVersionIsME bool
+  }{
+    {"", false},
+    {"digabi/foobar", false},
+    {"digabi/ktp-qa", false},
+    {"digabi/ktp-k2018-45489", true},
+  }
+
+  for _, table := range tables {
+    boxIsME := mebroutines.GetVagrantBoxTypeIsMatricExam(table.vagrantVersionString)
+    if boxIsME != table.vagrantVersionIsME {
+      t.Errorf("GetVagrantBoxTypeIsMatricExam fails with parameter '%s'", table.vagrantVersionString)
+    }
+  }
+}
+
+
 func TestGetVagrantFileVersionAbitti (t *testing.T) {
   sampleAbittiVagrantFileContent := `
   # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!

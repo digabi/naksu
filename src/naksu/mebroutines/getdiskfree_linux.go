@@ -10,7 +10,7 @@ import (
 func GetDiskFree(path string) (int, error) {
 	runParams := []string{"df", "--output=avail", path}
 
-	output, err := RunAndGetOutput(runParams)
+	output, err := RunAndGetOutput(runParams, true)
 
 	if err != nil {
 		return -1, err
