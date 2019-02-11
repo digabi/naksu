@@ -193,8 +193,8 @@ func TestGetVagrantFileVersionAbitti (t *testing.T) {
     vagrantfileContent string
     versionString string
   }{
-    {sampleAbittiVagrantFileContent, "Abitti server (digabi/ktp-qa 57)"},
-    {sampleMebVagrantFileContent, "Matric Exam server (digabi/ktp-k2018-45489 37)"},
+    {sampleAbittiVagrantFileContent, "Abitti server (v57)"},
+    {sampleMebVagrantFileContent, "Matric Exam server (v37)"},
   }
 
   for _, table := range tables {

@@ -196,7 +196,7 @@ func GetVagrantFileVersion (vagrantFilePath string) string {
 
 	boxType := GetVagrantBoxType(boxString)
 
-	return fmt.Sprintf("%s (%s %s)", boxType, boxString, boxVersion)
+	return fmt.Sprintf("%s (v%s)", boxType, boxVersion)
 }
 
 // GetVagrantFileVersionDetails returns version string (e.g. "digabi/ktp-qa") and
@@ -232,7 +232,7 @@ func GetVagrantBoxAvailVersion () string {
 
 	boxType := GetVagrantBoxType(boxString)
 
-	return fmt.Sprintf("%s (%s %s)", boxType, boxString, boxVersion)
+	return fmt.Sprintf("%s (v%s)", boxType, boxVersion)
 }
 
 // GetVagrantBoxAvailVersionDetails returns version string (e.g. "digabi/ktp-qa") and
