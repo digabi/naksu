@@ -36,6 +36,7 @@ func SetLanguage(newLanguage string) {
 			"Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)": "Sijoita yo-kokeen Vagrantfile johonkin toiseen paikkaan (esim. työpöydälle tai kotihakemistoon)",
 			"Your free disk size is getting low (%s).":                                                   "Levytilasi on loppumassa (jäljellä %s).",
 			"Start by installing a server: Show management features":                                     "Aloita asentamalla palvelin: Näytä hallintaominaisuudet",
+			"You are starting Matriculation Examination server with an Internet connection.":             "Olet käynnistämässä yo-palvelinta, vaikka palvelimella on internet-yhteys.",
 
 			// Backup dialog
 			"naksu: SaveTo":             "naksu: Tallennuspaikka",
@@ -133,6 +134,7 @@ func SetLanguage(newLanguage string) {
 			"Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)": "Placera Vagrantfile-filen för studentexamen på ett annat ställe (t.ex. på skrivbordet eller i hemkatalogen).",
 			"Your free disk size is getting low (%s).":                                                   "Ditt diskutrymme börjar ta slut (kvar %s).",
 			"Start by installing a server: Show management features":                                     "Börja med att installera servern: Visa hanteringsegenskaper",
+			"You are starting Matriculation Examination server with an Internet connection.":             "Då håller på att starta provlokalsservern för studentexamen, fast servern har internetförbindelse.",
 
 			// Backup dialog
 			"naksu: SaveTo":             "naksu: Spara till ",

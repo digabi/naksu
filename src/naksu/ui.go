@@ -463,6 +463,16 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 	// Define actions for main window
 	buttonStartServer.OnClicked(func(*ui.Button) {
 		go func() {
+			// Get defails of the current installed box and warn if we're having Matric Exam box & internet connection
+			boxVersionString, _, boxErr := mebroutines.GetVagrantFileVersionDetails(mebroutines.GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile")
+			if (boxErr == nil && mebroutines.GetVagrantBoxTypeIsMatricExam(boxVersionString)) {
+				if network.CheckIfNetworkAvailable() {
+					mebroutines.ShowWarningMessage(xlate.Get("You are starting Matriculation Examination server with an Internet connection."))
+				} else {
+					mebroutines.LogDebug("Starting Matric Exam server without an internet connection - All is good!")
+				}
+			}
+
 			disableUI(mainUIStatus)
 			start.Server()
 			enableUI(mainUIStatus)
