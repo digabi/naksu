@@ -13,7 +13,9 @@ func GetDiskFree(path string) (int, error) {
 	patternDisk := regexp.MustCompile(`^(\w\:)`)
 	patternResult := patternDisk.FindStringSubmatch(path)
 
-	type Win32LogicalDisk struct {
+	// This struct must be named with an underscore, otherwise it is not recognised
+	// and results "Invalid class" exception.
+	type Win32_LogicalDisk struct {
 		Size      int
 		FreeSpace int
 		DeviceID  string
@@ -26,13 +28,14 @@ func GetDiskFree(path string) (int, error) {
 	}
 
 	diskletter := patternResult[1]
+	wmiQuery := fmt.Sprintf("WHERE DeviceID=\"%s\"", diskletter)
 
-	var dst []Win32LogicalDisk
+	var dst []Win32_LogicalDisk
 	/* #nosec */
-	query := wmi.CreateQuery(&dst, fmt.Sprintf("WHERE DeviceID=\"%s\"", diskletter))
+	query := wmi.CreateQuery(&dst, wmiQuery)
 	err := wmi.Query(query, &dst)
 	if err != nil {
-		LogDebug(fmt.Sprintf("Get_disk_free() could not make WMI query: %s", fmt.Sprint(err)))
+		LogDebug(fmt.Sprintf("GetDiskFree() could not make WMI query (%s): %s", wmiQuery, fmt.Sprint(err)))
 		return -1, errors.New("could not detect free disk size as it could not query wmi")
 	}
 

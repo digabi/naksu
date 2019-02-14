@@ -29,7 +29,9 @@ func GetBackupMedia() map[string]string {
 }
 
 func getBackupMediaWindows() map[string]string {
-	type Win32LogicalDisk struct {
+	// This struct must be named with an underscore, otherwise it is not recognised
+	// and results "Invalid class" exception.
+	type Win32_LogicalDisk struct {
 		DeviceID    string
 		DriveType   int
 		Description string
@@ -38,21 +40,19 @@ func getBackupMediaWindows() map[string]string {
 
 	var media = map[string]string{}
 
-	var dst []Win32LogicalDisk
-	query := wmi.CreateQuery(&dst, "")
+	var dst []Win32_LogicalDisk
+	query := wmi.CreateQuery(&dst, "WHERE DriveType=2 OR DriveType=3")
 	err := wmi.Query(query, &dst)
 	if err != nil {
-		mebroutines.LogDebug("get_backup_media_windows() could not detect removable/hard drives as it could not query WMI")
+		mebroutines.LogDebug("getBackupMediaWindows() could not detect removable/hard drives as it could not query WMI")
 		mebroutines.LogDebug(fmt.Sprint(err))
 		return media
 	}
 
 	for thisDrive := range dst {
-		if dst[thisDrive].DriveType == 2 || dst[thisDrive].DriveType == 3 {
-			// We have either hard or removable drive
-			thisPath := fmt.Sprintf("%s%s", dst[thisDrive].DeviceID, string(os.PathSeparator))
-			media[thisPath] = fmt.Sprintf("%s, %s", dst[thisDrive].VolumeName, dst[thisDrive].Description)
-		}
+		// We have either hard or removable drive
+		thisPath := fmt.Sprintf("%s%s", dst[thisDrive].DeviceID, string(os.PathSeparator))
+		media[thisPath] = fmt.Sprintf("%s, %s", dst[thisDrive].VolumeName, dst[thisDrive].Description)
 	}
 
 	return media
