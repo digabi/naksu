@@ -238,6 +238,11 @@ func GetVagrantBoxAvailVersion () string {
 // GetVagrantBoxAvailVersionDetails returns version string (e.g. "digabi/ktp-qa") and
 // version number (e.g. "69") by issuing command "vagrant box outdated"
 func GetVagrantBoxAvailVersionDetails () (string, string, error) {
+	// chdir ~/ktp
+	if !ChdirVagrantDirectory() {
+		return "", "", errors.New("cannot run vagrant box updated as unable to chdir ~/ktp")
+	}
+
 	var vagrantpath = getVagrantPath()
 
 	runParams := []string{vagrantpath, "box", "outdated"}
