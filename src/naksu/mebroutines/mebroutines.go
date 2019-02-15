@@ -19,9 +19,20 @@ import (
 	"github.com/andlabs/ui"
 )
 
+// Cache for GetVagrantBoxAvailVersionDetails
+type lastBoxAvail struct {
+  boxString string
+  boxVersion string
+  boxTimestamp int64
+}
+
 var isDebug bool
 var mainWindow *ui.Window
 var debugFilename string
+
+// Global cache for GetVagrantBoxAvailVersionDetails()
+var vagrantBoxAvailVersionDetailsCache lastBoxAvail
+var vagrantBoxAvailVersionDetailsCacheTimeout int64 = 5*60	// in seconds (5 minutes)
 
 // Close gracefully handles closing of closable item. defer Close(item)
 func Close(c io.Closer) {
@@ -235,9 +246,31 @@ func GetVagrantBoxAvailVersion () string {
 	return fmt.Sprintf("%s (v%s)", boxType, boxVersion)
 }
 
-// GetVagrantBoxAvailVersionDetails returns version string (e.g. "digabi/ktp-qa") and
-// version number (e.g. "69") by issuing command "vagrant box outdated"
+// GetVagrantBoxAvailVersionDetails gets info about available vagramt box
+// from ReallyGetVagrantBoxAvailVersionDetails() or global vagrantBoxAvailVersionDetailsCache
 func GetVagrantBoxAvailVersionDetails () (string, string, error) {
+	if vagrantBoxAvailVersionDetailsCache.boxTimestamp < (time.Now().Unix() - vagrantBoxAvailVersionDetailsCacheTimeout) {
+		// We need to update the cache
+
+		boxString, boxVersion, boxError := reallyGetVagrantBoxAvailVersionDetails()
+		if boxError == nil {
+			vagrantBoxAvailVersionDetailsCache.boxString = boxString
+			vagrantBoxAvailVersionDetailsCache.boxVersion = boxVersion
+			vagrantBoxAvailVersionDetailsCache.boxTimestamp = time.Now().Unix()
+			return boxString, boxVersion, nil
+		} else {
+			return "", "", boxError
+		}
+	} else {
+		// Return data from the cache
+
+		return vagrantBoxAvailVersionDetailsCache.boxString, vagrantBoxAvailVersionDetailsCache.boxVersion, nil
+	}
+}
+
+// reallyGetVagrantBoxAvailVersionDetails returns version string (e.g. "digabi/ktp-qa") and
+// version number (e.g. "69") by issuing command "vagrant box outdated"
+func reallyGetVagrantBoxAvailVersionDetails () (string, string, error) {
 	// chdir ~/ktp
 	if !ChdirVagrantDirectory() {
 		return "", "", errors.New("cannot run vagrant box updated as unable to chdir ~/ktp")

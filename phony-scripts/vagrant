@@ -7,6 +7,7 @@ if [ "$1" = "--version" ]; then
 fi
 
 if [ "$1" = "box" ] && [ "$2" = "outdated" ]; then
+  sleep 3s
   echo "A newer version of the box 'digabi/ktp-qa' for provider 'virtualbox' is"
   echo "available! You currently have version '00'. The latest is version"
   echo "'99'. Run 'vagrant box update' to update."

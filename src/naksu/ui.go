@@ -341,29 +341,46 @@ func checkAbittiUpdate() (bool, string, string) {
 
 // updateVagrantBoxAvailLabel updates UI "update available" label if the currently
 // installed box is Abitti and there is new version available
-// Make sure you call this inside ui.Queuemain() only
 func updateVagrantBoxAvailLabel () {
-	abittiUpdate, _, _ := checkAbittiUpdate()
-	if abittiUpdate {
-		labelBoxAvailable.SetText(fmt.Sprintf(xlate.Get("Update available: %s"), mebroutines.GetVagrantBoxAvailVersion()))
-		// Select "advanced features" checkbox
-		checkboxAdvanced.SetChecked(true)
-		boxAdvanced.Show()
-	} else {
-		labelBoxAvailable.SetText("")
-	}
+	go func() {
+		abittiUpdate, _, _ := checkAbittiUpdate()
+		if abittiUpdate {
+			vagrantBoxAvailVersion := mebroutines.GetVagrantBoxAvailVersion()
+			ui.QueueMain(func () {
+				labelBoxAvailable.SetText(fmt.Sprintf(xlate.Get("Update available: %s"), vagrantBoxAvailVersion))
+				// Select "advanced features" checkbox
+				checkboxAdvanced.SetChecked(true)
+				boxAdvanced.Show()
+			})
+		} else {
+			ui.QueueMain(func () {
+				labelBoxAvailable.SetText("")
+			})
+		}
+	}()
 }
 
 // updateGetServerButtonLabel updates UI "Abitti update" button label
 // If there is new version available it shows current and new version numbers
 // Make sure you call this inside ui.Queuemain() only
 func updateGetServerButtonLabel() {
-	abittiUpdate, currentAbittiVersion, availAbittiVersion := checkAbittiUpdate()
-	if abittiUpdate {
-		buttonGetServer.SetText(fmt.Sprintf(xlate.Get("Abitti Exam (v%s > v%s)"), currentAbittiVersion, availAbittiVersion))
-	} else {
+	// Set default text for an empty button before doing time-consuming Abitti update check
+	if buttonGetServer.Text() == "" {
 		buttonGetServer.SetText(xlate.Get("Abitti Exam"))
 	}
+
+	go func() {
+		abittiUpdate, currentAbittiVersion, availAbittiVersion := checkAbittiUpdate()
+		if abittiUpdate {
+			ui.QueueMain(func () {
+				buttonGetServer.SetText(fmt.Sprintf(xlate.Get("Abitti Exam (v%s > v%s)"), currentAbittiVersion, availAbittiVersion))
+			})
+		} else {
+			ui.QueueMain(func () {
+				buttonGetServer.SetText(xlate.Get("Abitti Exam"))
+			})
+		}
+	}()
 }
 
 func translateUILabels() {
