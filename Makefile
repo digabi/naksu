@@ -20,10 +20,10 @@ lint: bin/gometalinter
 	./bin/gometalinter --deadline=240s --vendor ./src/naksu/...
 
 ci-test: bin/go2xunit
-	2>&1 GOPATH=$(current_dir)/ go test -v naksu/mebroutines | ./bin/go2xunit -output tests.xml
+	2>&1 GOPATH=$(current_dir)/ go test -v naksu/mebroutines naksu/boxversion | ./bin/go2xunit -output tests.xml
 
 test:
-	GOPATH=$(current_dir)/ go test naksu/mebroutines
+	GOPATH=$(current_dir)/ go test naksu/mebroutines naksu/boxversion
 
 docker: clean
 	mkdir -p bin

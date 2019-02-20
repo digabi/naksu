@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"naksu/config"
 	"naksu/mebroutines"
+	"naksu/boxversion"
 	"naksu/xlate"
 	"os"
 	"strings"
@@ -13,7 +14,6 @@ import (
 )
 
 const version = "1.7.0"
-const lowDiskLimit = 50 * 1024 * 1024 // 50 Gb
 
 var isDebug bool
 
@@ -100,7 +100,7 @@ func main() {
 
 	logDirectoryPaths()
 
-	mebroutines.LogDebug(fmt.Sprintf("Currently installed box: %s", mebroutines.GetVagrantFileVersion("")))
+	mebroutines.LogDebug(fmt.Sprintf("Currently installed box: %s", boxversion.GetVagrantFileVersion("")))
 
 	// Check whether we have a terminal (restart with x-terminal-emulator, if missing)
 	if !mebroutines.ExistsStdin() {
