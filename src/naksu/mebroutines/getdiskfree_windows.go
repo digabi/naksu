@@ -28,7 +28,9 @@ func GetDiskFree(path string) (int, error) {
 	}
 
 	diskletter := patternResult[1]
-	wmiQuery := fmt.Sprintf("WHERE DeviceID=\"%s\"", diskletter)
+	// gosec complains here "SQL string formatting" but this can be safely turned off
+	/* #nosec */
+	wmiQuery := fmt.Sprintf(`WHERE DeviceID="%s"`, diskletter)
 
 	var dst []Win32_LogicalDisk
 	/* #nosec */
