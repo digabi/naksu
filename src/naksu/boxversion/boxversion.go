@@ -20,6 +20,7 @@ type lastBoxAvail struct {
   boxString string
   boxVersion string
   boxTimestamp int64
+  updateStarted int64
 }
 
 // Global cache for GetVagrantBoxAvailVersionDetails()
@@ -96,8 +97,15 @@ func GetVagrantBoxAvailVersionDetails () (string, string, error) {
   boxVersion := ""
   var boxError error
 
+  // There is a avail version fetch going on
+  for vagrantBoxAvailVersionDetailsCache.updateStarted != 0 {
+    time.Sleep(500)
+  }
+
 	if vagrantBoxAvailVersionDetailsCache.boxTimestamp < (time.Now().Unix() - vagrantBoxAvailVersionDetailsCacheTimeout) {
 		// We need to update the cache
+
+    vagrantBoxAvailVersionDetailsCache.updateStarted = time.Now().Unix()
 
 		boxString, boxVersion, boxError = reallyGetVagrantBoxAvailVersionDetails()
 		if boxError == nil {
@@ -105,6 +113,8 @@ func GetVagrantBoxAvailVersionDetails () (string, string, error) {
 			vagrantBoxAvailVersionDetailsCache.boxVersion = boxVersion
 			vagrantBoxAvailVersionDetailsCache.boxTimestamp = time.Now().Unix()
 		}
+
+    vagrantBoxAvailVersionDetailsCache.updateStarted = 0
 	} else {
 		// Return data from the cache
 
