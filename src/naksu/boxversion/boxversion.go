@@ -97,7 +97,7 @@ func GetVagrantBoxAvailVersionDetails() (string, string, error) {
 	tryCounter := 0
 	for vagrantBoxAvailVersionDetailsCache.updateStarted != 0 && tryCounter < 240 {
 		time.Sleep(500)
-		tryCounter += 1
+		tryCounter++
 	}
 
 	if vagrantBoxAvailVersionDetailsCache.boxTimestamp < (time.Now().Unix() - constants.VagrantBoxAvailVersionDetailsCacheTimeout) {
