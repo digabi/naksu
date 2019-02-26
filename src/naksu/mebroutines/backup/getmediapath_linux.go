@@ -2,6 +2,7 @@ package backup
 
 import (
 	"encoding/json"
+	"path/filepath"
 	"fmt"
 	"naksu/mebroutines"
 	"naksu/xlate"
@@ -17,13 +18,13 @@ func GetBackupMedia() map[string]string {
 		media[os.Getenv("HOME")] = xlate.Get("Home directory")
 
 		// Try ~/Desktop
-		desktopPath := os.Getenv("HOME") + string(os.PathSeparator) + "Desktop"
+		desktopPath := filepath.Join(os.Getenv("HOME"), "Desktop")
 		if mebroutines.ExistsDir(desktopPath) {
 			media[desktopPath] = xlate.Get("Desktop")
 		}
 
 		// Try ~/desktop
-		desktopPath = os.Getenv("HOME") + string(os.PathSeparator) + "desktop"
+		desktopPath = filepath.Join(os.Getenv("HOME"), "desktop")
 		if mebroutines.ExistsDir(desktopPath) {
 			media[desktopPath] = xlate.Get("Desktop")
 		}

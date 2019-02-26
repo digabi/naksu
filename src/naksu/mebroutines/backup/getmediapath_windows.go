@@ -2,6 +2,7 @@ package backup
 
 import (
 	"fmt"
+	"path/filepath"
 	"naksu/mebroutines"
 	"naksu/xlate"
 	"os"
@@ -19,7 +20,7 @@ func GetBackupMedia() map[string]string {
 	if os.Getenv("USERPROFILE") != "" {
 		media[os.Getenv("USERPROFILE")] = xlate.Get("Profile directory")
 
-		desktopPath := os.Getenv("USERPROFILE") + string(os.PathSeparator) + "Desktop"
+		desktopPath := filepath.Join(os.Getenv("USERPROFILE"), "Desktop")
 		if mebroutines.ExistsDir(desktopPath) {
 			media[desktopPath] = xlate.Get("Desktop")
 		}

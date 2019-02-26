@@ -2,6 +2,7 @@ package install
 
 import (
 	"fmt"
+	"path/filepath"
 	"naksu/constants"
 	"naksu/mebroutines"
 	"naksu/network"
@@ -22,7 +23,7 @@ func GetServer(newVagrantfilePath string) {
 	var ktpJakoPath = createKtpJakoDir()
 	mebroutines.LogDebug(fmt.Sprintf("ktpJakoPath is %s", ktpJakoPath))
 
-	var vagrantfilePath = ktpPath + string(os.PathSeparator) + "Vagrantfile"
+	var vagrantfilePath = filepath.Join(ktpPath, "Vagrantfile")
 
 	// If no given Vagrantfile try to download one
 	if newVagrantfilePath == "" {

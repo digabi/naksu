@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 	"naksu/constants"
 	"naksu/config"
 	"naksu/mebroutines"
@@ -14,7 +15,6 @@ import (
 	"naksu/boxversion"
 	"naksu/progress"
 	"naksu/xlate"
-	"os"
 	"time"
 
 	"github.com/andlabs/ui"
@@ -328,7 +328,7 @@ func checkAbittiUpdate() (bool, string, string) {
 	currentAbittiVersion := ""
 	availAbittiVersion := ""
 
-	currentBoxType, currentBoxVersion, errCurrent := boxversion.GetVagrantFileVersionDetails(mebroutines.GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile")
+	currentBoxType, currentBoxVersion, errCurrent := boxversion.GetVagrantFileVersionDetails(filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile"))
 	if (errCurrent == nil && boxversion.GetVagrantBoxTypeIsAbitti(currentBoxType)) {
 		currentAbittiVersion = currentBoxVersion
 		_, availBoxVersion, errAvail := boxversion.GetVagrantBoxAvailVersionDetails()
@@ -483,7 +483,7 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 	buttonStartServer.OnClicked(func(*ui.Button) {
 		go func() {
 			// Get defails of the current installed box and warn if we're having Matric Exam box & internet connection
-			boxVersionString, _, boxErr := boxversion.GetVagrantFileVersionDetails(mebroutines.GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile")
+			boxVersionString, _, boxErr := boxversion.GetVagrantFileVersionDetails(filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile"))
 			if (boxErr == nil && boxversion.GetVagrantBoxTypeIsMatriculationExam(boxVersionString)) {
 				if network.CheckIfNetworkAvailable() {
 					mebroutines.ShowWarningMessage(xlate.Get("You are starting Matriculation Examination server with an Internet connection."))
@@ -591,7 +591,7 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 			pathNewVagrantfile := <-chPathNewVagrantfile
 
 			// Path to ~/ktp/Vagrantfile
-			pathOldVagrantfile := mebroutines.GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile"
+			pathOldVagrantfile := filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile")
 
 			if pathNewVagrantfile == "" {
 				mebroutines.ShowErrorMessage(xlate.Get("Did not get a path for a new Vagrantfile"))
@@ -646,7 +646,7 @@ func bindOnMebShare() {
 func bindOnBackup(mainUIStatus chan string) {
 	// Define actions for SaveAs window/dialog
 	backupButtonSave.OnClicked(func(*ui.Button) {
-		pathBackup := fmt.Sprintf("%s%s%s", backupMediaPath[backupCombobox.Selected()], string(os.PathSeparator), backup.GetBackupFilename(time.Now()))
+		pathBackup := filepath.Join(backupMediaPath[backupCombobox.Selected()], backup.GetBackupFilename(time.Now()))
 		mebroutines.LogDebug(fmt.Sprintf("Starting backup to: %s", pathBackup))
 
 		chFreeDisk := make(chan int)

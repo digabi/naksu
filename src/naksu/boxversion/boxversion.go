@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"regexp"
 	"time"
@@ -30,7 +29,7 @@ var vagrantBoxAvailVersionDetailsCache lastBoxAvail
 // for a given Vagrantfile (with "" defaults to ~/ktp/Vagrantfile)
 func GetVagrantFileVersion(vagrantFilePath string) string {
 	if vagrantFilePath == "" {
-		vagrantFilePath = mebroutines.GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile"
+		vagrantFilePath = filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile")
 	}
 
 	boxString, boxVersion, err := GetVagrantFileVersionDetails(vagrantFilePath)

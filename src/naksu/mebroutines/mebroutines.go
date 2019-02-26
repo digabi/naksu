@@ -10,6 +10,7 @@ import (
 	"naksu/xlate"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -293,27 +294,27 @@ func GetHomeDirectory() string {
 
 // GetVagrantDirectory returns ktp-directory path from under home directory
 func GetVagrantDirectory() string {
-	return GetHomeDirectory() + string(os.PathSeparator) + "ktp"
+	return filepath.Join(GetHomeDirectory(), "ktp")
 }
 
 // GetVagrantdDirectory returns .vagrantd-directory path from under home directory
 func GetVagrantdDirectory() string {
-	return GetHomeDirectory() + string(os.PathSeparator) + ".vagrant.d"
+	return filepath.Join(GetHomeDirectory(), ".vagrant.d")
 }
 
 // GetMebshareDirectory returns ktp-jako path from under home directory
 func GetMebshareDirectory() string {
-	return GetHomeDirectory() + string(os.PathSeparator) + "ktp-jako"
+	return filepath.Join(GetHomeDirectory(), "ktp-jako")
 }
 
 // GetVirtualBoxHiddenDirectory returns ".VirtualBox" path from under home directory
 func GetVirtualBoxHiddenDirectory() string {
-	return GetHomeDirectory() + string(os.PathSeparator) + ".VirtualBox"
+	return filepath.Join(GetHomeDirectory(), ".VirtualBox")
 }
 
 // GetVirtualBoxVMsDirectory returns "VirtualBox VMs" path from under home directory
 func GetVirtualBoxVMsDirectory() string {
-	return GetHomeDirectory() + string(os.PathSeparator) + "VirtualBox VMs"
+	return filepath.Join(GetHomeDirectory(), "VirtualBox VMs")
 }
 
 // chdir changes current working directory to the given directory
@@ -432,14 +433,13 @@ func GetNewDebugFilename() string {
 
 	logPath := GetVagrantDirectory()
 	if ExistsDir(logPath) {
-		newDebugFilename = logPath + string(os.PathSeparator) + "naksu_lastlog.txt"
+		newDebugFilename = filepath.Join(logPath, "naksu_lastlog.txt")
 	} else {
-		newDebugFilename = os.TempDir() + string(os.PathSeparator) + "naksu_lastlog.txt"
+		newDebugFilename = filepath.Join(os.TempDir(), "naksu_lastlog.txt")
 	}
 
 	return newDebugFilename
 }
-
 
 // IsDebug returns true if we need to log debug information
 func IsDebug() bool {
