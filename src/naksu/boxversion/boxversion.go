@@ -1,38 +1,36 @@
 package boxversion
 
 import (
-  "os"
-  "fmt"
-  "time"
-  "errors"
-  "regexp"
-  "io/ioutil"
-  "path/filepath"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"regexp"
+	"time"
 
-  "naksu/constants"
-  "naksu/mebroutines"
-  "naksu/network"
-  "naksu/xlate"
+	"naksu/constants"
+	"naksu/mebroutines"
+	"naksu/network"
+	"naksu/xlate"
 )
 
 // Cache for GetVagrantBoxAvailVersionDetails
 type lastBoxAvail struct {
-  boxString string
-  boxVersion string
-  boxTimestamp int64
-  updateStarted int64
+	boxString     string
+	boxVersion    string
+	boxTimestamp  int64
+	updateStarted int64
 }
 
 // Global cache for GetVagrantBoxAvailVersionDetails()
 var vagrantBoxAvailVersionDetailsCache lastBoxAvail
-var vagrantBoxAvailVersionDetailsCacheTimeout int64 = 5*60	// in seconds (5 minutes)
-
 
 // GetVagrantFileVersion returns a human-readable localised version string
 // for a given Vagrantfile (with "" defaults to ~/ktp/Vagrantfile)
-func GetVagrantFileVersion (vagrantFilePath string) string {
+func GetVagrantFileVersion(vagrantFilePath string) string {
 	if vagrantFilePath == "" {
-			vagrantFilePath = mebroutines.GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile"
+		vagrantFilePath = mebroutines.GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile"
 	}
 
 	boxString, boxVersion, err := GetVagrantFileVersionDetails(vagrantFilePath)
@@ -43,15 +41,15 @@ func GetVagrantFileVersion (vagrantFilePath string) string {
 
 	boxType := GetVagrantBoxType(boxString)
 
-  versionString := fmt.Sprintf("%s (v%s)", boxType, boxVersion)
-  mebroutines.LogDebug(fmt.Sprintf("GetVagrantFileVersion returns: %s", versionString))
+	versionString := fmt.Sprintf("%s (v%s)", boxType, boxVersion)
+	mebroutines.LogDebug(fmt.Sprintf("GetVagrantFileVersion returns: %s", versionString))
 
 	return versionString
 }
 
 // GetVagrantFileVersionDetails returns version string (e.g. "digabi/ktp-qa") and
 // version number (e.g. "66") from the given vagrantFilePath
-func GetVagrantFileVersionDetails (vagrantFilePath string) (string, string, error) {
+func GetVagrantFileVersionDetails(vagrantFilePath string) (string, string, error) {
 	fileContent, err := ioutil.ReadFile(filepath.Clean(vagrantFilePath))
 	if err != nil {
 		mebroutines.LogDebug(fmt.Sprintf("Could not read from %s", vagrantFilePath))
@@ -65,17 +63,16 @@ func GetVagrantFileVersionDetails (vagrantFilePath string) (string, string, erro
 	versionMatches := versionRegexp.FindStringSubmatch(string(fileContent))
 
 	if len(boxMatches) == 2 && len(versionMatches) == 2 {
-    mebroutines.LogDebug(fmt.Sprintf("GetVagrantFileVersionDetails returns: [%s] [%s]", boxMatches[1], versionMatches[1]))
+		mebroutines.LogDebug(fmt.Sprintf("GetVagrantFileVersionDetails returns: [%s] [%s]", boxMatches[1], versionMatches[1]))
 		return boxMatches[1], versionMatches[1], nil
 	}
 
 	return "", "", errors.New("did not find values from vagrantfile")
 }
 
-
 // GetVagrantBoxAvailVersion returns a human-readable localised version string
 // for a vagrant box available with update
-func GetVagrantBoxAvailVersion () string {
+func GetVagrantBoxAvailVersion() string {
 	boxString, boxVersion, err := GetVagrantBoxAvailVersionDetails()
 	if err != nil {
 		mebroutines.LogDebug("Could not get available version string")
@@ -84,28 +81,29 @@ func GetVagrantBoxAvailVersion () string {
 
 	boxType := GetVagrantBoxType(boxString)
 
-  versionString := fmt.Sprintf("%s (v%s)", boxType, boxVersion)
-  mebroutines.LogDebug(fmt.Sprintf("GetVagrantBoxAvailVersion returns: %s", versionString))
+	versionString := fmt.Sprintf("%s (v%s)", boxType, boxVersion)
+	mebroutines.LogDebug(fmt.Sprintf("GetVagrantBoxAvailVersion returns: %s", versionString))
 
 	return versionString
 }
 
 // GetVagrantBoxAvailVersionDetails gets info about available vagramt box
 // from ReallyGetVagrantBoxAvailVersionDetails() or global vagrantBoxAvailVersionDetailsCache
-func GetVagrantBoxAvailVersionDetails () (string, string, error) {
-  boxString := ""
-  boxVersion := ""
-  var boxError error
+func GetVagrantBoxAvailVersionDetails() (string, string, error) {
+	boxString := ""
+	boxVersion := ""
+	var boxError error
 
-  // There is a avail version fetch going on
-  for vagrantBoxAvailVersionDetailsCache.updateStarted != 0 {
-    time.Sleep(500)
-  }
+	// There is a avail version fetch going on (break free after 240 loops)
+	tryCounter := 0
+	for vagrantBoxAvailVersionDetailsCache.updateStarted != 0 && tryCounter < 240 {
+		time.Sleep(500)
+		tryCounter += 1
+	}
 
-	if vagrantBoxAvailVersionDetailsCache.boxTimestamp < (time.Now().Unix() - vagrantBoxAvailVersionDetailsCacheTimeout) {
+	if vagrantBoxAvailVersionDetailsCache.boxTimestamp < (time.Now().Unix() - constants.VagrantBoxAvailVersionDetailsCacheTimeout) {
 		// We need to update the cache
-
-    vagrantBoxAvailVersionDetailsCache.updateStarted = time.Now().Unix()
+		vagrantBoxAvailVersionDetailsCache.updateStarted = time.Now().Unix()
 
 		boxString, boxVersion, boxError = reallyGetVagrantBoxAvailVersionDetails()
 		if boxError == nil {
@@ -114,21 +112,21 @@ func GetVagrantBoxAvailVersionDetails () (string, string, error) {
 			vagrantBoxAvailVersionDetailsCache.boxTimestamp = time.Now().Unix()
 		}
 
-    vagrantBoxAvailVersionDetailsCache.updateStarted = 0
+		vagrantBoxAvailVersionDetailsCache.updateStarted = 0
 	} else {
 		// Return data from the cache
 
-    boxString = vagrantBoxAvailVersionDetailsCache.boxString
-    boxVersion = vagrantBoxAvailVersionDetailsCache.boxVersion
+		boxString = vagrantBoxAvailVersionDetailsCache.boxString
+		boxVersion = vagrantBoxAvailVersionDetailsCache.boxVersion
 	}
 
-  mebroutines.LogDebug(fmt.Sprintf("GetVagrantBoxAvailVersionDetails returns: [%s] [%s]", boxString, boxVersion))
-  return boxString, boxVersion, boxError
+	mebroutines.LogDebug(fmt.Sprintf("GetVagrantBoxAvailVersionDetails returns: [%s] [%s]", boxString, boxVersion))
+	return boxString, boxVersion, boxError
 }
 
 // reallyGetVagrantBoxAvailVersionDetails returns version string (e.g. "digabi/ktp-qa") and
 // version number (e.g. "69") by getting Vagrantfile -> metadata.json
-func reallyGetVagrantBoxAvailVersionDetails () (string, string, error) {
+func reallyGetVagrantBoxAvailVersionDetails() (string, string, error) {
 	// Phase 1: Get Abitti Vagrantfile
 	strVagrantfile, errVagrantfile := network.DownloadString(constants.AbittiVagrantURL)
 	if errVagrantfile != nil {
@@ -180,11 +178,12 @@ func GetVagrantBoxType(name string) string {
 		return xlate.Get("Abitti server")
 	}
 
-	if GetVagrantBoxTypeIsMatricExam(name) {
+	if GetVagrantBoxTypeIsMatriculationExam(name) {
 		return xlate.Get("Matric Exam server")
 	}
 
-
+	// Unknown box type
+	mebroutines.LogDebug(fmt.Sprintf("Warning: We have a vagrant box type string '%s' which does not resolve to Abitti/Matriculation box type (GetVagrantBoxType)", name))
 	return "-"
 }
 
@@ -194,9 +193,9 @@ func GetVagrantBoxTypeIsAbitti(name string) bool {
 	return (name == "digabi/ktp-qa")
 }
 
-// GetVagrantBoxTypeIsMatricExam returns true if given box name string
+// GetVagrantBoxTypeIsMatriculationExam returns true if given box name string
 // belongs to a Matriculation Examination vagrant box
-func GetVagrantBoxTypeIsMatricExam(name string) bool {
+func GetVagrantBoxTypeIsMatriculationExam(name string) bool {
 	re := regexp.MustCompile(`[ksKS]*\d\d\d\d[ksKS]*-\d+`)
 	return re.MatchString(name)
 }

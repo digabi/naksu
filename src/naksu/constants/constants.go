@@ -13,4 +13,9 @@ const (
 
   // URLTestTimeout is the timeout in seconds for the test above
   URLTestTimeout = 4
+
+	// VagrantBoxAvailVersionDetailsCacheTimeout is a timeout for vagrant box version
+	// cache. See naksu/boxversion GetVagrantBoxAvailVersionDetails() for more
+	// In seconds (5 minutes)
+	VagrantBoxAvailVersionDetailsCacheTimeout int64 = 5*60
 )

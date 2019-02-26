@@ -46,7 +46,7 @@ func TestGetVagrantBoxTypeIsAbitti (t *testing.T) {
   }
 }
 
-func TestGetVagrantBoxTypeIsMatricExam (t *testing.T) {
+func TestGetVagrantBoxTypeIsMatriculationExam (t *testing.T) {
   tables := []struct {
     vagrantVersionString string
     vagrantVersionIsME bool
@@ -58,9 +58,9 @@ func TestGetVagrantBoxTypeIsMatricExam (t *testing.T) {
   }
 
   for _, table := range tables {
-    boxIsME := boxversion.GetVagrantBoxTypeIsMatricExam(table.vagrantVersionString)
+    boxIsME := boxversion.GetVagrantBoxTypeIsMatriculationExam(table.vagrantVersionString)
     if boxIsME != table.vagrantVersionIsME {
-      t.Errorf("GetVagrantBoxTypeIsMatricExam fails with parameter '%s'", table.vagrantVersionString)
+      t.Errorf("GetVagrantBoxTypeIsMatriculationExam fails with parameter '%s'", table.vagrantVersionString)
     }
   }
 }
