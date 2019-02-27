@@ -2,18 +2,17 @@ package main
 
 import (
 	"fmt"
+	"naksu/boxversion"
 	"naksu/config"
 	"naksu/mebroutines"
-	"naksu/boxversion"
 	"naksu/xlate"
 	"os"
 	"strings"
 
-	"github.com/jessevdk/go-flags"
 	"github.com/kardianos/osext"
 )
 
-const version = "1.7.0"
+const version = "1.8.0"
 
 var isDebug bool
 
@@ -52,7 +51,7 @@ func logDirectoryPaths() {
 		} else {
 			mebroutines.LogDebug(fmt.Sprintf("%s: %s [Directory does not exist]", thisDir.dirName, thisDir.dirPath))
 		}
-  }
+	}
 }
 
 func main() {
