@@ -158,7 +158,7 @@ Things to consider later:
 - Show available Abitti update in UI to prevent administrators running outdated server version
 - Notify administrators if they are starting matriculation exam box with live internet connection
 - Added debug logging on startup
-- Bugfix: Linux does not open File Manager if `xdg-open` is not installed
+- Bugfix: Linux did not open File Manager if `xdg-open` is not installed
 - Bugfix: Windows was not able to enumerate connected removable devices
 - Bugfix: Windows was not able to get free disk space
 - Bugfix: Linux miscalculated free disk space
