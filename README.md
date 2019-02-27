@@ -156,7 +156,7 @@ Things to consider later:
 ### 1.8.0 (27-FEB-2019)
 
 - Show available Abitti update in UI to prevent administrators to run outdated server version
-- Notify adminisrators if they are staring matriculation exam box with live internet connection
+- Notify administrators if they are staring matriculation exam box with live internet connection
 - Added debug logging on startup
 - Bugfix: Linux does not open File Manager if `xdg-open` is not installed
 - Bugfix: Windows was not able to enumerate connected removable devices
