@@ -2,6 +2,7 @@ package mebroutines
 
 import (
 	"os"
+	"path/filepath"
 )
 
 func getVBoxManagePath() string {
@@ -11,7 +12,7 @@ func getVBoxManagePath() string {
 	} else {
 		var pathVirtualbox = os.Getenv("VBOX_MSI_INSTALL_PATH")
 		if pathVirtualbox != "" {
-			path = pathVirtualbox + string(os.PathSeparator) + path
+			path = filepath.Join(pathVirtualbox, path)
 		}
 	}
 

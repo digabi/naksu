@@ -6,15 +6,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"naksu/xlate"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
-	"path/filepath"
 
 	"github.com/andlabs/ui"
 )
@@ -48,13 +47,17 @@ func Run(commandArgs []string) error {
 }
 
 // RunAndGetOutput runs command with arguments and returns output as a string
-func RunAndGetOutput(commandArgs []string) (string, error) {
+func RunAndGetOutput(commandArgs []string, showWarningOnError bool) (string, error) {
 	LogDebug(fmt.Sprintf("RunAndGetOutput: %s", strings.Join(commandArgs, " ")))
 	/* #nosec */
 	out, err := exec.Command(commandArgs[0], commandArgs[1:]...).CombinedOutput()
 	if err != nil {
 		// Executing failed, return error condition
-		ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
+		if showWarningOnError {
+			ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
+		} else {
+			LogDebug(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
+		}
 		return string(out), err
 	}
 
@@ -128,7 +131,7 @@ func RunVagrant(args []string) {
 func RunVBoxManage(args []string) string {
 	vboxmanagepathArr := []string{getVBoxManagePath()}
 	runArgs := append(vboxmanagepathArr, args...)
-	vBoxManageOutput, err := RunAndGetOutput(runArgs)
+	vBoxManageOutput, err := RunAndGetOutput(runArgs, false)
 	if err != nil {
 		LogDebug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(runArgs, " ")))
 		LogDebug(vBoxManageOutput)
@@ -144,7 +147,7 @@ func IfFoundVagrant() bool {
 
 	runParams := []string{vagrantpath, "--version"}
 
-	vagrantVersion, err := RunAndGetOutput(runParams)
+	vagrantVersion, err := RunAndGetOutput(runParams, false)
 	if err != nil {
 		// No vagrant was found
 		return false
@@ -166,7 +169,7 @@ func IfFoundVBoxManage() bool {
 
 	runParams := []string{vboxmanagepath, "--version"}
 
-	vBoxManageVersion, err := RunAndGetOutput(runParams)
+	vBoxManageVersion, err := RunAndGetOutput(runParams, false)
 	if err != nil {
 		// No VBoxManage was found
 		return false
@@ -175,44 +178,6 @@ func IfFoundVBoxManage() bool {
 	LogDebug(fmt.Sprintf("VBoxManage says: %s", vBoxManageVersion))
 
 	return true
-}
-
-// GetVagrantFileVersion returns version string for a given Vagrantfile (with "" defaults to ~/ktp/Vagrantfile)
-func GetVagrantFileVersion (vagrantFilePath string) string {
-	if vagrantFilePath == "" {
-			vagrantFilePath = GetVagrantDirectory() + string(os.PathSeparator) + "Vagrantfile"
-	}
-
-	fileContent, err := ioutil.ReadFile(filepath.Clean(vagrantFilePath))
-	if err != nil {
-		LogDebug(fmt.Sprintf("Could not read from %s", vagrantFilePath))
-		return ""
-	}
-
-	boxRegexp := regexp.MustCompile(`config.vm.box = "(.+)"`)
-	versionRegexp := regexp.MustCompile(`vb.name = ".+v(\d+)"`)
-
-	boxMatches := boxRegexp.FindStringSubmatch(string(fileContent))
-	versionMatches := versionRegexp.FindStringSubmatch(string(fileContent))
-
-	if len(boxMatches) == 2 && len(versionMatches) == 2 {
-		return fmt.Sprintf("%s (%s %s)", GetVagrantBoxType(boxMatches[1]), boxMatches[1], versionMatches[1])
-	}
-
-	return ""
-}
-
-// GetVagrantBoxType returns the type string (Abitti server or Matric Exam server) for vagrant box name
-func GetVagrantBoxType(name string) string {
-	if name == "" {
-		return "-"
-	}
-
-	if name == "digabi/ktp-qa" {
-		return xlate.Get("Abitti server")
-	}
-
-	return xlate.Get("Matric Exam server")
 }
 
 func getFileMode(path string) (os.FileMode, error) {
@@ -273,7 +238,7 @@ func CopyFile(src, dst string) (err error) {
 
 	if !ExistsFile(src) {
 		LogDebug("Copying failed, could not find source file")
-		return errors.New("Could not find source file")
+		return errors.New("could not find source file")
 	}
 
 	/* #nosec */
@@ -329,27 +294,27 @@ func GetHomeDirectory() string {
 
 // GetVagrantDirectory returns ktp-directory path from under home directory
 func GetVagrantDirectory() string {
-	return GetHomeDirectory() + string(os.PathSeparator) + "ktp"
+	return filepath.Join(GetHomeDirectory(), "ktp")
 }
 
 // GetVagrantdDirectory returns .vagrantd-directory path from under home directory
 func GetVagrantdDirectory() string {
-	return GetHomeDirectory() + string(os.PathSeparator) + ".vagrant.d"
+	return filepath.Join(GetHomeDirectory(), ".vagrant.d")
 }
 
 // GetMebshareDirectory returns ktp-jako path from under home directory
 func GetMebshareDirectory() string {
-	return GetHomeDirectory() + string(os.PathSeparator) + "ktp-jako"
+	return filepath.Join(GetHomeDirectory(), "ktp-jako")
 }
 
 // GetVirtualBoxHiddenDirectory returns ".VirtualBox" path from under home directory
 func GetVirtualBoxHiddenDirectory() string {
-	return GetHomeDirectory() + string(os.PathSeparator) + ".VirtualBox"
+	return filepath.Join(GetHomeDirectory(), ".VirtualBox")
 }
 
 // GetVirtualBoxVMsDirectory returns "VirtualBox VMs" path from under home directory
 func GetVirtualBoxVMsDirectory() string {
-	return GetHomeDirectory() + string(os.PathSeparator) + "VirtualBox VMs"
+	return filepath.Join(GetHomeDirectory(), "VirtualBox VMs")
 }
 
 // chdir changes current working directory to the given directory
@@ -468,14 +433,13 @@ func GetNewDebugFilename() string {
 
 	logPath := GetVagrantDirectory()
 	if ExistsDir(logPath) {
-		newDebugFilename = logPath + string(os.PathSeparator) + "naksu_lastlog.txt"
+		newDebugFilename = filepath.Join(logPath, "naksu_lastlog.txt")
 	} else {
-		newDebugFilename = os.TempDir() + string(os.PathSeparator) + "naksu_lastlog.txt"
+		newDebugFilename = filepath.Join(os.TempDir(), "naksu_lastlog.txt")
 	}
 
 	return newDebugFilename
 }
-
 
 // IsDebug returns true if we need to log debug information
 func IsDebug() bool {

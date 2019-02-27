@@ -2,18 +2,17 @@ package main
 
 import (
 	"fmt"
+	"naksu/boxversion"
 	"naksu/config"
 	"naksu/mebroutines"
 	"naksu/xlate"
 	"os"
 	"strings"
 
-	"github.com/jessevdk/go-flags"
 	"github.com/kardianos/osext"
 )
 
-const version = "1.7.0"
-const lowDiskLimit = 50 * 1024 * 1024 // 50 Gb
+const version = "1.8.0"
 
 var isDebug bool
 
@@ -30,6 +29,28 @@ func handleOptionalArgument(longName string, parser *flags.Parser, function func
 	opt := parser.FindOptionByLongName(longName)
 	if opt != nil && opt.IsSet() {
 		function(opt)
+	}
+}
+
+func logDirectoryPaths() {
+	listDirs := []struct {
+		dirName string
+		dirPath string
+	}{
+		{"Home directory (~)", mebroutines.GetHomeDirectory()},
+		{"Vagrant directory (~/ktp)", mebroutines.GetVagrantDirectory()},
+		{"MEB share directory (~/ktp-jako)", mebroutines.GetMebshareDirectory()},
+		{"Vagrant internal settings directory (~/vagrant.d)", mebroutines.GetVagrantdDirectory()},
+		{"VirtualBox hidden directory (~/.VirtualBox)", mebroutines.GetVirtualBoxHiddenDirectory()},
+		{"VirtualBox VMs directory (~/VirtualBox VMs)", mebroutines.GetVirtualBoxVMsDirectory()},
+	}
+
+	for _, thisDir := range listDirs {
+		if mebroutines.ExistsDir(thisDir.dirPath) {
+			mebroutines.LogDebug(fmt.Sprintf("%s: %s [Directory exists]", thisDir.dirName, thisDir.dirPath))
+		} else {
+			mebroutines.LogDebug(fmt.Sprintf("%s: %s [Directory does not exist]", thisDir.dirName, thisDir.dirPath))
+		}
 	}
 }
 
@@ -76,6 +97,10 @@ func main() {
 
 	mebroutines.LogDebug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
 
+	logDirectoryPaths()
+
+	mebroutines.LogDebug(fmt.Sprintf("Currently installed box: %s", boxversion.GetVagrantFileVersion("")))
+
 	// Check whether we have a terminal (restart with x-terminal-emulator, if missing)
 	if !mebroutines.ExistsStdin() {
 		pathToMe, err := osext.Executable()
@@ -85,7 +110,7 @@ func main() {
 		commandArgs := []string{"x-terminal-emulator", "-e", pathToMe}
 
 		mebroutines.LogDebug(fmt.Sprintf("No stdin, restarting with terminal: %s", strings.Join(commandArgs, " ")))
-		_, err = mebroutines.RunAndGetOutput(commandArgs)
+		_, err = mebroutines.RunAndGetOutput(commandArgs, true)
 		if err != nil {
 			mebroutines.LogDebug(fmt.Sprintf("Failed to restart with terminal: %d", err))
 		}

@@ -16,7 +16,7 @@ func Server() error {
   progress.TranslateAndSetMessage("Chmod ~")
   success := mebroutines.ChdirHomeDirectory()
   if ! success {
-    return errors.New("Could not chmod to home directory")
+    return errors.New("could not chmod to home directory")
   }
 
   progress.TranslateAndSetMessage("Deleting ~/.vagrant.d")

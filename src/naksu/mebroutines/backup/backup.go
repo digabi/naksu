@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 	"naksu/mebroutines"
 	"naksu/progress"
 	"naksu/xlate"
@@ -60,7 +61,7 @@ func MakeBackup(backupPath string) {
 func getVagrantBoxID() string {
 	vagrantPath := mebroutines.GetVagrantDirectory()
 
-	pathID := vagrantPath + string(os.PathSeparator) + ".vagrant" + string(os.PathSeparator) + "machines" + string(os.PathSeparator) + "default" + string(os.PathSeparator) + "virtualbox" + string(os.PathSeparator) + "id"
+	pathID := filepath.Join(vagrantPath, ".vagrant", "machines", "default", "virtualbox", "id")
 
 	/* #nosec */
 	fileContent, err := ioutil.ReadFile(pathID)
@@ -97,7 +98,7 @@ func makeClone(diskUUID string, backupPath string) error {
 	if errRe != nil || !matched {
 		// Failure
 		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not back up disk %s to %s"), diskUUID, backupPath))
-		return errors.New("Backup failed")
+		return errors.New("backup failed")
 	}
 
 	return nil

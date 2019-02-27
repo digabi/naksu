@@ -12,6 +12,7 @@ func SetLanguage(newLanguage string) {
 			// Main window, buttons
 			"Start Exam Server":                                     "Käynnistä koetilan palvelin",
 			"Abitti Exam":                                           "Abitti-koe",
+			"Abitti Exam (v%s > v%s)":                               "Abitti-koe (v%s > v%s)",
 			"Matriculation Exam":                                    "Yo-koe",
 			"Remove Exams":                                          "Poista kokeet",
 			"Remove Server":                                         "Poista palvelin",
@@ -23,6 +24,7 @@ func SetLanguage(newLanguage string) {
 
 			// Main window, other
 			"Current version: %s": "Asennettu versio: %s",
+			"Update available: %s": "Päivitys saatavilla: %s",
 			"Install/update server for:": "Asenna tai päivitä palvelin:",
 			"DANGER! Annihilate your server:": "VAARA! Palvelimen tuhoaminen:",
 			"Naksu could not check for updates as there is no network connection.":                       "Naksu ei voinut etsiä uusia versioita, koska verkkoyhteys puuttuu.",
@@ -34,6 +36,7 @@ func SetLanguage(newLanguage string) {
 			"Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)": "Sijoita yo-kokeen Vagrantfile johonkin toiseen paikkaan (esim. työpöydälle tai kotihakemistoon)",
 			"Your free disk size is getting low (%s).":                                                   "Levytilasi on loppumassa (jäljellä %s).",
 			"Start by installing a server: Show management features":                                     "Aloita asentamalla palvelin: Näytä hallintaominaisuudet",
+			"You are starting Matriculation Examination server with an Internet connection.":             "Olet käynnistämässä yo-palvelinta, vaikka palvelimella on internet-yhteys.",
 
 			// Backup dialog
 			"naksu: SaveTo":             "naksu: Tallennuspaikka",
@@ -107,6 +110,7 @@ func SetLanguage(newLanguage string) {
 			// Main window, buttons
 			"Start Exam Server":                                     "Starta provlokalsserver",
 			"Abitti Exam":                                           "Abitti-prov",
+			"Abitti Exam (v%s > v%s)":                               "Abitti-prov (v%s > v%s)",
 			"Matriculation Exam":                                    "Studentprovet",
 			"Remove Exams":                                          "Avlägsna proven",
 			"Remove Server":                                         "Avlägsna servern",
@@ -118,6 +122,7 @@ func SetLanguage(newLanguage string) {
 
 			// Main window, other
 			"Current version: %s": "Installerad version: %s",
+			"Update available: %s": "Uppdatering tillgänglig: %s",
 			"Install/update server for:": "Installera eller uppdatera server för:",
 			"DANGER! Annihilate your server:": "FARA! Förstörning av servern:",
 			"Naksu could not check for updates as there is no network connection.":                       "Naksu kunde inte söka nya uppdateringar för att nätförbindelse saknades.",
@@ -129,6 +134,7 @@ func SetLanguage(newLanguage string) {
 			"Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)": "Placera Vagrantfile-filen för studentexamen på ett annat ställe (t.ex. på skrivbordet eller i hemkatalogen).",
 			"Your free disk size is getting low (%s).":                                                   "Ditt diskutrymme börjar ta slut (kvar %s).",
 			"Start by installing a server: Show management features":                                     "Börja med att installera servern: Visa hanteringsegenskaper",
+			"You are starting Matriculation Examination server with an Internet connection.":             "Då håller på att starta provlokalsservern för studentexamen, fast servern har internetförbindelse.",
 
 			// Backup dialog
 			"naksu: SaveTo":             "naksu: Spara till ",

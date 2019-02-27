@@ -10,7 +10,7 @@ import (
 func GetDiskFree(path string) (int, error) {
 	runParams := []string{"df", "--output=avail", path}
 
-	output, err := RunAndGetOutput(runParams)
+	output, err := RunAndGetOutput(runParams, true)
 
 	if err != nil {
 		return -1, err
@@ -25,8 +25,10 @@ func GetDiskFree(path string) (int, error) {
 		if err != nil {
 			LogDebug(fmt.Sprintf("result parsing failed for string %s", result[1]))
 		}
-		LogDebug(fmt.Sprintf("Disk free for path %s: %d", path, int(resultFloat)))
-		return int(resultFloat), nil
+		// df gives available disk space in 1K blocks
+		resultInt := int(resultFloat)*1024
+		LogDebug(fmt.Sprintf("Disk free for path %s: %d", path, resultInt))
+		return resultInt, nil
 	}
 
 	return -1, nil

@@ -15,14 +15,21 @@ func OpenMebShare() {
 		return
 	}
 
-	runParams := []string{"xdg-open", mebSharePath}
+	// Try to open MEB share folder with any of these utils
+	// Hopefully we have at least one of them installed!
+	openers := [3]string {"xdg-open", "gnome-open", "nautilus"}
 
-	output, err := RunAndGetOutput(runParams)
+	for _, thisOpener := range openers {
+		runParams := []string{thisOpener, mebSharePath}
+		output, err := RunAndGetOutput(runParams, false)
 
-	if err != nil {
-		ShowWarningMessage("Could not open MEB share directory")
+		if err == nil {
+			LogDebug("MEB share directory open output:")
+			LogDebug(output)
+
+			return
+		}
 	}
 
-	LogDebug("MEB share directory open output:")
-	LogDebug(output)
+	ShowWarningMessage("Could not open MEB share directory")
 }

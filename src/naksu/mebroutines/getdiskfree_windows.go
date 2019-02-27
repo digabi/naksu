@@ -13,7 +13,9 @@ func GetDiskFree(path string) (int, error) {
 	patternDisk := regexp.MustCompile(`^(\w\:)`)
 	patternResult := patternDisk.FindStringSubmatch(path)
 
-	type Win32LogicalDisk struct {
+	// This struct must be named with an underscore, otherwise it is not recognised
+	// and results "Invalid class" exception.
+	type Win32_LogicalDisk struct {
 		Size      int
 		FreeSpace int
 		DeviceID  string
@@ -22,18 +24,21 @@ func GetDiskFree(path string) (int, error) {
 	if len(patternResult) < 2 {
 		LogDebug(fmt.Sprintf("Could not detect drive letter from path: %s", path))
 
-		return -1, errors.New("Could not detect drive letter")
+		return -1, errors.New("could not detect drive letter")
 	}
 
 	diskletter := patternResult[1]
-
-	var dst []Win32LogicalDisk
+	// gosec complains here "SQL string formatting" but this can be safely turned off
 	/* #nosec */
-	query := wmi.CreateQuery(&dst, fmt.Sprintf("WHERE DeviceID=\"%s\"", diskletter))
+	wmiQuery := fmt.Sprintf(`WHERE DeviceID="%s"`, diskletter)
+
+	var dst []Win32_LogicalDisk
+	/* #nosec */
+	query := wmi.CreateQuery(&dst, wmiQuery)
 	err := wmi.Query(query, &dst)
 	if err != nil {
-		LogDebug(fmt.Sprintf("Get_disk_free() could not make WMI query: %s", fmt.Sprint(err)))
-		return -1, errors.New("Get_disk_free() could not detect free disk size as it could not query WMI")
+		LogDebug(fmt.Sprintf("GetDiskFree() could not make WMI query (%s): %s", wmiQuery, fmt.Sprint(err)))
+		return -1, errors.New("could not detect free disk size as it could not query wmi")
 	}
 
 	if len(dst) > 0 {
@@ -42,5 +47,5 @@ func GetDiskFree(path string) (int, error) {
 		return freeSpace, nil
 	}
 
-	return -1, errors.New("Get_disk_free() could not detect free disk size")
+	return -1, errors.New("could not detect free disk size")
 }
