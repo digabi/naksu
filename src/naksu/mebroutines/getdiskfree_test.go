@@ -67,9 +67,9 @@ func TestExtractDiskFreeWindows (t *testing.T) {
     freeSize uint64
     isError bool
   }{
-    { mebroutines.Win32_LogicalDisk{1234, 1024, "C:"}, 1024, false},
+    { mebroutines.Win32_LogicalDisk{Size:1234, FreeSpace:1024, DeviceID:"C:"}, 1024, false},
     // 1024 Gb drive with 763something Gb free
-    { mebroutines.Win32_LogicalDisk{1024000000000, 763123736200, "D:"}, 763123736200, false },
+    { mebroutines.Win32_LogicalDisk{Size:1024000000000, FreeSpace:763123736200, DeviceID:"D:"}, 763123736200, false },
   }
 
   for _, table := range tables {

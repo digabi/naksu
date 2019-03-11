@@ -59,10 +59,13 @@ func ExtractDiskFreeDarwin(dfOutput string) (uint64, error) {
 	result := pattern.FindStringSubmatch(dfOutput)
 
 	if len(result) > 1 {
-		floatResult, _ := strconv.ParseFloat(result[1], 64)
-    intResult := uint64(floatResult)*512
-		LogDebug(fmt.Sprintf("ExtractDiskFreeDarwin: %d", intResult))
-		return intResult, nil
+		floatResult, err := strconv.ParseFloat(result[1], 64)
+    if err == nil {
+      // df gives available disk space in 1K blocks
+      intResult := uint64(floatResult)*512
+  		LogDebug(fmt.Sprintf("ExtractDiskFreeDarwin: %d", intResult))
+  		return intResult, nil
+		}
 	}
 
   LogDebug("ExtractDiskFreeDarwin failed to parse df output")
@@ -83,6 +86,7 @@ func getDiskFreeLinux(path string) (uint64, error) {
   return ExtractDiskFreeLinux(output)
 }
 
+// ExtractDiskFreeLinux extracts free disk space from a given df output
 func ExtractDiskFreeLinux(dfOutput string) (uint64, error) {
   // Extract server disk image path
 	pattern := regexp.MustCompile(`(\d+)`)
@@ -104,6 +108,7 @@ func ExtractDiskFreeLinux(dfOutput string) (uint64, error) {
 	return 0, errors.New("could not extract free disk size from linux df output")
 }
 
+// ExtractDiskFreeWindows extracts free disk space from a given WMI query result slice
 func ExtractDiskFreeWindows (wmiData []Win32_LogicalDisk) (uint64, error) {
   if len(wmiData) > 0 {
 		freeSpace := wmiData[0].FreeSpace
