@@ -11,6 +11,8 @@ import (
 	"os"
 	"regexp"
 	"time"
+
+	"github.com/dustin/go-humanize"
 )
 
 // MakeBackup creates virtual maching backup to path
@@ -56,6 +58,27 @@ func MakeBackup(backupPath string) {
 
 	progress.SetMessage(fmt.Sprintf(xlate.Get("Backup can be found at %s"), backupPath))
 	mebroutines.ShowInfoMessage(fmt.Sprintf(xlate.Get("Backup has been made to %s"), backupPath))
+}
+
+
+// GetBackupMediaAndFreeDisk returns map of nackup medias and free disk
+// size for each backup path
+func GetBackupMediaAndFreeDisk() map[string]string {
+	backupMedia := GetBackupMedia()
+	newBackupMedia := make(map[string]string)
+
+	for thisPath := range backupMedia {
+		mediaLabel := backupMedia[thisPath]
+		freeDisk, freeErr := mebroutines.GetDiskFree(thisPath)
+
+		if freeErr == nil {
+			mediaLabel = fmt.Sprintf("%s (%s)", mediaLabel, humanize.Bytes(freeDisk))
+		}
+
+		newBackupMedia[thisPath] = mediaLabel
+	}
+
+	return newBackupMedia
 }
 
 func getVagrantBoxID() string {

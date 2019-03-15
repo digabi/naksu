@@ -236,7 +236,7 @@ func populateBackupCombobox(backupMedia map[string]string, combobox *ui.Combobox
 	mediaPathN := 0
 
 	for thisPath := range backupMedia {
-		combobox.Append(fmt.Sprintf("%s [%s]", backupMedia[thisPath], thisPath))
+		combobox.Append(fmt.Sprintf("%s %s", backupMedia[thisPath], thisPath))
 
 		mediaPath[mediaPathN] = thisPath
 		mediaPathN++
@@ -763,7 +763,7 @@ func RunUI() error {
 
 	// Get list of backup locations (as there is not SaveAs/directory dialog in libui)
 	// We do this before starting GUI to avoid "cannot change thread mode" in Windows WMI call
-	backupMedia := backup.GetBackupMedia()
+	backupMedia := backup.GetBackupMediaAndFreeDisk()
 
 	// UI (main menu)
 	return ui.Main(func() {
