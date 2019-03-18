@@ -1,8 +1,8 @@
 package constants
 
 const (
-  // LowDiskLimit sets the warning level of low disk
-	LowDiskLimit = 50 * 1024 * 1024 // 50 Gb
+  // LowDiskLimit sets the warning level of low disk (in bytes)
+	LowDiskLimit uint64 = 50 * 1024 * 1024 * 1024 // 50 Gb
 
   // AbittiVagrantURL is the URL for the Abittti Vagrantfile
   AbittiVagrantURL = "http://static.abitti.fi/usbimg/qa/vagrant/Vagrantfile"
