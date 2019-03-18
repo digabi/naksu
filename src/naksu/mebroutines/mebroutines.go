@@ -91,7 +91,8 @@ func RunAndGetError(commandArgs []string) (string, error) {
 	return stderr.String(), err
 }
 
-func getVagrantPath() string {
+// GetVagrantPath returns path for Vagrant binary
+func GetVagrantPath() string {
 	var path = "vagrant"
 	if os.Getenv("VAGRANTPATH") != "" {
 		path = os.Getenv("VAGRANTPATH")
@@ -102,7 +103,7 @@ func getVagrantPath() string {
 
 // RunVagrant executes Vagrant with given arguments
 func RunVagrant(args []string) {
-	runVagrant := []string{getVagrantPath()}
+	runVagrant := []string{GetVagrantPath()}
 	runArgs := append(runVagrant, args...)
 	vagrantOutput, err := RunAndGetError(runArgs)
 	if err != nil {
@@ -143,7 +144,7 @@ func RunVBoxManage(args []string) string {
 
 // IfFoundVagrant returns true if Vagrant can be found in path
 func IfFoundVagrant() bool {
-	var vagrantpath = getVagrantPath()
+	var vagrantpath = GetVagrantPath()
 
 	runParams := []string{vagrantpath, "--version"}
 

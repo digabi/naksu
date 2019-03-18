@@ -696,7 +696,7 @@ func bindOnDestroy(mainUIStatus chan string) {
 
 			destroyWindow.Hide()
 			destroy.Server()
-			progress.SetMessage("")
+			// destroy.Server() updates result message with progress.SetText()
 
 			// Update installed version label
 			translateUILabels()
