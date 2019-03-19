@@ -158,6 +158,7 @@ Things to consider later:
 - Available disk space is shown in backup media selection list
 - Added user feedback to server destroy operation
 - Bugfix: Calculate available disk space correctly
+- Bugfix: Correctly handle nil WMI return value if external backup media does not have a volume name
 
 ### 1.8.0 (27-FEB-2019)
 
