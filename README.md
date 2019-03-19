@@ -153,6 +153,12 @@ Things to consider later:
 
 ## Changelog
 
+### 1.8.1 (19-MAR-2019)
+
+- Available disk space is shown in backup media selection list
+- Added user feedback to server destroy operation
+- Bugfix: Calculate available disk space correctly
+
 ### 1.8.0 (27-FEB-2019)
 
 - Show available Abitti update in UI to prevent administrators running outdated server version
