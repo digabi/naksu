@@ -53,10 +53,8 @@ func getBackupMediaWindows() map[string]string {
 	for thisDrive := range dst {
 		// We have either hard or removable drive
 		thisPath := fmt.Sprintf("%s%s", dst[thisDrive].DeviceID, string(os.PathSeparator))
-		volumeName := ""
-		if dst[thisDrive].VolumeName == nil {
-			volumeName = "<no name>"
-		} else {
+		volumeName := "<no name>"
+		if dst[thisDrive].VolumeName != nil {
 			volumeName = *dst[thisDrive].VolumeName
 		}
 		media[thisPath] = fmt.Sprintf("%s, %s", volumeName, dst[thisDrive].Description)
