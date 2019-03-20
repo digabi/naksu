@@ -11,7 +11,7 @@ import (
 )
 
 func getDiskFreeWindows(path string) (uint64, error) {
-  patternDisk := regexp.MustCompile(`^(\w\:)`)
+	patternDisk := regexp.MustCompile(`^(\w\:)`)
 	patternResult := patternDisk.FindStringSubmatch(path)
 
 	if len(patternResult) < 2 {
@@ -34,5 +34,5 @@ func getDiskFreeWindows(path string) (uint64, error) {
 		return 0, errors.New("could not detect free disk size as it could not query wmi")
 	}
 
-  return ExtractDiskFreeWindows(dst)
+	return ExtractDiskFreeWindows(dst)
 }

@@ -2,10 +2,11 @@ package backup
 
 import (
 	"fmt"
-	"path/filepath"
 	"naksu/mebroutines"
 	"naksu/xlate"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/StackExchange/wmi"
 )
@@ -36,7 +37,7 @@ func getBackupMediaWindows() map[string]string {
 		DeviceID    string
 		DriveType   int
 		Description string
-		VolumeName  string
+		VolumeName  *string
 	}
 
 	var media = map[string]string{}
@@ -53,7 +54,11 @@ func getBackupMediaWindows() map[string]string {
 	for thisDrive := range dst {
 		// We have either hard or removable drive
 		thisPath := fmt.Sprintf("%s%s", dst[thisDrive].DeviceID, string(os.PathSeparator))
-		media[thisPath] = fmt.Sprintf("%s, %s", dst[thisDrive].VolumeName, dst[thisDrive].Description)
+		volumeName := "<no name>"
+		if dst[thisDrive].VolumeName != nil && strings.TrimSpace(*dst[thisDrive].VolumeName) != "" {
+			volumeName = *dst[thisDrive].VolumeName
+		}
+		media[thisPath] = fmt.Sprintf("%s, %s", volumeName, dst[thisDrive].Description)
 	}
 
 	return media

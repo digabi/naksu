@@ -1,18 +1,20 @@
 package destroy
 
 import (
+	"errors"
 	"regexp"
+	"fmt"
 
 	"naksu/mebroutines"
 	"naksu/progress"
-	"naksu/xlate"
 )
 
 // Server destroys existing exam server
-func Server() {
+func Server() error {
 	// chdir ~/ktp
 	if !mebroutines.ChdirVagrantDirectory() {
-		mebroutines.ShowErrorMessage("Could not change to vagrant directory ~/ktp")
+		mebroutines.LogDebug("Could not change to vagrant directory ~/ktp")
+		return errors.New("could not chmod ~/ktp")
 	}
 
 	// Start VM
@@ -26,17 +28,16 @@ func Server() {
 
 		if errBoxExists == nil && reBoxExists {
 			mebroutines.LogDebug("Destroy complete. There was an existing box which has been destroyed.")
-			progress.TranslateAndSetMessage("Exams were removed successfully.")
-			return
+			return nil
 		}
 
 		if errBoxNotCreated == nil && reBoxNotCreated {
 			mebroutines.LogDebug("Destroy completed. There was no existing box but the destroy process finished without errors.")
-			progress.TranslateAndSetMessage("Exams were removed successfully.")
-			return
+			return nil
 		}
 	}
 
-	mebroutines.ShowWarningMessage(xlate.Get("Failed to remove exams."))
-	progress.TranslateAndSetMessage("Failed to remove exams.")
+	mebroutines.LogDebug(fmt.Sprintf("Could not remove exams. vagrant destroy says:\n%s", destroyOutput))
+
+	return errors.New("failed to remove exams")
 }
