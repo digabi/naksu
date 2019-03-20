@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"path/filepath"
-	"naksu/constants"
+	"naksu/boxversion"
 	"naksu/config"
+	"naksu/constants"
 	"naksu/mebroutines"
 	"naksu/mebroutines/backup"
 	"naksu/mebroutines/destroy"
@@ -12,9 +12,9 @@ import (
 	"naksu/mebroutines/remove"
 	"naksu/mebroutines/start"
 	"naksu/network"
-	"naksu/boxversion"
 	"naksu/progress"
 	"naksu/xlate"
+	"path/filepath"
 	"time"
 
 	"github.com/andlabs/ui"
@@ -236,7 +236,7 @@ func populateBackupCombobox(backupMedia map[string]string, combobox *ui.Combobox
 	mediaPathN := 0
 
 	for thisPath := range backupMedia {
-		combobox.Append(fmt.Sprintf("%s %s", backupMedia[thisPath], thisPath))
+		combobox.Append(fmt.Sprintf("%s [%s]", backupMedia[thisPath], thisPath))
 
 		mediaPath[mediaPathN] = thisPath
 		mediaPathN++
@@ -329,10 +329,10 @@ func checkAbittiUpdate() (bool, string, string) {
 	availAbittiVersion := ""
 
 	currentBoxType, currentBoxVersion, errCurrent := boxversion.GetVagrantFileVersionDetails(filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile"))
-	if (errCurrent == nil && boxversion.GetVagrantBoxTypeIsAbitti(currentBoxType)) {
+	if errCurrent == nil && boxversion.GetVagrantBoxTypeIsAbitti(currentBoxType) {
 		currentAbittiVersion = currentBoxVersion
 		_, availBoxVersion, errAvail := boxversion.GetVagrantBoxAvailVersionDetails()
-		if (errAvail == nil && currentBoxVersion != availBoxVersion) {
+		if errAvail == nil && currentBoxVersion != availBoxVersion {
 			abittiUpdate = true
 			availAbittiVersion = availBoxVersion
 		}
@@ -343,19 +343,19 @@ func checkAbittiUpdate() (bool, string, string) {
 
 // updateVagrantBoxAvailLabel updates UI "update available" label if the currently
 // installed box is Abitti and there is new version available
-func updateVagrantBoxAvailLabel () {
+func updateVagrantBoxAvailLabel() {
 	go func() {
 		abittiUpdate, _, _ := checkAbittiUpdate()
 		if abittiUpdate {
 			vagrantBoxAvailVersion := boxversion.GetVagrantBoxAvailVersion()
-			ui.QueueMain(func () {
+			ui.QueueMain(func() {
 				labelBoxAvailable.SetText(fmt.Sprintf(xlate.Get("Update available: %s"), vagrantBoxAvailVersion))
 				// Select "advanced features" checkbox
 				checkboxAdvanced.SetChecked(true)
 				boxAdvanced.Show()
 			})
 		} else {
-			ui.QueueMain(func () {
+			ui.QueueMain(func() {
 				labelBoxAvailable.SetText("")
 			})
 		}
@@ -374,11 +374,11 @@ func updateGetServerButtonLabel() {
 	go func() {
 		abittiUpdate, currentAbittiVersion, availAbittiVersion := checkAbittiUpdate()
 		if abittiUpdate {
-			ui.QueueMain(func () {
+			ui.QueueMain(func() {
 				buttonGetServer.SetText(fmt.Sprintf(xlate.Get("Abitti Exam (v%s > v%s)"), currentAbittiVersion, availAbittiVersion))
 			})
 		} else {
-			ui.QueueMain(func () {
+			ui.QueueMain(func() {
 				buttonGetServer.SetText(xlate.Get("Abitti Exam"))
 			})
 		}
@@ -484,7 +484,7 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 		go func() {
 			// Get defails of the current installed box and warn if we're having Matric Exam box & internet connection
 			boxVersionString, _, boxErr := boxversion.GetVagrantFileVersionDetails(filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile"))
-			if (boxErr == nil && boxversion.GetVagrantBoxTypeIsMatriculationExam(boxVersionString)) {
+			if boxErr == nil && boxversion.GetVagrantBoxTypeIsMatriculationExam(boxVersionString) {
 				if network.CheckIfNetworkAvailable() {
 					mebroutines.ShowWarningMessage(xlate.Get("You are starting Matriculation Examination server with an Internet connection."))
 				} else {
@@ -501,11 +501,11 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 
 }
 
-func checkFreeDisk(chFreeDisk chan uint64) {
+func checkFreeDisk(chFreeDisk chan int) {
 	// Check free disk
 	// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
 	go func() {
-		var freeDisk uint64
+		freeDisk := 0
 		var err error
 		if mebroutines.ExistsDir(mebroutines.GetVagrantDirectory()) {
 			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetVagrantDirectory())
@@ -526,15 +526,15 @@ func bindOnGetServer(mainUIStatus chan string) {
 	buttonGetServer.OnClicked(func(*ui.Button) {
 		mebroutines.LogDebug("Starting Abitti box update")
 
-		chFreeDisk := make(chan uint64)
+		chFreeDisk := make(chan int)
 		chDiskLowPopup := make(chan bool)
 
 		checkFreeDisk(chFreeDisk)
 
 		go func() {
 			freeDisk := <-chFreeDisk
-			if freeDisk < constants.LowDiskLimit {
-				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(freeDisk)))
+			if freeDisk != -1 && freeDisk < constants.LowDiskLimit {
+				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(uint64(freeDisk))))
 			}
 
 			chDiskLowPopup <- true
@@ -561,7 +561,7 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 	buttonSwitchServer.OnClicked(func(*ui.Button) {
 		mebroutines.LogDebug("Starting Matriculation Examination box update")
 
-		chFreeDisk := make(chan uint64)
+		chFreeDisk := make(chan int)
 		chDiskLowPopup := make(chan bool)
 		chPathNewVagrantfile := make(chan string)
 
@@ -569,8 +569,8 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 
 		go func() {
 			freeDisk := <-chFreeDisk
-			if freeDisk < constants.LowDiskLimit {
-				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(freeDisk)))
+			if freeDisk != -1 && freeDisk < constants.LowDiskLimit {
+				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(uint64(freeDisk))))
 			}
 
 			chDiskLowPopup <- true
@@ -649,14 +649,14 @@ func bindOnBackup(mainUIStatus chan string) {
 		pathBackup := filepath.Join(backupMediaPath[backupCombobox.Selected()], backup.GetBackupFilename(time.Now()))
 		mebroutines.LogDebug(fmt.Sprintf("Starting backup to: %s", pathBackup))
 
-		chFreeDisk := make(chan uint64)
+		chFreeDisk := make(chan int)
 		chDiskLowPopup := make(chan bool)
 
 		checkFreeDisk(chFreeDisk)
 
 		go func() {
 			freeDisk := <-chFreeDisk
-			if freeDisk < constants.LowDiskLimit {
+			if freeDisk != -1 && freeDisk < constants.LowDiskLimit {
 				mebroutines.ShowWarningMessage("Your free disk size is getting low. If backup process fails please consider freeing some disk space.")
 			}
 			chDiskLowPopup <- true
@@ -667,7 +667,14 @@ func bindOnBackup(mainUIStatus chan string) {
 
 			go func() {
 				backupWindow.Hide()
-				backup.MakeBackup(pathBackup)
+				err := backup.MakeBackup(pathBackup)
+				if err != nil {
+					mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Backup failed: %v"), err))
+					progress.SetMessage(fmt.Sprintf(xlate.Get("Backup failed: %v"), err))
+				} else {
+					progress.SetMessage(fmt.Sprintf(xlate.Get("Backup done: %s"), pathBackup))
+				}
+
 				enableUI(mainUIStatus)
 
 				mebroutines.LogDebug("Finished creating backup")
@@ -695,8 +702,13 @@ func bindOnDestroy(mainUIStatus chan string) {
 			mebroutines.LogDebug("Starting server destroy")
 
 			destroyWindow.Hide()
-			destroy.Server()
-			// destroy.Server() updates result message with progress.SetText()
+			err := destroy.Server()
+			if err != nil {
+				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Failed to remove exams: %v"), err))
+				progress.SetMessage(fmt.Sprintf(fmt.Sprintf("Failed to remove exams: %v"), err))
+			} else {
+				progress.TranslateAndSetMessage("Exams were removed successfully.")
+			}
 
 			// Update installed version label
 			translateUILabels()
@@ -730,10 +742,9 @@ func bindOnRemove(mainUIStatus chan string) {
 
 			err := remove.Server()
 			if err != nil {
-				mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Error while removing server: %v"), err))
+				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Error while removing server: %v"), err))
 				progress.SetMessage(fmt.Sprintf(xlate.Get("Error while removing server: %v"), err))
 			} else {
-				mebroutines.ShowInfoMessage(xlate.Get("Server was removed succesfully."))
 				progress.TranslateAndSetMessage("Server was removed succesfully.")
 			}
 
@@ -763,7 +774,7 @@ func RunUI() error {
 
 	// Get list of backup locations (as there is not SaveAs/directory dialog in libui)
 	// We do this before starting GUI to avoid "cannot change thread mode" in Windows WMI call
-	backupMedia := backup.GetBackupMediaAndFreeDisk()
+	backupMedia := backup.GetBackupMedia()
 
 	// UI (main menu)
 	return ui.Main(func() {

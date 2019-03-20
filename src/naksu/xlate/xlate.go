@@ -10,23 +10,23 @@ func SetLanguage(newLanguage string) {
 	if currentLanguage == "fi" {
 		xlateStrings = map[string]string{
 			// Main window, buttons
-			"Start Exam Server":                                     "Käynnistä koetilan palvelin",
-			"Abitti Exam":                                           "Abitti-koe",
-			"Abitti Exam (v%s > v%s)":                               "Abitti-koe (v%s > v%s)",
-			"Matriculation Exam":                                    "Yo-koe",
-			"Remove Exams":                                          "Poista kokeet",
-			"Remove Server":                                         "Poista palvelin",
-			"Make Exam Server Backup":                               "Tee palvelimesta varmuuskopio",
-			"Open virtual USB stick (ktp-jako)":                     "Avaa virtuaalinen siirtotikku (ktp-jako)",
+			"Start Exam Server":                 "Käynnistä koetilan palvelin",
+			"Abitti Exam":                       "Abitti-koe",
+			"Abitti Exam (v%s > v%s)":           "Abitti-koe (v%s > v%s)",
+			"Matriculation Exam":                "Yo-koe",
+			"Remove Exams":                      "Poista kokeet",
+			"Remove Server":                     "Poista palvelin",
+			"Make Exam Server Backup":           "Tee palvelimesta varmuuskopio",
+			"Open virtual USB stick (ktp-jako)": "Avaa virtuaalinen siirtotikku (ktp-jako)",
 
 			// Main window, checkboxes
 			"Show management features": "Näytä hallintaominaisuudet",
 
 			// Main window, other
-			"Current version: %s": "Asennettu versio: %s",
-			"Update available: %s": "Päivitys saatavilla: %s",
-			"Install/update server for:": "Asenna tai päivitä palvelin:",
-			"DANGER! Annihilate your server:": "VAARA! Palvelimen tuhoaminen:",
+			"Current version: %s":                                                                        "Asennettu versio: %s",
+			"Update available: %s":                                                                       "Päivitys saatavilla: %s",
+			"Install/update server for:":                                                                 "Asenna tai päivitä palvelin:",
+			"DANGER! Annihilate your server:":                                                            "VAARA! Palvelimen tuhoaminen:",
 			"Naksu could not check for updates as there is no network connection.":                       "Naksu ei voinut etsiä uusia versioita, koska verkkoyhteys puuttuu.",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n\nVirhe: %s",
 			"Did not get a path for a new Vagrantfile":                                                   "Uuden Vagrantfile-tiedoston sijainti on annettava",
@@ -41,8 +41,8 @@ func SetLanguage(newLanguage string) {
 			// Backup dialog
 			"naksu: SaveTo":             "naksu: Tallennuspaikka",
 			"Please select target path": "Valitse tallennuspaikka",
-			"Save":                      "Tallenna",
-			"Cancel":                    "Peruuta",
+			"Save":   "Tallenna",
+			"Cancel": "Peruuta",
 
 			// Destroy dialog
 			"naksu: Remove Exams":                                                   "naksu: Poista kokeet",
@@ -52,20 +52,17 @@ func SetLanguage(newLanguage string) {
 			"Do you wish to remove all exams?":                                      "Haluatko poistaa kaikki kokeet?",
 			"Yes, Remove":                                                           "Kyllä, poista",
 			// Already defined: "Cancel"
-			"Removing exams. This takes a while.":                                   "Kokeita poistetaan. Odota hetki.",
-			"Exams were removed successfully.":                                      "Kokeiden poistaminen onnistui.",
-			"Failed to remove exams.":                                               "Kokeiden poistaminen epäonnistui.",
 
 			// Remove dialog
-			"naksu: Remove Server":                                                  "naksu: Poista palvelin",
-			"Removing server destroys it and all downloaded disk images.":           "Palvelimen poistaminen tuhoaa sen ja kaikki ladatut levynkuvat.",
+			"naksu: Remove Server":                                        "naksu: Poista palvelin",
+			"Removing server destroys it and all downloaded disk images.": "Palvelimen poistaminen tuhoaa sen ja kaikki ladatut levynkuvat.",
 			// Already defined: "Exams, responses and logs in the server will be irreversibly deleted."
-			"It is recommended to back up your server before removing server.":      "On suositeltavaa ottaa palvelimesta varmuuskopio ennen poistamista.",
-			"Do you wish to remove the server?":                                     "Halutko poistaa palvelimen?",
+			"It is recommended to back up your server before removing server.": "On suositeltavaa ottaa palvelimesta varmuuskopio ennen poistamista.",
+			"Do you wish to remove the server?":                                "Halutko poistaa palvelimen?",
 			// Already defined: "Yes, Remove"
 			// Already defined: "Cancel"
-			"Error while removing server: %v":    "Palvelimen poistaminen epäonnistui: %v",
-			"Server was removed succesfully.":    "Palvelimen poistaminen onnistui.",
+			"Error while removing server: %v": "Palvelimen poistaminen epäonnistui: %v",
+			"Server was removed succesfully.": "Palvelimen poistaminen onnistui.",
 
 			// mebroutines
 			"Abitti server":         "Abitti-palvelin",
@@ -85,7 +82,15 @@ func SetLanguage(newLanguage string) {
 			"Could not make backup: failed to get disk UUID":        "Varmuuskopion ottaminen epäonnistui: levyn UUID:tä ei löytynyt",
 			"Could not back up disk %s to %s":                       "Varmuuskopion ottaminen levystä %s tiedostoon %s epäonnistui",
 			"Could not write backup file %s. Try another location.": "Varmuuskopion kirjoittaminen tiedostoon %s epäonnistui. Kokeile toista tallennuspaikkaa.",
-			"Backup failed.":                                        "Varmuuskopiointi epäonnistui.",
+			"Backup failed: %v":                                     "Varmuuskopiointi epäonnistui: %v",
+
+			"Checking existing file...":      "Etsin olemassaolevaa tiedostoa...",
+			"Checking backup path...":        "Tarkistan varmistushakemistoa...",
+			"Getting vagrantbox ID...":       "Haen vagrantbox ID:tä...",
+			"Getting disk UUID...":           "Haen levyn UUID:tä...",
+			"Please wait, writing backup...": "Odota, kirjoitan varmuuskopita...",
+			"Detaching backup disk image...": "Irrotan varmuuskopion levynkuvan...",
+			"Backup done: %s":                "Varmuuskopio valmis: %s",
 
 			// backup, getmediapath
 			"Home directory":    "Kotihakemisto",
@@ -111,23 +116,23 @@ func SetLanguage(newLanguage string) {
 	} else if currentLanguage == "sv" {
 		xlateStrings = map[string]string{
 			// Main window, buttons
-			"Start Exam Server":                                     "Starta provlokalsserver",
-			"Abitti Exam":                                           "Abitti-prov",
-			"Abitti Exam (v%s > v%s)":                               "Abitti-prov (v%s > v%s)",
-			"Matriculation Exam":                                    "Studentprovet",
-			"Remove Exams":                                          "Avlägsna proven",
-			"Remove Server":                                         "Avlägsna servern",
-			"Make Exam Server Backup":                               "Säkerhetskopiera servern",
-			"Open virtual USB stick (ktp-jako)":                     "Öppna den virtuellaöverföringsstickan (ktp-jako)",
+			"Start Exam Server":                 "Starta provlokalsserver",
+			"Abitti Exam":                       "Abitti-prov",
+			"Abitti Exam (v%s > v%s)":           "Abitti-prov (v%s > v%s)",
+			"Matriculation Exam":                "Studentprovet",
+			"Remove Exams":                      "Avlägsna proven",
+			"Remove Server":                     "Avlägsna servern",
+			"Make Exam Server Backup":           "Säkerhetskopiera servern",
+			"Open virtual USB stick (ktp-jako)": "Öppna den virtuellaöverföringsstickan (ktp-jako)",
 
 			// Main window, checkboxes
 			"Show management features": "Visa hanteringsegenskaper",
 
 			// Main window, other
-			"Current version: %s": "Installerad version: %s",
-			"Update available: %s": "Uppdatering tillgänglig: %s",
-			"Install/update server for:": "Installera eller uppdatera server för:",
-			"DANGER! Annihilate your server:": "FARA! Förstörning av servern:",
+			"Current version: %s":                                                                        "Installerad version: %s",
+			"Update available: %s":                                                                       "Uppdatering tillgänglig: %s",
+			"Install/update server for:":                                                                 "Installera eller uppdatera server för:",
+			"DANGER! Annihilate your server:":                                                            "FARA! Förstörning av servern:",
 			"Naksu could not check for updates as there is no network connection.":                       "Naksu kunde inte söka nya uppdateringar för att nätförbindelse saknades.",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Uppdateringen av Naksu misslyckades. Du saknar möjligtvis nätförbindelse för tillfället?\n\nFel: %s",
 			"Did not get a path for a new Vagrantfile":                                                   "Ge sökvägen för den nya Vagrantfile-filen",
@@ -142,8 +147,8 @@ func SetLanguage(newLanguage string) {
 			// Backup dialog
 			"naksu: SaveTo":             "naksu: Spara till ",
 			"Please select target path": "Välj sökväg",
-			"Save":                      "Spara",
-			"Cancel":                    "Avbryt",
+			"Save":   "Spara",
+			"Cancel": "Avbryt",
 
 			// Destroy dialog
 			"naksu: Remove Exams":                                                   "naksu: Avlägsna proven",
@@ -153,20 +158,17 @@ func SetLanguage(newLanguage string) {
 			"Do you wish to remove all exams?":                                      "Vill du avlägsna alla prov?",
 			"Yes, Remove":                                                           "Ja, avlägsna",
 			// Already defined: "Cancel"
-			"Removing exams. This takes a while.":                                   "Proven avlägsnas. Vänta en stund.",
-			"Exams were removed successfully.":                                      "Avlägsning av proven lyckades.",
-			"Failed to remove exams.":                                               "Avlägsning av proven misslyckades.",
 
 			// Remove dialog
-			"naksu: Remove Server":                                                  "naksu: Avlägsna servern",
-			"Removing server destroys it and all downloaded disk images.":           "Avlägsnandet av servern förstör den och alla nerladdade skivavbilder.",
+			"naksu: Remove Server":                                        "naksu: Avlägsna servern",
+			"Removing server destroys it and all downloaded disk images.": "Avlägsnandet av servern förstör den och alla nerladdade skivavbilder.",
 			// Already defined: "Exams, responses and logs in the server will be irreversibly deleted."
-			"It is recommended to back up your server before removing server.":      "Det är rekommenderat att ta en säkerhetskopia av servern före den avlägsnas.",
-			"Do you wish to remove the server?":                                     "Vill du avlägsna servern?",
+			"It is recommended to back up your server before removing server.": "Det är rekommenderat att ta en säkerhetskopia av servern före den avlägsnas.",
+			"Do you wish to remove the server?":                                "Vill du avlägsna servern?",
 			// Already defined: "Yes, Remove"
 			// Already defined: "Cancel"
-			"Error while removing server: %v":    "Avlägsning av servern misslyckades: %v",
-			"Server was removed succesfully.":    "Avlägsning av servern lyckades.",
+			"Error while removing server: %v": "Avlägsning av servern misslyckades: %v",
+			"Server was removed succesfully.": "Avlägsning av servern lyckades.",
 
 			// mebroutines
 			"Abitti server":         "Abitti-server",
@@ -186,7 +188,15 @@ func SetLanguage(newLanguage string) {
 			"Could not make backup: failed to get disk UUID":        "Säkerhetskopieringen misslyckades: skivans UUID hittades inte",
 			"Could not back up disk %s to %s":                       "Säkerhetskopieringen av skivan %s i filen %s misslyckades",
 			"Could not write backup file %s. Try another location.": "Det gick inte att säkerhetskopiera till filen %s. Pröva att spara filen på ett annat ställe.",
-			"Backup failed.":                                        "Säkerhetskopieringen misslyckades.",
+			"Backup failed: %v":                                     "Säkerhetskopieringen misslyckades: %v",
+
+			"Checking existing file...":      "Granskar existerande fil...",
+			"Checking backup path...":        "Granskar säkerhetskopians katalog...",
+			"Getting vagrantbox ID...":       "Söker vagrantbox ID...",
+			"Getting disk UUID...":           "Söker skivans UUID...",
+			"Please wait, writing backup...": "Vänligen vänta, skriver säkerhetskopian...",
+			"Detaching backup disk image...": "Lösgör säkerhetskopians skivavbild...",
+			"Backup done: %s":                "Säkerhetskopian färdig: %s",
 
 			// backup, getmediapath
 			"Home directory":    "Hemkatalog",

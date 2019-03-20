@@ -4,81 +4,59 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"path/filepath"
 	"naksu/mebroutines"
 	"naksu/progress"
 	"naksu/xlate"
 	"os"
+	"path/filepath"
 	"regexp"
 	"time"
-
-	"github.com/dustin/go-humanize"
 )
 
 // MakeBackup creates virtual maching backup to path
-func MakeBackup(backupPath string) {
-	progress.TranslateAndSetMessage("Check that there is no existing backup file")
+func MakeBackup(backupPath string) error {
+	progress.TranslateAndSetMessage("Checking existing file...")
 	if mebroutines.ExistsFile(backupPath) {
 		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("File %s already exists"), backupPath))
+		return errors.New("backup file already exists")
 	}
 
 	// Check if path_backup is writeable
-	progress.TranslateAndSetMessage("Check that backup path is writeable")
+	progress.TranslateAndSetMessage("Checking backup path...")
 	wrErr := mebroutines.CreateFile(backupPath)
 	if wrErr != nil {
 		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not write backup file %s. Try another location."), backupPath))
-		return
+		return errors.New("could not write backup file")
 	}
-	err := os.Remove(backupPath)
-	if err != nil {
+
+	remErr := os.Remove(backupPath)
+	if remErr != nil {
 		mebroutines.LogDebug("Backup remove returned error code")
+		return errors.New("removing backup returned error code")
 	}
 
 	// Get box
-	progress.TranslateAndSetMessage("Getting vagrantbox ID")
+	progress.TranslateAndSetMessage("Getting vagrantbox ID...")
 	boxID := getVagrantBoxID()
 	mebroutines.LogDebug(fmt.Sprintf("Vagrantbox ID: %s", boxID))
 
 	// Get disk UUID
-	progress.TranslateAndSetMessage("Getting disk UUID")
+	progress.TranslateAndSetMessage("Getting disk UUID...")
 	diskUUID := getDiskUUID(boxID)
 	mebroutines.LogDebug(fmt.Sprintf("Disk UUID: %s", diskUUID))
 
 	// Make clone to path_backup
-	progress.TranslateAndSetMessage("Making backup. This takes a while.")
+	progress.TranslateAndSetMessage("Please wait, writing backup...")
 	cloneErr := makeClone(diskUUID, backupPath)
 	if cloneErr != nil {
-		progress.TranslateAndSetMessage("Backup failed.")
-		return
+		return errors.New("writing backup failed")
 	}
 
 	// Close backup media (detach it from VirtualBox disk management)
-	progress.TranslateAndSetMessage("Detaching backup disk from disk management")
+	progress.TranslateAndSetMessage("Detaching backup disk image...")
 	deleteClone(backupPath)
 
-	progress.SetMessage(fmt.Sprintf(xlate.Get("Backup can be found at %s"), backupPath))
-	mebroutines.ShowInfoMessage(fmt.Sprintf(xlate.Get("Backup has been made to %s"), backupPath))
-}
-
-
-// GetBackupMediaAndFreeDisk returns map of nackup medias and free disk
-// size for each backup path
-func GetBackupMediaAndFreeDisk() map[string]string {
-	backupMedia := GetBackupMedia()
-	newBackupMedia := make(map[string]string)
-
-	for thisPath := range backupMedia {
-		mediaLabel := backupMedia[thisPath]
-		freeDisk, freeErr := mebroutines.GetDiskFree(thisPath)
-
-		if freeErr == nil {
-			mediaLabel = fmt.Sprintf("%s (%s)", mediaLabel, humanize.Bytes(freeDisk))
-		}
-
-		newBackupMedia[thisPath] = mediaLabel
-	}
-
-	return newBackupMedia
+	return nil
 }
 
 func getVagrantBoxID() string {

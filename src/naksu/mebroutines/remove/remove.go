@@ -55,5 +55,5 @@ func Server() error {
 
 // deleteFailed gives user an error message
 func deleteFailed(failedPath string, err error) {
-  mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to remove directory %s: %v", failedPath, err))
+  mebroutines.ShowWarningMessage(fmt.Sprintf("Failed to remove directory %s: %v", failedPath, err))
 }
