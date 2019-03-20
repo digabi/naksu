@@ -18,7 +18,7 @@ import (
 	"time"
 
 	"github.com/andlabs/ui"
-	"github.com/dustin/go-humanize"
+	humanize "github.com/dustin/go-humanize"
 )
 
 var window *ui.Window
@@ -505,7 +505,7 @@ func checkFreeDisk(chFreeDisk chan uint64) {
 	// Check free disk
 	// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
 	go func() {
-		var freeDisk uint64 = 0
+		var freeDisk uint64
 		var err error
 		if mebroutines.ExistsDir(mebroutines.GetVagrantDirectory()) {
 			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetVagrantDirectory())
