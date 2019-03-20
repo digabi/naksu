@@ -157,6 +157,7 @@ Things to consider later:
 
 - Available disk space is shown in backup media selection list
 - Added user feedback to server destroy operation
+- Show string "no name" for external disks that have empty volume name
 - Bugfix: Calculate available disk space correctly
 - Bugfix: Correctly handle nil WMI return value if external backup media does not have a volume name
 
