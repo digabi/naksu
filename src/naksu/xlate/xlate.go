@@ -52,6 +52,9 @@ func SetLanguage(newLanguage string) {
 			"Do you wish to remove all exams?":                                      "Haluatko poistaa kaikki kokeet?",
 			"Yes, Remove":                                                           "Kyllä, poista",
 			// Already defined: "Cancel"
+			"Removing exams. This takes a while.": "Kokeita poistetaan. Odota hetki.",
+			"Exams were removed successfully.":    "Kokeiden poistaminen onnistui.",
+			"Failed to remove exams.":             "Kokeiden poistaminen epäonnistui.",
 
 			// Remove dialog
 			"naksu: Remove Server":                                        "naksu: Poista palvelin",
@@ -88,7 +91,7 @@ func SetLanguage(newLanguage string) {
 			"Checking backup path...":        "Tarkistan varmistushakemistoa...",
 			"Getting vagrantbox ID...":       "Haen vagrantbox ID:tä...",
 			"Getting disk UUID...":           "Haen levyn UUID:tä...",
-			"Please wait, writing backup...": "Odota, kirjoitan varmuuskopita...",
+			"Please wait, writing backup...": "Odota, kirjoitan varmuuskopiota...",
 			"Detaching backup disk image...": "Irrotan varmuuskopion levynkuvan...",
 			"Backup done: %s":                "Varmuuskopio valmis: %s",
 
@@ -158,6 +161,9 @@ func SetLanguage(newLanguage string) {
 			"Do you wish to remove all exams?":                                      "Vill du avlägsna alla prov?",
 			"Yes, Remove":                                                           "Ja, avlägsna",
 			// Already defined: "Cancel"
+			"Removing exams. This takes a while.": "Proven avlägsnas. Vänta en stund. ",
+			"Exams were removed successfully.":    "Avlägsning av proven lyckades.",
+			"Failed to remove exams.":             "Avlägsning av proven misslyckades.",
 
 			// Remove dialog
 			"naksu: Remove Server":                                        "naksu: Avlägsna servern",

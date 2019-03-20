@@ -17,7 +17,7 @@ import (
 func MakeBackup(backupPath string) error {
 	progress.TranslateAndSetMessage("Checking existing file...")
 	if mebroutines.ExistsFile(backupPath) {
-		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("File %s already exists"), backupPath))
+		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("File %s already exists"), backupPath))
 		return errors.New("backup file already exists")
 	}
 
@@ -39,11 +39,17 @@ func MakeBackup(backupPath string) error {
 	progress.TranslateAndSetMessage("Getting vagrantbox ID...")
 	boxID := getVagrantBoxID()
 	mebroutines.LogDebug(fmt.Sprintf("Vagrantbox ID: %s", boxID))
+	if boxID == "" {
+		return errors.New("could not get vagrantbox id")
+	}
 
 	// Get disk UUID
 	progress.TranslateAndSetMessage("Getting disk UUID...")
 	diskUUID := getDiskUUID(boxID)
 	mebroutines.LogDebug(fmt.Sprintf("Disk UUID: %s", diskUUID))
+	if diskUUID == "" {
+		return errors.New("could not get disk uuid")
+	}
 
 	// Make clone to path_backup
 	progress.TranslateAndSetMessage("Please wait, writing backup...")
@@ -67,7 +73,8 @@ func getVagrantBoxID() string {
 	/* #nosec */
 	fileContent, err := ioutil.ReadFile(pathID)
 	if err != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not get vagrantbox ID: %d"), err))
+		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not get vagrantbox ID: %d"), err))
+		return ""
 	}
 
 	return string(fileContent)
@@ -86,7 +93,7 @@ func getDiskUUID(boxID string) string {
 
 	// No match
 	mebroutines.LogDebug(vBoxManageOutput)
-	mebroutines.ShowErrorMessage(xlate.Get("Could not make backup: failed to get disk UUID"))
+	mebroutines.ShowWarningMessage(xlate.Get("Could not make backup: failed to get disk UUID"))
 
 	return ""
 }
@@ -98,7 +105,7 @@ func makeClone(diskUUID string, backupPath string) error {
 	matched, errRe := regexp.MatchString("Clone medium created in format 'VMDK'", vBoxManageOutput)
 	if errRe != nil || !matched {
 		// Failure
-		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not back up disk %s to %s"), diskUUID, backupPath))
+		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not back up disk %s to %s"), diskUUID, backupPath))
 		return errors.New("backup failed")
 	}
 
