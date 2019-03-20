@@ -705,7 +705,7 @@ func bindOnDestroy(mainUIStatus chan string) {
 			err := destroy.Server()
 			if err != nil {
 				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Failed to remove exams: %v"), err))
-				progress.SetMessage(fmt.Sprintf(fmt.Sprintf("Failed to remove exams: %v"), err))
+				progress.SetMessage(fmt.Sprintf(xlate.Get("Failed to remove exams: %v"), err))
 			} else {
 				progress.TranslateAndSetMessage("Exams were removed successfully.")
 			}
