@@ -6,6 +6,7 @@ import (
 	"naksu/xlate"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/StackExchange/wmi"
 )
@@ -54,7 +55,7 @@ func getBackupMediaWindows() map[string]string {
 		// We have either hard or removable drive
 		thisPath := fmt.Sprintf("%s%s", dst[thisDrive].DeviceID, string(os.PathSeparator))
 		volumeName := "<no name>"
-		if dst[thisDrive].VolumeName != nil {
+		if dst[thisDrive].VolumeName != nil && strings.TrimSpace(*dst[thisDrive].VolumeName) != "" {
 			volumeName = *dst[thisDrive].VolumeName
 		}
 		media[thisPath] = fmt.Sprintf("%s, %s", volumeName, dst[thisDrive].Description)
