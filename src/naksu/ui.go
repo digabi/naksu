@@ -501,11 +501,11 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 
 }
 
-func checkFreeDisk(chFreeDisk chan int) {
+func checkFreeDisk(chFreeDisk chan uint64) {
 	// Check free disk
 	// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
 	go func() {
-		freeDisk := 0
+		var freeDisk uint64 = 0
 		var err error
 		if mebroutines.ExistsDir(mebroutines.GetVagrantDirectory()) {
 			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetVagrantDirectory())
@@ -526,15 +526,15 @@ func bindOnGetServer(mainUIStatus chan string) {
 	buttonGetServer.OnClicked(func(*ui.Button) {
 		mebroutines.LogDebug("Starting Abitti box update")
 
-		chFreeDisk := make(chan int)
+		chFreeDisk := make(chan uint64)
 		chDiskLowPopup := make(chan bool)
 
 		checkFreeDisk(chFreeDisk)
 
 		go func() {
 			freeDisk := <-chFreeDisk
-			if freeDisk != -1 && freeDisk < constants.LowDiskLimit {
-				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(uint64(freeDisk))))
+			if freeDisk < constants.LowDiskLimit {
+				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(freeDisk)))
 			}
 
 			chDiskLowPopup <- true
@@ -561,7 +561,7 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 	buttonSwitchServer.OnClicked(func(*ui.Button) {
 		mebroutines.LogDebug("Starting Matriculation Examination box update")
 
-		chFreeDisk := make(chan int)
+		chFreeDisk := make(chan uint64)
 		chDiskLowPopup := make(chan bool)
 		chPathNewVagrantfile := make(chan string)
 
@@ -569,8 +569,8 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 
 		go func() {
 			freeDisk := <-chFreeDisk
-			if freeDisk != -1 && freeDisk < constants.LowDiskLimit {
-				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(uint64(freeDisk))))
+			if freeDisk < constants.LowDiskLimit {
+				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(freeDisk)))
 			}
 
 			chDiskLowPopup <- true
@@ -649,14 +649,14 @@ func bindOnBackup(mainUIStatus chan string) {
 		pathBackup := filepath.Join(backupMediaPath[backupCombobox.Selected()], backup.GetBackupFilename(time.Now()))
 		mebroutines.LogDebug(fmt.Sprintf("Starting backup to: %s", pathBackup))
 
-		chFreeDisk := make(chan int)
+		chFreeDisk := make(chan uint64)
 		chDiskLowPopup := make(chan bool)
 
 		checkFreeDisk(chFreeDisk)
 
 		go func() {
 			freeDisk := <-chFreeDisk
-			if freeDisk != -1 && freeDisk < constants.LowDiskLimit {
+			if freeDisk < constants.LowDiskLimit {
 				mebroutines.ShowWarningMessage("Your free disk size is getting low. If backup process fails please consider freeing some disk space.")
 			}
 			chDiskLowPopup <- true
