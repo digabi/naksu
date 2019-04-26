@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"runtime"
 	"strconv"
+
+	"naksu/log"
 )
 
 // Win32_LogicalDisk is a struct used to query Windows WMI
@@ -63,13 +65,13 @@ func ExtractDiskFreeDarwin(dfOutput string) (uint64, error) {
 		if err == nil {
 			// df gives available disk space in 1K blocks
 			intResult := uint64(floatResult) * 512
-			LogDebug(fmt.Sprintf("ExtractDiskFreeDarwin: %d", intResult))
+			log.LogDebug(fmt.Sprintf("ExtractDiskFreeDarwin: %d", intResult))
 			return intResult, nil
 		}
 	}
 
-	LogDebug("ExtractDiskFreeDarwin failed to parse df output")
-	LogDebug(dfOutput)
+	log.LogDebug("ExtractDiskFreeDarwin failed to parse df output")
+	log.LogDebug(dfOutput)
 
 	return 0, errors.New("could not extract free disk size from darwin df output")
 }
@@ -97,13 +99,13 @@ func ExtractDiskFreeLinux(dfOutput string) (uint64, error) {
 		if err == nil {
 			// df gives available disk space in 1K blocks
 			intResult := uint64(floatResult) * 1024
-			LogDebug(fmt.Sprintf("ExtractDiskFreeLinux: %d", intResult))
+			log.LogDebug(fmt.Sprintf("ExtractDiskFreeLinux: %d", intResult))
 			return intResult, nil
 		}
 	}
 
-	LogDebug("ExtractDiskFreeLinux failed to parse df output")
-	LogDebug(dfOutput)
+	log.LogDebug("ExtractDiskFreeLinux failed to parse df output")
+	log.LogDebug(dfOutput)
 
 	return 0, errors.New("could not extract free disk size from linux df output")
 }
@@ -112,7 +114,7 @@ func ExtractDiskFreeLinux(dfOutput string) (uint64, error) {
 func ExtractDiskFreeWindows(wmiData []Win32_LogicalDisk) (uint64, error) {
 	if len(wmiData) > 0 {
 		freeSpace := wmiData[0].FreeSpace
-		LogDebug(fmt.Sprintf("ExtractDiskFreeWindows: %d", freeSpace))
+		log.LogDebug(fmt.Sprintf("ExtractDiskFreeWindows: %d", freeSpace))
 		return freeSpace, nil
 	}
 

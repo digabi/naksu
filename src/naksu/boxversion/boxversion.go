@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"naksu/constants"
+	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/network"
 	"naksu/xlate"
@@ -34,14 +35,14 @@ func GetVagrantFileVersion(vagrantFilePath string) string {
 
 	boxString, boxVersion, err := GetVagrantFileVersionDetails(vagrantFilePath)
 	if err != nil {
-		mebroutines.LogDebug(fmt.Sprintf("Could not read from %s", vagrantFilePath))
+		log.LogDebug(fmt.Sprintf("Could not read from %s", vagrantFilePath))
 		return ""
 	}
 
 	boxType := GetVagrantBoxType(boxString)
 
 	versionString := fmt.Sprintf("%s (v%s)", boxType, boxVersion)
-	mebroutines.LogDebug(fmt.Sprintf("GetVagrantFileVersion returns: %s", versionString))
+	log.LogDebug(fmt.Sprintf("GetVagrantFileVersion returns: %s", versionString))
 
 	return versionString
 }
@@ -51,7 +52,7 @@ func GetVagrantFileVersion(vagrantFilePath string) string {
 func GetVagrantFileVersionDetails(vagrantFilePath string) (string, string, error) {
 	fileContent, err := ioutil.ReadFile(filepath.Clean(vagrantFilePath))
 	if err != nil {
-		mebroutines.LogDebug(fmt.Sprintf("Could not read from %s", vagrantFilePath))
+		log.LogDebug(fmt.Sprintf("Could not read from %s", vagrantFilePath))
 		return "", "", err
 	}
 
@@ -62,7 +63,7 @@ func GetVagrantFileVersionDetails(vagrantFilePath string) (string, string, error
 	versionMatches := versionRegexp.FindStringSubmatch(string(fileContent))
 
 	if len(boxMatches) == 2 && len(versionMatches) == 2 {
-		mebroutines.LogDebug(fmt.Sprintf("GetVagrantFileVersionDetails returns: [%s] [%s]", boxMatches[1], versionMatches[1]))
+		log.LogDebug(fmt.Sprintf("GetVagrantFileVersionDetails returns: [%s] [%s]", boxMatches[1], versionMatches[1]))
 		return boxMatches[1], versionMatches[1], nil
 	}
 
@@ -74,14 +75,14 @@ func GetVagrantFileVersionDetails(vagrantFilePath string) (string, string, error
 func GetVagrantBoxAvailVersion() string {
 	boxString, boxVersion, err := GetVagrantBoxAvailVersionDetails()
 	if err != nil {
-		mebroutines.LogDebug("Could not get available version string")
+		log.LogDebug("Could not get available version string")
 		return ""
 	}
 
 	boxType := GetVagrantBoxType(boxString)
 
 	versionString := fmt.Sprintf("%s (v%s)", boxType, boxVersion)
-	mebroutines.LogDebug(fmt.Sprintf("GetVagrantBoxAvailVersion returns: %s", versionString))
+	log.LogDebug(fmt.Sprintf("GetVagrantBoxAvailVersion returns: %s", versionString))
 
 	return versionString
 }
@@ -119,7 +120,7 @@ func GetVagrantBoxAvailVersionDetails() (string, string, error) {
 		boxVersion = vagrantBoxAvailVersionDetailsCache.boxVersion
 	}
 
-	mebroutines.LogDebug(fmt.Sprintf("GetVagrantBoxAvailVersionDetails returns: [%s] [%s]", boxString, boxVersion))
+	log.LogDebug(fmt.Sprintf("GetVagrantBoxAvailVersionDetails returns: [%s] [%s]", boxString, boxVersion))
 	return boxString, boxVersion, boxError
 }
 
@@ -129,7 +130,7 @@ func reallyGetVagrantBoxAvailVersionDetails() (string, string, error) {
 	// Phase 1: Get Abitti Vagrantfile
 	strVagrantfile, errVagrantfile := network.DownloadString(constants.AbittiVagrantURL)
 	if errVagrantfile != nil {
-		mebroutines.LogDebug(fmt.Sprintf("Could not download Abitti Vagrantfile from %s", constants.AbittiVagrantURL))
+		log.LogDebug(fmt.Sprintf("Could not download Abitti Vagrantfile from %s", constants.AbittiVagrantURL))
 		return "", "", errors.New("could not download abitti vagrantfile")
 	}
 
@@ -140,21 +141,21 @@ func reallyGetVagrantBoxAvailVersionDetails() (string, string, error) {
 	boxMetadataMatches := reMetadata.FindStringSubmatch(strVagrantfile)
 
 	if len(boxStringMatches) != 2 {
-		mebroutines.LogDebug("Could not find config.vm.box from Abitti Vagrantfile:")
-		mebroutines.LogDebug(strVagrantfile)
+		log.LogDebug("Could not find config.vm.box from Abitti Vagrantfile:")
+		log.LogDebug(strVagrantfile)
 		return "", "", errors.New("could not find config.vm.box")
 	}
 
 	if len(boxMetadataMatches) != 2 {
-		mebroutines.LogDebug("Could not find config.vm.box_url from Abitti Vagrantfile:")
-		mebroutines.LogDebug(strVagrantfile)
+		log.LogDebug("Could not find config.vm.box_url from Abitti Vagrantfile:")
+		log.LogDebug(strVagrantfile)
 		return "", "", errors.New("could not find config.vm.box_url")
 	}
 
 	// Phase 2: Get vagrant metadata.json
 	strMetadata, errMetadata := network.DownloadString(boxMetadataMatches[1])
 	if errMetadata != nil {
-		mebroutines.LogDebug(fmt.Sprintf("Could not download Abitti metadata from %s", boxMetadataMatches[1]))
+		log.LogDebug(fmt.Sprintf("Could not download Abitti metadata from %s", boxMetadataMatches[1]))
 		return "", "", errors.New("could not download abitti metadata")
 	}
 
@@ -163,8 +164,8 @@ func reallyGetVagrantBoxAvailVersionDetails() (string, string, error) {
 	versionMatches := reVersion.FindStringSubmatch(strMetadata)
 
 	if len(versionMatches) != 2 {
-		mebroutines.LogDebug("Could not find version number from Vagrant metadata:")
-		mebroutines.LogDebug(strMetadata)
+		log.LogDebug("Could not find version number from Vagrant metadata:")
+		log.LogDebug(strMetadata)
 		return "", "", errors.New("could not find version number from vagrant metadata")
 	}
 
@@ -182,7 +183,7 @@ func GetVagrantBoxType(name string) string {
 	}
 
 	// Unknown box type
-	mebroutines.LogDebug(fmt.Sprintf("Warning: We have a vagrant box type string '%s' which does not resolve to Abitti/Matriculation box type (GetVagrantBoxType)", name))
+	log.LogDebug(fmt.Sprintf("Warning: We have a vagrant box type string '%s' which does not resolve to Abitti/Matriculation box type (GetVagrantBoxType)", name))
 	return "-"
 }
 

@@ -2,9 +2,13 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
+	"time"
+
 	"naksu/boxversion"
 	"naksu/config"
 	"naksu/constants"
+	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/mebroutines/backup"
 	"naksu/mebroutines/destroy"
@@ -14,8 +18,6 @@ import (
 	"naksu/network"
 	"naksu/progress"
 	"naksu/xlate"
-	"path/filepath"
-	"time"
 
 	"github.com/andlabs/ui"
 	humanize "github.com/dustin/go-humanize"
@@ -265,10 +267,10 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					})
 				}
 			case newStatus := <-mainUIStatus:
-				mebroutines.LogDebug(fmt.Sprintf("main_ui_status: %s", newStatus))
+				log.LogDebug(fmt.Sprintf("main_ui_status: %s", newStatus))
 				// Got new status
 				if newStatus == "enable" {
-					mebroutines.LogDebug("enable ui")
+					log.LogDebug("enable ui")
 
 					ui.QueueMain(func() {
 						comboboxLang.Enable()
@@ -298,7 +300,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					lastStatus = newStatus
 				}
 				if newStatus == "disable" {
-					mebroutines.LogDebug("disable ui")
+					log.LogDebug("disable ui")
 
 					ui.QueueMain(func() {
 						comboboxLang.Disable()
@@ -488,7 +490,7 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 				if network.CheckIfNetworkAvailable() {
 					mebroutines.ShowWarningMessage(xlate.Get("You are starting Matriculation Examination server with an Internet connection."))
 				} else {
-					mebroutines.LogDebug("Starting Matric Exam server without an internet connection - All is good!")
+					log.LogDebug("Starting Matric Exam server without an internet connection - All is good!")
 				}
 			}
 
@@ -510,12 +512,12 @@ func checkFreeDisk(chFreeDisk chan uint64) {
 		if mebroutines.ExistsDir(mebroutines.GetVagrantDirectory()) {
 			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetVagrantDirectory())
 			if err != nil {
-				mebroutines.LogDebug("Getting free disk space from Vagrant directory failed")
+				log.LogDebug("Getting free disk space from Vagrant directory failed")
 			}
 		} else {
 			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetHomeDirectory())
 			if err != nil {
-				mebroutines.LogDebug("Getting free disk space from home directory failed")
+				log.LogDebug("Getting free disk space from home directory failed")
 			}
 		}
 		chFreeDisk <- freeDisk
@@ -524,7 +526,7 @@ func checkFreeDisk(chFreeDisk chan uint64) {
 
 func bindOnGetServer(mainUIStatus chan string) {
 	buttonGetServer.OnClicked(func(*ui.Button) {
-		mebroutines.LogDebug("Starting Abitti box update")
+		log.LogDebug("Starting Abitti box update")
 
 		chFreeDisk := make(chan uint64)
 		chDiskLowPopup := make(chan bool)
@@ -551,7 +553,7 @@ func bindOnGetServer(mainUIStatus chan string) {
 				enableUI(mainUIStatus)
 				progress.SetMessage("")
 
-				mebroutines.LogDebug(fmt.Sprintf("Finished Abitti box update, version is: %s", boxversion.GetVagrantFileVersion("")))
+				log.LogDebug(fmt.Sprintf("Finished Abitti box update, version is: %s", boxversion.GetVagrantFileVersion("")))
 			}()
 		}()
 	})
@@ -559,7 +561,7 @@ func bindOnGetServer(mainUIStatus chan string) {
 
 func bindOnSwitchServer(mainUIStatus chan string) {
 	buttonSwitchServer.OnClicked(func(*ui.Button) {
-		mebroutines.LogDebug("Starting Matriculation Examination box update")
+		log.LogDebug("Starting Matriculation Examination box update")
 
 		chFreeDisk := make(chan uint64)
 		chDiskLowPopup := make(chan bool)
@@ -605,7 +607,7 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 					enableUI(mainUIStatus)
 					progress.SetMessage("")
 
-					mebroutines.LogDebug(fmt.Sprintf("Finished Matriculation Examination box update, new version is: %s", boxversion.GetVagrantFileVersion("")))
+					log.LogDebug(fmt.Sprintf("Finished Matriculation Examination box update, new version is: %s", boxversion.GetVagrantFileVersion("")))
 				}()
 			}
 		}()
@@ -638,7 +640,7 @@ func bindOnMakeBackup(mainUIStatus chan string) {
 
 func bindOnMebShare() {
 	buttonMebShare.OnClicked(func(*ui.Button) {
-		mebroutines.LogDebug("Opening MEB share (~/ktp-jako)")
+		log.LogDebug("Opening MEB share (~/ktp-jako)")
 		mebroutines.OpenMebShare()
 	})
 }
@@ -647,7 +649,7 @@ func bindOnBackup(mainUIStatus chan string) {
 	// Define actions for SaveAs window/dialog
 	backupButtonSave.OnClicked(func(*ui.Button) {
 		pathBackup := filepath.Join(backupMediaPath[backupCombobox.Selected()], backup.GetBackupFilename(time.Now()))
-		mebroutines.LogDebug(fmt.Sprintf("Starting backup to: %s", pathBackup))
+		log.LogDebug(fmt.Sprintf("Starting backup to: %s", pathBackup))
 
 		chFreeDisk := make(chan uint64)
 		chDiskLowPopup := make(chan bool)
@@ -677,7 +679,7 @@ func bindOnBackup(mainUIStatus chan string) {
 
 				enableUI(mainUIStatus)
 
-				mebroutines.LogDebug("Finished creating backup")
+				log.LogDebug("Finished creating backup")
 			}()
 		}()
 	})
@@ -699,7 +701,7 @@ func bindOnDestroy(mainUIStatus chan string) {
 
 	destroyButtonDestroy.OnClicked(func(*ui.Button) {
 		go func() {
-			mebroutines.LogDebug("Starting server destroy")
+			log.LogDebug("Starting server destroy")
 
 			destroyWindow.Hide()
 			err := destroy.Server()
@@ -715,7 +717,7 @@ func bindOnDestroy(mainUIStatus chan string) {
 
 			enableUI(mainUIStatus)
 
-			mebroutines.LogDebug("Finished server destroy")
+			log.LogDebug("Finished server destroy")
 		}()
 	})
 
@@ -736,7 +738,7 @@ func bindOnRemove(mainUIStatus chan string) {
 
 	removeButtonRemove.OnClicked(func(*ui.Button) {
 		go func() {
-			mebroutines.LogDebug("Starting server remove")
+			log.LogDebug("Starting server remove")
 
 			removeWindow.Hide()
 
@@ -753,7 +755,7 @@ func bindOnRemove(mainUIStatus chan string) {
 
 			enableUI(mainUIStatus)
 
-			mebroutines.LogDebug("Finished server remove")
+			log.LogDebug("Finished server remove")
 		}()
 	})
 
@@ -823,7 +825,7 @@ func RunUI() error {
 		bindOnRemove(mainUIStatus)
 
 		window.OnClosing(func(*ui.Window) bool {
-			mebroutines.LogDebug("User exists through window exit")
+			log.LogDebug("User exists through window exit")
 			ui.Quit()
 			return true
 		})

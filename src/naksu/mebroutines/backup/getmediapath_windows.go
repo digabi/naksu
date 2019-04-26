@@ -2,11 +2,13 @@ package backup
 
 import (
 	"fmt"
-	"naksu/mebroutines"
-	"naksu/xlate"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"naksu/log"
+	"naksu/mebroutines"
+	"naksu/xlate"
 
 	"github.com/StackExchange/wmi"
 )
@@ -46,8 +48,8 @@ func getBackupMediaWindows() map[string]string {
 	query := wmi.CreateQuery(&dst, "WHERE DriveType=2 OR DriveType=3")
 	err := wmi.Query(query, &dst)
 	if err != nil {
-		mebroutines.LogDebug("getBackupMediaWindows() could not detect removable/hard drives as it could not query WMI")
-		mebroutines.LogDebug(fmt.Sprint(err))
+		log.LogDebug("getBackupMediaWindows() could not detect removable/hard drives as it could not query WMI")
+		log.LogDebug(fmt.Sprint(err))
 		return media
 	}
 

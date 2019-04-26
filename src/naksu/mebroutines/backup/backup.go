@@ -4,13 +4,15 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"naksu/mebroutines"
-	"naksu/progress"
-	"naksu/xlate"
 	"os"
 	"path/filepath"
 	"regexp"
 	"time"
+
+	"naksu/log"
+	"naksu/mebroutines"
+	"naksu/progress"
+	"naksu/xlate"
 )
 
 // MakeBackup creates virtual maching backup to path
@@ -31,14 +33,14 @@ func MakeBackup(backupPath string) error {
 
 	remErr := os.Remove(backupPath)
 	if remErr != nil {
-		mebroutines.LogDebug("Backup remove returned error code")
+		log.LogDebug("Backup remove returned error code")
 		return errors.New("removing backup returned error code")
 	}
 
 	// Get box
 	progress.TranslateAndSetMessage("Getting vagrantbox ID...")
 	boxID := getVagrantBoxID()
-	mebroutines.LogDebug(fmt.Sprintf("Vagrantbox ID: %s", boxID))
+	log.LogDebug(fmt.Sprintf("Vagrantbox ID: %s", boxID))
 	if boxID == "" {
 		return errors.New("could not get vagrantbox id")
 	}
@@ -46,7 +48,7 @@ func MakeBackup(backupPath string) error {
 	// Get disk UUID
 	progress.TranslateAndSetMessage("Getting disk UUID...")
 	diskUUID := getDiskUUID(boxID)
-	mebroutines.LogDebug(fmt.Sprintf("Disk UUID: %s", diskUUID))
+	log.LogDebug(fmt.Sprintf("Disk UUID: %s", diskUUID))
 	if diskUUID == "" {
 		return errors.New("could not get disk uuid")
 	}
@@ -92,7 +94,7 @@ func getDiskUUID(boxID string) string {
 	}
 
 	// No match
-	mebroutines.LogDebug(vBoxManageOutput)
+	log.LogDebug(vBoxManageOutput)
 	mebroutines.ShowWarningMessage(xlate.Get("Could not make backup: failed to get disk UUID"))
 
 	return ""

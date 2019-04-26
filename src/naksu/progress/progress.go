@@ -2,7 +2,7 @@ package progress
 
 import (
 	"fmt"
-	"naksu/mebroutines"
+	"naksu/log"
 	"naksu/xlate"
 
 	"github.com/andlabs/ui"
@@ -19,7 +19,7 @@ func SetProgressLabel(newProgressLabel *ui.Label) {
 
 // setMessage does the actual message label updating
 func setMessage(message string) {
-	mebroutines.LogDebug(fmt.Sprintf("Progress message: %s", message))
+	log.LogDebug(fmt.Sprintf("Progress message: %s", message))
 	ui.QueueMain(func() {
 		progressLabel.SetText(message)
 	})

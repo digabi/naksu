@@ -2,10 +2,10 @@ package config
 
 import (
 	"fmt"
-	// FIXME: Solve circulating libs
-	//"naksu/mebroutines"
 	"path/filepath"
 	"strconv"
+
+	"naksu/log"
 
 	"github.com/go-ini/ini"
 	"github.com/mitchellh/go-homedir"
@@ -52,8 +52,7 @@ func getIniKey(section string, key string) *ini.Key {
 func getBoolean(section string, key string) bool {
 	value, err := getIniKey(section, key).Bool()
 	if err != nil {
-		// FIXME: Solve circulating libs
-		//mebroutines.LogDebug(fmt.Sprintf("Parsing key %s / %s as bool failed", section, key))
+		log.LogDebug(fmt.Sprintf("Parsing key %s / %s as bool failed", section, key))
 		defaultValue := getDefault(section, key)
 		value, err = strconv.ParseBool(defaultValue)
 		if err != nil {
@@ -85,8 +84,7 @@ func Load() {
 
 	cfg, err = ini.Load(naksuIniPath)
 	if err != nil {
-		// FIXME: Solve circulating libs
-		//mebroutines.LogDebug(fmt.Sprintf("%s not found, setting up empty config with defaults", naksuIniPath))
+		log.LogDebug(fmt.Sprintf("%s not found, setting up empty config with defaults", naksuIniPath))
 		cfg = ini.Empty()
 	}
 	fillDefaults()
@@ -100,8 +98,7 @@ func validateStringChoice(section string, key string, choices map[string]bool) s
 		return value
 	}
 	defaultValue := getDefault(section, key)
-	// FIXME: Solve circulating libs
-	//mebroutines.LogDebug(fmt.Sprintf("Correcting malformed ini-key %v / %v to default value %v", section, key, defaultValue))
+	log.LogDebug(fmt.Sprintf("Correcting malformed ini-key %v / %v to default value %v", section, key, defaultValue))
 	setValue(section, key, defaultValue)
 	return defaultValue
 }
@@ -116,8 +113,7 @@ func save() {
 
 	err := cfg.SaveTo(naksuIniPath)
 	if err != nil {
-		// FIXME: Solve circulating libs
-		//mebroutines.LogDebug(fmt.Sprintf("%s save failed: %v", naksuIniPath, err))
+		log.LogDebug(fmt.Sprintf("%s save failed: %v", naksuIniPath, err))
 	}
 }
 
