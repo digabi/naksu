@@ -4,9 +4,11 @@ import (
 	"fmt"
 	// FIXME: Solve circulating libs
 	//"naksu/mebroutines"
+	"path/filepath"
 	"strconv"
 
 	"github.com/go-ini/ini"
+	"github.com/mitchellh/go-homedir"
 )
 
 var cfg *ini.File
@@ -74,10 +76,17 @@ func setValue(section string, key string, value string) {
 // Load or initialize configuration to empty object
 func Load() {
 	var err error
-	cfg, err = ini.Load("naksu.ini")
+
+	homeDir, errHome := homedir.Dir()
+	if errHome != nil {
+		panic("Could not get home directory")
+	}
+	naksuIniPath := filepath.Join(homeDir, "naksu.ini")
+
+	cfg, err = ini.Load(naksuIniPath)
 	if err != nil {
 		// FIXME: Solve circulating libs
-		//mebroutines.LogDebug("naksu.ini not found, setting up empty config with defaults")
+		//mebroutines.LogDebug(fmt.Sprintf("%s not found, setting up empty config with defaults", naksuIniPath))
 		cfg = ini.Empty()
 	}
 	fillDefaults()
@@ -99,10 +108,16 @@ func validateStringChoice(section string, key string, choices map[string]bool) s
 
 // Save configuration to disk
 func save() {
-	err := cfg.SaveTo("naksu.ini")
+	homeDir, errHome := homedir.Dir()
+	if errHome != nil {
+		panic("Could not get home directory")
+	}
+	naksuIniPath := filepath.Join(homeDir, "naksu.ini")
+
+	err := cfg.SaveTo(naksuIniPath)
 	if err != nil {
 		// FIXME: Solve circulating libs
-		//mebroutines.LogDebug(fmt.Sprintf("naksu.ini save failed: %v", err))
+		//mebroutines.LogDebug(fmt.Sprintf("%s save failed: %v", naksuIniPath, err))
 	}
 }
 
@@ -139,11 +154,11 @@ func SetSelfUpdateDisabled(isSelfUpdateDisabled bool) {
 
 var nics = map[string]bool{
 	"Am79C970A": true,
-	"Am79C973": true,
-	"82540EM": true,
-	"82543GC": true,
-	"82545EM": true,
-	"virtio": true,
+	"Am79C973":  true,
+	"82540EM":   true,
+	"82543GC":   true,
+	"82545EM":   true,
+	"virtio":    true,
 }
 
 // GetNic returns vagrant NIC value. Defaults to "virtio"

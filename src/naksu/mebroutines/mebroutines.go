@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"naksu/xlate"
 	"naksu/config"
+	"naksu/xlate"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/andlabs/ui"
+	"github.com/mitchellh/go-homedir"
 )
 
 var isDebug bool
@@ -301,17 +302,13 @@ func IfIntlCharsInPath(path string) bool {
 
 // GetHomeDirectory returns home directory path
 func GetHomeDirectory() string {
-	homeWin := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
-	if homeWin != "" {
-		return homeWin
+	homeDir, err := homedir.Dir()
+
+	if err != nil {
+		panic("Could not get home directory")
 	}
 
-	homeLinux := os.Getenv("HOME")
-	if homeLinux != "" {
-		return homeLinux
-	}
-
-	panic("Could not get home directory")
+	return homeDir
 }
 
 // GetVagrantDirectory returns ktp-directory path from under home directory
