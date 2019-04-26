@@ -2,7 +2,8 @@ package config
 
 import (
 	"fmt"
-	"naksu/mebroutines"
+	// FIXME: Solve circulating libs
+	//"naksu/mebroutines"
 	"strconv"
 
 	"github.com/go-ini/ini"
@@ -24,6 +25,7 @@ var defaults = []defaultValue{
 	defaultValue{"common", "iniVersion", strconv.FormatInt(1, 10)},
 	defaultValue{"common", "language", "fi"},
 	defaultValue{"selfupdate", "disabled", strconv.FormatBool(false)},
+	defaultValue{"environment", "nic", "virtio"},
 }
 
 func fillDefaults() {
@@ -48,7 +50,8 @@ func getIniKey(section string, key string) *ini.Key {
 func getBoolean(section string, key string) bool {
 	value, err := getIniKey(section, key).Bool()
 	if err != nil {
-		mebroutines.LogDebug(fmt.Sprintf("Parsing key %s / %s as bool failed", section, key))
+		// FIXME: Solve circulating libs
+		//mebroutines.LogDebug(fmt.Sprintf("Parsing key %s / %s as bool failed", section, key))
 		defaultValue := getDefault(section, key)
 		value, err = strconv.ParseBool(defaultValue)
 		if err != nil {
@@ -73,21 +76,23 @@ func Load() {
 	var err error
 	cfg, err = ini.Load("naksu.ini")
 	if err != nil {
-		mebroutines.LogDebug("naksu.ini not found, setting up empty config with defaults")
+		// FIXME: Solve circulating libs
+		//mebroutines.LogDebug("naksu.ini not found, setting up empty config with defaults")
 		cfg = ini.Empty()
 	}
 	fillDefaults()
 	save()
 }
 
-func validateStringChoice(section string, key string, choices *map[string]bool) string {
+func validateStringChoice(section string, key string, choices map[string]bool) string {
 	value := getString(section, key)
-	_, ok := languages[value]
+	_, ok := choices[value]
 	if ok {
 		return value
 	}
 	defaultValue := getDefault(section, key)
-	mebroutines.LogDebug(fmt.Sprintf("Correcting malformed ini-key %v / %v to default value %v", section, key, defaultValue))
+	// FIXME: Solve circulating libs
+	//mebroutines.LogDebug(fmt.Sprintf("Correcting malformed ini-key %v / %v to default value %v", section, key, defaultValue))
 	setValue(section, key, defaultValue)
 	return defaultValue
 }
@@ -96,7 +101,8 @@ func validateStringChoice(section string, key string, choices *map[string]bool) 
 func save() {
 	err := cfg.SaveTo("naksu.ini")
 	if err != nil {
-		mebroutines.LogDebug(fmt.Sprintf("naksu.ini save failed: %v", err))
+		// FIXME: Solve circulating libs
+		//mebroutines.LogDebug(fmt.Sprintf("naksu.ini save failed: %v", err))
 	}
 }
 
@@ -108,7 +114,7 @@ var languages = map[string]bool{
 
 // GetLanguage returns user language preference. defaults to fi
 func GetLanguage() string {
-	return validateStringChoice("common", "language", &languages)
+	return validateStringChoice("common", "language", languages)
 }
 
 // SetLanguage stores user language preference
@@ -129,4 +135,28 @@ func IsSelfUpdateDisabled() bool {
 // SetSelfUpdateDisabled sets the state of self-update functionality
 func SetSelfUpdateDisabled(isSelfUpdateDisabled bool) {
 	setValue("selfupdate", "disabled", strconv.FormatBool(isSelfUpdateDisabled))
+}
+
+var nics = map[string]bool{
+	"Am79C970A": true,
+	"Am79C973": true,
+	"82540EM": true,
+	"82543GC": true,
+	"82545EM": true,
+	"virtio": true,
+}
+
+// GetNic returns vagrant NIC value. Defaults to "virtio"
+func GetNic() string {
+	return validateStringChoice("environment", "nic", nics)
+}
+
+// SetNic sets the state of vagrant NIC value
+func SetNic(nic string) {
+	_, ok := nics[nic]
+	if ok {
+		setValue("environment", "nic", nic)
+	} else {
+		setValue("environment", "nic", getDefault("environment", "nic"))
+	}
 }

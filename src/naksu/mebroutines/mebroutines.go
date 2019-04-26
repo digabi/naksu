@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"naksu/xlate"
+	"naksu/config"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -30,6 +31,20 @@ func Close(c io.Closer) {
 	}
 }
 
+// getRunEnvironment returns array of strings containing environment strings
+func getRunEnvironment() []string {
+	runEnv := os.Environ()
+
+	config.Load()
+
+	if config.GetNic() != "" {
+		runEnv = append(runEnv, fmt.Sprintf("NIC=%s", config.GetNic()))
+		LogDebug(fmt.Sprintf("Adding environment value NIC=%s", config.GetNic()))
+	}
+
+	return runEnv
+}
+
 // Run executes command with arguments
 func Run(commandArgs []string) error {
 	LogDebug(fmt.Sprintf("run: %s", strings.Join(commandArgs, " ")))
@@ -38,6 +53,8 @@ func Run(commandArgs []string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
+	cmd.Env = getRunEnvironment()
+
 	err := cmd.Run()
 	if err != nil {
 		ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
@@ -50,7 +67,10 @@ func Run(commandArgs []string) error {
 func RunAndGetOutput(commandArgs []string, showWarningOnError bool) (string, error) {
 	LogDebug(fmt.Sprintf("RunAndGetOutput: %s", strings.Join(commandArgs, " ")))
 	/* #nosec */
-	out, err := exec.Command(commandArgs[0], commandArgs[1:]...).CombinedOutput()
+	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
+	cmd.Env = getRunEnvironment()
+
+	out, err := cmd.CombinedOutput()
 	if err != nil {
 		// Executing failed, return error condition
 		if showWarningOnError {
@@ -82,6 +102,7 @@ func RunAndGetError(commandArgs []string) (string, error) {
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = &stderr
+	cmd.Env = getRunEnvironment()
 
 	err := cmd.Run()
 
