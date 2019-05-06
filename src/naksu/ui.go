@@ -34,10 +34,12 @@ var buttonMakeBackup *ui.Button
 var buttonMebShare *ui.Button
 
 var comboboxLang *ui.Combobox
+var comboboxNic *ui.Combobox
 
 var labelBox *ui.Label
 var labelBoxAvailable *ui.Label
 var labelStatus *ui.Label
+var labelAdvancedNic *ui.Label
 var labelAdvancedUpdate *ui.Label
 var labelAdvancedAnnihilate *ui.Label
 
@@ -109,9 +111,18 @@ func createMainWindowElements() {
 		comboboxLang.SetSelected(0)
 	}
 
+	comboboxNic = ui.NewCombobox()
+	comboboxNic.Append("virtio")
+	comboboxNic.Append("Am79C970A")
+	comboboxNic.Append("Am79C973")
+	comboboxNic.Append("82540EM")
+	comboboxNic.Append("82543GC")
+	comboboxNic.Append("82545EM")
+
 	labelBox = ui.NewLabel("")
 	labelBoxAvailable = ui.NewLabel("")
 	labelStatus = ui.NewLabel("")
+	labelAdvancedNic = ui.NewLabel("")
 	labelAdvancedUpdate = ui.NewLabel("")
 	labelAdvancedAnnihilate = ui.NewLabel("")
 
@@ -149,7 +160,12 @@ func createMainWindowElements() {
 
 	boxAdvanced = ui.NewVerticalBox()
 	boxAdvanced.SetPadded(true)
+	boxAdvanced.Append(ui.NewHorizontalSeparator(), false)
+	boxAdvanced.Append(labelAdvancedNic, false)
+	boxAdvanced.Append(comboboxNic, false)
+	boxAdvanced.Append(ui.NewHorizontalSeparator(), false)
 	boxAdvanced.Append(buttonMakeBackup, true)
+	boxAdvanced.Append(ui.NewHorizontalSeparator(), false)
 	boxAdvanced.Append(labelAdvancedUpdate, false)
 	boxAdvanced.Append(boxAdvancedUpdate, true)
 	boxAdvanced.Append(labelAdvancedAnnihilate, false)
@@ -387,6 +403,27 @@ func updateGetServerButtonLabel() {
 	}()
 }
 
+func updateAdvancedNicComboboxValue() {
+	log.LogDebug(fmt.Sprintf("Setting NIC combobox value (%s) from config to UI", config.GetNic()))
+
+	switch config.GetNic() {
+	case "virtio":
+		comboboxNic.SetSelected(0)
+	case "Am79C970A":
+		comboboxNic.SetSelected(1)
+	case "Am79C973":
+		comboboxNic.SetSelected(2)
+	case "82540EM":
+		comboboxNic.SetSelected(3)
+	case "82543GC":
+		comboboxNic.SetSelected(4)
+	case "82545EM":
+		comboboxNic.SetSelected(5)
+	default:
+		comboboxNic.SetSelected(0)
+	}
+}
+
 func translateUILabels() {
 	ui.QueueMain(func() {
 		buttonStartServer.SetText(xlate.Get("Start Exam Server"))
@@ -409,6 +446,7 @@ func translateUILabels() {
 		}
 
 		checkboxAdvanced.SetText(xlate.Get("Show management features"))
+		labelAdvancedNic.SetText(xlate.Get("Server networking hardware:"))
 		labelAdvancedUpdate.SetText(xlate.Get("Install/update server for:"))
 		labelAdvancedAnnihilate.SetText(xlate.Get("DANGER! Annihilate your server:"))
 
@@ -471,11 +509,35 @@ func bindAdvancedToggle() {
 		case true:
 			{
 				boxAdvanced.Show()
+
+				updateAdvancedNicComboboxValue()
 			}
 		case false:
 			{
 				boxAdvanced.Hide()
 			}
+		}
+	})
+}
+
+func bindAdvancedNicSwitching() {
+	// Define NIC selection action main window (advanced view)
+	comboboxNic.OnSelected(func(*ui.Combobox) {
+		switch comboboxNic.Selected() {
+		case 0:
+			config.SetNic("virtio")
+		case 1:
+			config.SetNic("Am79C970A")
+		case 2:
+			config.SetNic("Am79C973")
+		case 3:
+			config.SetNic("82540EM")
+		case 4:
+			config.SetNic("82543GC")
+		case 5:
+			config.SetNic("82545EM")
+		default:
+			config.SetNic("virtio")
 		}
 	})
 }
@@ -809,6 +871,7 @@ func RunUI() error {
 
 		bindLanguageSwitching()
 		bindAdvancedToggle()
+		bindAdvancedNicSwitching()
 
 		bindUIDisableOnStart(mainUIStatus)
 
