@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"naksu/constants"
 	"naksu/log"
 
 	"github.com/go-ini/ini"
@@ -25,9 +26,9 @@ type defaultValue struct {
 
 var defaults = []defaultValue{
 	defaultValue{"common", "iniVersion", strconv.FormatInt(1, 10)},
-	defaultValue{"common", "language", "fi"},
+	defaultValue{"common", "language", constants.AvailableLangs[0].ConfigValue},
 	defaultValue{"selfupdate", "disabled", strconv.FormatBool(false)},
-	defaultValue{"environment", "nic", "virtio"},
+	defaultValue{"environment", "nic", constants.AvailableNics[0].ConfigValue},
 }
 
 func fillDefaults() {
@@ -68,6 +69,7 @@ func getString(section string, key string) string {
 }
 
 func setValue(section string, key string, value string) {
+	log.LogDebug(fmt.Sprintf("Setting new configuration: section %s, key: %s, value: %s", section, key, value))
 	cfg.Section(section).Key(key).SetValue(value)
 	save()
 }
@@ -91,10 +93,12 @@ func Load() {
 	save()
 }
 
-func validateStringChoice(section string, key string, choices map[string]bool) string {
+func validateStringChoice(section string, key string, choices []constants.AvailableSelection) string {
 	value := getString(section, key)
-	_, ok := choices[value]
-	if ok {
+
+	id := constants.GetAvailableSelectionId(value, choices)
+
+	if id >= 0 {
 		return value
 	}
 	defaultValue := getDefault(section, key)
@@ -117,24 +121,17 @@ func save() {
 	}
 }
 
-var languages = map[string]bool{
-	"en": true,
-	"fi": true,
-	"sv": true,
-}
-
 // GetLanguage returns user language preference. defaults to fi
 func GetLanguage() string {
-	return validateStringChoice("common", "language", languages)
+	return validateStringChoice("common", "language", constants.AvailableLangs)
 }
 
 // SetLanguage stores user language preference
 func SetLanguage(language string) {
-	_, ok := languages[language]
-	if ok {
-		setValue("common", "language", language)
-	} else {
+	if constants.GetAvailableSelectionId(language, constants.AvailableLangs) < 0 {
 		setValue("common", "language", getDefault("common", "language"))
+	} else {
+		setValue("common", "language", language)
 	}
 }
 
@@ -148,26 +145,16 @@ func SetSelfUpdateDisabled(isSelfUpdateDisabled bool) {
 	setValue("selfupdate", "disabled", strconv.FormatBool(isSelfUpdateDisabled))
 }
 
-var nics = map[string]bool{
-	"Am79C970A": true,
-	"Am79C973":  true,
-	"82540EM":   true,
-	"82543GC":   true,
-	"82545EM":   true,
-	"virtio":    true,
-}
-
 // GetNic returns vagrant NIC value. Defaults to "virtio"
 func GetNic() string {
-	return validateStringChoice("environment", "nic", nics)
+	return validateStringChoice("environment", "nic", constants.AvailableNics)
 }
 
 // SetNic sets the state of vagrant NIC value
 func SetNic(nic string) {
-	_, ok := nics[nic]
-	if ok {
-		setValue("environment", "nic", nic)
-	} else {
+	if constants.GetAvailableSelectionId(nic, constants.AvailableNics) < 0 {
 		setValue("environment", "nic", getDefault("environment", "nic"))
+	} else {
+		setValue("environment", "nic", nic)
 	}
 }

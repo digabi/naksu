@@ -19,3 +19,67 @@ const (
 	// In seconds (5 minutes)
 	VagrantBoxAvailVersionDetailsCacheTimeout int64 = 5 * 60
 )
+
+// AvailableSelection is a struct for a UI/configuration option
+type AvailableSelection struct {
+	ConfigValue string
+	Legend      string
+}
+
+// AvailableLangs is an array of possible language selection values.
+// The first value is the default.
+var AvailableLangs = []AvailableSelection{
+	AvailableSelection{
+		ConfigValue: "fi",
+		Legend:      "Suomeksi",
+	},
+	AvailableSelection{
+		ConfigValue: "sv",
+		Legend:      "På svenska",
+	},
+	AvailableSelection{
+		ConfigValue: "en",
+		Legend:      "In English",
+	},
+}
+
+// AvailableNics is an array of possible NIC selection values.
+// The first value is the default.
+var AvailableNics = []AvailableSelection{
+	AvailableSelection{
+		ConfigValue: "virtio",
+		Legend:      "virtio",
+	},
+	AvailableSelection{
+		ConfigValue: "Am79C970A",
+		Legend:      "Am79C970A",
+	},
+	AvailableSelection{
+		ConfigValue: "Am79C973",
+		Legend:      "Am79C973",
+	},
+	AvailableSelection{
+		ConfigValue: "82540EM",
+		Legend:      "82540EM",
+	},
+	AvailableSelection{
+		ConfigValue: "82543GC",
+		Legend:      "82543GC",
+	},
+	AvailableSelection{
+		ConfigValue: "82545EM",
+		Legend:      "82545EM",
+	},
+}
+
+// GetAvailableSelectionId returns array id for a given ConfigValue
+// in the given set of choices. Returns -1 if the configValue was not found.
+func GetAvailableSelectionId(configValue string, choices []AvailableSelection) int {
+	for i, thisChoice := range choices {
+		if thisChoice.ConfigValue == configValue {
+			return i
+		}
+	}
+
+	return -1
+}

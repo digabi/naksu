@@ -96,28 +96,35 @@ func createMainWindowElements() {
 	buttonMakeBackup = ui.NewButton("Make Exam Server Backup")
 	buttonMebShare = ui.NewButton("Open virtual USB stick (ktp-jako)")
 
+	// Define language setting combobox
 	comboboxLang = ui.NewCombobox()
-	comboboxLang.Append("Suomeksi")
-	comboboxLang.Append("På svenska")
-	comboboxLang.Append("In English")
-	switch config.GetLanguage() {
-	case "fi":
-		comboboxLang.SetSelected(0)
-	case "sv":
-		comboboxLang.SetSelected(1)
-	case "en":
-		comboboxLang.SetSelected(2)
-	default:
-		comboboxLang.SetSelected(0)
+	for _, thisSelection := range constants.AvailableLangs {
+		comboboxLang.Append(thisSelection.Legend)
 	}
 
+	// Set current language setting to language combobox
+	languageId := constants.GetAvailableSelectionId(config.GetLanguage(), constants.AvailableLangs)
+	if languageId < 0 {
+		// Default value
+		comboboxLang.SetSelected(0)
+	} else {
+		comboboxLang.SetSelected(languageId)
+	}
+
+	// Define NIC setting combobox
 	comboboxNic = ui.NewCombobox()
-	comboboxNic.Append("virtio")
-	comboboxNic.Append("Am79C970A")
-	comboboxNic.Append("Am79C973")
-	comboboxNic.Append("82540EM")
-	comboboxNic.Append("82543GC")
-	comboboxNic.Append("82545EM")
+	for _, thisSelection := range constants.AvailableNics {
+		comboboxNic.Append(thisSelection.Legend)
+	}
+
+	// Set current NIC setting to NIC combobox
+	nicId := constants.GetAvailableSelectionId(config.GetNic(), constants.AvailableNics)
+	if nicId < 0 {
+		// Default value
+		comboboxNic.SetSelected(0)
+	} else {
+		comboboxNic.SetSelected(nicId)
+	}
 
 	labelBox = ui.NewLabel("")
 	labelBoxAvailable = ui.NewLabel("")
@@ -290,6 +297,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 
 					ui.QueueMain(func() {
 						comboboxLang.Enable()
+						comboboxNic.Enable()
 
 						// Require installed version to start server
 						if boxversion.GetVagrantFileVersion("") == "" {
@@ -320,6 +328,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 
 					ui.QueueMain(func() {
 						comboboxLang.Disable()
+						comboboxNic.Disable()
 
 						buttonStartServer.Disable()
 						buttonMebShare.Enable()
@@ -403,27 +412,6 @@ func updateGetServerButtonLabel() {
 	}()
 }
 
-func updateAdvancedNicComboboxValue() {
-	log.LogDebug(fmt.Sprintf("Setting NIC combobox value (%s) from config to UI", config.GetNic()))
-
-	switch config.GetNic() {
-	case "virtio":
-		comboboxNic.SetSelected(0)
-	case "Am79C970A":
-		comboboxNic.SetSelected(1)
-	case "Am79C973":
-		comboboxNic.SetSelected(2)
-	case "82540EM":
-		comboboxNic.SetSelected(3)
-	case "82543GC":
-		comboboxNic.SetSelected(4)
-	case "82545EM":
-		comboboxNic.SetSelected(5)
-	default:
-		comboboxNic.SetSelected(0)
-	}
-}
-
 func translateUILabels() {
 	ui.QueueMain(func() {
 		buttonStartServer.SetText(xlate.Get("Start Exam Server"))
@@ -486,16 +474,7 @@ func enableUI(mainUIStatus chan string) {
 func bindLanguageSwitching() {
 	// Define language selection action main window
 	comboboxLang.OnSelected(func(*ui.Combobox) {
-		switch comboboxLang.Selected() {
-		case 0:
-			config.SetLanguage("fi")
-		case 1:
-			config.SetLanguage("sv")
-		case 2:
-			config.SetLanguage("en")
-		default:
-			config.SetLanguage("fi")
-		}
+		config.SetLanguage(constants.AvailableLangs[comboboxLang.Selected()].ConfigValue)
 
 		xlate.SetLanguage(config.GetLanguage())
 		translateUILabels()
@@ -509,8 +488,6 @@ func bindAdvancedToggle() {
 		case true:
 			{
 				boxAdvanced.Show()
-
-				updateAdvancedNicComboboxValue()
 			}
 		case false:
 			{
@@ -523,22 +500,7 @@ func bindAdvancedToggle() {
 func bindAdvancedNicSwitching() {
 	// Define NIC selection action main window (advanced view)
 	comboboxNic.OnSelected(func(*ui.Combobox) {
-		switch comboboxNic.Selected() {
-		case 0:
-			config.SetNic("virtio")
-		case 1:
-			config.SetNic("Am79C970A")
-		case 2:
-			config.SetNic("Am79C973")
-		case 3:
-			config.SetNic("82540EM")
-		case 4:
-			config.SetNic("82543GC")
-		case 5:
-			config.SetNic("82545EM")
-		default:
-			config.SetNic("virtio")
-		}
+		config.SetNic(constants.AvailableNics[comboboxNic.Selected()].ConfigValue)
 	})
 }
 
