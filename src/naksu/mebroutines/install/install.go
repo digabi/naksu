@@ -2,13 +2,15 @@ package install
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
+
 	"naksu/constants"
+	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/network"
 	"naksu/progress"
 	"naksu/xlate"
-	"os"
 )
 
 // GetServer downloads vagrantfile and starts server
@@ -16,12 +18,12 @@ func GetServer(newVagrantfilePath string) {
 	// Create ~/ktp if missing
 	progress.TranslateAndSetMessage("Creating ~/ktp")
 	var ktpPath = createKtpDir()
-	mebroutines.LogDebug(fmt.Sprintf("ktpPath is %s", ktpPath))
+	log.Debug(fmt.Sprintf("ktpPath is %s", ktpPath))
 
 	// Create ~/ktp-jako if missing
 	progress.TranslateAndSetMessage("Creating ~/ktp-jako")
 	var ktpJakoPath = createKtpJakoDir()
-	mebroutines.LogDebug(fmt.Sprintf("ktpJakoPath is %s", ktpJakoPath))
+	log.Debug(fmt.Sprintf("ktpJakoPath is %s", ktpJakoPath))
 
 	var vagrantfilePath = filepath.Join(ktpPath, "Vagrantfile")
 
@@ -33,7 +35,7 @@ func GetServer(newVagrantfilePath string) {
 		progress.TranslateAndSetMessage("Downloading Abitti Vagrantfile")
 		errDownload := network.DownloadFile(constants.AbittiVagrantURL, abittiVagrantfilePath)
 		if errDownload != nil {
-			mebroutines.LogDebug(fmt.Sprintf("Download failed: %v", errDownload))
+			log.Debug(fmt.Sprintf("Download failed: %v", errDownload))
 			mebroutines.ShowWarningMessage(xlate.Get("Could not update Abitti stickless server. Please check your network connection."))
 			return
 		}
@@ -60,7 +62,7 @@ func GetServer(newVagrantfilePath string) {
 	err := mebroutines.CopyFile(newVagrantfilePath, vagrantfilePath)
 
 	if err != nil {
-		mebroutines.LogDebug(fmt.Sprintf("Copying failed, error: %v", err))
+		log.Debug(fmt.Sprintf("Copying failed, error: %v", err))
 		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Error while copying new Vagrantfile: %d"), err))
 	}
 

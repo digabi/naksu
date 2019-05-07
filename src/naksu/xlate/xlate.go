@@ -25,6 +25,7 @@ func SetLanguage(newLanguage string) {
 			// Main window, other
 			"Current version: %s":                                                                        "Asennettu versio: %s",
 			"Update available: %s":                                                                       "Päivitys saatavilla: %s",
+			"Server networking hardware:":                                                                "Palvelimen verkkolaite:",
 			"Install/update server for:":                                                                 "Asenna tai päivitä palvelin:",
 			"DANGER! Annihilate your server:":                                                            "VAARA! Palvelimen tuhoaminen:",
 			"Naksu could not check for updates as there is no network connection.":                       "Naksu ei voinut etsiä uusia versioita, koska verkkoyhteys puuttuu.",
@@ -134,6 +135,7 @@ func SetLanguage(newLanguage string) {
 			// Main window, other
 			"Current version: %s":                                                                        "Installerad version: %s",
 			"Update available: %s":                                                                       "Uppdatering tillgänglig: %s",
+			"Server networking hardware:":                                                                "Servernätverkshårdvara:",
 			"Install/update server for:":                                                                 "Installera eller uppdatera server för:",
 			"DANGER! Annihilate your server:":                                                            "FARA! Förstörning av servern:",
 			"Naksu could not check for updates as there is no network connection.":                       "Naksu kunde inte söka nya uppdateringar för att nätförbindelse saknades.",

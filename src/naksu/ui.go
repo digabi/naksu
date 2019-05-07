@@ -2,9 +2,13 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
+	"time"
+
 	"naksu/boxversion"
 	"naksu/config"
 	"naksu/constants"
+	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/mebroutines/backup"
 	"naksu/mebroutines/destroy"
@@ -14,8 +18,6 @@ import (
 	"naksu/network"
 	"naksu/progress"
 	"naksu/xlate"
-	"path/filepath"
-	"time"
 
 	"github.com/andlabs/ui"
 	humanize "github.com/dustin/go-humanize"
@@ -32,10 +34,12 @@ var buttonMakeBackup *ui.Button
 var buttonMebShare *ui.Button
 
 var comboboxLang *ui.Combobox
+var comboboxNic *ui.Combobox
 
 var labelBox *ui.Label
 var labelBoxAvailable *ui.Label
 var labelStatus *ui.Label
+var labelAdvancedNic *ui.Label
 var labelAdvancedUpdate *ui.Label
 var labelAdvancedAnnihilate *ui.Label
 
@@ -92,24 +96,40 @@ func createMainWindowElements() {
 	buttonMakeBackup = ui.NewButton("Make Exam Server Backup")
 	buttonMebShare = ui.NewButton("Open virtual USB stick (ktp-jako)")
 
+	// Define language setting combobox
 	comboboxLang = ui.NewCombobox()
-	comboboxLang.Append("Suomeksi")
-	comboboxLang.Append("På svenska")
-	comboboxLang.Append("In English")
-	switch config.GetLanguage() {
-	case "fi":
+	for _, thisSelection := range constants.AvailableLangs {
+		comboboxLang.Append(thisSelection.Legend)
+	}
+
+	// Set current language setting to language combobox
+	languageID := constants.GetAvailableSelectionID(config.GetLanguage(), constants.AvailableLangs)
+	if languageID < 0 {
+		// Default value
 		comboboxLang.SetSelected(0)
-	case "sv":
-		comboboxLang.SetSelected(1)
-	case "en":
-		comboboxLang.SetSelected(2)
-	default:
-		comboboxLang.SetSelected(0)
+	} else {
+		comboboxLang.SetSelected(languageID)
+	}
+
+	// Define NIC setting combobox
+	comboboxNic = ui.NewCombobox()
+	for _, thisSelection := range constants.AvailableNics {
+		comboboxNic.Append(thisSelection.Legend)
+	}
+
+	// Set current NIC setting to NIC combobox
+	nicID := constants.GetAvailableSelectionID(config.GetNic(), constants.AvailableNics)
+	if nicID < 0 {
+		// Default value
+		comboboxNic.SetSelected(0)
+	} else {
+		comboboxNic.SetSelected(nicID)
 	}
 
 	labelBox = ui.NewLabel("")
 	labelBoxAvailable = ui.NewLabel("")
 	labelStatus = ui.NewLabel("")
+	labelAdvancedNic = ui.NewLabel("")
 	labelAdvancedUpdate = ui.NewLabel("")
 	labelAdvancedAnnihilate = ui.NewLabel("")
 
@@ -147,7 +167,12 @@ func createMainWindowElements() {
 
 	boxAdvanced = ui.NewVerticalBox()
 	boxAdvanced.SetPadded(true)
+	boxAdvanced.Append(ui.NewHorizontalSeparator(), false)
+	boxAdvanced.Append(labelAdvancedNic, false)
+	boxAdvanced.Append(comboboxNic, false)
+	boxAdvanced.Append(ui.NewHorizontalSeparator(), false)
 	boxAdvanced.Append(buttonMakeBackup, true)
+	boxAdvanced.Append(ui.NewHorizontalSeparator(), false)
 	boxAdvanced.Append(labelAdvancedUpdate, false)
 	boxAdvanced.Append(boxAdvancedUpdate, true)
 	boxAdvanced.Append(labelAdvancedAnnihilate, false)
@@ -265,13 +290,14 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					})
 				}
 			case newStatus := <-mainUIStatus:
-				mebroutines.LogDebug(fmt.Sprintf("main_ui_status: %s", newStatus))
+				log.Debug(fmt.Sprintf("main_ui_status: %s", newStatus))
 				// Got new status
 				if newStatus == "enable" {
-					mebroutines.LogDebug("enable ui")
+					log.Debug("enable ui")
 
 					ui.QueueMain(func() {
 						comboboxLang.Enable()
+						comboboxNic.Enable()
 
 						// Require installed version to start server
 						if boxversion.GetVagrantFileVersion("") == "" {
@@ -298,10 +324,11 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					lastStatus = newStatus
 				}
 				if newStatus == "disable" {
-					mebroutines.LogDebug("disable ui")
+					log.Debug("disable ui")
 
 					ui.QueueMain(func() {
 						comboboxLang.Disable()
+						comboboxNic.Disable()
 
 						buttonStartServer.Disable()
 						buttonMebShare.Enable()
@@ -407,6 +434,7 @@ func translateUILabels() {
 		}
 
 		checkboxAdvanced.SetText(xlate.Get("Show management features"))
+		labelAdvancedNic.SetText(xlate.Get("Server networking hardware:"))
 		labelAdvancedUpdate.SetText(xlate.Get("Install/update server for:"))
 		labelAdvancedAnnihilate.SetText(xlate.Get("DANGER! Annihilate your server:"))
 
@@ -446,16 +474,7 @@ func enableUI(mainUIStatus chan string) {
 func bindLanguageSwitching() {
 	// Define language selection action main window
 	comboboxLang.OnSelected(func(*ui.Combobox) {
-		switch comboboxLang.Selected() {
-		case 0:
-			config.SetLanguage("fi")
-		case 1:
-			config.SetLanguage("sv")
-		case 2:
-			config.SetLanguage("en")
-		default:
-			config.SetLanguage("fi")
-		}
+		config.SetLanguage(constants.AvailableLangs[comboboxLang.Selected()].ConfigValue)
 
 		xlate.SetLanguage(config.GetLanguage())
 		translateUILabels()
@@ -478,6 +497,13 @@ func bindAdvancedToggle() {
 	})
 }
 
+func bindAdvancedNicSwitching() {
+	// Define NIC selection action main window (advanced view)
+	comboboxNic.OnSelected(func(*ui.Combobox) {
+		config.SetNic(constants.AvailableNics[comboboxNic.Selected()].ConfigValue)
+	})
+}
+
 func bindUIDisableOnStart(mainUIStatus chan string) {
 	// Define actions for main window
 	buttonStartServer.OnClicked(func(*ui.Button) {
@@ -488,7 +514,7 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 				if network.CheckIfNetworkAvailable() {
 					mebroutines.ShowWarningMessage(xlate.Get("You are starting Matriculation Examination server with an Internet connection."))
 				} else {
-					mebroutines.LogDebug("Starting Matric Exam server without an internet connection - All is good!")
+					log.Debug("Starting Matric Exam server without an internet connection - All is good!")
 				}
 			}
 
@@ -510,12 +536,12 @@ func checkFreeDisk(chFreeDisk chan uint64) {
 		if mebroutines.ExistsDir(mebroutines.GetVagrantDirectory()) {
 			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetVagrantDirectory())
 			if err != nil {
-				mebroutines.LogDebug("Getting free disk space from Vagrant directory failed")
+				log.Debug("Getting free disk space from Vagrant directory failed")
 			}
 		} else {
 			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetHomeDirectory())
 			if err != nil {
-				mebroutines.LogDebug("Getting free disk space from home directory failed")
+				log.Debug("Getting free disk space from home directory failed")
 			}
 		}
 		chFreeDisk <- freeDisk
@@ -524,7 +550,7 @@ func checkFreeDisk(chFreeDisk chan uint64) {
 
 func bindOnGetServer(mainUIStatus chan string) {
 	buttonGetServer.OnClicked(func(*ui.Button) {
-		mebroutines.LogDebug("Starting Abitti box update")
+		log.Debug("Starting Abitti box update")
 
 		chFreeDisk := make(chan uint64)
 		chDiskLowPopup := make(chan bool)
@@ -551,7 +577,7 @@ func bindOnGetServer(mainUIStatus chan string) {
 				enableUI(mainUIStatus)
 				progress.SetMessage("")
 
-				mebroutines.LogDebug(fmt.Sprintf("Finished Abitti box update, version is: %s", boxversion.GetVagrantFileVersion("")))
+				log.Debug(fmt.Sprintf("Finished Abitti box update, version is: %s", boxversion.GetVagrantFileVersion("")))
 			}()
 		}()
 	})
@@ -559,7 +585,7 @@ func bindOnGetServer(mainUIStatus chan string) {
 
 func bindOnSwitchServer(mainUIStatus chan string) {
 	buttonSwitchServer.OnClicked(func(*ui.Button) {
-		mebroutines.LogDebug("Starting Matriculation Examination box update")
+		log.Debug("Starting Matriculation Examination box update")
 
 		chFreeDisk := make(chan uint64)
 		chDiskLowPopup := make(chan bool)
@@ -605,7 +631,7 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 					enableUI(mainUIStatus)
 					progress.SetMessage("")
 
-					mebroutines.LogDebug(fmt.Sprintf("Finished Matriculation Examination box update, new version is: %s", boxversion.GetVagrantFileVersion("")))
+					log.Debug(fmt.Sprintf("Finished Matriculation Examination box update, new version is: %s", boxversion.GetVagrantFileVersion("")))
 				}()
 			}
 		}()
@@ -638,7 +664,7 @@ func bindOnMakeBackup(mainUIStatus chan string) {
 
 func bindOnMebShare() {
 	buttonMebShare.OnClicked(func(*ui.Button) {
-		mebroutines.LogDebug("Opening MEB share (~/ktp-jako)")
+		log.Debug("Opening MEB share (~/ktp-jako)")
 		mebroutines.OpenMebShare()
 	})
 }
@@ -647,7 +673,7 @@ func bindOnBackup(mainUIStatus chan string) {
 	// Define actions for SaveAs window/dialog
 	backupButtonSave.OnClicked(func(*ui.Button) {
 		pathBackup := filepath.Join(backupMediaPath[backupCombobox.Selected()], backup.GetBackupFilename(time.Now()))
-		mebroutines.LogDebug(fmt.Sprintf("Starting backup to: %s", pathBackup))
+		log.Debug(fmt.Sprintf("Starting backup to: %s", pathBackup))
 
 		chFreeDisk := make(chan uint64)
 		chDiskLowPopup := make(chan bool)
@@ -677,7 +703,7 @@ func bindOnBackup(mainUIStatus chan string) {
 
 				enableUI(mainUIStatus)
 
-				mebroutines.LogDebug("Finished creating backup")
+				log.Debug("Finished creating backup")
 			}()
 		}()
 	})
@@ -699,7 +725,7 @@ func bindOnDestroy(mainUIStatus chan string) {
 
 	destroyButtonDestroy.OnClicked(func(*ui.Button) {
 		go func() {
-			mebroutines.LogDebug("Starting server destroy")
+			log.Debug("Starting server destroy")
 
 			destroyWindow.Hide()
 			err := destroy.Server()
@@ -715,7 +741,7 @@ func bindOnDestroy(mainUIStatus chan string) {
 
 			enableUI(mainUIStatus)
 
-			mebroutines.LogDebug("Finished server destroy")
+			log.Debug("Finished server destroy")
 		}()
 	})
 
@@ -736,7 +762,7 @@ func bindOnRemove(mainUIStatus chan string) {
 
 	removeButtonRemove.OnClicked(func(*ui.Button) {
 		go func() {
-			mebroutines.LogDebug("Starting server remove")
+			log.Debug("Starting server remove")
 
 			removeWindow.Hide()
 
@@ -753,7 +779,7 @@ func bindOnRemove(mainUIStatus chan string) {
 
 			enableUI(mainUIStatus)
 
-			mebroutines.LogDebug("Finished server remove")
+			log.Debug("Finished server remove")
 		}()
 	})
 
@@ -807,6 +833,7 @@ func RunUI() error {
 
 		bindLanguageSwitching()
 		bindAdvancedToggle()
+		bindAdvancedNicSwitching()
 
 		bindUIDisableOnStart(mainUIStatus)
 
@@ -823,7 +850,7 @@ func RunUI() error {
 		bindOnRemove(mainUIStatus)
 
 		window.OnClosing(func(*ui.Window) bool {
-			mebroutines.LogDebug("User exists through window exit")
+			log.Debug("User exists through window exit")
 			ui.Quit()
 			return true
 		})

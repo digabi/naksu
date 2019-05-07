@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"naksu/boxversion"
 	"naksu/config"
+	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/xlate"
 	"os"
@@ -48,9 +49,9 @@ func logDirectoryPaths() {
 
 	for _, thisDir := range listDirs {
 		if mebroutines.ExistsDir(thisDir.dirPath) {
-			mebroutines.LogDebug(fmt.Sprintf("%s: %s [Directory exists]", thisDir.dirName, thisDir.dirPath))
+			log.Debug(fmt.Sprintf("%s: %s [Directory exists]", thisDir.dirName, thisDir.dirPath))
 		} else {
-			mebroutines.LogDebug(fmt.Sprintf("%s: %s [Directory does not exist]", thisDir.dirName, thisDir.dirPath))
+			log.Debug(fmt.Sprintf("%s: %s [Directory does not exist]", thisDir.dirName, thisDir.dirPath))
 		}
 	}
 }
@@ -81,7 +82,7 @@ func main() {
 	})
 
 	handleOptionalArgument("self-update", parser, func(opt *flags.Option) {
-		mebroutines.LogDebug(fmt.Sprintf("Self-update: %v", opt.Value()))
+		log.Debug(fmt.Sprintf("Self-update: %v", opt.Value()))
 		if opt.Value() == "disabled" {
 			config.SetSelfUpdateDisabled(true)
 		} else {
@@ -91,31 +92,31 @@ func main() {
 
 	RunSelfUpdate()
 
-	mebroutines.SetDebug(isDebug)
+	log.SetDebug(isDebug)
 
 	// Determine/set path for debug log
-	mebroutines.SetDebugFilename(mebroutines.GetNewDebugFilename())
+	log.SetDebugFilename(log.GetNewDebugFilename())
 
-	mebroutines.LogDebug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
+	log.Debug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
 
 	logDirectoryPaths()
 
-	mebroutines.LogDebug(fmt.Sprintf("Currently installed box: %s", boxversion.GetVagrantFileVersion("")))
+	log.Debug(fmt.Sprintf("Currently installed box: %s", boxversion.GetVagrantFileVersion("")))
 
 	// Check whether we have a terminal (restart with x-terminal-emulator, if missing)
 	if !mebroutines.ExistsStdin() {
 		pathToMe, err := osext.Executable()
 		if err != nil {
-			mebroutines.LogDebug("Failed to get executable path")
+			log.Debug("Failed to get executable path")
 		}
 		commandArgs := []string{"x-terminal-emulator", "-e", pathToMe}
 
-		mebroutines.LogDebug(fmt.Sprintf("No stdin, restarting with terminal: %s", strings.Join(commandArgs, " ")))
+		log.Debug(fmt.Sprintf("No stdin, restarting with terminal: %s", strings.Join(commandArgs, " ")))
 		_, err = mebroutines.RunAndGetOutput(commandArgs, true)
 		if err != nil {
-			mebroutines.LogDebug(fmt.Sprintf("Failed to restart with terminal: %d", err))
+			log.Debug(fmt.Sprintf("Failed to restart with terminal: %d", err))
 		}
-		mebroutines.LogDebug(fmt.Sprintf("No stdin, returned from %s", strings.Join(commandArgs, " ")))
+		log.Debug(fmt.Sprintf("No stdin, returned from %s", strings.Join(commandArgs, " ")))
 
 		// Normal termination
 		os.Exit(0)
@@ -127,5 +128,5 @@ func main() {
 		panic(err)
 	}
 
-	mebroutines.LogDebug("Exiting GUI loop")
+	log.Debug("Exiting GUI loop")
 }

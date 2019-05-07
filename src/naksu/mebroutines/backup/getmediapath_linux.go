@@ -2,11 +2,13 @@ package backup
 
 import (
 	"encoding/json"
-	"path/filepath"
 	"fmt"
+	"os"
+	"path/filepath"
+
+	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/xlate"
-	"os"
 )
 
 // GetBackupMedia returns backup media path
@@ -43,11 +45,11 @@ func getBackupMediaLinux() map[string]string {
 
 	lsblkJSON, lsblkErr := mebroutines.RunAndGetOutput(runParams, true)
 
-	mebroutines.LogDebug("lsblk says:")
-	mebroutines.LogDebug(lsblkJSON)
+	log.Debug("lsblk says:")
+	log.Debug(lsblkJSON)
 
 	if lsblkErr != nil {
-		mebroutines.LogDebug("Failed to run lsblk")
+		log.Debug("Failed to run lsblk")
 		// Return empty set of media
 		return media
 	}
@@ -56,8 +58,8 @@ func getBackupMediaLinux() map[string]string {
 
 	jsonErr := json.Unmarshal([]byte(lsblkJSON), &jsonData)
 	if jsonErr != nil {
-		mebroutines.LogDebug("Unable on decode lsblk response:")
-		mebroutines.LogDebug(fmt.Sprintf("%s", jsonErr))
+		log.Debug("Unable on decode lsblk response:")
+		log.Debug(fmt.Sprintf("%s", jsonErr))
 		// Return empty set of media
 		return media
 	}

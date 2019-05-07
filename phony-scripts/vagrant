@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -n "$NIC" ]; then
+  echo "$0: Network card specified: $NIC"
+fi
+
 if [ "$1" = "--version" ]; then
   echo "Vagrant 0.0.0"
 

@@ -2,13 +2,15 @@ package mebroutines
 
 import (
 	"fmt"
+
+	"naksu/log"
 )
 
 // OpenMebShare command executes command that opens file browser to meb share directory
 func OpenMebShare() {
 	mebSharePath := GetMebshareDirectory()
 
-	LogDebug(fmt.Sprintf("MEB share directory: %s", mebSharePath))
+	log.Debug(fmt.Sprintf("MEB share directory: %s", mebSharePath))
 
 	if !ExistsDir(mebSharePath) {
 		ShowWarningMessage("Cannot open MEB share directory since it does not exist")
@@ -17,15 +19,15 @@ func OpenMebShare() {
 
 	// Try to open MEB share folder with any of these utils
 	// Hopefully we have at least one of them installed!
-	openers := [3]string {"xdg-open", "gnome-open", "nautilus"}
+	openers := [3]string{"xdg-open", "gnome-open", "nautilus"}
 
 	for _, thisOpener := range openers {
 		runParams := []string{thisOpener, mebSharePath}
 		output, err := RunAndGetOutput(runParams, false)
 
 		if err == nil {
-			LogDebug("MEB share directory open output:")
-			LogDebug(output)
+			log.Debug("MEB share directory open output:")
+			log.Debug(output)
 
 			return
 		}

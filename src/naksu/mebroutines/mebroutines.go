@@ -6,38 +6,55 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
-	"naksu/xlate"
+	golog "log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
-	"time"
+
+	"naksu/config"
+	"naksu/log"
+	"naksu/xlate"
 
 	"github.com/andlabs/ui"
+	"github.com/mitchellh/go-homedir"
 )
 
-var isDebug bool
 var mainWindow *ui.Window
-var debugFilename string
 
 // Close gracefully handles closing of closable item. defer Close(item)
 func Close(c io.Closer) {
 	err := c.Close()
 	if err != nil {
-		log.Fatal(err)
+		golog.Fatal(err)
 	}
+}
+
+// getRunEnvironment returns array of strings containing environment strings
+func getRunEnvironment() []string {
+	runEnv := os.Environ()
+
+	config.Load()
+
+	if config.GetNic() != "" {
+		runEnv = append(runEnv, fmt.Sprintf("NIC=%s", config.GetNic()))
+		log.Debug(fmt.Sprintf("Adding environment value NIC=%s", config.GetNic()))
+	}
+
+	return runEnv
 }
 
 // Run executes command with arguments
 func Run(commandArgs []string) error {
-	LogDebug(fmt.Sprintf("run: %s", strings.Join(commandArgs, " ")))
+	log.Debug(fmt.Sprintf("run: %s", strings.Join(commandArgs, " ")))
 	/* #nosec */
 	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
+	cmd.Env = getRunEnvironment()
+
 	err := cmd.Run()
 	if err != nil {
 		ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
@@ -48,24 +65,27 @@ func Run(commandArgs []string) error {
 
 // RunAndGetOutput runs command with arguments and returns output as a string
 func RunAndGetOutput(commandArgs []string, showWarningOnError bool) (string, error) {
-	LogDebug(fmt.Sprintf("RunAndGetOutput: %s", strings.Join(commandArgs, " ")))
+	log.Debug(fmt.Sprintf("RunAndGetOutput: %s", strings.Join(commandArgs, " ")))
 	/* #nosec */
-	out, err := exec.Command(commandArgs[0], commandArgs[1:]...).CombinedOutput()
+	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
+	cmd.Env = getRunEnvironment()
+
+	out, err := cmd.CombinedOutput()
 	if err != nil {
 		// Executing failed, return error condition
 		if showWarningOnError {
 			ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
 		} else {
-			LogDebug(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
+			log.Debug(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
 		}
 		return string(out), err
 	}
 
 	if out != nil {
-		LogDebug("RunAndGetOutput returns combined STDOUT and STDERR:")
-		LogDebug(string(out))
+		log.Debug("RunAndGetOutput returns combined STDOUT and STDERR:")
+		log.Debug(string(out))
 	} else {
-		LogDebug("RunAndGetOutput returned NIL as combined STDOUT and STDERR")
+		log.Debug("RunAndGetOutput returned NIL as combined STDOUT and STDERR")
 	}
 
 	return string(out), nil
@@ -73,7 +93,7 @@ func RunAndGetOutput(commandArgs []string, showWarningOnError bool) (string, err
 
 // RunAndGetError runs command with arguments and returns error code
 func RunAndGetError(commandArgs []string) (string, error) {
-	LogDebug(fmt.Sprintf("RunAndGetError: %s", strings.Join(commandArgs, " ")))
+	log.Debug(fmt.Sprintf("RunAndGetError: %s", strings.Join(commandArgs, " ")))
 
 	var stderr bytes.Buffer
 
@@ -82,11 +102,12 @@ func RunAndGetError(commandArgs []string) (string, error) {
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = &stderr
+	cmd.Env = getRunEnvironment()
 
 	err := cmd.Run()
 
-	LogDebug("RunAndGetError returns STDERR:")
-	LogDebug(stderr.String())
+	log.Debug("RunAndGetError returns STDERR:")
+	log.Debug(stderr.String())
 
 	return stderr.String(), err
 }
@@ -112,17 +133,17 @@ func RunVagrant(args []string) {
 		matchedConnectionRefused, errConnectionRefused := regexp.MatchString("The guest machine entered an invalid state", vagrantOutput)
 		if errTimeout == nil && matchedTimeout {
 			// We've obviously started the VM
-			LogDebug("Running vagrant gives me timeout - things are probably ok. User was not notified. Complete output:")
-			LogDebug(vagrantOutput)
+			log.Debug("Running vagrant gives me timeout - things are probably ok. User was not notified. Complete output:")
+			log.Debug(vagrantOutput)
 		} else if errMacAddress == nil && matchedMacAddress {
 			// Vagrant in Windows host give this error message - just restart vagrant and you're good
 			ShowInfoMessage(xlate.Get("Server failed to start. This is typical in Windows after an update. Please try again to start the server."))
 		} else if errConnectionRefused == nil && matchedConnectionRefused {
-			LogDebug("Vagrant entered invalid state while booting. We expect this to occur because user has closed the VM window. User was not notified. Complete output:")
-			LogDebug(vagrantOutput)
+			log.Debug("Vagrant entered invalid state while booting. We expect this to occur because user has closed the VM window. User was not notified. Complete output:")
+			log.Debug(vagrantOutput)
 		} else {
-			LogDebug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(runArgs, " ")))
-			LogDebug(vagrantOutput)
+			log.Debug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(runArgs, " ")))
+			log.Debug(vagrantOutput)
 			ShowWarningMessage(fmt.Sprintf(xlate.Get("Failed to execute %s"), strings.Join(runArgs, " ")))
 		}
 	}
@@ -134,8 +155,8 @@ func RunVBoxManage(args []string) string {
 	runArgs := append(vboxmanagepathArr, args...)
 	vBoxManageOutput, err := RunAndGetOutput(runArgs, false)
 	if err != nil {
-		LogDebug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(runArgs, " ")))
-		LogDebug(vBoxManageOutput)
+		log.Debug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(runArgs, " ")))
+		log.Debug(vBoxManageOutput)
 		ShowErrorMessage(fmt.Sprintf(xlate.Get("Failed to execute %s"), strings.Join(runArgs, " ")))
 	}
 
@@ -154,7 +175,7 @@ func IfFoundVagrant() bool {
 		return false
 	}
 
-	LogDebug(fmt.Sprintf("vagrant says: %s", vagrantVersion))
+	log.Debug(fmt.Sprintf("vagrant says: %s", vagrantVersion))
 
 	return true
 }
@@ -164,7 +185,7 @@ func IfFoundVBoxManage() bool {
 	var vboxmanagepath = getVBoxManagePath()
 
 	if vboxmanagepath == "" {
-		LogDebug("Could not get VBoxManage path")
+		log.Debug("Could not get VBoxManage path")
 		return false
 	}
 
@@ -176,7 +197,7 @@ func IfFoundVBoxManage() bool {
 		return false
 	}
 
-	LogDebug(fmt.Sprintf("VBoxManage says: %s", vBoxManageVersion))
+	log.Debug(fmt.Sprintf("VBoxManage says: %s", vBoxManageVersion))
 
 	return true
 }
@@ -235,24 +256,24 @@ func RemoveDir(path string) error {
 
 // CopyFile copies existing file
 func CopyFile(src, dst string) (err error) {
-	LogDebug(fmt.Sprintf("Copying file %s to %s", src, dst))
+	log.Debug(fmt.Sprintf("Copying file %s to %s", src, dst))
 
 	if !ExistsFile(src) {
-		LogDebug("Copying failed, could not find source file")
+		log.Debug("Copying failed, could not find source file")
 		return errors.New("could not find source file")
 	}
 
 	/* #nosec */
 	in, err := os.Open(src)
 	if err != nil {
-		LogDebug(fmt.Sprintf("Copying failed while opening source file: %v", err))
+		log.Debug(fmt.Sprintf("Copying failed while opening source file: %v", err))
 		return
 	}
 	defer Close(in)
 
 	out, err := os.Create(dst)
 	if err != nil {
-		LogDebug(fmt.Sprintf("Copying failed while opening destination file: %v", err))
+		log.Debug(fmt.Sprintf("Copying failed while opening destination file: %v", err))
 		return
 	}
 	defer func() {
@@ -280,17 +301,13 @@ func IfIntlCharsInPath(path string) bool {
 
 // GetHomeDirectory returns home directory path
 func GetHomeDirectory() string {
-	homeWin := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
-	if homeWin != "" {
-		return homeWin
+	homeDir, err := homedir.Dir()
+
+	if err != nil {
+		panic("Could not get home directory")
 	}
 
-	homeLinux := os.Getenv("HOME")
-	if homeLinux != "" {
-		return homeLinux
-	}
-
-	panic("Could not get home directory")
+	return homeDir
 }
 
 // GetVagrantDirectory returns ktp-directory path from under home directory
@@ -320,7 +337,7 @@ func GetVirtualBoxVMsDirectory() string {
 
 // chdir changes current working directory to the given directory
 func chdir(chdirTo string) bool {
-	LogDebug(fmt.Sprintf("chdir %s", chdirTo))
+	log.Debug(fmt.Sprintf("chdir %s", chdirTo))
 	err := os.Chdir(chdirTo)
 	if err != nil {
 		ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not chdir to %s"), chdirTo))
@@ -348,7 +365,7 @@ func SetMainWindow(win *ui.Window) {
 // ShowErrorMessage shows error message popup to user
 func ShowErrorMessage(message string) {
 	fmt.Printf("FATAL ERROR: %s\n\n", message)
-	appendLogFile(fmt.Sprintf("FATAL ERROR: %s", message))
+	log.Debug(fmt.Sprintf("FATAL ERROR: %s", message))
 
 	// Show libui box if main window has been set with Set_main_window
 	if mainWindow != nil {
@@ -364,7 +381,7 @@ func ShowErrorMessage(message string) {
 // ShowWarningMessage shows warning message popup to user
 func ShowWarningMessage(message string) {
 	fmt.Printf("WARNING: %s\n", message)
-	appendLogFile(fmt.Sprintf("WARNING: %s", message))
+	log.Debug(fmt.Sprintf("WARNING: %s", message))
 
 	// Show libui box if main window has been set with Set_main_window
 	if mainWindow != nil {
@@ -377,7 +394,7 @@ func ShowWarningMessage(message string) {
 // ShowInfoMessage shows warning message popup to user
 func ShowInfoMessage(message string) {
 	fmt.Printf("INFO: %s\n", message)
-	appendLogFile(fmt.Sprintf("INFO: %s", message))
+	log.Debug(fmt.Sprintf("INFO: %s", message))
 
 	// Show libui box if main window has been set with Set_main_window
 	if mainWindow != nil {
@@ -385,73 +402,4 @@ func ShowInfoMessage(message string) {
 			ui.MsgBox(mainWindow, xlate.Get("Info"), message)
 		})
 	}
-}
-
-func appendLogFile(message string) {
-	if debugFilename != "" {
-		// Append only if the logfile has been set
-
-		// Current timestamp
-		t := time.Now()
-
-		/* #nosec */
-		f, err := os.OpenFile(debugFilename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0660)
-		if err != nil {
-			panic(fmt.Sprintf("Could not append to log file %s: %s", debugFilename, err))
-		}
-		defer Close(f)
-
-		_, err = f.WriteString(fmt.Sprintf("[%s] %s\n", t.Format("2006-01-02 15:04:05"), message))
-		if err != nil {
-			if f.Sync() != nil {
-				defer Close(f)
-			}
-		}
-	}
-}
-
-// SetDebug enables debug printing if set to true
-func SetDebug(newValue bool) {
-	isDebug = newValue
-}
-
-// SetDebugFilename sets debug log path
-func SetDebugFilename(newFilename string) {
-	debugFilename = newFilename
-
-	if debugFilename != "" && ExistsFile(debugFilename) {
-		// Re-create the log file
-		err := os.Remove(debugFilename)
-		if err != nil {
-			panic(fmt.Sprintf("Could not open log file %s: %s", debugFilename, err))
-		}
-	}
-}
-
-// GetNewDebugFilename suggests a new debug log filename
-func GetNewDebugFilename() string {
-	newDebugFilename := ""
-
-	logPath := GetVagrantDirectory()
-	if ExistsDir(logPath) {
-		newDebugFilename = filepath.Join(logPath, "naksu_lastlog.txt")
-	} else {
-		newDebugFilename = filepath.Join(os.TempDir(), "naksu_lastlog.txt")
-	}
-
-	return newDebugFilename
-}
-
-// IsDebug returns true if we need to log debug information
-func IsDebug() bool {
-	return isDebug
-}
-
-// LogDebug logs debug information to log file
-func LogDebug(message string) {
-	if IsDebug() {
-		fmt.Printf("DEBUG: %s\n", message)
-	}
-
-	appendLogFile(fmt.Sprintf("DEBUG: %s", message))
 }
