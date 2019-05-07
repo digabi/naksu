@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "x$NIC" != "x" ]; then
+if [ -n "$NIC" ]; then
   echo "$0: Network card specified: $NIC"
 fi
 
