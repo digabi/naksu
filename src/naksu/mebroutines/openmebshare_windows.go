@@ -10,7 +10,7 @@ import (
 func OpenMebShare() {
 	mebSharePath := GetMebshareDirectory()
 
-	log.LogDebug(fmt.Sprintf("MEB share directory: %s", mebSharePath))
+	log.Debug(fmt.Sprintf("MEB share directory: %s", mebSharePath))
 
 	if !ExistsDir(mebSharePath) {
 		ShowWarningMessage("Cannot open MEB share directory since it does not exist")
@@ -27,10 +27,10 @@ func OpenMebShare() {
 		// Opening explorer results exit code 1
 		if errStr != "exit status 1" {
 			ShowWarningMessage("Could not open MEB share directory")
-			log.LogDebug(fmt.Sprintf("Could not open MEB share directory: %v", err))
+			log.Debug(fmt.Sprintf("Could not open MEB share directory: %v", err))
 		}
 	}
 
-	log.LogDebug("MEB share directory open output:")
-	log.LogDebug(output)
+	log.Debug("MEB share directory open output:")
+	log.Debug(output)
 }

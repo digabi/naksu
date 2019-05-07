@@ -103,12 +103,12 @@ func createMainWindowElements() {
 	}
 
 	// Set current language setting to language combobox
-	languageId := constants.GetAvailableSelectionId(config.GetLanguage(), constants.AvailableLangs)
-	if languageId < 0 {
+	languageID := constants.GetAvailableSelectionID(config.GetLanguage(), constants.AvailableLangs)
+	if languageID < 0 {
 		// Default value
 		comboboxLang.SetSelected(0)
 	} else {
-		comboboxLang.SetSelected(languageId)
+		comboboxLang.SetSelected(languageID)
 	}
 
 	// Define NIC setting combobox
@@ -118,12 +118,12 @@ func createMainWindowElements() {
 	}
 
 	// Set current NIC setting to NIC combobox
-	nicId := constants.GetAvailableSelectionId(config.GetNic(), constants.AvailableNics)
-	if nicId < 0 {
+	nicID := constants.GetAvailableSelectionID(config.GetNic(), constants.AvailableNics)
+	if nicID < 0 {
 		// Default value
 		comboboxNic.SetSelected(0)
 	} else {
-		comboboxNic.SetSelected(nicId)
+		comboboxNic.SetSelected(nicID)
 	}
 
 	labelBox = ui.NewLabel("")
@@ -290,10 +290,10 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					})
 				}
 			case newStatus := <-mainUIStatus:
-				log.LogDebug(fmt.Sprintf("main_ui_status: %s", newStatus))
+				log.Debug(fmt.Sprintf("main_ui_status: %s", newStatus))
 				// Got new status
 				if newStatus == "enable" {
-					log.LogDebug("enable ui")
+					log.Debug("enable ui")
 
 					ui.QueueMain(func() {
 						comboboxLang.Enable()
@@ -324,7 +324,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					lastStatus = newStatus
 				}
 				if newStatus == "disable" {
-					log.LogDebug("disable ui")
+					log.Debug("disable ui")
 
 					ui.QueueMain(func() {
 						comboboxLang.Disable()
@@ -514,7 +514,7 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 				if network.CheckIfNetworkAvailable() {
 					mebroutines.ShowWarningMessage(xlate.Get("You are starting Matriculation Examination server with an Internet connection."))
 				} else {
-					log.LogDebug("Starting Matric Exam server without an internet connection - All is good!")
+					log.Debug("Starting Matric Exam server without an internet connection - All is good!")
 				}
 			}
 
@@ -536,12 +536,12 @@ func checkFreeDisk(chFreeDisk chan uint64) {
 		if mebroutines.ExistsDir(mebroutines.GetVagrantDirectory()) {
 			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetVagrantDirectory())
 			if err != nil {
-				log.LogDebug("Getting free disk space from Vagrant directory failed")
+				log.Debug("Getting free disk space from Vagrant directory failed")
 			}
 		} else {
 			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetHomeDirectory())
 			if err != nil {
-				log.LogDebug("Getting free disk space from home directory failed")
+				log.Debug("Getting free disk space from home directory failed")
 			}
 		}
 		chFreeDisk <- freeDisk
@@ -550,7 +550,7 @@ func checkFreeDisk(chFreeDisk chan uint64) {
 
 func bindOnGetServer(mainUIStatus chan string) {
 	buttonGetServer.OnClicked(func(*ui.Button) {
-		log.LogDebug("Starting Abitti box update")
+		log.Debug("Starting Abitti box update")
 
 		chFreeDisk := make(chan uint64)
 		chDiskLowPopup := make(chan bool)
@@ -577,7 +577,7 @@ func bindOnGetServer(mainUIStatus chan string) {
 				enableUI(mainUIStatus)
 				progress.SetMessage("")
 
-				log.LogDebug(fmt.Sprintf("Finished Abitti box update, version is: %s", boxversion.GetVagrantFileVersion("")))
+				log.Debug(fmt.Sprintf("Finished Abitti box update, version is: %s", boxversion.GetVagrantFileVersion("")))
 			}()
 		}()
 	})
@@ -585,7 +585,7 @@ func bindOnGetServer(mainUIStatus chan string) {
 
 func bindOnSwitchServer(mainUIStatus chan string) {
 	buttonSwitchServer.OnClicked(func(*ui.Button) {
-		log.LogDebug("Starting Matriculation Examination box update")
+		log.Debug("Starting Matriculation Examination box update")
 
 		chFreeDisk := make(chan uint64)
 		chDiskLowPopup := make(chan bool)
@@ -631,7 +631,7 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 					enableUI(mainUIStatus)
 					progress.SetMessage("")
 
-					log.LogDebug(fmt.Sprintf("Finished Matriculation Examination box update, new version is: %s", boxversion.GetVagrantFileVersion("")))
+					log.Debug(fmt.Sprintf("Finished Matriculation Examination box update, new version is: %s", boxversion.GetVagrantFileVersion("")))
 				}()
 			}
 		}()
@@ -664,7 +664,7 @@ func bindOnMakeBackup(mainUIStatus chan string) {
 
 func bindOnMebShare() {
 	buttonMebShare.OnClicked(func(*ui.Button) {
-		log.LogDebug("Opening MEB share (~/ktp-jako)")
+		log.Debug("Opening MEB share (~/ktp-jako)")
 		mebroutines.OpenMebShare()
 	})
 }
@@ -673,7 +673,7 @@ func bindOnBackup(mainUIStatus chan string) {
 	// Define actions for SaveAs window/dialog
 	backupButtonSave.OnClicked(func(*ui.Button) {
 		pathBackup := filepath.Join(backupMediaPath[backupCombobox.Selected()], backup.GetBackupFilename(time.Now()))
-		log.LogDebug(fmt.Sprintf("Starting backup to: %s", pathBackup))
+		log.Debug(fmt.Sprintf("Starting backup to: %s", pathBackup))
 
 		chFreeDisk := make(chan uint64)
 		chDiskLowPopup := make(chan bool)
@@ -703,7 +703,7 @@ func bindOnBackup(mainUIStatus chan string) {
 
 				enableUI(mainUIStatus)
 
-				log.LogDebug("Finished creating backup")
+				log.Debug("Finished creating backup")
 			}()
 		}()
 	})
@@ -725,7 +725,7 @@ func bindOnDestroy(mainUIStatus chan string) {
 
 	destroyButtonDestroy.OnClicked(func(*ui.Button) {
 		go func() {
-			log.LogDebug("Starting server destroy")
+			log.Debug("Starting server destroy")
 
 			destroyWindow.Hide()
 			err := destroy.Server()
@@ -741,7 +741,7 @@ func bindOnDestroy(mainUIStatus chan string) {
 
 			enableUI(mainUIStatus)
 
-			log.LogDebug("Finished server destroy")
+			log.Debug("Finished server destroy")
 		}()
 	})
 
@@ -762,7 +762,7 @@ func bindOnRemove(mainUIStatus chan string) {
 
 	removeButtonRemove.OnClicked(func(*ui.Button) {
 		go func() {
-			log.LogDebug("Starting server remove")
+			log.Debug("Starting server remove")
 
 			removeWindow.Hide()
 
@@ -779,7 +779,7 @@ func bindOnRemove(mainUIStatus chan string) {
 
 			enableUI(mainUIStatus)
 
-			log.LogDebug("Finished server remove")
+			log.Debug("Finished server remove")
 		}()
 	})
 
@@ -850,7 +850,7 @@ func RunUI() error {
 		bindOnRemove(mainUIStatus)
 
 		window.OnClosing(func(*ui.Window) bool {
-			log.LogDebug("User exists through window exit")
+			log.Debug("User exists through window exit")
 			ui.Quit()
 			return true
 		})

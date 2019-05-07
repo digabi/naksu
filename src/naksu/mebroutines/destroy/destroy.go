@@ -14,7 +14,7 @@ import (
 func Server() error {
 	// chdir ~/ktp
 	if !mebroutines.ChdirVagrantDirectory() {
-		log.LogDebug("Could not change to vagrant directory ~/ktp")
+		log.Debug("Could not change to vagrant directory ~/ktp")
 		return errors.New("could not chmod ~/ktp")
 	}
 
@@ -28,17 +28,17 @@ func Server() error {
 		reBoxNotCreated, errBoxNotCreated := regexp.MatchString("VM not created", destroyOutput)
 
 		if errBoxExists == nil && reBoxExists {
-			log.LogDebug("Destroy complete. There was an existing box which has been destroyed.")
+			log.Debug("Destroy complete. There was an existing box which has been destroyed.")
 			return nil
 		}
 
 		if errBoxNotCreated == nil && reBoxNotCreated {
-			log.LogDebug("Destroy completed. There was no existing box but the destroy process finished without errors.")
+			log.Debug("Destroy completed. There was no existing box but the destroy process finished without errors.")
 			return nil
 		}
 	}
 
-	log.LogDebug(fmt.Sprintf("Could not remove exams. vagrant destroy says:\n%s", destroyOutput))
+	log.Debug(fmt.Sprintf("Could not remove exams. vagrant destroy says:\n%s", destroyOutput))
 
 	return errors.New("failed to remove exams")
 }

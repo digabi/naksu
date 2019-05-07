@@ -33,14 +33,14 @@ func MakeBackup(backupPath string) error {
 
 	remErr := os.Remove(backupPath)
 	if remErr != nil {
-		log.LogDebug("Backup remove returned error code")
+		log.Debug("Backup remove returned error code")
 		return errors.New("removing backup returned error code")
 	}
 
 	// Get box
 	progress.TranslateAndSetMessage("Getting vagrantbox ID...")
 	boxID := getVagrantBoxID()
-	log.LogDebug(fmt.Sprintf("Vagrantbox ID: %s", boxID))
+	log.Debug(fmt.Sprintf("Vagrantbox ID: %s", boxID))
 	if boxID == "" {
 		return errors.New("could not get vagrantbox id")
 	}
@@ -48,7 +48,7 @@ func MakeBackup(backupPath string) error {
 	// Get disk UUID
 	progress.TranslateAndSetMessage("Getting disk UUID...")
 	diskUUID := getDiskUUID(boxID)
-	log.LogDebug(fmt.Sprintf("Disk UUID: %s", diskUUID))
+	log.Debug(fmt.Sprintf("Disk UUID: %s", diskUUID))
 	if diskUUID == "" {
 		return errors.New("could not get disk uuid")
 	}
@@ -94,7 +94,7 @@ func getDiskUUID(boxID string) string {
 	}
 
 	// No match
-	log.LogDebug(vBoxManageOutput)
+	log.Debug(vBoxManageOutput)
 	mebroutines.ShowWarningMessage(xlate.Get("Could not make backup: failed to get disk UUID"))
 
 	return ""

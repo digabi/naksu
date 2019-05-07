@@ -48,7 +48,7 @@ func doReleaseSelfUpdate() bool {
 	if config.IsSelfUpdateDisabled() {
 		latest, found, err := selfupdate.DetectLatest("digabi/naksu")
 		if err != nil {
-			log.LogDebug(fmt.Sprintf("Version check failed: %s", err))
+			log.Debug(fmt.Sprintf("Version check failed: %s", err))
 			return false
 		}
 		if found && latest.Version.GT(v) {
@@ -64,10 +64,10 @@ func doReleaseSelfUpdate() bool {
 	}
 	if latest.Version.Equals(v) {
 		// latest version is the same as current version. It means current binary is up to date.
-		log.LogDebug(fmt.Sprintf("Current binary is the latest version: %s", version))
+		log.Debug(fmt.Sprintf("Current binary is the latest version: %s", version))
 		return false
 	}
-	log.LogDebug(fmt.Sprintf("Successfully updated to version: %s", latest.Version))
+	log.Debug(fmt.Sprintf("Successfully updated to version: %s", latest.Version))
 	return true
 	//log.Println("Release note:\n", latest.ReleaseNotes)
 }

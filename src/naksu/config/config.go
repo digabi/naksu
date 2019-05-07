@@ -61,7 +61,7 @@ func getIniKey(section string, key string) *ini.Key {
 func getBoolean(section string, key string) bool {
 	value, err := getIniKey(section, key).Bool()
 	if err != nil {
-		log.LogDebug(fmt.Sprintf("Parsing key %s / %s as bool failed", section, key))
+		log.Debug(fmt.Sprintf("Parsing key %s / %s as bool failed", section, key))
 		defaultValue := getDefault(section, key)
 		value, err = strconv.ParseBool(defaultValue)
 		if err != nil {
@@ -77,7 +77,7 @@ func getString(section string, key string) string {
 }
 
 func setValue(section string, key string, value string) {
-	log.LogDebug(fmt.Sprintf("Setting new configuration: section %s, key: %s, value: %s", section, key, value))
+	log.Debug(fmt.Sprintf("Setting new configuration: section %s, key: %s, value: %s", section, key, value))
 	cfg.Section(section).Key(key).SetValue(value)
 	save()
 }
@@ -89,7 +89,7 @@ func Load() {
 	var err error
 	cfg, err = ini.Load(naksuIniPath)
 	if err != nil {
-		log.LogDebug(fmt.Sprintf("%s not found, setting up empty config with defaults", naksuIniPath))
+		log.Debug(fmt.Sprintf("%s not found, setting up empty config with defaults", naksuIniPath))
 		cfg = ini.Empty()
 	}
 	fillDefaults()
@@ -99,13 +99,13 @@ func Load() {
 func validateStringChoice(section string, key string, choices []constants.AvailableSelection) string {
 	value := getString(section, key)
 
-	id := constants.GetAvailableSelectionId(value, choices)
+	id := constants.GetAvailableSelectionID(value, choices)
 
 	if id >= 0 {
 		return value
 	}
 	defaultValue := getDefault(section, key)
-	log.LogDebug(fmt.Sprintf("Correcting malformed ini-key %v / %v to default value %v", section, key, defaultValue))
+	log.Debug(fmt.Sprintf("Correcting malformed ini-key %v / %v to default value %v", section, key, defaultValue))
 	setValue(section, key, defaultValue)
 	return defaultValue
 }
@@ -116,7 +116,7 @@ func save() {
 
 	err := cfg.SaveTo(naksuIniPath)
 	if err != nil {
-		log.LogDebug(fmt.Sprintf("%s save failed: %v", naksuIniPath, err))
+		log.Debug(fmt.Sprintf("%s save failed: %v", naksuIniPath, err))
 	}
 }
 
@@ -127,7 +127,7 @@ func GetLanguage() string {
 
 // SetLanguage stores user language preference
 func SetLanguage(language string) {
-	if constants.GetAvailableSelectionId(language, constants.AvailableLangs) < 0 {
+	if constants.GetAvailableSelectionID(language, constants.AvailableLangs) < 0 {
 		setValue("common", "language", getDefault("common", "language"))
 	} else {
 		setValue("common", "language", language)
@@ -151,7 +151,7 @@ func GetNic() string {
 
 // SetNic sets the state of vagrant NIC value
 func SetNic(nic string) {
-	if constants.GetAvailableSelectionId(nic, constants.AvailableNics) < 0 {
+	if constants.GetAvailableSelectionID(nic, constants.AvailableNics) < 0 {
 		setValue("environment", "nic", getDefault("environment", "nic"))
 	} else {
 		setValue("environment", "nic", nic)

@@ -49,9 +49,9 @@ func logDirectoryPaths() {
 
 	for _, thisDir := range listDirs {
 		if mebroutines.ExistsDir(thisDir.dirPath) {
-			log.LogDebug(fmt.Sprintf("%s: %s [Directory exists]", thisDir.dirName, thisDir.dirPath))
+			log.Debug(fmt.Sprintf("%s: %s [Directory exists]", thisDir.dirName, thisDir.dirPath))
 		} else {
-			log.LogDebug(fmt.Sprintf("%s: %s [Directory does not exist]", thisDir.dirName, thisDir.dirPath))
+			log.Debug(fmt.Sprintf("%s: %s [Directory does not exist]", thisDir.dirName, thisDir.dirPath))
 		}
 	}
 }
@@ -82,7 +82,7 @@ func main() {
 	})
 
 	handleOptionalArgument("self-update", parser, func(opt *flags.Option) {
-		log.LogDebug(fmt.Sprintf("Self-update: %v", opt.Value()))
+		log.Debug(fmt.Sprintf("Self-update: %v", opt.Value()))
 		if opt.Value() == "disabled" {
 			config.SetSelfUpdateDisabled(true)
 		} else {
@@ -97,26 +97,26 @@ func main() {
 	// Determine/set path for debug log
 	log.SetDebugFilename(log.GetNewDebugFilename())
 
-	log.LogDebug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
+	log.Debug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
 
 	logDirectoryPaths()
 
-	log.LogDebug(fmt.Sprintf("Currently installed box: %s", boxversion.GetVagrantFileVersion("")))
+	log.Debug(fmt.Sprintf("Currently installed box: %s", boxversion.GetVagrantFileVersion("")))
 
 	// Check whether we have a terminal (restart with x-terminal-emulator, if missing)
 	if !mebroutines.ExistsStdin() {
 		pathToMe, err := osext.Executable()
 		if err != nil {
-			log.LogDebug("Failed to get executable path")
+			log.Debug("Failed to get executable path")
 		}
 		commandArgs := []string{"x-terminal-emulator", "-e", pathToMe}
 
-		log.LogDebug(fmt.Sprintf("No stdin, restarting with terminal: %s", strings.Join(commandArgs, " ")))
+		log.Debug(fmt.Sprintf("No stdin, restarting with terminal: %s", strings.Join(commandArgs, " ")))
 		_, err = mebroutines.RunAndGetOutput(commandArgs, true)
 		if err != nil {
-			log.LogDebug(fmt.Sprintf("Failed to restart with terminal: %d", err))
+			log.Debug(fmt.Sprintf("Failed to restart with terminal: %d", err))
 		}
-		log.LogDebug(fmt.Sprintf("No stdin, returned from %s", strings.Join(commandArgs, " ")))
+		log.Debug(fmt.Sprintf("No stdin, returned from %s", strings.Join(commandArgs, " ")))
 
 		// Normal termination
 		os.Exit(0)
@@ -128,5 +128,5 @@ func main() {
 		panic(err)
 	}
 
-	log.LogDebug("Exiting GUI loop")
+	log.Debug("Exiting GUI loop")
 }

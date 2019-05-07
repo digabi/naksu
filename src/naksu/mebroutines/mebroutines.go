@@ -39,7 +39,7 @@ func getRunEnvironment() []string {
 
 	if config.GetNic() != "" {
 		runEnv = append(runEnv, fmt.Sprintf("NIC=%s", config.GetNic()))
-		log.LogDebug(fmt.Sprintf("Adding environment value NIC=%s", config.GetNic()))
+		log.Debug(fmt.Sprintf("Adding environment value NIC=%s", config.GetNic()))
 	}
 
 	return runEnv
@@ -47,7 +47,7 @@ func getRunEnvironment() []string {
 
 // Run executes command with arguments
 func Run(commandArgs []string) error {
-	log.LogDebug(fmt.Sprintf("run: %s", strings.Join(commandArgs, " ")))
+	log.Debug(fmt.Sprintf("run: %s", strings.Join(commandArgs, " ")))
 	/* #nosec */
 	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
 	cmd.Stdout = os.Stdout
@@ -65,7 +65,7 @@ func Run(commandArgs []string) error {
 
 // RunAndGetOutput runs command with arguments and returns output as a string
 func RunAndGetOutput(commandArgs []string, showWarningOnError bool) (string, error) {
-	log.LogDebug(fmt.Sprintf("RunAndGetOutput: %s", strings.Join(commandArgs, " ")))
+	log.Debug(fmt.Sprintf("RunAndGetOutput: %s", strings.Join(commandArgs, " ")))
 	/* #nosec */
 	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
 	cmd.Env = getRunEnvironment()
@@ -76,16 +76,16 @@ func RunAndGetOutput(commandArgs []string, showWarningOnError bool) (string, err
 		if showWarningOnError {
 			ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
 		} else {
-			log.LogDebug(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
+			log.Debug(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
 		}
 		return string(out), err
 	}
 
 	if out != nil {
-		log.LogDebug("RunAndGetOutput returns combined STDOUT and STDERR:")
-		log.LogDebug(string(out))
+		log.Debug("RunAndGetOutput returns combined STDOUT and STDERR:")
+		log.Debug(string(out))
 	} else {
-		log.LogDebug("RunAndGetOutput returned NIL as combined STDOUT and STDERR")
+		log.Debug("RunAndGetOutput returned NIL as combined STDOUT and STDERR")
 	}
 
 	return string(out), nil
@@ -93,7 +93,7 @@ func RunAndGetOutput(commandArgs []string, showWarningOnError bool) (string, err
 
 // RunAndGetError runs command with arguments and returns error code
 func RunAndGetError(commandArgs []string) (string, error) {
-	log.LogDebug(fmt.Sprintf("RunAndGetError: %s", strings.Join(commandArgs, " ")))
+	log.Debug(fmt.Sprintf("RunAndGetError: %s", strings.Join(commandArgs, " ")))
 
 	var stderr bytes.Buffer
 
@@ -106,8 +106,8 @@ func RunAndGetError(commandArgs []string) (string, error) {
 
 	err := cmd.Run()
 
-	log.LogDebug("RunAndGetError returns STDERR:")
-	log.LogDebug(stderr.String())
+	log.Debug("RunAndGetError returns STDERR:")
+	log.Debug(stderr.String())
 
 	return stderr.String(), err
 }
@@ -133,17 +133,17 @@ func RunVagrant(args []string) {
 		matchedConnectionRefused, errConnectionRefused := regexp.MatchString("The guest machine entered an invalid state", vagrantOutput)
 		if errTimeout == nil && matchedTimeout {
 			// We've obviously started the VM
-			log.LogDebug("Running vagrant gives me timeout - things are probably ok. User was not notified. Complete output:")
-			log.LogDebug(vagrantOutput)
+			log.Debug("Running vagrant gives me timeout - things are probably ok. User was not notified. Complete output:")
+			log.Debug(vagrantOutput)
 		} else if errMacAddress == nil && matchedMacAddress {
 			// Vagrant in Windows host give this error message - just restart vagrant and you're good
 			ShowInfoMessage(xlate.Get("Server failed to start. This is typical in Windows after an update. Please try again to start the server."))
 		} else if errConnectionRefused == nil && matchedConnectionRefused {
-			log.LogDebug("Vagrant entered invalid state while booting. We expect this to occur because user has closed the VM window. User was not notified. Complete output:")
-			log.LogDebug(vagrantOutput)
+			log.Debug("Vagrant entered invalid state while booting. We expect this to occur because user has closed the VM window. User was not notified. Complete output:")
+			log.Debug(vagrantOutput)
 		} else {
-			log.LogDebug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(runArgs, " ")))
-			log.LogDebug(vagrantOutput)
+			log.Debug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(runArgs, " ")))
+			log.Debug(vagrantOutput)
 			ShowWarningMessage(fmt.Sprintf(xlate.Get("Failed to execute %s"), strings.Join(runArgs, " ")))
 		}
 	}
@@ -155,8 +155,8 @@ func RunVBoxManage(args []string) string {
 	runArgs := append(vboxmanagepathArr, args...)
 	vBoxManageOutput, err := RunAndGetOutput(runArgs, false)
 	if err != nil {
-		log.LogDebug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(runArgs, " ")))
-		log.LogDebug(vBoxManageOutput)
+		log.Debug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(runArgs, " ")))
+		log.Debug(vBoxManageOutput)
 		ShowErrorMessage(fmt.Sprintf(xlate.Get("Failed to execute %s"), strings.Join(runArgs, " ")))
 	}
 
@@ -175,7 +175,7 @@ func IfFoundVagrant() bool {
 		return false
 	}
 
-	log.LogDebug(fmt.Sprintf("vagrant says: %s", vagrantVersion))
+	log.Debug(fmt.Sprintf("vagrant says: %s", vagrantVersion))
 
 	return true
 }
@@ -185,7 +185,7 @@ func IfFoundVBoxManage() bool {
 	var vboxmanagepath = getVBoxManagePath()
 
 	if vboxmanagepath == "" {
-		log.LogDebug("Could not get VBoxManage path")
+		log.Debug("Could not get VBoxManage path")
 		return false
 	}
 
@@ -197,7 +197,7 @@ func IfFoundVBoxManage() bool {
 		return false
 	}
 
-	log.LogDebug(fmt.Sprintf("VBoxManage says: %s", vBoxManageVersion))
+	log.Debug(fmt.Sprintf("VBoxManage says: %s", vBoxManageVersion))
 
 	return true
 }
@@ -256,24 +256,24 @@ func RemoveDir(path string) error {
 
 // CopyFile copies existing file
 func CopyFile(src, dst string) (err error) {
-	log.LogDebug(fmt.Sprintf("Copying file %s to %s", src, dst))
+	log.Debug(fmt.Sprintf("Copying file %s to %s", src, dst))
 
 	if !ExistsFile(src) {
-		log.LogDebug("Copying failed, could not find source file")
+		log.Debug("Copying failed, could not find source file")
 		return errors.New("could not find source file")
 	}
 
 	/* #nosec */
 	in, err := os.Open(src)
 	if err != nil {
-		log.LogDebug(fmt.Sprintf("Copying failed while opening source file: %v", err))
+		log.Debug(fmt.Sprintf("Copying failed while opening source file: %v", err))
 		return
 	}
 	defer Close(in)
 
 	out, err := os.Create(dst)
 	if err != nil {
-		log.LogDebug(fmt.Sprintf("Copying failed while opening destination file: %v", err))
+		log.Debug(fmt.Sprintf("Copying failed while opening destination file: %v", err))
 		return
 	}
 	defer func() {
@@ -337,7 +337,7 @@ func GetVirtualBoxVMsDirectory() string {
 
 // chdir changes current working directory to the given directory
 func chdir(chdirTo string) bool {
-	log.LogDebug(fmt.Sprintf("chdir %s", chdirTo))
+	log.Debug(fmt.Sprintf("chdir %s", chdirTo))
 	err := os.Chdir(chdirTo)
 	if err != nil {
 		ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not chdir to %s"), chdirTo))
@@ -365,7 +365,7 @@ func SetMainWindow(win *ui.Window) {
 // ShowErrorMessage shows error message popup to user
 func ShowErrorMessage(message string) {
 	fmt.Printf("FATAL ERROR: %s\n\n", message)
-	log.LogDebug(fmt.Sprintf("FATAL ERROR: %s", message))
+	log.Debug(fmt.Sprintf("FATAL ERROR: %s", message))
 
 	// Show libui box if main window has been set with Set_main_window
 	if mainWindow != nil {
@@ -381,7 +381,7 @@ func ShowErrorMessage(message string) {
 // ShowWarningMessage shows warning message popup to user
 func ShowWarningMessage(message string) {
 	fmt.Printf("WARNING: %s\n", message)
-	log.LogDebug(fmt.Sprintf("WARNING: %s", message))
+	log.Debug(fmt.Sprintf("WARNING: %s", message))
 
 	// Show libui box if main window has been set with Set_main_window
 	if mainWindow != nil {
@@ -394,7 +394,7 @@ func ShowWarningMessage(message string) {
 // ShowInfoMessage shows warning message popup to user
 func ShowInfoMessage(message string) {
 	fmt.Printf("INFO: %s\n", message)
-	log.LogDebug(fmt.Sprintf("INFO: %s", message))
+	log.Debug(fmt.Sprintf("INFO: %s", message))
 
 	// Show libui box if main window has been set with Set_main_window
 	if mainWindow != nil {

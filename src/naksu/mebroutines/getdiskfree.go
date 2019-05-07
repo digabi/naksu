@@ -65,13 +65,13 @@ func ExtractDiskFreeDarwin(dfOutput string) (uint64, error) {
 		if err == nil {
 			// df gives available disk space in 1K blocks
 			intResult := uint64(floatResult) * 512
-			log.LogDebug(fmt.Sprintf("ExtractDiskFreeDarwin: %d", intResult))
+			log.Debug(fmt.Sprintf("ExtractDiskFreeDarwin: %d", intResult))
 			return intResult, nil
 		}
 	}
 
-	log.LogDebug("ExtractDiskFreeDarwin failed to parse df output")
-	log.LogDebug(dfOutput)
+	log.Debug("ExtractDiskFreeDarwin failed to parse df output")
+	log.Debug(dfOutput)
 
 	return 0, errors.New("could not extract free disk size from darwin df output")
 }
@@ -99,13 +99,13 @@ func ExtractDiskFreeLinux(dfOutput string) (uint64, error) {
 		if err == nil {
 			// df gives available disk space in 1K blocks
 			intResult := uint64(floatResult) * 1024
-			log.LogDebug(fmt.Sprintf("ExtractDiskFreeLinux: %d", intResult))
+			log.Debug(fmt.Sprintf("ExtractDiskFreeLinux: %d", intResult))
 			return intResult, nil
 		}
 	}
 
-	log.LogDebug("ExtractDiskFreeLinux failed to parse df output")
-	log.LogDebug(dfOutput)
+	log.Debug("ExtractDiskFreeLinux failed to parse df output")
+	log.Debug(dfOutput)
 
 	return 0, errors.New("could not extract free disk size from linux df output")
 }
@@ -114,7 +114,7 @@ func ExtractDiskFreeLinux(dfOutput string) (uint64, error) {
 func ExtractDiskFreeWindows(wmiData []Win32_LogicalDisk) (uint64, error) {
 	if len(wmiData) > 0 {
 		freeSpace := wmiData[0].FreeSpace
-		log.LogDebug(fmt.Sprintf("ExtractDiskFreeWindows: %d", freeSpace))
+		log.Debug(fmt.Sprintf("ExtractDiskFreeWindows: %d", freeSpace))
 		return freeSpace, nil
 	}
 

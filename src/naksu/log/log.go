@@ -107,8 +107,8 @@ func IsDebug() bool {
 	return isDebug
 }
 
-// LogDebug logs debug information to log file
-func LogDebug(message string) {
+// Debug logs debug information to log file
+func Debug(message string) {
 	if IsDebug() {
 		fmt.Printf("DEBUG: %s\n", message)
 	}

@@ -19,7 +19,7 @@ func SetProgressLabel(newProgressLabel *ui.Label) {
 
 // setMessage does the actual message label updating
 func setMessage(message string) {
-	log.LogDebug(fmt.Sprintf("Progress message: %s", message))
+	log.Debug(fmt.Sprintf("Progress message: %s", message))
 	ui.QueueMain(func() {
 		progressLabel.SetText(message)
 	})

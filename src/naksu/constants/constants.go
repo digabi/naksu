@@ -72,9 +72,9 @@ var AvailableNics = []AvailableSelection{
 	},
 }
 
-// GetAvailableSelectionId returns array id for a given ConfigValue
+// GetAvailableSelectionID returns array id for a given ConfigValue
 // in the given set of choices. Returns -1 if the configValue was not found.
-func GetAvailableSelectionId(configValue string, choices []AvailableSelection) int {
+func GetAvailableSelectionID(configValue string, choices []AvailableSelection) int {
 	for i, thisChoice := range choices {
 		if thisChoice.ConfigValue == configValue {
 			return i
