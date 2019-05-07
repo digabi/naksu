@@ -14,6 +14,14 @@ import (
 
 var cfg *ini.File
 
+func getIniFilePath() string {
+	homeDir, errHome := homedir.Dir()
+	if errHome != nil {
+		panic("Could not get home directory")
+	}
+	return filepath.Join(homeDir, "naksu.ini")
+}
+
 func setIfMissing(section string, key string, defaultValue string) {
 	if !cfg.Section(section).HasKey(key) {
 		cfg.Section(section).Key(key).SetValue(defaultValue)
@@ -76,14 +84,9 @@ func setValue(section string, key string, value string) {
 
 // Load or initialize configuration to empty object
 func Load() {
+	naksuIniPath := getIniFilePath()
+
 	var err error
-
-	homeDir, errHome := homedir.Dir()
-	if errHome != nil {
-		panic("Could not get home directory")
-	}
-	naksuIniPath := filepath.Join(homeDir, "naksu.ini")
-
 	cfg, err = ini.Load(naksuIniPath)
 	if err != nil {
 		log.LogDebug(fmt.Sprintf("%s not found, setting up empty config with defaults", naksuIniPath))
@@ -109,11 +112,7 @@ func validateStringChoice(section string, key string, choices []constants.Availa
 
 // Save configuration to disk
 func save() {
-	homeDir, errHome := homedir.Dir()
-	if errHome != nil {
-		panic("Could not get home directory")
-	}
-	naksuIniPath := filepath.Join(homeDir, "naksu.ini")
+	naksuIniPath := getIniFilePath()
 
 	err := cfg.SaveTo(naksuIniPath)
 	if err != nil {
