@@ -12,7 +12,7 @@ func SetLanguage(newLanguage string) {
 			// Main window, buttons
 			"Start Exam Server":                 "Käynnistä koetilan palvelin",
 			"Abitti Exam":                       "Abitti-koe",
-			"Abitti Exam (v%s > v%s)":           "Abitti-koe (v%s > v%s)",
+			"Abitti Exam (%s)":                  "Abitti-koe (%s)",
 			"Matriculation Exam":                "Yo-koe",
 			"Remove Exams":                      "Poista kokeet",
 			"Remove Server":                     "Poista palvelin",
@@ -122,7 +122,7 @@ func SetLanguage(newLanguage string) {
 			// Main window, buttons
 			"Start Exam Server":                 "Starta provlokalsserver",
 			"Abitti Exam":                       "Abitti-prov",
-			"Abitti Exam (v%s > v%s)":           "Abitti-prov (v%s > v%s)",
+			"Abitti Exam (%s)":                  "Abitti-prov (%s)",
 			"Matriculation Exam":                "Studentprovet",
 			"Remove Exams":                      "Avlägsna proven",
 			"Remove Server":                     "Avlägsna servern",

@@ -350,14 +350,12 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 // checkAbittiUpdate checks
 // 1) if currently installed box is Abitti
 // 2) and there is a new version available
-func checkAbittiUpdate() (bool, string, string) {
+func checkAbittiUpdate() (bool, string) {
 	abittiUpdate := false
-	currentAbittiVersion := ""
 	availAbittiVersion := ""
 
 	currentBoxType, currentBoxVersion, errCurrent := boxversion.GetVagrantFileVersionDetails(filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile"))
 	if errCurrent == nil && boxversion.GetVagrantBoxTypeIsAbitti(currentBoxType) {
-		currentAbittiVersion = currentBoxVersion
 		_, availBoxVersion, errAvail := boxversion.GetVagrantBoxAvailVersionDetails()
 		if errAvail == nil && currentBoxVersion != availBoxVersion {
 			abittiUpdate = true
@@ -365,14 +363,14 @@ func checkAbittiUpdate() (bool, string, string) {
 		}
 	}
 
-	return abittiUpdate, currentAbittiVersion, availAbittiVersion
+	return abittiUpdate, availAbittiVersion
 }
 
 // updateVagrantBoxAvailLabel updates UI "update available" label if the currently
 // installed box is Abitti and there is new version available
 func updateVagrantBoxAvailLabel() {
 	go func() {
-		abittiUpdate, _, _ := checkAbittiUpdate()
+		abittiUpdate, _ := checkAbittiUpdate()
 		if abittiUpdate {
 			vagrantBoxAvailVersion := boxversion.GetVagrantBoxAvailVersion()
 			ui.QueueMain(func() {
@@ -399,10 +397,10 @@ func updateGetServerButtonLabel() {
 	}
 
 	go func() {
-		abittiUpdate, currentAbittiVersion, availAbittiVersion := checkAbittiUpdate()
+		abittiUpdate, availAbittiVersion := checkAbittiUpdate()
 		if abittiUpdate {
 			ui.QueueMain(func() {
-				buttonGetServer.SetText(fmt.Sprintf(xlate.Get("Abitti Exam (v%s > v%s)"), currentAbittiVersion, availAbittiVersion))
+				buttonGetServer.SetText(fmt.Sprintf(xlate.Get("Abitti Exam (%s)"), availAbittiVersion))
 			})
 		} else {
 			ui.QueueMain(func() {

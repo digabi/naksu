@@ -124,7 +124,7 @@ func TestGetVagrantFileVersionAbitti (t *testing.T) {
     config.vm.box = "digabi/ktp-qa"
     config.vm.box_url = "https://s3-eu-west-1.amazonaws.com/static.abitti.fi/usbimg/qa/vagrant/metadata.json"
     config.vm.provider :virtualbox do |vb|
-      vb.name = "Virtual KTP v57"
+      vb.name = "SERVER7108X v57"
       vb.gui = true
       vb.customize ["modifyvm", :id, "--ioapic", "on"]
       vb.customize ["modifyvm", :id, "--cpus", cpus]
@@ -173,7 +173,7 @@ func TestGetVagrantFileVersionAbitti (t *testing.T) {
     config.vm.box = "digabi/ktp-k2018-45489"
     config.vm.box_url = "https://s3-eu-west-1.amazonaws.com/static.abitti.fi/usbimg/k2018-45489/vagrant/metadata.json"
     config.vm.provider :virtualbox do |vb|
-      vb.name = "Virtual KTP v37"
+      vb.name = "SERVER7304M v37"
       vb.gui = true
       vb.customize ["modifyvm", :id, "--ioapic", "on"]
       vb.customize ["modifyvm", :id, "--cpus", cpus]
@@ -193,8 +193,8 @@ func TestGetVagrantFileVersionAbitti (t *testing.T) {
     vagrantfileContent string
     versionString string
   }{
-    {sampleAbittiVagrantFileContent, "Abitti server (v57)"},
-    {sampleMebVagrantFileContent, "Matric Exam server (v37)"},
+    {sampleAbittiVagrantFileContent, "Abitti server (SERVER7108X v57)"},
+    {sampleMebVagrantFileContent, "Matric Exam server (SERVER7304M v37)"},
   }
 
   for _, table := range tables {
