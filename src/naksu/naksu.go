@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"naksu/boxversion"
+	"os"
+	"strings"
+
+	"naksu/box"
 	"naksu/config"
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/xlate"
-	"os"
-	"strings"
 
 	flags "github.com/jessevdk/go-flags"
 	"github.com/kardianos/osext"
@@ -101,7 +102,7 @@ func main() {
 
 	logDirectoryPaths()
 
-	log.Debug(fmt.Sprintf("Currently installed box: %s", boxversion.GetVagrantFileVersion("")))
+	log.Debug(fmt.Sprintf("Currently installed box: %s %s", box.GetVersion(), box.GetType()))
 
 	// Check whether we have a terminal (restart with x-terminal-emulator, if missing)
 	if !mebroutines.ExistsStdin() {

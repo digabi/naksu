@@ -3,12 +3,11 @@ package backup
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
-	"path/filepath"
 	"regexp"
 	"time"
 
+	"naksu/box"
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/progress"
@@ -37,19 +36,12 @@ func MakeBackup(backupPath string) error {
 		return errors.New("removing backup returned error code")
 	}
 
-	// Get box
-	progress.TranslateAndSetMessage("Getting vagrantbox ID...")
-	boxID := getVagrantBoxID()
-	log.Debug(fmt.Sprintf("Vagrantbox ID: %s", boxID))
-	if boxID == "" {
-		return errors.New("could not get vagrantbox id")
-	}
-
 	// Get disk UUID
 	progress.TranslateAndSetMessage("Getting disk UUID...")
-	diskUUID := getDiskUUID(boxID)
+	diskUUID := box.GetDiskUUID()
 	log.Debug(fmt.Sprintf("Disk UUID: %s", diskUUID))
 	if diskUUID == "" {
+		mebroutines.ShowWarningMessage(xlate.Get("Could not make backup: failed to get disk UUID"))
 		return errors.New("could not get disk uuid")
 	}
 
@@ -65,39 +57,6 @@ func MakeBackup(backupPath string) error {
 	deleteClone(backupPath)
 
 	return nil
-}
-
-func getVagrantBoxID() string {
-	vagrantPath := mebroutines.GetVagrantDirectory()
-
-	pathID := filepath.Join(vagrantPath, ".vagrant", "machines", "default", "virtualbox", "id")
-
-	/* #nosec */
-	fileContent, err := ioutil.ReadFile(pathID)
-	if err != nil {
-		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not get vagrantbox ID: %d"), err))
-		return ""
-	}
-
-	return string(fileContent)
-}
-
-func getDiskUUID(boxID string) string {
-	vBoxManageOutput := mebroutines.RunVBoxManage([]string{"showvminfo", "-machinereadable", boxID})
-
-	// Extract server disk image path
-	pattern := regexp.MustCompile("\"SATA Controller-ImageUUID-0-0\"=\"(.*?)\"")
-	result := pattern.FindStringSubmatch(vBoxManageOutput)
-
-	if len(result) > 1 {
-		return result[1]
-	}
-
-	// No match
-	log.Debug(vBoxManageOutput)
-	mebroutines.ShowWarningMessage(xlate.Get("Could not make backup: failed to get disk UUID"))
-
-	return ""
 }
 
 func makeClone(diskUUID string, backupPath string) error {

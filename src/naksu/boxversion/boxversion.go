@@ -31,6 +31,9 @@ var vagrantBoxAvailVersionDetailsCache lastBoxAvail
 
 // GetVagrantFileVersion returns a human-readable localised version string
 // for a given Vagrantfile (with "" defaults to ~/ktp/Vagrantfile)
+//
+// If you want to get the version of the current box consider using
+// box.GetVersion() instead
 func GetVagrantFileVersion(vagrantFilePath string) string {
 	if vagrantFilePath == "" {
 		vagrantFilePath = filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile")

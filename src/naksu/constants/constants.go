@@ -18,6 +18,10 @@ const (
 	// cache. See naksu/boxversion GetVagrantBoxAvailVersionDetails() for more
 	// In seconds (5 minutes)
 	VagrantBoxAvailVersionDetailsCacheTimeout int64 = 5 * 60
+
+	// VBoxManageCacheTimeout is a timeout for executing VBoxManage showvminfo
+	// See naksu/box getVMInfoRegexp()
+	VBoxManageCacheTimeout int64 = 15
 )
 
 // AvailableSelection is a struct for a UI/configuration option
