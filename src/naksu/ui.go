@@ -304,6 +304,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 						if box.GetVersion() == "" {
 							buttonStartServer.Disable()
 						} else {
+							updateStartButtonLabel()
 							buttonStartServer.Enable()
 						}
 
@@ -369,6 +370,21 @@ func checkAbittiUpdate() (bool, string) {
 	return abittiUpdate, availAbittiVersion
 }
 
+// updateStartButtonLabel updates label for start button depending on the
+// installed VM style. If there is no box installed the default label is set.
+func updateStartButtonLabel() {
+	go func() {
+		boxTypeString := boxversion.GetVagrantBoxType(box.GetType())
+		ui.QueueMain(func () {
+			if boxTypeString == "-" {
+				buttonStartServer.SetText(xlate.Get("Start Exam Server"))
+			} else {
+				buttonStartServer.SetText(fmt.Sprintf(xlate.Get("Start %s"), boxTypeString))
+			}
+		})
+	}()
+}
+
 // updateVagrantBoxAvailLabel updates UI "update available" label if the currently
 // installed box is Abitti and there is new version available
 func updateVagrantBoxAvailLabel() {
@@ -415,7 +431,7 @@ func updateGetServerButtonLabel() {
 
 func translateUILabels() {
 	ui.QueueMain(func() {
-		buttonStartServer.SetText(xlate.Get("Start Exam Server"))
+		updateStartButtonLabel()
 		updateGetServerButtonLabel()
 		buttonSwitchServer.SetText(xlate.Get("Matriculation Exam"))
 		buttonDestroyServer.SetText(xlate.Get("Remove Exams"))

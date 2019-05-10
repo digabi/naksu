@@ -11,6 +11,7 @@ func SetLanguage(newLanguage string) {
 		xlateStrings = map[string]string{
 			// Main window, buttons
 			"Start Exam Server":                 "Käynnistä koetilan palvelin",
+			"Start %s":                          "Käynnistä %s",
 			"Abitti Exam":                       "Abitti-koe",
 			"Abitti Exam (%s)":                  "Abitti-koe (%s)",
 			"Matriculation Exam":                "Yo-koe",
@@ -69,8 +70,6 @@ func SetLanguage(newLanguage string) {
 			"Server was removed succesfully.": "Palvelimen poistaminen onnistui.",
 
 			// mebroutines
-			"Abitti server":         "Abitti-palvelin",
-			"Matric Exam server":    "Yo-palvelin",
 			"command failed: %s":    "komento epäonnistui: %s",
 			"Failed to execute %s":  "Komennon suorittaminen epäonnistui: %s",
 			"Could not chdir to %s": "Hakemistoon %s siirtyminen epäonnistui",
@@ -116,11 +115,16 @@ func SetLanguage(newLanguage string) {
 
 			// start
 			// Already defined: "Could not change to vagrant directory ~/ktp"
+
+			// boxversion
+			"Abitti server":      "Abitti-palvelin",
+			"Matric Exam server": "Yo-palvelin",
 		}
 	} else if currentLanguage == "sv" {
 		xlateStrings = map[string]string{
 			// Main window, buttons
 			"Start Exam Server":                 "Starta provlokalsserver",
+			"Start %s":                          "Starta %s",
 			"Abitti Exam":                       "Abitti-prov",
 			"Abitti Exam (%s)":                  "Abitti-prov (%s)",
 			"Matriculation Exam":                "Studentprovet",
@@ -179,8 +183,6 @@ func SetLanguage(newLanguage string) {
 			"Server was removed succesfully.": "Avlägsning av servern lyckades.",
 
 			// mebroutines
-			"Abitti server":         "Abitti-server",
-			"Matric Exam server":    "Examensserver",
 			"command failed: %s":    "Komandot misslyckades: %s",
 			"Failed to execute %s":  "Utförning av komandot misslyckades: %s",
 			"Could not chdir to %s": "Förflyttning till katalogen %s misslyckades",
@@ -226,6 +228,10 @@ func SetLanguage(newLanguage string) {
 
 			// start
 			// Already defined: "Could not change to vagrant directory ~/ktp"
+
+			// boxversion
+			"Abitti server":      "Abitti-server",
+			"Matric Exam server": "Examensserver",
 		}
 	} else {
 		xlateStrings = nil
