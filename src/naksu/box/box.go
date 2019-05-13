@@ -31,6 +31,10 @@ func getVagrantBoxID() string {
 
 	pathID := filepath.Join(vagrantPath, ".vagrant", "machines", "default", "virtualbox", "id")
 
+	if ! mebroutines.ExistsFile(pathID) {
+		return ""
+	}
+
 	/* #nosec */
 	fileContent, err := ioutil.ReadFile(pathID)
 	if err != nil {
