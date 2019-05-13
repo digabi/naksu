@@ -107,7 +107,7 @@ func GetVagrantBoxAvailVersionDetails() (string, string, error) {
 	// There is a avail version fetch going on (break free after 240 loops)
 	tryCounter := 0
 	for vagrantBoxAvailVersionDetailsCache.updateStarted != 0 && tryCounter < 240 {
-		time.Sleep(500)
+		time.Sleep(500 * time.Millisecond)
 		tryCounter++
 	}
 
