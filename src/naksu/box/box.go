@@ -13,13 +13,15 @@ import (
 	"naksu/constants"
 	"naksu/mebroutines"
 	"naksu/xlate"
+	"naksu/log"
 )
 
 // cache for VBoxMange showvminfo --machinereadable
 // See getVMInfoRegexp
 type cacheShowVMInfoType struct {
-	output    string
-	timestamp int64
+	output          string
+	outputTimestamp int64
+	updateStarted   int64
 }
 
 var cacheShowVMInfo cacheShowVMInfoType
@@ -43,26 +45,45 @@ func getVagrantBoxID() string {
 // It is exported for unit tests
 func SetCacheShowVMInfo(newShowVMInfo string) {
 	cacheShowVMInfo.output = newShowVMInfo
-	cacheShowVMInfo.timestamp = time.Now().Unix()
+	cacheShowVMInfo.outputTimestamp = time.Now().Unix()
+	cacheShowVMInfo.updateStarted = 0
 }
 
+// getVBoxManageOutput executes "VBoxManage showvminfo".
+func getVBoxManageOutput() string {
+	boxID := getVagrantBoxID()
+	if boxID == "" {
+		return ""
+	}
+
+	cacheShowVMInfo.updateStarted = time.Now().Unix()
+	return mebroutines.RunVBoxManage([]string{"showvminfo", "--machinereadable", boxID})
+}
+
+// getVMInfoRegexp returns result of the given vmRegexp from the current VBoxManage showvminfo
+// output. This function gets the output either from the cache or calls getVBoxManageOutput()
 func getVMInfoRegexp(vmRegexp string) string {
 	var vBoxManageOutput string
 
-	// Get showvminfo from cache/by executing VBoxManage
-	// Running VBoxManage showvminfo too often makes VBoxManage to exit with code 1:
-	//   VBoxManage: error: The object is not ready
-	//   VBoxManage: error: Details: code E_ACCESSDENIED (0x80070005), component SessionMachine, interface IMachine, callee nsISupports"
-	if cacheShowVMInfo.timestamp < (time.Now().Unix() - constants.VBoxManageCacheTimeout) {
-		boxID := getVagrantBoxID()
-		if boxID == "" {
-			return ""
-		}
+	// There is a avail version fetch going on (break free after 240 loops)
+	// This locking avoids executing multiple instances of VBoxManage at the same time. Calling
+	// VBoxManage simulaneously tends to cause E_ACCESSDENIED errors from VBoxManage.
+	tryCounter := 0
+	for (cacheShowVMInfo.updateStarted != 0) && (tryCounter < 240) {
+		time.Sleep(500 * time.Millisecond)
+		tryCounter++
+		log.Debug(fmt.Sprintf("getVMIInfoRegexp is waiting 'VBoxManage showvminfo' to exit (race condition lock count %d)", tryCounter))
+	}
 
-		vBoxManageOutput = mebroutines.RunVBoxManage([]string{"showvminfo", "--machinereadable", boxID})
+	if cacheShowVMInfo.outputTimestamp < (time.Now().Unix() - constants.VBoxManageCacheTimeout) {
+		// Cache is too old or not set
+
+		vBoxManageOutput = getVBoxManageOutput()
 		SetCacheShowVMInfo(vBoxManageOutput)
+		log.Debug("getVMIInfoRegexp executed 'VBoxManage showvminfo' and updated cache")
 	} else {
 		vBoxManageOutput = cacheShowVMInfo.output
+		log.Debug("getVMIInfoRegexp got 'VBoxManage showvminfo' output from the cache")
 	}
 
 	// Extract server name
