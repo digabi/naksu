@@ -65,6 +65,29 @@ Resulting binaries are saved to `bin/` directory as `naksu` and `naksu.exe`
 
 Build also produces release bundles as `naksu_linux_amd64.zip` and `naksu_windows_amd64.zip`.
 
+### Compiling test version on Mac OS X
+
+Older `libui` version we use to compile production releases has issues on Mac OS X (specifically, starting the application gives error about undo).
+
+Workaround for this is to unpin the production release of `libui` from `Gopgk.toml` *locally* and recompile the binary. The diff for the change required is following:
+
+```
+[[constraint]]
+  name = “github.com/andlabs/ui”
+-  revision = “6c3bda44d3039e3721c06516be3ab9ce9cbd48cc”
++  branch = “master”
++  #revision = “6c3bda44d3039e3721c06516be3ab9ce9cbd48cc"
+```
+
+After this, update dependencies with
+
+`make update_libs`
+
+and build a Mac OS X binary with
+
+`make darwin-docker`
+
+Mac OS X test version can be started with command `./bin/naksu-darwin
 ## Compilation details
 
 Preferred way to compile `naksu` is using Docker.
