@@ -6,14 +6,11 @@ package boxversion
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
 	"regexp"
 	"time"
 
 	"naksu/constants"
 	"naksu/log"
-	"naksu/mebroutines"
 	"naksu/network"
 	"naksu/xlate"
 )
@@ -29,31 +26,9 @@ type lastBoxAvail struct {
 // Global cache for GetVagrantBoxAvailVersionDetails()
 var vagrantBoxAvailVersionDetailsCache lastBoxAvail
 
-// GetVagrantFileVersion returns a human-readable localised version string
-// for a given Vagrantfile (with "" defaults to ~/ktp/Vagrantfile)
-//
-// If you want to get the version of the current box consider using
-// box.GetVersion() instead
-func GetVagrantFileVersion(vagrantFilePath string) string {
-	if vagrantFilePath == "" {
-		vagrantFilePath = filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile")
-	}
-
-	boxString, boxVersion, err := GetVagrantFileVersionDetails(vagrantFilePath)
-	if err != nil {
-		log.Debug(fmt.Sprintf("Could not read from %s", vagrantFilePath))
-		return ""
-	}
-
-	boxType := GetVagrantBoxType(boxString)
-
-	versionString := fmt.Sprintf("%s (%s)", boxType, boxVersion)
-	log.Debug(fmt.Sprintf("GetVagrantFileVersion returns: %s", versionString))
-
-	return versionString
-}
-
-func getVagrantVersionDetails(vagrantFileStr string) (string, string, error) {
+// GetVagrantVersionDetails returns box type and box version string from a given
+// string containing a Vagrantfile
+func GetVagrantVersionDetails(vagrantFileStr string) (string, string, error) {
 	boxRegexp := regexp.MustCompile(`config.vm.box = "(.+)"`)
 	versionRegexp := regexp.MustCompile(`vb.name = "(.+)"`)
 
@@ -61,23 +36,11 @@ func getVagrantVersionDetails(vagrantFileStr string) (string, string, error) {
 	versionMatches := versionRegexp.FindStringSubmatch(vagrantFileStr)
 
 	if len(boxMatches) == 2 && len(versionMatches) == 2 {
-		log.Debug(fmt.Sprintf("getVagrantVersionDetails returns: [%s] [%s]", boxMatches[1], versionMatches[1]))
+		log.Debug(fmt.Sprintf("GetVagrantVersionDetails returns: [%s] [%s]", boxMatches[1], versionMatches[1]))
 		return boxMatches[1], versionMatches[1], nil
 	}
 
 	return "", "", errors.New("did not find values from vagrantstring")
-}
-
-// GetVagrantFileVersionDetails returns version string (e.g. "digabi/ktp-qa") and
-// version string (e.g. "SERVER7108X") from the given vagrantFilePath
-func GetVagrantFileVersionDetails(vagrantFilePath string) (string, string, error) {
-	fileContent, err := ioutil.ReadFile(filepath.Clean(vagrantFilePath))
-	if err != nil {
-		log.Debug(fmt.Sprintf("Could not read from %s", vagrantFilePath))
-		return "", "", err
-	}
-
-	return getVagrantVersionDetails(string(fileContent))
 }
 
 // GetVagrantBoxAvailVersion returns a human-readable localised version string
@@ -98,7 +61,7 @@ func GetVagrantBoxAvailVersion() string {
 }
 
 // GetVagrantBoxAvailVersionDetails gets info about available vagramt box
-// from ReallyGetVagrantBoxAvailVersionDetails() or global vagrantBoxAvailVersionDetailsCache
+// from reallyGetVagrantBoxAvailVersionDetails() or global vagrantBoxAvailVersionDetailsCache
 func GetVagrantBoxAvailVersionDetails() (string, string, error) {
 	boxString := ""
 	boxVersion := ""
@@ -134,7 +97,7 @@ func GetVagrantBoxAvailVersionDetails() (string, string, error) {
 	return boxString, boxVersion, boxError
 }
 
-// reallyGetVagrantBoxAvailVersionDetails returns version string (e.g. "digabi/ktp-qa") and
+// reallyGetVagrantBoxAvailVersionDetails returns type string (e.g. "digabi/ktp-qa") and
 // version string (e.g. "SERVER7108X") by getting Vagrantfile from the AbittiVagrantURL
 func reallyGetVagrantBoxAvailVersionDetails() (string, string, error) {
 	// Get Abitti Vagrantfile
@@ -144,7 +107,7 @@ func reallyGetVagrantBoxAvailVersionDetails() (string, string, error) {
 		return "", "", errors.New("could not download abitti vagrantfile")
 	}
 
-	return getVagrantVersionDetails(strVagrantfile)
+	return GetVagrantVersionDetails(strVagrantfile)
 }
 
 // GetVagrantBoxType returns the type string (Abitti server or Matric Exam server) for vagrant box name
