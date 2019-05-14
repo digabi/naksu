@@ -3,9 +3,6 @@ package boxversion_test
 import (
   "testing"
   "naksu/boxversion"
-
-  "os"
-  "io/ioutil"
 )
 
 func TestGetVagrantBoxType (t *testing.T) {
@@ -124,7 +121,7 @@ func TestGetVagrantFileVersionAbitti (t *testing.T) {
     config.vm.box = "digabi/ktp-qa"
     config.vm.box_url = "https://s3-eu-west-1.amazonaws.com/static.abitti.fi/usbimg/qa/vagrant/metadata.json"
     config.vm.provider :virtualbox do |vb|
-      vb.name = "Virtual KTP v57"
+      vb.name = "SERVER7108X v57"
       vb.gui = true
       vb.customize ["modifyvm", :id, "--ioapic", "on"]
       vb.customize ["modifyvm", :id, "--cpus", cpus]
@@ -173,7 +170,7 @@ func TestGetVagrantFileVersionAbitti (t *testing.T) {
     config.vm.box = "digabi/ktp-k2018-45489"
     config.vm.box_url = "https://s3-eu-west-1.amazonaws.com/static.abitti.fi/usbimg/k2018-45489/vagrant/metadata.json"
     config.vm.provider :virtualbox do |vb|
-      vb.name = "Virtual KTP v37"
+      vb.name = "SERVER7304M v37"
       vb.gui = true
       vb.customize ["modifyvm", :id, "--ioapic", "on"]
       vb.customize ["modifyvm", :id, "--cpus", cpus]
@@ -192,30 +189,27 @@ func TestGetVagrantFileVersionAbitti (t *testing.T) {
   tables := []struct {
     vagrantfileContent string
     versionString string
+    versionType string
+    humanReadableBoxType string
   }{
-    {sampleAbittiVagrantFileContent, "Abitti server (v57)"},
-    {sampleMebVagrantFileContent, "Matric Exam server (v37)"},
+    {sampleAbittiVagrantFileContent, "SERVER7108X v57", "digabi/ktp-qa", "Abitti server"},
+    {sampleMebVagrantFileContent, "SERVER7304M v37", "digabi/ktp-k2018-45489", "Matric Exam server"},
   }
 
   for _, table := range tables {
-    tmpfile, err := ioutil.TempFile("", "mebroutines_test_")
-    if err != nil {
-      t.Errorf("Could not open %s: %v", tmpfile.Name(), err)
-    }
-
-    defer os.Remove(tmpfile.Name())
-
-    if _, err := tmpfile.WriteString(table.vagrantfileContent); err != nil {
-  		t.Errorf("Could not write to %s: %v", tmpfile.Name(), err)
-  	}
-  	if err := tmpfile.Close(); err != nil {
-      t.Errorf("Could not close %s: %v", tmpfile.Name(), err)
-  	}
-
-    versionString := boxversion.GetVagrantFileVersion(tmpfile.Name())
+    versionType, versionString, _ := boxversion.GetVagrantVersionDetails(table.vagrantfileContent)
+    humanReadableBoxType := boxversion.GetVagrantBoxType(versionType)
 
     if versionString != table.versionString {
-      t.Errorf("GetVagrantFileVersion returns wrong version string \"%s\" instead of \"%s\"", versionString, table.versionString)
+      t.Errorf("GetVagrantVersionDetails returns wrong version string \"%s\" instead of \"%s\"", versionString, table.versionString)
+    }
+
+    if versionType != table.versionType {
+      t.Errorf("GetVagrantVersionDetails returns wrong type string \"%s\" instead of \"%s\"", versionType, table.versionType)
+    }
+
+    if humanReadableBoxType != table.humanReadableBoxType {
+      t.Errorf("GetVagrantBoxType return wrong result \"%s\" instead of \"%s\" when called with parameter \"%s\"", humanReadableBoxType, table.humanReadableBoxType, versionType)
     }
   }
 }

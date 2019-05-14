@@ -57,7 +57,7 @@ func Run(commandArgs []string) error {
 
 	err := cmd.Run()
 	if err != nil {
-		ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
+		ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s (%v)"), strings.Join(commandArgs, " "), err))
 	}
 
 	return err
@@ -74,9 +74,9 @@ func RunAndGetOutput(commandArgs []string, showWarningOnError bool) (string, err
 	if err != nil {
 		// Executing failed, return error condition
 		if showWarningOnError {
-			ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
+			ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s (%v)"), strings.Join(commandArgs, " "), err))
 		} else {
-			log.Debug(fmt.Sprintf(xlate.Get("command failed: %s"), strings.Join(commandArgs, " ")))
+			log.Debug(fmt.Sprintf(xlate.Get("command failed: %s (%v)"), strings.Join(commandArgs, " "), err))
 		}
 		return string(out), err
 	}
@@ -142,9 +142,9 @@ func RunVagrant(args []string) {
 			log.Debug("Vagrant entered invalid state while booting. We expect this to occur because user has closed the VM window. User was not notified. Complete output:")
 			log.Debug(vagrantOutput)
 		} else {
-			log.Debug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(runArgs, " ")))
+			log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", strings.Join(runArgs, " "), err))
 			log.Debug(vagrantOutput)
-			ShowWarningMessage(fmt.Sprintf(xlate.Get("Failed to execute %s"), strings.Join(runArgs, " ")))
+			ShowWarningMessage(fmt.Sprintf(xlate.Get("Failed to execute %s (%v)"), strings.Join(runArgs, " "), err))
 		}
 	}
 }
@@ -155,9 +155,9 @@ func RunVBoxManage(args []string) string {
 	runArgs := append(vboxmanagepathArr, args...)
 	vBoxManageOutput, err := RunAndGetOutput(runArgs, false)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Failed to execute %s, complete output:", strings.Join(runArgs, " ")))
+		log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", strings.Join(runArgs, " "), err))
 		log.Debug(vBoxManageOutput)
-		ShowErrorMessage(fmt.Sprintf(xlate.Get("Failed to execute %s"), strings.Join(runArgs, " ")))
+		ShowErrorMessage(fmt.Sprintf(xlate.Get("Failed to execute %s (%v)"), strings.Join(runArgs, " "), err))
 	}
 
 	return vBoxManageOutput
