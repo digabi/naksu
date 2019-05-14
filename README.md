@@ -79,6 +79,8 @@ Workaround for this is to unpin the production release of `libui` from `Gopgk.to
 +  #revision = “6c3bda44d3039e3721c06516be3ab9ce9cbd48cc"
 ```
 
+**Do not commit this to git, since the master version seems to cause run-time linking failure on Windows**
+
 After this, update dependencies with
 
 `make update_libs`
