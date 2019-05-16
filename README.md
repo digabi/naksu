@@ -178,6 +178,14 @@ Things to consider later:
 
 ## Changelog
 
+### 1.9.0 (16-MAY-2019)
+
+- Get version of the installed VM from VirtualBox instead of Vagrantfile to
+  avoid showing wrong version numbers after a failed install/update
+- Store settings file naksu.ini to home directory instead of the directory
+  where Naksu was executed
+- VirtualBox network adapter type (e.g. virtio) can be changed from the Naksu UI
+
 ### 1.8.1 (19-MAR-2019)
 
 - Available disk space is shown in backup media selection list
