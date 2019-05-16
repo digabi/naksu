@@ -104,6 +104,14 @@
   revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
 
 [[projects]]
+  digest = "1:5d231480e1c64a726869bc4142d270184c419749d34f167646baa21008eb0a79"
+  name = "github.com/mitchellh/go-homedir"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "af06845cf3004701891bf4fdb884bfe4920b3727"
+  version = "v1.1.0"
+
+[[projects]]
   digest = "1:16e6fde687529deaefbeff14841b694cb6d67dfc31884bac6214313e96e107bc"
   name = "github.com/rhysd/go-github-selfupdate"
   packages = ["selfupdate"]
@@ -181,6 +189,7 @@
     "github.com/go-ini/ini",
     "github.com/jessevdk/go-flags",
     "github.com/kardianos/osext",
+    "github.com/mitchellh/go-homedir",
     "github.com/rhysd/go-github-selfupdate/selfupdate",
   ]
   solver-name = "gps-cdcl"
