@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"regexp"
 	"time"
 
 	"naksu/constants"
@@ -105,4 +106,32 @@ func DownloadString(url string) (string, error) {
 	}
 
 	return resultString, nil
+}
+
+// IsExtInterface returns true if given interfaceName is a name for a valid interface.
+func IsExtInterface(interfaceName string) bool {
+	interfaces := GetExtInterfaces()
+
+	result := false
+
+	for _, thisInterface := range interfaces {
+		if thisInterface.ConfigValue == interfaceName {
+			result = true
+		}
+	}
+
+	return result
+}
+
+// IgnoreExtInterface returns true if given system-level network device should
+// be ignored (i.e. not to be shown to the user).
+func IgnoreExtInterface(interfaceName string) bool {
+	for i := range constants.ExtNicsToIgnore {
+		match, err := regexp.MatchString(constants.ExtNicsToIgnore[i], interfaceName)
+		if err == nil && match {
+			return true
+		}
+	}
+
+	return false
 }

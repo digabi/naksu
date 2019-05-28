@@ -37,6 +37,7 @@ var defaults = []defaultValue{
 	defaultValue{"common", "language", constants.AvailableLangs[0].ConfigValue},
 	defaultValue{"selfupdate", "disabled", strconv.FormatBool(false)},
 	defaultValue{"environment", "nic", constants.AvailableNics[0].ConfigValue},
+	defaultValue{"environment", "extnic", ""},
 }
 
 func fillDefaults() {
@@ -99,7 +100,7 @@ func Load() {
 func validateStringChoice(section string, key string, choices []constants.AvailableSelection) string {
 	value := getString(section, key)
 
-	id := constants.GetAvailableSelectionID(value, choices)
+	id := constants.GetAvailableSelectionID(value, choices, -1)
 
 	if id >= 0 {
 		return value
@@ -127,7 +128,7 @@ func GetLanguage() string {
 
 // SetLanguage stores user language preference
 func SetLanguage(language string) {
-	if constants.GetAvailableSelectionID(language, constants.AvailableLangs) < 0 {
+	if constants.GetAvailableSelectionID(language, constants.AvailableLangs, -1) < 0 {
 		setValue("common", "language", getDefault("common", "language"))
 	} else {
 		setValue("common", "language", language)
@@ -151,9 +152,21 @@ func GetNic() string {
 
 // SetNic sets the state of vagrant NIC value
 func SetNic(nic string) {
-	if constants.GetAvailableSelectionID(nic, constants.AvailableNics) < 0 {
+	if constants.GetAvailableSelectionID(nic, constants.AvailableNics, -1) < 0 {
 		setValue("environment", "nic", getDefault("environment", "nic"))
 	} else {
 		setValue("environment", "nic", nic)
 	}
+}
+
+// GetExtNic returns vagrant EXTNIC value. If empty no external network connection
+// should be passed to Vagrant via EXTNIC environment variable.
+func GetExtNic() string {
+	// Since there are no pre-set selection of variables we dont use validateStringChoice() here
+	return getString("environment", "extnic")
+}
+
+// SetExtNic sets the state of vagrant EXTNIC value
+func SetExtNic(nic string) {
+	setValue("environment", "extnic", nic)
 }
