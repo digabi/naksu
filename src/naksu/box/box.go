@@ -10,10 +10,11 @@ import (
 	"regexp"
 	"time"
 
+	"naksu/boxversion"
 	"naksu/constants"
+	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/xlate"
-	"naksu/log"
 )
 
 // cache for VBoxMange showvminfo --machinereadable
@@ -31,7 +32,7 @@ func getVagrantBoxID() string {
 
 	pathID := filepath.Join(vagrantPath, ".vagrant", "machines", "default", "virtualbox", "id")
 
-	if ! mebroutines.ExistsFile(pathID) {
+	if !mebroutines.ExistsFile(pathID) {
 		return ""
 	}
 
@@ -101,14 +102,61 @@ func getVMInfoRegexp(vmRegexp string) string {
 	return ""
 }
 
+func getVagrantfileData() (string, string) {
+	pathVagrantfile := filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile")
+
+	if !mebroutines.ExistsFile(pathVagrantfile) {
+		log.Debug(fmt.Sprintf("There is no Vagrantfile '%s' so no box type/version can't be identified", pathVagrantfile))
+		return "", ""
+	}
+
+	/* #nosec */
+	fileContent, err := ioutil.ReadFile(pathVagrantfile)
+	if err != nil {
+		log.Debug(fmt.Sprintf("Could not read Vagrantfile from '%s': %v", pathVagrantfile, err))
+		return "", ""
+	}
+
+	fileContentString := string(fileContent)
+
+	boxType, boxVersion, err := boxversion.GetVagrantVersionDetails(fileContentString)
+	if err != nil {
+		return "", ""
+	}
+
+	return boxType, boxVersion
+}
+
 // GetType returns the box type (e.g. "digabi/ktp-qa") of the current VM
+// If there is no current VM installed, get the value from ~/ktp/Vagrantfile
 func GetType() string {
-	return getVMInfoRegexp("description=\"(.*?)\"")
+	result := getVMInfoRegexp("description=\"(.*?)\"")
+
+	if result == "" {
+		boxType, _ := getVagrantfileData()
+		if boxType != "" {
+			log.Debug(fmt.Sprintf("Got box type '%s' from Vagrantfile as VM did not give any value", boxType))
+			result = boxType
+		}
+	}
+
+	return result
 }
 
 // GetVersion returns the version string (e.g. "SERVER7108X v69") of the current VM
+// If there is no current VM installed, get the value from ~/ktp/Vagrantfile
 func GetVersion() string {
-	return getVMInfoRegexp("name=\"(.*?)\"")
+	result := getVMInfoRegexp("name=\"(.*?)\"")
+
+	if result == "" {
+		_, boxVersion := getVagrantfileData()
+		if boxVersion != "" {
+			log.Debug(fmt.Sprintf("Got box version '%s' from Vagrantfile as VM did not give any value", boxVersion))
+			result = boxVersion
+		}
+	}
+
+	return result
 }
 
 // GetDiskUUID returns the VirtualBox UUID for the image of the current VM
