@@ -1,7 +1,7 @@
 package network
 
 import (
-  "fmt"
+	"fmt"
 	"net"
 
 	"naksu/constants"
@@ -12,7 +12,7 @@ import (
 // constants.AvailableSelection where the ConfigValue is system's internal value
 // (e.g. "eno1") and Legend human-readable legend (e.g. "Wireless Network 802.11abc")
 func GetExtInterfaces() []constants.AvailableSelection {
-  result := constants.DefaultExtNicArray
+	result := constants.DefaultExtNicArray
 
 	interfaces, err := net.Interfaces()
 	if err == nil {
