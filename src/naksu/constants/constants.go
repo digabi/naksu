@@ -76,7 +76,7 @@ var AvailableNics = []AvailableSelection{
 	},
 }
 
-// DefaultExtNic is an array holding the default EXTNIC value
+// DefaultExtNicArray is an array holding the default EXTNIC value
 var DefaultExtNicArray = []AvailableSelection{
 	AvailableSelection{
 		ConfigValue: "",
@@ -94,25 +94,4 @@ func GetAvailableSelectionID(configValue string, choices []AvailableSelection, v
 	}
 
 	return valueIfNotFound
-}
-
-// ExtNicsToIgnore is a list of devices to ignore. Each entry is a regular expression
-// and the entry is dropped if any of these regexs match. See network.IgnoreExtInterface()
-// for more.
-var ExtNicsToIgnore = []string{
-	"^lo$",
-	"^vboxnet\\d",
-}
-
-// ExtNicNixLegendRules is a map between regular expressions matching *nix device names
-// and user-friendly legends. This is necessary while we don't call lshw or similair
-// to description of the network devices
-var ExtNicNixLegendRules = []struct {
-	RegExp string
-	Legend string
-}{
-	{"^w", "Wireless"},
-	{"^en", "Ethernet"},
-	{"^em", "Ethernet"},
-	{"^eth", "Ethernet"},
 }
