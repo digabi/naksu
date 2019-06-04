@@ -123,9 +123,9 @@ func IsExtInterface(interfaceName string) bool {
 	return result
 }
 
-// IgnoreExtInterface returns true if given system-level network device should
+// IsIgnoredExtInterface returns true if given system-level network device should
 // be ignored (i.e. not to be shown to the user).
-func IgnoreExtInterface(interfaceName string) bool {
+func IsIgnoredExtInterface(interfaceName string) bool {
 	for i := range constants.ExtNicsToIgnore {
 		match, err := regexp.MatchString(constants.ExtNicsToIgnore[i], interfaceName)
 		if err == nil && match {

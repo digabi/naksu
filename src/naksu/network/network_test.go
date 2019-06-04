@@ -16,9 +16,9 @@ func TestIgnoreExtInterface(t *testing.T) {
 	}
 
 	for _, table := range tables {
-		ignore := network.IgnoreExtInterface(table.extNicSystemName)
+		ignore := network.IsIgnoredExtInterface(table.extNicSystemName)
 		if ignore != table.ignore {
-			t.Errorf("IgnoreExtInterface fails with parameter '%s'", table.extNicSystemName)
+			t.Errorf("IsIgnoredExtInterface fails with parameter '%s'", table.extNicSystemName)
 		}
 	}
 }
