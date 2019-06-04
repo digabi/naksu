@@ -15,6 +15,20 @@ import (
 	"naksu/mebroutines"
 )
 
+
+// extNicNixLegendRules is a map between regular expressions matching *nix device names
+// and user-friendly legends. This is necessary while we don't call lshw or similair
+// to description of the network devices
+var extNicNixLegendRules = []struct {
+	RegExp string
+	Legend string
+}{
+	{"^w", "Wireless"},
+	{"^en", "Ethernet"},
+	{"^em", "Ethernet"},
+	{"^eth", "Ethernet"},
+}
+
 func getExtInterfaceSpeed(extInterface string) uint64 {
 	speedPath := fmt.Sprintf("/sys/class/net/%s/speed", extInterface)
 
@@ -41,7 +55,7 @@ func getExtInterfaceSpeed(extInterface string) uint64 {
 }
 
 func getExtInterfaceLegend(extInterface string) string {
-	for _, table := range constants.ExtNicNixLegendRules {
+	for _, table := range extNicNixLegendRules {
 		matched, err := regexp.MatchString(table.RegExp, extInterface)
 		if err == nil && matched {
 			return table.Legend
