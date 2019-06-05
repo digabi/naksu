@@ -122,16 +122,39 @@ func IsExtInterface(interfaceName string) bool {
 
 	return result
 }
-
-// IsIgnoredExtInterface returns true if given system-level network device should
+// isIgnoredExtInterface returns true if given system-level network device should
 // be ignored (i.e. not to be shown to the user).
-func IsIgnoredExtInterface(interfaceName string) bool {
-	for i := range constants.ExtNicsToIgnore {
-		match, err := regexp.MatchString(constants.ExtNicsToIgnore[i], interfaceName)
+func isIgnoredExtInterface(interfaceName string, ignoredExtNics []string) bool {
+	for _, ignoredExtNic := range ignoredExtNics {
+		match, err := regexp.MatchString(ignoredExtNic, interfaceName)
 		if err == nil && match {
 			return true
 		}
 	}
 
 	return false
+}
+
+func isIgnoredExtInterfaceLinux(interfaceName string) bool {
+	return isIgnoredExtInterface(interfaceName, []string{
+		"^lo$",
+		"^vboxnet\\d",
+	})
+}
+
+func isIgnoredExtInterfaceWindows(interfaceName string) bool {
+	return isIgnoredExtInterface(interfaceName, []string{})
+}
+
+func isIgnoredExtInterfaceDarwin(interfaceName string) bool {
+	return isIgnoredExtInterface(interfaceName, []string{
+		"^lo\\d*$",
+		"^gif\\d+$",
+		"^XHC\\d+$",
+		"^awdl\\d+$",
+		"^utun\\d+$",
+		"^bridge\\d+$",
+		"^stf\\d+$",
+		"^vboxnet\\d*",
+	})
 }
