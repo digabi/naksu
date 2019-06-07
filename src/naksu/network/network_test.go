@@ -28,7 +28,7 @@ func TestIgnoreExtInterfaceWindows(t *testing.T) {
 func TestIgnoreExtInterfaceDarwin(t *testing.T) {
 	testIgnoreExtInterface(t, IgnoredExtInterfaceTestData{
 		{"lo", true},
-		{"gif", true},
+		{"gif666", true},
 		{"vboxnet124", true},
 		{"bridge0", true},
 		{"loremipsumlo", false},
