@@ -6,9 +6,9 @@ In real life Naksu is Onerva's (the [Abitti model teacher](https://www.abitti.fi
 The need for some kind of helper scripts appeared to be evident as we followed support requests
 and feedback from school IT staff and teachers.
 
-These scripts are currently under planning/proof-of-concept stage. The executables can be downloaded from [GitHub](https://github.com/digabi/naksu/releases/latest). Download either Windows or Linux version and execute the file in the OS-related zip. After this naksu updates itself when executed.
+Naksu is currently in production. The executables can be downloaded from [GitHub](https://github.com/digabi/naksu/releases/latest). Download either Windows or Linux version and execute the file in the OS-related zip. After this naksu updates itself when executed.
 
-## Plan for the Scripts
+## Overview of executed operations
 
 ### Fresh Install / Update
 
