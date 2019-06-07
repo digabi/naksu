@@ -178,6 +178,11 @@ Things to consider later:
 
 ## Changelog
 
+### 1.10.0 (07-JUN-2019)
+
+- Allow user to select physical network interface from Naksu. This allows user to bypass interface selection in terminal.
+- Fix `lsblk` output handling so Naksu works on Ubuntu 19.04
+
 ### 1.9.0 (16-MAY-2019)
 
 - Get version of the installed VM from VirtualBox instead of Vagrantfile to
