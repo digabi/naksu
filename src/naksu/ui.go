@@ -297,6 +297,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					ui.QueueMain(func() {
 						comboboxLang.Enable()
 						comboboxNic.Enable()
+						comboboxExtNic.Enable()
 
 						// Require installed version to start server
 						if box.GetVersion() == "" {
@@ -329,6 +330,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					ui.QueueMain(func() {
 						comboboxLang.Disable()
 						comboboxNic.Disable()
+						comboboxExtNic.Disable()
 
 						buttonStartServer.Disable()
 						buttonMebShare.Enable()
