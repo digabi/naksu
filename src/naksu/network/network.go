@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"regexp"
 	"time"
 
 	"naksu/constants"
@@ -105,4 +106,55 @@ func DownloadString(url string) (string, error) {
 	}
 
 	return resultString, nil
+}
+
+// IsExtInterface returns true if given interfaceName is a name for a valid interface.
+func IsExtInterface(interfaceName string) bool {
+	interfaces := GetExtInterfaces()
+
+	result := false
+
+	for _, thisInterface := range interfaces {
+		if thisInterface.ConfigValue == interfaceName {
+			result = true
+		}
+	}
+
+	return result
+}
+// isIgnoredExtInterface returns true if given system-level network device should
+// be ignored (i.e. not to be shown to the user).
+func isIgnoredExtInterface(interfaceName string, ignoredExtNics []string) bool {
+	for _, ignoredExtNic := range ignoredExtNics {
+		match, err := regexp.MatchString(ignoredExtNic, interfaceName)
+		if err == nil && match {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isIgnoredExtInterfaceLinux(interfaceName string) bool {
+	return isIgnoredExtInterface(interfaceName, []string{
+		"^lo$",
+		"^vboxnet\\d",
+	})
+}
+
+func isIgnoredExtInterfaceWindows(interfaceName string) bool {
+	return isIgnoredExtInterface(interfaceName, []string{})
+}
+
+func isIgnoredExtInterfaceDarwin(interfaceName string) bool {
+	return isIgnoredExtInterface(interfaceName, []string{
+		"^lo\\d*$",
+		"^gif\\d+$",
+		"^XHC\\d+$",
+		"^awdl\\d+$",
+		"^utun\\d+$",
+		"^bridge\\d+$",
+		"^stf\\d+$",
+		"^vboxnet\\d*",
+	})
 }

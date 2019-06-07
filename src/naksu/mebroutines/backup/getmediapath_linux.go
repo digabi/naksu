@@ -72,15 +72,13 @@ func getBackupMediaLinux() map[string]string {
 }
 
 func getRemovableDisks(blockdevices []interface{}) map[string]string {
-	var media = map[string]string{}
-	//media_n := 0
+	media := map[string]string{}
 
 	if blockdevices == nil {
 		return media
 	}
 
 	for blockdeviceIndex := range blockdevices {
-		//fmt.Println(blockdevices[blockdevice_n])
 		thisBlockdevice := blockdevices[blockdeviceIndex].(map[string]interface{})
 		if deviceFieldString(thisBlockdevice["hotplug"]) == "1" && thisBlockdevice["children"] != nil {
 			thisChildren := thisBlockdevice["children"].([]interface{})
@@ -103,6 +101,19 @@ func deviceFieldString(thisField interface{}) string {
 	if thisField == nil {
 		return ""
 	}
-
+	switch v := thisField.(type) {
+	case bool:
+		fieldBool := thisField.(bool)
+		if (fieldBool == true) {
+			return "1"
+		} else {
+			return "0"
+		}
+	case string:
+		return thisField.(string)
+	default:
+		log.Debug("Fail on getmediapath.deviceFieldString")
+		log.Debug(fmt.Sprintf("unexpected type %T", v))
+	}
 	return thisField.(string)
 }

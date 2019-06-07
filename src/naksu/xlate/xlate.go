@@ -26,6 +26,8 @@ func SetLanguage(newLanguage string) {
 			// Main window, other
 			"Current version: %s":                                                                        "Asennettu versio: %s",
 			"Update available: %s":                                                                       "Päivitys saatavilla: %s",
+			"Network device:":                                                                            "Verkkolaite:",
+			"Select in terminal":                                                                         "Valitse pääteikkunassa",
 			"Server networking hardware:":                                                                "Palvelimen verkkolaite:",
 			"Install/update server for:":                                                                 "Asenna tai päivitä palvelin:",
 			"DANGER! Annihilate your server:":                                                            "VAARA! Palvelimen tuhoaminen:",
@@ -39,6 +41,9 @@ func SetLanguage(newLanguage string) {
 			"Your free disk size is getting low (%s).":                                                   "Levytilasi on loppumassa (jäljellä %s).",
 			"Start by installing a server: Show management features":                                     "Aloita asentamalla palvelin: Näytä hallintaominaisuudet",
 			"You are starting Matriculation Examination server with an Internet connection.":             "Olet käynnistämässä yo-palvelinta, vaikka palvelimella on internet-yhteys.",
+
+			"You have not set network device. Follow terminal for device selection menu.":                               "Et ole valinnut verkkolaitetta. Seuraa pääteikkunaa mahdollista verkkolaitteen valintaa varten.",
+			"You have selected network device '%s' which is not available. Follow terminal for device selection menu.": "Olet valinnut verkkolaitteen '%s', joka ei ole käytettävissä. Seuraa pääteikkunaa mahdollista verkkolaitteen valintaa varten.",
 
 			// Backup dialog
 			"naksu: SaveTo":             "naksu: Tallennuspaikka",
@@ -139,6 +144,8 @@ func SetLanguage(newLanguage string) {
 			// Main window, other
 			"Current version: %s":                                                                        "Installerad version: %s",
 			"Update available: %s":                                                                       "Uppdatering tillgänglig: %s",
+			"Network device:":                                                                            "Nätverksanordning:",
+			"Select in terminal":                                                                         "Välj i terminalen",
 			"Server networking hardware:":                                                                "Servernätverkshårdvara:",
 			"Install/update server for:":                                                                 "Installera eller uppdatera server för:",
 			"DANGER! Annihilate your server:":                                                            "FARA! Förstörning av servern:",
@@ -152,6 +159,9 @@ func SetLanguage(newLanguage string) {
 			"Your free disk size is getting low (%s).":                                                   "Ditt diskutrymme börjar ta slut (kvar %s).",
 			"Start by installing a server: Show management features":                                     "Börja med att installera servern: Visa hanteringsegenskaper",
 			"You are starting Matriculation Examination server with an Internet connection.":             "Då håller på att starta provlokalsservern för studentexamen, fast servern har internetförbindelse.",
+
+			"You have not set network device. Follow terminal for device selection menu.":                               "Du har inte valt nätverksanordning. Följ terminalfönstret för eventuellt val av nätverksanordning.",
+			"You have selected network device '%s' which is not available. Follow terminal for device selection menu.": "Du har valt nätverksanordningen '%s', som inte är tillgänglig. Följ terminalfönstret för eventuellt val av nätverksanordning.",
 
 			// Backup dialog
 			"naksu: SaveTo":             "naksu: Spara till ",

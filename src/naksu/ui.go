@@ -35,11 +35,13 @@ var buttonMakeBackup *ui.Button
 var buttonMebShare *ui.Button
 
 var comboboxLang *ui.Combobox
+var comboboxExtNic *ui.Combobox
 var comboboxNic *ui.Combobox
 
 var labelBox *ui.Label
 var labelBoxAvailable *ui.Label
 var labelStatus *ui.Label
+var labelAdvancedExtNic *ui.Label
 var labelAdvancedNic *ui.Label
 var labelAdvancedUpdate *ui.Label
 var labelAdvancedAnnihilate *ui.Label
@@ -87,6 +89,8 @@ var removeBox *ui.Box
 
 var removeInfoLabel [5]*ui.Label
 
+var extInterfaces []constants.AvailableSelection
+
 func createMainWindowElements() {
 	// Define main window
 	buttonStartServer = ui.NewButton("Start Exam Server")
@@ -102,34 +106,26 @@ func createMainWindowElements() {
 	for _, thisSelection := range constants.AvailableLangs {
 		comboboxLang.Append(thisSelection.Legend)
 	}
+	comboboxLang.SetSelected(constants.GetAvailableSelectionID(config.GetLanguage(), constants.AvailableLangs, 0))
 
-	// Set current language setting to language combobox
-	languageID := constants.GetAvailableSelectionID(config.GetLanguage(), constants.AvailableLangs)
-	if languageID < 0 {
-		// Default value
-		comboboxLang.SetSelected(0)
-	} else {
-		comboboxLang.SetSelected(languageID)
+	// Define EXTNIC setting combobox
+	comboboxExtNic = ui.NewCombobox()
+	for _, thisSelection := range extInterfaces {
+		comboboxExtNic.Append(xlate.Get(thisSelection.Legend))
 	}
+	comboboxExtNic.SetSelected(constants.GetAvailableSelectionID(config.GetExtNic(), extInterfaces, 0))
 
 	// Define NIC setting combobox
 	comboboxNic = ui.NewCombobox()
 	for _, thisSelection := range constants.AvailableNics {
 		comboboxNic.Append(thisSelection.Legend)
 	}
-
-	// Set current NIC setting to NIC combobox
-	nicID := constants.GetAvailableSelectionID(config.GetNic(), constants.AvailableNics)
-	if nicID < 0 {
-		// Default value
-		comboboxNic.SetSelected(0)
-	} else {
-		comboboxNic.SetSelected(nicID)
-	}
+	comboboxNic.SetSelected(constants.GetAvailableSelectionID(config.GetNic(), constants.AvailableNics, 0))
 
 	labelBox = ui.NewLabel("")
 	labelBoxAvailable = ui.NewLabel("")
 	labelStatus = ui.NewLabel("")
+	labelAdvancedExtNic = ui.NewLabel("")
 	labelAdvancedNic = ui.NewLabel("")
 	labelAdvancedUpdate = ui.NewLabel("")
 	labelAdvancedAnnihilate = ui.NewLabel("")
@@ -169,6 +165,8 @@ func createMainWindowElements() {
 	boxAdvanced = ui.NewVerticalBox()
 	boxAdvanced.SetPadded(true)
 	boxAdvanced.Append(ui.NewHorizontalSeparator(), false)
+	boxAdvanced.Append(labelAdvancedExtNic, false)
+	boxAdvanced.Append(comboboxExtNic, false)
 	boxAdvanced.Append(labelAdvancedNic, false)
 	boxAdvanced.Append(comboboxNic, false)
 	boxAdvanced.Append(ui.NewHorizontalSeparator(), false)
@@ -299,6 +297,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					ui.QueueMain(func() {
 						comboboxLang.Enable()
 						comboboxNic.Enable()
+						comboboxExtNic.Enable()
 
 						// Require installed version to start server
 						if box.GetVersion() == "" {
@@ -331,6 +330,7 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 					ui.QueueMain(func() {
 						comboboxLang.Disable()
 						comboboxNic.Disable()
+						comboboxExtNic.Disable()
 
 						buttonStartServer.Disable()
 						buttonMebShare.Enable()
@@ -451,6 +451,7 @@ func translateUILabels() {
 		}
 
 		checkboxAdvanced.SetText(xlate.Get("Show management features"))
+		labelAdvancedExtNic.SetText(xlate.Get("Network device:"))
 		labelAdvancedNic.SetText(xlate.Get("Server networking hardware:"))
 		labelAdvancedUpdate.SetText(xlate.Get("Install/update server for:"))
 		labelAdvancedAnnihilate.SetText(xlate.Get("DANGER! Annihilate your server:"))
@@ -514,6 +515,13 @@ func bindAdvancedToggle() {
 	})
 }
 
+func bindAdvancedExtNicSwitching() {
+	// Define EXTNIC selection action main window (advanced view)
+	comboboxExtNic.OnSelected(func(*ui.Combobox) {
+		config.SetExtNic(extInterfaces[comboboxExtNic.Selected()].ConfigValue)
+	})
+}
+
 func bindAdvancedNicSwitching() {
 	// Define NIC selection action main window (advanced view)
 	comboboxNic.OnSelected(func(*ui.Combobox) {
@@ -525,6 +533,18 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 	// Define actions for main window
 	buttonStartServer.OnClicked(func(*ui.Button) {
 		go func() {
+			// Give warnings if there is problems with configured external network device
+			// and there are more than one available
+			if config.GetExtNic() == "" {
+				if len(extInterfaces) > 2 {
+					mebroutines.ShowWarningMessage(xlate.Get("You have not set network device. Follow terminal for device selection menu."))
+				}
+			} else if !network.IsExtInterface(config.GetExtNic()) {
+				if len(extInterfaces) > 2 {
+					mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("You have selected network device '%s' which is not available. Follow terminal for device selection menu."), config.GetExtNic()))
+				}
+			}
+
 			// Get defails of the current installed box and warn if we're having Matric Exam box & internet connection
 			currentBoxType := box.GetType()
 			if boxversion.GetVagrantBoxTypeIsMatriculationExam(currentBoxType) {
@@ -819,6 +839,9 @@ func RunUI() error {
 	// We do this before starting GUI to avoid "cannot change thread mode" in Windows WMI call
 	backupMedia := backup.GetBackupMedia()
 
+	// Same applies to Windows network interface query
+	extInterfaces = network.GetExtInterfaces()
+
 	// UI (main menu)
 	return ui.Main(func() {
 
@@ -850,6 +873,7 @@ func RunUI() error {
 
 		bindLanguageSwitching()
 		bindAdvancedToggle()
+		bindAdvancedExtNicSwitching()
 		bindAdvancedNicSwitching()
 
 		bindUIDisableOnStart(mainUIStatus)

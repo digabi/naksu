@@ -76,14 +76,22 @@ var AvailableNics = []AvailableSelection{
 	},
 }
 
+// DefaultExtNicArray is an array holding the default EXTNIC value
+var DefaultExtNicArray = []AvailableSelection{
+	AvailableSelection{
+		ConfigValue: "",
+		Legend:      "Select in terminal",
+	},
+}
+
 // GetAvailableSelectionID returns array id for a given ConfigValue
 // in the given set of choices. Returns -1 if the configValue was not found.
-func GetAvailableSelectionID(configValue string, choices []AvailableSelection) int {
+func GetAvailableSelectionID(configValue string, choices []AvailableSelection, valueIfNotFound int) int {
 	for i, thisChoice := range choices {
 		if thisChoice.ConfigValue == configValue {
 			return i
 		}
 	}
 
-	return -1
+	return valueIfNotFound
 }

@@ -37,9 +37,19 @@ func getRunEnvironment() []string {
 
 	config.Load()
 
-	if config.GetNic() != "" {
-		runEnv = append(runEnv, fmt.Sprintf("NIC=%s", config.GetNic()))
-		log.Debug(fmt.Sprintf("Adding environment value NIC=%s", config.GetNic()))
+	envs := []struct {
+		envName  string
+		envValue string
+	}{
+		{"NIC", config.GetNic()},
+		{"EXTNIC", config.GetExtNic()},
+	}
+
+	for _, thisEnv := range envs {
+		if thisEnv.envValue != "" {
+			runEnv = append(runEnv, fmt.Sprintf("%s=%s", thisEnv.envName, thisEnv.envValue))
+			log.Debug(fmt.Sprintf("Adding environment value %s=%s", thisEnv.envName, thisEnv.envValue))
+		}
 	}
 
 	return runEnv
