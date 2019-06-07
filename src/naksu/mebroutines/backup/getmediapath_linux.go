@@ -3,12 +3,11 @@ package backup
 import (
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
-
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/xlate"
+	"os"
+	"path/filepath"
 )
 
 // GetBackupMedia returns backup media path
@@ -104,11 +103,10 @@ func deviceFieldString(thisField interface{}) string {
 	switch v := thisField.(type) {
 	case bool:
 		fieldBool := thisField.(bool)
-		if (fieldBool == true) {
+		if fieldBool {
 			return "1"
-		} else {
-			return "0"
 		}
+		return "0"
 	case string:
 		return thisField.(string)
 	default:
