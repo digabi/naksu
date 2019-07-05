@@ -13,3 +13,4 @@ checkstyle-linux.xml
 checkstyle-windows.xml
 tests.xml
 *.code-workspace
+*naksu.ini
