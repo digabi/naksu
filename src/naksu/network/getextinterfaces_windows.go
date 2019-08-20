@@ -17,7 +17,7 @@ import (
 func GetExtInterfaces() []constants.AvailableSelection {
 	// This struct must be named with an underscore, otherwise it is not recognised
 	// and results "Invalid class" exception.
-	type Win32_NetworkAdapter struct {
+	type Win32_NetworkAdapter struct { //nolint
 		AdapterTypeID   uint16
 		Name            string
 		Speed           uint64

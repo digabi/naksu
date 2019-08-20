@@ -35,7 +35,7 @@ func GetBackupMedia() map[string]string {
 func getBackupMediaWindows() map[string]string {
 	// This struct must be named with an underscore, otherwise it is not recognised
 	// and results "Invalid class" exception.
-	type Win32_LogicalDisk struct {
+	type Win32_LogicalDisk struct { //nolint
 		DeviceID    string
 		DriveType   int
 		Description string

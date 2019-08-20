@@ -14,7 +14,7 @@ import (
 // (Windows Management Instrumentation)
 // The struct must be named with an underscore, otherwise it is not recognised
 // and results "Invalid class" exception.
-type Win32_LogicalDisk struct {
+type Win32_LogicalDisk struct { //nolint
 	Size      uint64
 	FreeSpace uint64
 	DeviceID  string
