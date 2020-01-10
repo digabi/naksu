@@ -657,9 +657,9 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 			pathOldVagrantfile := filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile")
 
 			if pathNewVagrantfile == "" {
-				mebroutines.ShowErrorMessage(xlate.Get("Did not get a path for a new Vagrantfile"))
+				mebroutines.ShowWarningMessage(xlate.Get("Did not get a path for a new Vagrantfile"))
 			} else if pathNewVagrantfile == pathOldVagrantfile {
-				mebroutines.ShowErrorMessage(xlate.Get("Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)"))
+				mebroutines.ShowWarningMessage(xlate.Get("Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)"))
 			} else {
 				go func() {
 					disableUI(mainUIStatus)
