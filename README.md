@@ -51,6 +51,8 @@ Unfortunately, libui SaveFile dialog [does not support folders](https://github.c
 Compilation is usually done in Docker container. This means that you can compile Naksu in almost any environment
 that supports Docker and make.
 
+You can also build Naksu with [Travis CI](https://travis-ci.org). See [`TRAVIS-CI.md`](TRAVIS-CI.md) for more.
+
 ### Requirements
 
 - Install make
