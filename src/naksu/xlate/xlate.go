@@ -36,13 +36,16 @@ func SetLanguage(newLanguage string) {
 			"Did not get a path for a new Vagrantfile":                                                   "Uuden Vagrantfile-tiedoston sijainti on annettava",
 			"Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?":              "Ohjelman Vagrant käynnistys epäonnistui. Oletko varma, että koneeseen on asennettu HashiCorp Vagrant?",
 			"Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?":           "Ohjelman VBoxManage käynnistys epäonnistui. Oletko varma, että koneeseen on asennettu Oracle VirtualBox?",
+			"Please turn Windows Hyper-V feature off (uninstall) as it may cause problems.":              "Ole hyvä ja kytke Windows Hyper-V pois päältä, koska se voi aiheuttaa ongelmia.",
+			"It appears your CPU does not support hardware virtualisation (VT-x or AMD-V).":              "Näyttää siltä, että prosessorisi ei tue laitetason virtualisointia (VT-x tai AMD-V).",
+			"Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before continuing.":   "Laitetason virtualisointi (VT-x tai AMD-V) on kytketty pois päältä. Kytke se päälle koneen asetuksista.",
 			"Your home directory path (%s) contains characters which may cause problems to Vagrant.":     "Kotihakemistosi (%s) polku sisältää merkkejä, jotka voivat aiheuttaa ongelmia Vagrantille.",
 			"Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)": "Sijoita yo-kokeen Vagrantfile johonkin toiseen paikkaan (esim. työpöydälle tai kotihakemistoon)",
 			"Your free disk size is getting low (%s).":                                                   "Levytilasi on loppumassa (jäljellä %s).",
 			"Start by installing a server: Show management features":                                     "Aloita asentamalla palvelin: Näytä hallintaominaisuudet",
 			"You are starting Matriculation Examination server with an Internet connection.":             "Olet käynnistämässä yo-palvelinta, vaikka palvelimella on internet-yhteys.",
 
-			"You have not set network device. Follow terminal for device selection menu.":                               "Et ole valinnut verkkolaitetta. Seuraa pääteikkunaa mahdollista verkkolaitteen valintaa varten.",
+			"You have not set network device. Follow terminal for device selection menu.":                              "Et ole valinnut verkkolaitetta. Seuraa pääteikkunaa mahdollista verkkolaitteen valintaa varten.",
 			"You have selected network device '%s' which is not available. Follow terminal for device selection menu.": "Olet valinnut verkkolaitteen '%s', joka ei ole käytettävissä. Seuraa pääteikkunaa mahdollista verkkolaitteen valintaa varten.",
 
 			// Backup dialog
@@ -154,13 +157,16 @@ func SetLanguage(newLanguage string) {
 			"Did not get a path for a new Vagrantfile":                                                   "Ge sökvägen för den nya Vagrantfile-filen",
 			"Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?":              "Utförandet av programmet Vagrant misslyckades. Är du säker, att HashiCorp Vagrant har installerats på datorn?",
 			"Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?":           "Utförandet av programmet VBoxManage misslyckades. Är du säker, att Oracle VirtualBox har installerats på datorn?",
+			"Please turn Windows Hyper-V feature off (uninstall) as it may cause problems.":              "Vänligen stäng (avinstallera) Windows Hyper-V egenskapen eftersom den kan orsaka problem.",
+			"It appears your CPU does not support hardware virtualisation (VT-x or AMD-V).":              "Det verkar som om din processor inte stöder virtualisering av hårdvara (VT-x eller AMD-V).",
+			"Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before continuing.":   "Virtualiseringen av hårdvaran (VT-x eller AMD-V) är avstängd. Vänligen aktivera den innan du fortsätter.",
 			"Your home directory path (%s) contains characters which may cause problems to Vagrant.":     "Sökvägen till din hemkatalog (%s) innehåller tecken, som orsakar problem för Vagrant.",
 			"Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)": "Placera Vagrantfile-filen för studentexamen på ett annat ställe (t.ex. på skrivbordet eller i hemkatalogen).",
 			"Your free disk size is getting low (%s).":                                                   "Ditt diskutrymme börjar ta slut (kvar %s).",
 			"Start by installing a server: Show management features":                                     "Börja med att installera servern: Visa hanteringsegenskaper",
 			"You are starting Matriculation Examination server with an Internet connection.":             "Då håller på att starta provlokalsservern för studentexamen, fast servern har internetförbindelse.",
 
-			"You have not set network device. Follow terminal for device selection menu.":                               "Du har inte valt nätverksanordning. Följ terminalfönstret för eventuellt val av nätverksanordning.",
+			"You have not set network device. Follow terminal for device selection menu.":                              "Du har inte valt nätverksanordning. Följ terminalfönstret för eventuellt val av nätverksanordning.",
 			"You have selected network device '%s' which is not available. Follow terminal for device selection menu.": "Du har valt nätverksanordningen '%s', som inte är tillgänglig. Följ terminalfönstret för eventuellt val av nätverksanordning.",
 
 			// Backup dialog
