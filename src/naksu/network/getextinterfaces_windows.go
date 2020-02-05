@@ -39,7 +39,7 @@ func GetExtInterfaces() []constants.AvailableSelection {
 		if dst[thisInterface].PhysicalAdapter {
 			var oneInterface constants.AvailableSelection
 			oneInterface.ConfigValue = dst[thisInterface].Name
-			oneInterface.Legend = fmt.Sprintf("%s (%s/s)", dst[thisInterface].Name, humanize.Bytes(dst[thisInterface].Speed))
+			oneInterface.Legend = fmt.Sprintf("%s (%s)", dst[thisInterface].Name, humanize.SI(float64(dst[thisInterface].Speed), "bit/s"))
 
 			result = append(result, oneInterface)
 		}
