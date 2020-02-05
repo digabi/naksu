@@ -22,6 +22,7 @@ func TestIgnoreExtInterfaceWindows(t *testing.T) {
 	testIgnoreExtInterface(t, IgnoredExtInterfaceTestData{
 		{"lo", false},
 		{"loremipsumlo", false},
+		{"VirtualBox Host-Only Ethernet Adapter", true},
 	}, isIgnoredExtInterfaceWindows)
 }
 

@@ -36,7 +36,9 @@ func GetExtInterfaces() []constants.AvailableSelection {
 	}
 
 	for thisInterface := range dst {
-		if dst[thisInterface].PhysicalAdapter {
+		if isIgnoredExtInterfaceWindows(dst[thisInterface].Name) {
+			log.Debug(fmt.Sprintf("Ignoring external network interface '%s'", dst[thisInterface].Name))
+		} else if dst[thisInterface].PhysicalAdapter {
 			var oneInterface constants.AvailableSelection
 			oneInterface.ConfigValue = dst[thisInterface].Name
 			oneInterface.Legend = fmt.Sprintf("%s (%s)", dst[thisInterface].Name, humanize.SI(float64(dst[thisInterface].Speed), "bit/s"))

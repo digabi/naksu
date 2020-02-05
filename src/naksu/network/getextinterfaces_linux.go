@@ -75,8 +75,8 @@ func GetExtInterfaces() []constants.AvailableSelection {
 	interfaces, err := net.Interfaces()
 	if err == nil {
 		for n := range interfaces {
-			if IsIgnoredExtInterface(interfaces[n].Name) {
-				log.Debug(fmt.Sprintf("Ingnoring external network interface '%s'", interfaces[n].Name))
+			if isIgnoredExtInterfaceLinux(interfaces[n].Name) {
+				log.Debug(fmt.Sprintf("Ignoring external network interface '%s'", interfaces[n].Name))
 			} else {
 				log.Debug(fmt.Sprintf("Adding external network interface '%s' to the list of available devices", interfaces[n].Name))
 				var oneInterface constants.AvailableSelection

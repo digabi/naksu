@@ -122,6 +122,7 @@ func IsExtInterface(interfaceName string) bool {
 
 	return result
 }
+
 // isIgnoredExtInterface returns true if given system-level network device should
 // be ignored (i.e. not to be shown to the user).
 func isIgnoredExtInterface(interfaceName string, ignoredExtNics []string) bool {
@@ -143,7 +144,9 @@ func isIgnoredExtInterfaceLinux(interfaceName string) bool {
 }
 
 func isIgnoredExtInterfaceWindows(interfaceName string) bool {
-	return isIgnoredExtInterface(interfaceName, []string{})
+	return isIgnoredExtInterface(interfaceName, []string{
+		"^VirtualBox Host-Only Ethernet Adapter$",
+	})
 }
 
 func isIgnoredExtInterfaceDarwin(interfaceName string) bool {
