@@ -22,6 +22,7 @@ func GetExtInterfaces() []constants.AvailableSelection {
 		Name            string
 		Speed           uint64
 		PhysicalAdapter bool
+		NetEnabled      bool
 	}
 
 	result := constants.DefaultExtNicArray
@@ -35,13 +36,21 @@ func GetExtInterfaces() []constants.AvailableSelection {
 		return result
 	}
 
+	formatLinkSpeed := func(networkInterface *Win32_NetworkAdapter) string {
+		if networkInterface.NetEnabled {
+			return humanize.SI(float64(networkInterface.Speed), "bit/s")
+		}
+		return "? bit/s"
+	}
+
 	for thisInterface := range dst {
 		if isIgnoredExtInterfaceWindows(dst[thisInterface].Name) {
 			log.Debug(fmt.Sprintf("Ignoring external network interface '%s'", dst[thisInterface].Name))
 		} else if dst[thisInterface].PhysicalAdapter {
+			linkSpeed := formatLinkSpeed(&dst[thisInterface])
 			var oneInterface constants.AvailableSelection
 			oneInterface.ConfigValue = dst[thisInterface].Name
-			oneInterface.Legend = fmt.Sprintf("%s (%s)", dst[thisInterface].Name, humanize.SI(float64(dst[thisInterface].Speed), "bit/s"))
+			oneInterface.Legend = fmt.Sprintf("%s (%s)", dst[thisInterface].Name, linkSpeed)
 
 			result = append(result, oneInterface)
 		}
