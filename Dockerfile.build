@@ -4,10 +4,10 @@ COPY ext/* /root
 RUN cd /root && tar xfvj mingw-w64*.tar.bz2 && cd mingw-w64-v5.0-rc2 && ./configure --prefix /root/mingw --host=x86_64-w64-mingw32 && make install
 ENV PATH="/usr/lib/go-1.10/bin/:/root/go/bin:${PATH}"
 RUN mkdir -p /root/go/bin && curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+COPY Makefile /app/
+RUN cd /app && make bin/gometalinter bin/go2xunit
 COPY phony-scripts /app/phony-scripts
 COPY res /app/res
-COPY Makefile /app/
 COPY src /app/src
 ENV GOPATH=/app
-RUN cd /app && make bin/gometalinter bin/go2xunit
 RUN cd /app && make update_libs test checkstyle linux windows naksu_packages GO=/usr/lib/go-1.10/bin/go MINGW_LIB=/root/mingw/lib
