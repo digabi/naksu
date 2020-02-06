@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 
-	"naksu/box"
 	"naksu/config"
 	"naksu/log"
 	"naksu/mebroutines"
@@ -103,8 +102,6 @@ func main() {
 	log.Debug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
 
 	logDirectoryPaths()
-
-	log.Debug(fmt.Sprintf("Currently installed box: %s %s", box.GetVersion(), box.GetType()))
 
 	// Check whether we have a terminal (restart with x-terminal-emulator, if missing)
 	if !mebroutines.ExistsStdin() {
