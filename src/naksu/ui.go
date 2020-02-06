@@ -892,7 +892,7 @@ func RunUI() error {
 		bindOnRemove(mainUIStatus)
 
 		window.OnClosing(func(*ui.Window) bool {
-			log.Debug("User exists through window exit")
+			log.Debug("User exits through window exit")
 			ui.Quit()
 			return true
 		})
