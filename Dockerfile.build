@@ -1,4 +1,4 @@
-FROM ubuntu:xenial
+FROM ubuntu:bionic
 RUN apt-get update && apt-get -y install zip wget curl golang-1.10 libgtk-3-dev gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64 git
 COPY ext/* /root
 RUN cd /root && tar xfvj mingw-w64*.tar.bz2 && cd mingw-w64-v5.0-rc2 && ./configure --prefix /root/mingw --host=x86_64-w64-mingw32 && make install

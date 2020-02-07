@@ -10,11 +10,11 @@
   version = "1.0.0"
 
 [[projects]]
-  digest = "1:a3084387a1c3b1770af25520ab7bf28f155de3fb66f0ea58624a08c0c06815e6"
+  digest = "1:fca75464ffc131da4a1c76e80dddf3186ec16223963cdc0cfe05538349b24a94"
   name = "github.com/andlabs/ui"
   packages = ["."]
   pruneopts = "UT"
-  revision = "6c3bda44d3039e3721c06516be3ab9ce9cbd48cc"
+  revision = "867a9e5a498d85e2722730ed88c5f00560c7c354"
 
 [[projects]]
   digest = "1:705c40022f5c03bf96ffeb6477858d88565064485a513abcd0f11a0911546cb6"
