@@ -23,6 +23,13 @@ func SetLanguage(newLanguage string) {
 			// Main window, checkboxes
 			"Show management features": "Näytä hallintaominaisuudet",
 
+			// Main window, network status
+			"Network status: ":                     "Verkon tila: ",
+			"No network connection":                "Ei verkkoyhteyttä",
+			"Network speed is too low (%d Mbit/s)": "Verkon nopeus ei riitä (%d Mbit/s)",
+			"OK":                                   "OK",
+			"Wireless connection":                  "Langaton yhteys",
+
 			// Main window, other
 			"Current version: %s":                                                                        "Asennettu versio: %s",
 			"Update available: %s":                                                                       "Päivitys saatavilla: %s",
@@ -143,6 +150,13 @@ func SetLanguage(newLanguage string) {
 
 			// Main window, checkboxes
 			"Show management features": "Visa hanteringsegenskaper",
+
+			// Main window, network status
+			"Network status :":                     "Nätverksstatus: ",
+			"No network connection":                "Inget nätverk",
+			"Network speed is too low (%d Mbit/s)": "Hastigheten är för låg (%d Mbit/s)",
+			"OK":                                   "OK",
+			"Wireless connection":                  "Trådlös anslutning",
 
 			// Main window, other
 			"Current version: %s":                                                                        "Installerad version: %s",

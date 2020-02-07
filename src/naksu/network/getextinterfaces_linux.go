@@ -3,6 +3,7 @@ package network
 import (
 	"fmt"
 	"io/ioutil"
+	"math"
 	"net"
 	"regexp"
 	"strconv"
@@ -10,9 +11,15 @@ import (
 
 	humanize "github.com/dustin/go-humanize"
 
+	"naksu/config"
 	"naksu/constants"
 	"naksu/log"
 	"naksu/mebroutines"
+)
+
+const (
+	nicRegexWireless = "^w"
+	nicRegexEthernet = "^(en)|(em)|(eth)"
 )
 
 // extNicNixLegendRules is a map between regular expressions matching *nix device names
@@ -22,10 +29,8 @@ var extNicNixLegendRules = []struct {
 	RegExp string
 	Legend string
 }{
-	{"^w", "Wireless"},
-	{"^en", "Ethernet"},
-	{"^em", "Ethernet"},
-	{"^eth", "Ethernet"},
+	{nicRegexWireless, "Wireless"},
+	{nicRegexEthernet, "Ethernet"},
 }
 
 func getExtInterfaceSpeed(extInterface string) uint64 {
@@ -74,11 +79,70 @@ func getExtInterfaceLegend(extInterface string) string {
 	return "Unknown device"
 }
 
-// GetExtInterfaces returns map of network interfaces. It returns array of
-// constants.AvailableSelection where the ConfigValue is system's internal value
-// (e.g. "eno1") and Legend human-readable legend (e.g. "Wireless Network 802.11abc")
+func interfaceNames() []string {
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return []string{}
+	}
+
+	physicalInterfaces := []string{}
+	for n := range interfaces {
+		if !isIgnoredExtInterfaceLinux(interfaces[n].Name) {
+			physicalInterfaces = append(physicalInterfaces, interfaces[n].Name)
+		}
+	}
+
+	return physicalInterfaces
+}
+
+// UsingWirelessInterface returns true if the user has selected a wireless
+// interface in the naksu UI. If the user has made no selection or the selected
+// interface is not wireless, returns false.
+func UsingWirelessInterface() bool {
+	if selectedInterface := config.GetExtNic(); selectedInterface != "" {
+		isWireless, err := regexp.MatchString(nicRegexWireless, selectedInterface)
+		if err != nil {
+			log.Debug(fmt.Sprintf("Could not check if the current interface is wireless"))
+			return false
+		}
+		return isWireless
+	}
+	return false
+}
+
+// CurrentLinkSpeed returns the link speed of the selected ext interface
+// or, if no interface selection has been made in the naksu UI, the interface
+// that currently has the lowest link speed. The unit is megabits per second.
 //
-// Currently the Linux returns interface name and speed as a legend
+// Only works for wired network interfaces.
+func CurrentLinkSpeed() uint64 {
+	var interfaces []string
+	if selectedInterface := config.GetExtNic(); selectedInterface != "" {
+		interfaces = []string{selectedInterface}
+	} else {
+		interfaces = interfaceNames()
+	}
+
+	var minLinkSpeed uint64 = math.MaxUint64
+	for _, interfaceName := range interfaces {
+		linkSpeed := getExtInterfaceSpeed(interfaceName)
+		if linkSpeed < minLinkSpeed && linkSpeed > 0 {
+			minLinkSpeed = linkSpeed
+		}
+	}
+
+	if minLinkSpeed == math.MaxUint64 {
+		return 0
+	}
+	return bpsToMbps(minLinkSpeed)
+}
+
+// GetExtInterfaces returns a slice of network interfaces, represented as values
+// of type constants.AvailableSelection where ConfigValue is the system's internal
+// name for the interface (e.g. "eno1") and Legend is a human-readable legend
+// (e.g. "Wireless Network 802.11abc")
+//
+// Currently the Linux implementation returns interface name and speed as a legend
 func GetExtInterfaces() []constants.AvailableSelection {
 	result := constants.DefaultExtNicArray
 

@@ -33,3 +33,21 @@ func GetExtInterfaces() []constants.AvailableSelection {
 
 	return result
 }
+
+// UsingWirelessInterface returns true if the user has selected a wireless
+// interface in the naksu UI. If the user has made no selection or the selected
+// interface is not wireless, returns false.
+//
+// Dummy implementation for MacOS.
+func UsingWirelessInterface() bool {
+	return false
+}
+
+// CurrentLinkSpeed returns the link speed of the selected ext interface
+// or, if no interface selection has been made in the naksu UI, the interface
+// that currently has the lowest link speed. The unit is megabits per second.
+//
+// Dummy implementation for MacOS.
+func CurrentLinkSpeed() uint64 {
+	return 0
+}
