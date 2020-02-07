@@ -29,6 +29,7 @@ var extNicNixLegendRules = []struct {
 }
 
 func getExtInterfaceSpeed(extInterface string) uint64 {
+	carrierPath := fmt.Sprintf("/sys/class/net/%s/carrier", extInterface)
 	speedPath := fmt.Sprintf("/sys/class/net/%s/speed", extInterface)
 
 	if !mebroutines.ExistsFile(speedPath) {
@@ -37,16 +38,25 @@ func getExtInterfaceSpeed(extInterface string) uint64 {
 	}
 
 	/* #nosec */
-	fileContent, err := ioutil.ReadFile(speedPath)
+	carrierFileContent, err := ioutil.ReadFile(carrierPath)
+	if err != nil {
+		log.Debug(fmt.Sprintf("Could not read network interface carrier from '%s': %v", carrierPath, err))
+		return 0
+	}
+	if strings.TrimSpace(string(carrierFileContent)) == "0" {
+		return 0 // Link not up
+	}
+
+	/* #nosec */
+	speedFileContent, err := ioutil.ReadFile(speedPath)
 	if err != nil {
 		log.Debug(fmt.Sprintf("Could not read network interface speed from '%s': %v", speedPath, err))
 		return 0
 	}
-
-	fileContentString := strings.TrimSpace(string(fileContent))
-	speedInt, errConvert := strconv.ParseUint(fileContentString, 10, 64)
+	speedFileContentTrimmed := strings.TrimSpace(string(speedFileContent))
+	speedInt, errConvert := strconv.ParseUint(speedFileContentTrimmed, 10, 64)
 	if errConvert != nil {
-		log.Debug(fmt.Sprintf("Could not convert speed string '%s' to integer: %v", fileContentString, errConvert))
+		log.Debug(fmt.Sprintf("Could not convert speed string '%s' to integer: %v", speedFileContentTrimmed, errConvert))
 		return 0
 	}
 
