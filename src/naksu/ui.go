@@ -915,6 +915,7 @@ func RunUI() error {
 		// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
 		go func() {
 			// IsHyperV() uses Windows WMI call
+			// There is no catching goroutine as this only warns user and does not block execution
 			if host.IsHyperV() {
 				mebroutines.ShowWarningMessage(xlate.Get("Please turn Windows Hypervisor off as it may cause problems."))
 			} else {
