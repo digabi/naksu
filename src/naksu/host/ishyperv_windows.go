@@ -8,8 +8,9 @@ import (
 	"github.com/StackExchange/wmi"
 )
 
-// IsHyperV returns true if Hyper-V Hearbeat Service is running
-func IsHyperV() bool {
+// isHyperVOptionalFeature returns true if Hyper-V features are installed
+// Currently this is used only for logging
+func isHyperVOptionalFeature() bool {
 	// This struct must be named with an underscore, otherwise it is not recognised
 	// and results "Invalid class" exception.
 	type Win32_OptionalFeature struct { //nolint
@@ -22,7 +23,7 @@ func IsHyperV() bool {
 	query := wmi.CreateQuery(&dst, "WHERE Name LIKE '%hyper-v%' AND InstallState=1")
 	err := wmi.Query(query, &dst)
 	if err != nil {
-		log.Debug("IsHyperV() could not query WMI")
+		log.Debug("isHyperVOptionalFeature() could not query WMI")
 		log.Debug(fmt.Sprint(err))
 		return false
 	}
@@ -43,9 +44,47 @@ func IsHyperV() bool {
 			}
 
 			log.Debug(fmt.Sprintf("Windows Hyper-V Optional Feature found: %s (%s)", thisName, thisCaption))
+			// We're not returning this value as there might be a number of Hyper-V -related features found
 			isRunning = true
 		}
 	}
 
 	return isRunning
+}
+
+// isHypervisorPresent returns true if Win32_ComputerSystem.HypervisorPresent is true
+func isHypervisorPresent() bool {
+	// This struct must be named with an underscore, otherwise it is not recognised
+	// and results "Invalid class" exception.
+	type Win32_ComputerSystem struct { //nolint
+		HypervisorPresent	bool
+	}
+
+	var dst []Win32_ComputerSystem
+	query := wmi.CreateQuery(&dst, "")
+	err := wmi.Query(query, &dst)
+	if err != nil {
+		log.Debug("isHypervisorPresent() could not query WMI")
+		log.Debug(fmt.Sprint(err))
+		return false
+	}
+
+	for thisEntry := range dst {
+		if dst[thisEntry].HypervisorPresent {
+			log.Debug("Windows Hypervisor was detected")
+			return true
+		}
+	}
+
+	log.Debug("Windows Hypervisor was not detected")
+	return false
+}
+
+// IsHyperV returns true if Hypervisor is present
+func IsHyperV() bool {
+	// We call this just to log the status of optional features
+	_ = isHyperVOptionalFeature()
+
+	// This is the value we want to return
+	return isHypervisorPresent()
 }

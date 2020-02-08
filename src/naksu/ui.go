@@ -916,7 +916,7 @@ func RunUI() error {
 		go func() {
 			// IsHyperV() uses Windows WMI call
 			if host.IsHyperV() {
-				mebroutines.ShowWarningMessage(xlate.Get("Please turn Windows Hyper-V feature off (uninstall) as it may cause problems."))
+				mebroutines.ShowWarningMessage(xlate.Get("Please turn Windows Hypervisor off as it may cause problems."))
 			} else {
 				// If Windows detects Hyper-V the CPU and BIOS tests also fail regardless the reality
 				// Thus, it does make sense to make these tests only if Hyper-V is not installed
