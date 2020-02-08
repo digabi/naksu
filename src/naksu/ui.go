@@ -913,26 +913,25 @@ func RunUI() error {
 
 		// Make sure Hyper-V is not running
 		// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+		isHyperV := make(chan bool)
 		go func() {
 			// IsHyperV() uses Windows WMI call
-			// There is no catching goroutine as this only warns user and does not block execution
-			if host.IsHyperV() {
-				mebroutines.ShowWarningMessage(xlate.Get("Please turn Windows Hypervisor off as it may cause problems."))
-			} else {
-				// If Windows detects Hyper-V the CPU and BIOS tests also fail regardless the reality
-				// Thus, it does make sense to make these tests only if Hyper-V is not installed
-
-				// Does CPU support hardware virtualisation?
-				if !host.IsHWVirtualisationCPU() {
-					mebroutines.ShowWarningMessage(xlate.Get("It appears your CPU does not support hardware virtualisation (VT-x or AMD-V)."))
-				}
-
-				// Make sure the hardware virtualisation is present
-				if !host.IsHWVirtualisation() {
-					mebroutines.ShowWarningMessage(xlate.Get("Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before continuing."))
-				}
-			}
+			isHyperV <- host.IsHyperV()
 		}()
+
+		if (<-isHyperV) {
+			mebroutines.ShowWarningMessage(xlate.Get("Please turn Windows Hypervisor off as it may cause problems."))
+		} else {
+			// Does CPU support hardware virtualisation?
+			if !host.IsHWVirtualisationCPU() {
+				mebroutines.ShowWarningMessage(xlate.Get("It appears your CPU does not support hardware virtualisation (VT-x or AMD-V)."))
+			}
+
+			// Make sure the hardware virtualisation is present
+			if !host.IsHWVirtualisation() {
+				mebroutines.ShowWarningMessage(xlate.Get("Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before continuing."))
+			}
+		}
 
 		// Check if home directory contains non-american characters which may cause problems to vagrant
 		if mebroutines.IfIntlCharsInPath(mebroutines.GetHomeDirectory()) {
