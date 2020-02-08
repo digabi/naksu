@@ -2,7 +2,8 @@ package host
 
 import (
 	"fmt"
-	"syscall"
+
+	"golang.org/x/sys/windows"
 
 	"naksu/log"
 )
@@ -10,13 +11,13 @@ import (
 // IsHWVirtualisation returns true if hardware virtualisation support is
 // detected by the OS. Return true if all is good
 func IsHWVirtualisation() bool {
-	var mod = syscall.NewLazyDLL("kernel32.dll")
+	var mod = windows.NewLazyDLL("kernel32.dll")
 	var proc = mod.NewProc("IsProcessorFeaturePresent")
 	var PF_VIRT_FIRMWARE_ENABLED = 21 //nolint
 
 	ret, _, err := proc.Call(uintptr(PF_VIRT_FIRMWARE_ENABLED))
 
-	if (err != nil) {
+	if (err != windows.ERROR_SUCCESS) {
 		log.Debug(fmt.Sprintf("Error while making call to kernel32.dll, IsProcessorFeaturePresent: %v", err))
 		return false
 	}

@@ -171,6 +171,14 @@
   revision = "c57b0facaced709681d9f90397429b9430a74754"
 
 [[projects]]
+  branch = "master"
+  digest = "1:181b0f31060ef04339c16e7bba946726dc4801a547f06edbd26d2b72a09df98c"
+  name = "golang.org/x/sys"
+  packages = ["windows"]
+  pruneopts = "UT"
+  revision = "d101bd2416d505c0448a6ce8a282482678040a89"
+
+[[projects]]
   digest = "1:6247f76e55a1e1a5c19a81e2d4b4dff6730461eeb5bbb0a16dd4a8ec8637ee93"
   name = "google.golang.org/appengine"
   packages = [
@@ -200,6 +208,7 @@
     "github.com/kardianos/osext",
     "github.com/mitchellh/go-homedir",
     "github.com/rhysd/go-github-selfupdate/selfupdate",
+    "golang.org/x/sys/windows",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
