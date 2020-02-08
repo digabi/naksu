@@ -247,7 +247,7 @@ func ExistsFile(path string) bool {
 func ExistsCharDevice(path string) bool {
 	mode, err := getFileMode(path)
 
-	return err == nil && mode&os.ModeDevice == os.ModeDevice && mode&os.ModeCharDevice == os.ModeCharDevice
+	return err == nil && mode&os.ModeDevice != 0 && mode&os.ModeCharDevice != 0
 }
 
 // CreateDir creates new directory
