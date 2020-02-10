@@ -139,7 +139,9 @@ func isIgnoredExtInterface(interfaceName string, ignoredExtNics []string) bool {
 func isIgnoredExtInterfaceLinux(interfaceName string) bool {
 	return isIgnoredExtInterface(interfaceName, []string{
 		"^lo$",
+		"^tap\\d",
 		"^vboxnet\\d",
+		"^virbr",
 	})
 }
 
