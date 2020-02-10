@@ -13,6 +13,8 @@ import (
 
 	flags "github.com/jessevdk/go-flags"
 	"github.com/kardianos/osext"
+
+	_ "github.com/andlabs/ui/winmanifest"
 )
 
 const version = "1.10.0"

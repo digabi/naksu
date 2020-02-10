@@ -10,9 +10,12 @@
   version = "1.0.0"
 
 [[projects]]
-  digest = "1:fca75464ffc131da4a1c76e80dddf3186ec16223963cdc0cfe05538349b24a94"
+  digest = "1:72938f5cbc0208313aebf204dce11bc3ef2fad9453d89818656406e15fd38035"
   name = "github.com/andlabs/ui"
-  packages = ["."]
+  packages = [
+    ".",
+    "winmanifest",
+  ]
   pruneopts = "UT"
   revision = "867a9e5a498d85e2722730ed88c5f00560c7c354"
 
@@ -200,6 +203,7 @@
   input-imports = [
     "github.com/StackExchange/wmi",
     "github.com/andlabs/ui",
+    "github.com/andlabs/ui/winmanifest",
     "github.com/blang/semver",
     "github.com/dustin/go-humanize",
     "github.com/go-ini/ini",
