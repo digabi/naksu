@@ -9,6 +9,7 @@ import (
 	"naksu/boxversion"
 	"naksu/config"
 	"naksu/constants"
+	"naksu/host"
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/mebroutines/backup"
@@ -375,7 +376,7 @@ func checkAbittiUpdate() (bool, string) {
 func updateStartButtonLabel() {
 	go func() {
 		boxTypeString := boxversion.GetVagrantBoxType(box.GetType())
-		ui.QueueMain(func () {
+		ui.QueueMain(func() {
 			if boxTypeString == "-" {
 				buttonStartServer.SetText(xlate.Get("Start Exam Server"))
 			} else {
@@ -908,6 +909,28 @@ func RunUI() error {
 		// Make sure we have VBoxManage
 		if !mebroutines.IfFoundVBoxManage() {
 			mebroutines.ShowErrorMessage(xlate.Get("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?"))
+		}
+
+		// Make sure Hyper-V is not running
+		// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+		isHyperV := make(chan bool)
+		go func() {
+			// IsHyperV() uses Windows WMI call
+			isHyperV <- host.IsHyperV()
+		}()
+
+		if (<-isHyperV) {
+			mebroutines.ShowWarningMessage(xlate.Get("Please turn Windows Hypervisor off as it may cause problems."))
+		} else {
+			// Does CPU support hardware virtualisation?
+			if !host.IsHWVirtualisationCPU() {
+				mebroutines.ShowWarningMessage(xlate.Get("It appears your CPU does not support hardware virtualisation (VT-x or AMD-V)."))
+			}
+
+			// Make sure the hardware virtualisation is present
+			if !host.IsHWVirtualisation() {
+				mebroutines.ShowWarningMessage(xlate.Get("Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before continuing."))
+			}
 		}
 
 		// Check if home directory contains non-american characters which may cause problems to vagrant

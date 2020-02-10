@@ -243,6 +243,13 @@ func ExistsFile(path string) bool {
 	return false
 }
 
+// ExistsCharDevice returns true if given file is a Linux device file
+func ExistsCharDevice(path string) bool {
+	mode, err := getFileMode(path)
+
+	return err == nil && mode&os.ModeDevice != 0 && mode&os.ModeCharDevice != 0
+}
+
 // CreateDir creates new directory
 func CreateDir(path string) error {
 	var err = os.Mkdir(path, os.ModePerm)

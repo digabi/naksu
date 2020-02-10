@@ -89,6 +89,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:67214f4b22f886c6bc60830382255e3b345d3e1c5aef07d64fe6931aee8baedd"
+  name = "github.com/intel-go/cpuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1a4a6f06a1c643c8fbd339bd61d980960627d09e"
+
+[[projects]]
+  branch = "master"
   digest = "1:4bb169ce06341a7c5e6c9a6734b25c606f59e2f765703301f92d159cf999672e"
   name = "github.com/jessevdk/go-flags"
   packages = ["."]
@@ -163,6 +171,14 @@
   revision = "c57b0facaced709681d9f90397429b9430a74754"
 
 [[projects]]
+  branch = "master"
+  digest = "1:181b0f31060ef04339c16e7bba946726dc4801a547f06edbd26d2b72a09df98c"
+  name = "golang.org/x/sys"
+  packages = ["windows"]
+  pruneopts = "UT"
+  revision = "d101bd2416d505c0448a6ce8a282482678040a89"
+
+[[projects]]
   digest = "1:6247f76e55a1e1a5c19a81e2d4b4dff6730461eeb5bbb0a16dd4a8ec8637ee93"
   name = "google.golang.org/appengine"
   packages = [
@@ -187,10 +203,12 @@
     "github.com/blang/semver",
     "github.com/dustin/go-humanize",
     "github.com/go-ini/ini",
+    "github.com/intel-go/cpuid",
     "github.com/jessevdk/go-flags",
     "github.com/kardianos/osext",
     "github.com/mitchellh/go-homedir",
     "github.com/rhysd/go-github-selfupdate/selfupdate",
+    "golang.org/x/sys/windows",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
