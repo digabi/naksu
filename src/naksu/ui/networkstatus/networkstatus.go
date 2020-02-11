@@ -6,6 +6,7 @@ import (
 	"github.com/andlabs/ui"
 
 	"naksu/network"
+	naksuUi "naksu/ui"
 	"naksu/xlate"
 )
 
@@ -16,10 +17,11 @@ type networkStatusAreaHandler struct {
 }
 
 func (networkStatusAreaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
+	fontFamily, size := naksuUi.Font()
 	tl := ui.DrawNewTextLayout(&ui.DrawTextLayoutParams{
 		String:      networkStatusString,
 		Width:       p.AreaWidth,
-		DefaultFont: &ui.FontDescriptor{Size: 11, Family: "Cantarell", Weight: ui.TextWeightNormal},
+		DefaultFont: &ui.FontDescriptor{Size: size, Family: fontFamily, Weight: ui.TextWeightNormal},
 		Align:       ui.DrawTextAlignLeft,
 	})
 	defer tl.Free()
@@ -77,11 +79,13 @@ func Update() {
 
 func showNetworkStatus(text string, warning bool) {
 	ensureUIComponentsInitialized()
-	networkStatusString = ui.NewAttributedString(xlate.Get("Network status: "))
+	networkStatusString = ui.NewAttributedString("")
+	normalTextColor := naksuUi.DefaultFontColor()
+	appendWithAttributes(networkStatusString, xlate.Get("Network status: "), normalTextColor)
 	if warning {
 		appendWithAttributes(networkStatusString, text, ui.TextColor{R: 1, G: 0, B: 0, A: 1})
 	} else {
-		networkStatusString.AppendUnattributed(text)
+		appendWithAttributes(networkStatusString, text, normalTextColor)
 	}
 	networkStatusArea.QueueRedrawAll()
 }
