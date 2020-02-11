@@ -2,7 +2,7 @@ package start
 
 import (
 	"naksu/mebroutines"
-	"naksu/progress"
+	"naksu/ui/progress"
 )
 
 // Server starts exam server by running vagrant

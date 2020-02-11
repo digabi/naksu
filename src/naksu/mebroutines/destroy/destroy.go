@@ -7,7 +7,7 @@ import (
 
 	"naksu/log"
 	"naksu/mebroutines"
-	"naksu/progress"
+	"naksu/ui/progress"
 )
 
 // Server destroys existing exam server

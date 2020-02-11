@@ -18,7 +18,7 @@ import (
 	"naksu/mebroutines/remove"
 	"naksu/mebroutines/start"
 	"naksu/network"
-	"naksu/progress"
+	"naksu/ui/progress"
 	"naksu/xlate"
 
 	"github.com/andlabs/ui"

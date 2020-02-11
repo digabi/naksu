@@ -9,7 +9,7 @@ import (
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/network"
-	"naksu/progress"
+	"naksu/ui/progress"
 	"naksu/xlate"
 )
 

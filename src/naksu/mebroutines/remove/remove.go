@@ -6,7 +6,7 @@ import (
 
 	"naksu/log"
 	"naksu/mebroutines"
-	"naksu/progress"
+	"naksu/ui/progress"
 )
 
 // Server removes all directories related to Vagrant and VirtualBox
