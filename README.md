@@ -104,10 +104,6 @@ Make sure `go` points to your compiler or set `GO` to point your go binary (in `
 
 ### Building Linux version
 
-This currently works most reliably in Ubuntu Xenial. Later Ubuntu versions
-have compiled system libraries in different way, and this causes linux build
-to fail.
-
 - Install `libgtk-3-dev` which is required by `libui`.
 - Run `make update_libs` to get all required golang dependencies.
 - `make linux`
