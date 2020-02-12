@@ -165,9 +165,30 @@ func RunVBoxManage(args []string) string {
 	runArgs := append(vboxmanagepathArr, args...)
 	vBoxManageOutput, err := RunAndGetOutput(runArgs, false)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", strings.Join(runArgs, " "), err))
-		log.Debug(vBoxManageOutput)
-		ShowErrorMessage(fmt.Sprintf(xlate.Get("Failed to execute %s (%v)"), strings.Join(runArgs, " "), err))
+		logError := func(output string, err error) {
+			log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", strings.Join(runArgs, " "), err))
+			log.Debug(output)
+		}
+		showErrorAndQuit := func(err error) {
+			ShowErrorMessage(fmt.Sprintf(xlate.Get("Failed to execute %s (%v)"), strings.Join(runArgs, " "), err))
+		}
+
+		logError(vBoxManageOutput, err)
+
+		fixed, fixErr := detectAndFixDuplicateHardDiskProblem(vBoxManageOutput)
+		if !fixed || fixErr != nil {
+			log.Debug(fmt.Sprintf("Failed to fix problem with command %s (%v)", strings.Join(runArgs, " "), fixErr))
+			showErrorAndQuit(err)
+		}
+
+		log.Debug(fmt.Sprintf("Retrying '%s' after fixing problem", strings.Join(runArgs, " ")))
+		vBoxManageOutput, err = RunAndGetOutput(runArgs, false)
+		if err != nil {
+			logError(vBoxManageOutput, err)
+			showErrorAndQuit(err)
+		} else {
+			return vBoxManageOutput
+		}
 	}
 
 	return vBoxManageOutput
