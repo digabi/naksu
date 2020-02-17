@@ -163,3 +163,7 @@ func isIgnoredExtInterfaceDarwin(interfaceName string) bool {
 		"^vboxnet\\d*",
 	})
 }
+
+func bpsToMbps(bps uint64) uint64 {
+	return bps / 1000000
+}

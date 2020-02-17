@@ -19,6 +19,7 @@ import (
 	"naksu/mebroutines/start"
 	"naksu/network"
 	"naksu/ui/progress"
+	"naksu/ui/networkstatus"
 	"naksu/xlate"
 
 	"github.com/andlabs/ui"
@@ -55,6 +56,7 @@ var boxBasic *ui.Box
 var boxAdvancedUpdate *ui.Box
 var boxAdvancedAnnihilate *ui.Box
 var boxAdvanced *ui.Box
+var boxStatusBar *ui.Box
 var boxUI *ui.Box
 
 // Backup Dialog Window
@@ -133,6 +135,8 @@ func createMainWindowElements() {
 
 	checkboxAdvanced = ui.NewCheckbox("")
 
+	networkStatusArea := networkstatus.Area()
+
 	// Box versions
 	boxVersions = ui.NewVerticalBox()
 	boxVersions.SetPadded(true)
@@ -178,9 +182,26 @@ func createMainWindowElements() {
 	boxAdvanced.Append(labelAdvancedAnnihilate, false)
 	boxAdvanced.Append(boxAdvancedAnnihilate, true)
 
+	// For some reason networkStatusArea doesn't get the correct height
+	// when placed in its own box. A hacky fix for this issue is using a
+	// HorizontalBox instead of a VerticalBox and adding an (almost) empty
+	// label to the end of the horizontal layout. This label then effectively
+	// sets the height of the HorizontalBox layout. Using a string with some
+	// whitespace instead of a completely empty string results in the correct
+	// height (reserving enough space for descenders).
+	statusBarHeightSetterLabel := ui.NewLabel(" ")
+
+	boxStatusBar = ui.NewHorizontalBox()
+	boxStatusBar.SetPadded(true)
+	boxStatusBar.Append(networkStatusArea, true)
+	boxStatusBar.Append(statusBarHeightSetterLabel, false)
+
 	boxUI = ui.NewVerticalBox()
+	boxUI.SetPadded(true)
 	boxUI.Append(boxBasic, false)
 	boxUI.Append(boxAdvanced, false)
+	boxUI.Append(ui.NewHorizontalSeparator(), false)
+	boxUI.Append(boxStatusBar, true)
 
 	window = ui.NewWindow(fmt.Sprintf("naksu %s", version), 1, 1, false)
 }
@@ -276,6 +297,8 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 		for {
 			select {
 			case <-mainUINetupdate.C:
+				networkstatus.Update()
+
 				if lastStatus == "enable" {
 					// Require network connection for install/update
 
@@ -480,6 +503,7 @@ func translateUILabels() {
 		removeButtonRemove.SetText(xlate.Get("Yes, Remove"))
 		removeButtonCancel.SetText(xlate.Get("Cancel"))
 	})
+	networkstatus.Update()
 }
 
 func disableUI(mainUIStatus chan string) {
@@ -859,6 +883,8 @@ func RunUI() error {
 		mainUIStatus := make(chan string)
 		mainUINetupdate := time.NewTicker(5 * time.Second)
 
+		networkstatus.Update()
+
 		setupMainLoop(mainUIStatus, mainUINetupdate)
 
 		enableUI(mainUIStatus)
@@ -919,7 +945,7 @@ func RunUI() error {
 			isHyperV <- host.IsHyperV()
 		}()
 
-		if (<-isHyperV) {
+		if <-isHyperV {
 			mebroutines.ShowWarningMessage(xlate.Get("Please turn Windows Hypervisor off as it may cause problems."))
 		} else {
 			// Does CPU support hardware virtualisation?
