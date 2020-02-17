@@ -4,10 +4,12 @@ package box
 // This package gives most up-to-date information about the server box
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"time"
 
 	"naksu/boxversion"
@@ -162,4 +164,25 @@ func GetVersion() string {
 // GetDiskUUID returns the VirtualBox UUID for the image of the current VM
 func GetDiskUUID() string {
 	return getVMInfoRegexp("\"SATA Controller-ImageUUID-0-0\"=\"(.*?)\"")
+}
+
+// GetDiskLocation returns the full path of the current VM disk image.
+func GetDiskLocation() string {
+	return getVMInfoRegexp("\"SATA Controller-0-0\"=\"(.*)\"")
+}
+
+// MediumSizeOnDisk returns the size of the current VM disk image on disk
+// (= the expected size of a VM backup) in megabytes.
+func MediumSizeOnDisk(location string) (uint64, error) {
+	// According to documentation, showmediuminfo should also accept a disk uuid
+	// as a parameter, but that doesn't seem to be the case. To be safe, we'll
+	// use the location of the disk instead.
+	mediumInfo := mebroutines.RunVBoxManage([]string{"showmediuminfo", location})
+	sizeOnDiskRE := regexp.MustCompile(`Size on disk:\s+(\d+)\s+MBytes`)
+	result := sizeOnDiskRE.FindStringSubmatch(mediumInfo)
+	if len(result) > 1 {
+		size := result[1]
+		return strconv.ParseUint(size, 10, 64)
+	}
+	return 0, errors.New("failed to get medium size: no regex matches")
 }

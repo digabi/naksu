@@ -101,6 +101,7 @@ func SetLanguage(newLanguage string) {
 			"Could not back up disk %s to %s":                       "Varmuuskopion ottaminen levystä %s tiedostoon %s epäonnistui",
 			"Could not write backup file %s. Try another location.": "Varmuuskopion kirjoittaminen tiedostoon %s epäonnistui. Kokeile toista tallennuspaikkaa.",
 			"Backup failed: %v":                                     "Varmuuskopiointi epäonnistui: %v",
+			"The backup file is too large for a FAT32 filesystem. Please reformat the backup disk as exFAT.": "Varmuuskopio on liian suuri talletettavaksi FAT32-tiedostojärjestelmäään. Alusta varmuuskopiolevy uudelleen exFAT-tiedostojärjestelmällä.",
 
 			"Checking existing file...":      "Etsin olemassaolevaa tiedostoa...",
 			"Checking backup path...":        "Tarkistan varmistushakemistoa...",
@@ -229,6 +230,7 @@ func SetLanguage(newLanguage string) {
 			"Could not back up disk %s to %s":                       "Säkerhetskopieringen av skivan %s i filen %s misslyckades",
 			"Could not write backup file %s. Try another location.": "Det gick inte att säkerhetskopiera till filen %s. Pröva att spara filen på ett annat ställe.",
 			"Backup failed: %v":                                     "Säkerhetskopieringen misslyckades: %v",
+			"The backup file is too large for a FAT32 filesystem. Please reformat the backup disk as exFAT.": "Säkerhetskopian är för stor för ett FAT32-filsystem. Vänligen formatera minnepinnen eller skivan som exFAT.",
 
 			"Checking existing file...":      "Granskar existerande fil...",
 			"Checking backup path...":        "Granskar säkerhetskopians katalog...",

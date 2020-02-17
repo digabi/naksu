@@ -77,6 +77,23 @@ func listBlockDevices() ([]blockDevice, error) {
 	return jsonData.BlockDevices, nil
 }
 
+// isFAT32 returns true if the filesystem of the drive
+// pointed to by backupPath is FAT32.
+func isFAT32(backupPath string) (bool, error) {
+	blockDevices, err := listBlockDevices()
+	if err != nil {
+		return false, err
+	}
+
+	mountPoint := filepath.Dir(backupPath)
+	device := findBlockDevice(blockDevices, mountPoint)
+	if device != nil {
+		return device.FileSystem == "vfat", nil
+	}
+
+	return false, nil
+}
+
 func findBlockDevice(blockDevices []blockDevice, mountPoint string) *blockDevice {
 	for _, device := range blockDevices {
 		if mountPoint == device.MountPoint {

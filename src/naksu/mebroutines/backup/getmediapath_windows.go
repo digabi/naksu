@@ -32,6 +32,26 @@ func GetBackupMedia() map[string]string {
 	return media
 }
 
+// isFAT32 returns true if the filesystem of the drive
+// pointed to by backupPath is FAT32.
+func isFAT32(backupPath string) (bool, error) {
+	type Win32_Volume struct { // nolint
+		FileSystem string
+	}
+
+	driveLetter := filepath.VolumeName(backupPath)
+	var dst []Win32_Volume
+	query := wmi.CreateQuery(&dst, fmt.Sprintf("WHERE DriveLetter='%s'", driveLetter)) // #nosec
+	err := wmi.Query(query, &dst)
+	if err != nil || len(dst) == 0 {
+		log.Debug(fmt.Sprintf("backupMediaFileSystem could not get volume information for drive '%s'", backupPath))
+		log.Debug(fmt.Sprint(err))
+		return false, err
+	}
+
+	return dst[0].FileSystem == "FAT32", nil
+}
+
 func getBackupMediaWindows() map[string]string {
 	// This struct must be named with an underscore, otherwise it is not recognised
 	// and results "Invalid class" exception.

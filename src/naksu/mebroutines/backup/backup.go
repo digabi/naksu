@@ -39,10 +39,18 @@ func MakeBackup(backupPath string) error {
 	// Get disk UUID
 	progress.TranslateAndSetMessage("Getting disk UUID...")
 	diskUUID := box.GetDiskUUID()
+	diskLocation := box.GetDiskLocation()
 	log.Debug(fmt.Sprintf("Disk UUID: %s", diskUUID))
-	if diskUUID == "" {
-		mebroutines.ShowWarningMessage(xlate.Get("Could not make backup: failed to get disk UUID"))
-		return errors.New("could not get disk uuid")
+	log.Debug(fmt.Sprintf("Disk location: %s", diskLocation))
+	if diskUUID == "" || diskLocation == "" {
+		mebroutines.ShowWarningMessage(xlate.Get("Could not make backup: failed to get disk UUID or location"))
+		return errors.New("could not get disk uuid or location")
+	}
+
+	err := checkForFATFilesystem(backupPath, diskLocation)
+	if err != nil {
+		mebroutines.ShowWarningMessage(xlate.Get("The backup file is too large for a FAT32 filesystem. Please reformat the backup disk as exFAT."))
+		return errors.New("writing backup failed")
 	}
 
 	// Make clone to path_backup
@@ -55,6 +63,37 @@ func MakeBackup(backupPath string) error {
 	// Close backup media (detach it from VirtualBox disk management)
 	progress.TranslateAndSetMessage("Detaching backup disk image...")
 	deleteClone(backupPath)
+
+	return nil
+}
+
+func checkForFATFilesystem(backupPath string, vmDiskLocation string) error {
+	// Check VM disk size
+	mediumSizeMB, err := box.MediumSizeOnDisk(vmDiskLocation)
+
+	// If we can't get medium size, we'll just ignore the error and continue.
+	if err != nil {
+		log.Debug(fmt.Sprintf("Error getting VirtualBox medium size: %s", err))
+		return nil
+	}
+
+	// FAT32 is enough to store this backup, so we don't need to check the filesystem.
+	if mediumSizeMB < 4*1024 {
+		return nil
+	}
+
+	// If there is an error checking whether the backup medium has a FAT32
+	// filesystem, we'll just allow the user to continue. The user will
+	// see an error eventually, if the backup disk actually is FAT32.
+	isFAT32, err := isFAT32(backupPath)
+	if err != nil {
+		log.Debug(fmt.Sprintf("Error checking if the backup medium has a FAT filesystem: %s", err))
+		return nil
+	}
+
+	if isFAT32 {
+		return errors.New("backup too large for FAT32")
+	}
 
 	return nil
 }
