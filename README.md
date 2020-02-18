@@ -152,23 +152,12 @@ However, please report these problems since we would like to make naksu as easy 
 
  1. Invent new version number. Naksu uses [semantic versioning](https://semver.org/)
  1. Update Changelog (below) and set version number in `src/naksu/naksu.go` (`const version = "X.Y.Z"`)
- 1. Build version with `make docker` (or better, wait CI to do this)
- 1. Double-check the build really has the correct version number:
-   * Start `naksu`
-   * Naksu should update itself
- 1. Go to [releases](https://github.com/digabi/naksu/releases)
- 1. Click "Draft a new release"
+ 1. Push changes, and wait for [Travis CI](https://travis-ci.org/digabi/naksu) to finish build
+ 1. Go to [releases](https://github.com/digabi/naksu/releases). There should be a new draft release with zipped Linux and Windows binaries attached. Press the Edit button.
  1. Enter the new version number to "Tag version" field (e.g. "v1.6.0" - note the "v")
- 1. Fill "Release title"
+ 1. Fill "Release title" Field
  1. Copy release note markup from `README.md` to "Describe this release" textarea
- 1. Attach release files `naksu_linux_amd64.zip` and `naksu_windows_amd64.zip` you got from the build
  1. Click "Publish release"
-
-## TODO
-
-Things to consider later:
-
-- Avoid asking administrator rights (Windows): [Github](https://stackoverflow.com/questions/31558066/how-to-ask-for-administer-privileges-on-windows-with-go)
 
 ## License
 
