@@ -3,11 +3,12 @@ package backup
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
+
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/xlate"
-	"os"
-	"path/filepath"
 )
 
 // GetBackupMedia returns backup media path
@@ -37,9 +38,21 @@ func GetBackupMedia() map[string]string {
 	return media
 }
 
-func getBackupMediaLinux() map[string]string {
-	var media = map[string]string{}
+type lsblkOutput struct {
+	BlockDevices []blockDevice `json:"blockdevices"`
+}
 
+type blockDevice struct {
+	Name       string        `json:"name"`
+	FileSystem string        `json:"fstype"`
+	MountPoint string        `json:"mountpoint"`
+	Vendor     string        `json:"vendor"`
+	Model      string        `json:"model"`
+	HotPlug    bool          `json:"hotplug"`
+	Children   []blockDevice `json:"children"`
+}
+
+func listBlockDevices() ([]blockDevice, error) {
 	runParams := []string{"lsblk", "-J", "-o", "NAME,FSTYPE,MOUNTPOINT,VENDOR,MODEL,HOTPLUG"}
 
 	lsblkJSON, lsblkErr := mebroutines.RunAndGetOutput(runParams, true)
@@ -49,28 +62,66 @@ func getBackupMediaLinux() map[string]string {
 
 	if lsblkErr != nil {
 		log.Debug("Failed to run lsblk")
-		// Return empty set of media
-		return media
+		return []blockDevice{}, lsblkErr
 	}
 
-	var jsonData map[string]interface{}
+	var jsonData lsblkOutput
 
 	jsonErr := json.Unmarshal([]byte(lsblkJSON), &jsonData)
 	if jsonErr != nil {
-		log.Debug("Unable on decode lsblk response:")
+		log.Debug("Unable to unmarshal lsblk response:")
 		log.Debug(fmt.Sprintf("%s", jsonErr))
-		// Return empty set of media
-		return media
+		return []blockDevice{}, lsblkErr
 	}
 
-	blockdevices := jsonData["blockdevices"].([]interface{})
-
-	media = getRemovableDisks(blockdevices)
-
-	return media
+	return jsonData.BlockDevices, nil
 }
 
-func getRemovableDisks(blockdevices []interface{}) map[string]string {
+// isFAT32 returns true if the filesystem of the drive
+// pointed to by backupPath is FAT32.
+func isFAT32(backupPath string) (bool, error) {
+	blockDevices, err := listBlockDevices()
+	if err != nil {
+		return false, err
+	}
+
+	mountPoint := filepath.Dir(backupPath)
+	device := findBlockDevice(blockDevices, mountPoint)
+	if device != nil {
+		return device.FileSystem == "vfat", nil
+	}
+
+	return false, nil
+}
+
+func findBlockDevice(blockDevices []blockDevice, mountPoint string) *blockDevice {
+	for _, device := range blockDevices {
+		if mountPoint == device.MountPoint {
+			return &device
+		}
+
+		if len(device.Children) > 0 {
+			childDevice := findBlockDevice(device.Children, mountPoint)
+			if childDevice != nil {
+				return childDevice
+			}
+		}
+	}
+
+	return nil
+}
+
+func getBackupMediaLinux() map[string]string {
+	blockDevices, err := listBlockDevices()
+	if err != nil {
+		// Return empty set of media
+		return map[string]string{}
+	}
+
+	return getRemovableDisks(blockDevices)
+}
+
+func getRemovableDisks(blockdevices []blockDevice) map[string]string {
 	media := map[string]string{}
 
 	if blockdevices == nil {
@@ -78,40 +129,20 @@ func getRemovableDisks(blockdevices []interface{}) map[string]string {
 	}
 
 	for blockdeviceIndex := range blockdevices {
-		thisBlockdevice := blockdevices[blockdeviceIndex].(map[string]interface{})
-		if deviceFieldString(thisBlockdevice["hotplug"]) == "1" && thisBlockdevice["children"] != nil {
-			thisChildren := thisBlockdevice["children"].([]interface{})
+		thisBlockdevice := blockdevices[blockdeviceIndex]
+		if thisBlockdevice.HotPlug && thisBlockdevice.Children != nil {
+			thisChildren := thisBlockdevice.Children
 
 			for thisChildIndex := range thisChildren {
-				thisChild := thisChildren[thisChildIndex].(map[string]interface{})
+				thisChild := thisChildren[thisChildIndex]
 
-				thisMountpoint := deviceFieldString(thisChild["mountpoint"])
+				thisMountpoint := thisChild.MountPoint
 				if thisMountpoint != "" {
-					media[thisMountpoint] = fmt.Sprintf("%s, %s", deviceFieldString(thisBlockdevice["vendor"]), deviceFieldString(thisBlockdevice["model"]))
+					media[thisMountpoint] = fmt.Sprintf("%s, %s", thisBlockdevice.Vendor, thisBlockdevice.Model)
 				}
 			}
 		}
 	}
 
 	return media
-}
-
-func deviceFieldString(thisField interface{}) string {
-	if thisField == nil {
-		return ""
-	}
-	switch v := thisField.(type) {
-	case bool:
-		fieldBool := thisField.(bool)
-		if fieldBool {
-			return "1"
-		}
-		return "0"
-	case string:
-		return thisField.(string)
-	default:
-		log.Debug("Fail on getmediapath.deviceFieldString")
-		log.Debug(fmt.Sprintf("unexpected type %T", v))
-	}
-	return thisField.(string)
 }

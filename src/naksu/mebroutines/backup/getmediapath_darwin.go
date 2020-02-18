@@ -1,10 +1,10 @@
 package backup
 
 import (
-	"path/filepath"
 	"naksu/mebroutines"
 	"naksu/xlate"
 	"os"
+	"path/filepath"
 )
 
 // GetBackupMedia returns map of backup medias
@@ -32,4 +32,12 @@ func GetBackupMedia() map[string]string {
 	}
 
 	return media
+}
+
+// isFAT32 returns true if the filesystem of the drive
+// pointed to by backupPath is FAT32.
+//
+// Dummy function for darwin.
+func isFAT32(backupPath string) (bool, error) {
+	return false, nil
 }
