@@ -16,7 +16,7 @@ import (
 	_ "github.com/andlabs/ui/winmanifest"
 )
 
-const version = "1.10.0"
+const version = "1.11.0"
 
 var isDebug bool
 

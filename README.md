@@ -148,10 +148,10 @@ VBOXMANAGEPATH=D:\Oracle\VirtualBox\VBoxManage.exe naksu
 
 However, please report these problems since we would like to make naksu as easy to use as possible.
 
-## Publising
+## Publishing
 
  1. Invent new version number. Naksu uses [semantic versioning](https://semver.org/)
- 1. Update Changelog (below) and set version number in `src/naksu.go` (`const version = "X.Y.Z"`)
+ 1. Update Changelog (below) and set version number in `src/naksu/naksu.go` (`const version = "X.Y.Z"`)
  1. Build version with `make docker` (or better, wait CI to do this)
  1. Double-check the build really has the correct version number:
    * Start `naksu`
@@ -175,6 +175,20 @@ Things to consider later:
 [MIT](https://opensource.org/licenses/MIT)
 
 ## Changelog
+
+### 1.11.0 (18-FEB-2020)
+
+- Naksu detects the presence of hardware virtualization (VT-X), Hyper-V, and Windows Hypervisor Platform. A warning is shown on startup if:
+  1. VT-X is not enabled
+  1. Hyper-V or Hypervisor is enabled in Windows
+- Network status is displayed in the UI. A warning message in red is displayed in the following situations:
+  1. the link speed is the selected interface too low (< 1 Gbit/s)
+  1. if no interface has been selected and the link speed of the slowest interface is < 1 Gbit/s
+  1. a wireless interface has been selected
+- Naksu detects and attempts to fix an issue where older VirtualBox versions (6.x < 6.0.8 or 5.x < 5.2.30) end up with duplicate hard disks in the configuration file. In this situation, Naksu should no longer end up in a state where it can't start up.
+- Backup fails instantly with a warning if trying to make a backup larger than 4GB on a FAT32 formatted disk.
+- Virtualbox Host-Only Ethernet Adapter is hidden from network device selection (should show only physical devices).
+- Fix: network device listing shows link speeds correctly in Mbit/s (not MB/s)
 
 ### 1.10.0 (07-JUN-2019)
 
