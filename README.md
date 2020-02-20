@@ -177,7 +177,8 @@ However, please report these problems since we would like to make naksu as easy 
 - Naksu detects and attempts to fix an issue where older VirtualBox versions (6.x < 6.0.8 or 5.x < 5.2.30) end up with duplicate hard disks in the configuration file. In this situation, Naksu should no longer end up in a state where it can't start up.
 - Backup fails instantly with a warning if trying to make a backup larger than 4GB on a FAT32 formatted disk.
 - Virtualbox Host-Only Ethernet Adapter is hidden from network device selection (should show only physical devices).
-- Fix: network device listing shows link speeds correctly in Mbit/s (not MB/s)
+- Fix: network device listing shows link speeds correctly as Mbit/s (not MB/s)
+- Fix: crash when cancelling file selection
 
 ### 1.10.0 (07-JUN-2019)
 
