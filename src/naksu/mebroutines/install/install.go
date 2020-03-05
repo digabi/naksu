@@ -2,6 +2,7 @@ package install
 
 import (
 	"fmt"
+	"naksu/mebroutines/start"
 	"os"
 	"path/filepath"
 
@@ -75,8 +76,7 @@ func GetServer(newVagrantfilePath string) {
 	mebroutines.RunVagrant(pruneRunParams)
 
 	progress.TranslateAndSetMessage("Downloading stickless server and starting it for the first time. This takes a long time...\n\nIf the server fails to start please try to start it again from the Naksu main menu.")
-	upRunParams := []string{"up"}
-	mebroutines.RunVagrant(upRunParams)
+	start.Server()
 }
 
 func createKtpDir() string {
