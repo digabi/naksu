@@ -165,6 +165,10 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 1.11.1 (05-MAR-2020)
+
+- Fix "Failed to execute vagrant up" after remove exams button leaves trash VM directories in VirtualBox default virtual machine directory.
+
 ### 1.11.0 (18-FEB-2020)
 
 - Naksu detects the presence of hardware virtualization (VT-X), Hyper-V, and Windows Hypervisor Platform. A warning is shown on startup if:
