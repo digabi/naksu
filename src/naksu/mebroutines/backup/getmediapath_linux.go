@@ -48,8 +48,25 @@ type blockDevice struct {
 	MountPoint string        `json:"mountpoint"`
 	Vendor     string        `json:"vendor"`
 	Model      string        `json:"model"`
-	HotPlug    bool          `json:"hotplug"`
+	HotPlug    interface{}   `json:"hotplug"`
 	Children   []blockDevice `json:"children"`
+}
+
+func (bd *blockDevice) IsRemovable() bool {
+	switch hotplug := bd.HotPlug.(type) {
+	case bool:
+		return hotplug
+	case string:
+		switch hotplug {
+		case "0":
+			return false
+		case "1":
+			return true
+		}
+	}
+
+	log.Debug(fmt.Sprintf("Unknown format for hotplug field in lsblk output: %v", bd.HotPlug))
+	return false
 }
 
 func listBlockDevices() ([]blockDevice, error) {
@@ -130,7 +147,7 @@ func getRemovableDisks(blockdevices []blockDevice) map[string]string {
 
 	for blockdeviceIndex := range blockdevices {
 		thisBlockdevice := blockdevices[blockdeviceIndex]
-		if thisBlockdevice.HotPlug && thisBlockdevice.Children != nil {
+		if thisBlockdevice.IsRemovable() && thisBlockdevice.Children != nil {
 			thisChildren := thisBlockdevice.Children
 
 			for thisChildIndex := range thisChildren {
