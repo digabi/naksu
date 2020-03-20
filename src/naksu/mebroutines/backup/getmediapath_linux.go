@@ -1,7 +1,6 @@
 package backup
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -38,38 +37,7 @@ func GetBackupMedia() map[string]string {
 	return media
 }
 
-type lsblkOutput struct {
-	BlockDevices []blockDevice `json:"blockdevices"`
-}
-
-type blockDevice struct {
-	Name       string        `json:"name"`
-	FileSystem string        `json:"fstype"`
-	MountPoint string        `json:"mountpoint"`
-	Vendor     string        `json:"vendor"`
-	Model      string        `json:"model"`
-	HotPlug    interface{}   `json:"hotplug"`
-	Children   []blockDevice `json:"children"`
-}
-
-func (bd *blockDevice) IsRemovable() bool {
-	switch hotplug := bd.HotPlug.(type) {
-	case bool:
-		return hotplug
-	case string:
-		switch hotplug {
-		case "0":
-			return false
-		case "1":
-			return true
-		}
-	}
-
-	log.Debug(fmt.Sprintf("Unknown format for hotplug field in lsblk output: %v", bd.HotPlug))
-	return false
-}
-
-func listBlockDevices() ([]blockDevice, error) {
+func listBlockDevices() (*LsblkOutput, error) {
 	runParams := []string{"lsblk", "-J", "-o", "NAME,FSTYPE,MOUNTPOINT,VENDOR,MODEL,HOTPLUG"}
 
 	lsblkJSON, lsblkErr := mebroutines.RunAndGetOutput(runParams, true)
@@ -79,31 +47,29 @@ func listBlockDevices() ([]blockDevice, error) {
 
 	if lsblkErr != nil {
 		log.Debug("Failed to run lsblk")
-		return []blockDevice{}, lsblkErr
+		return &LsblkOutput{}, lsblkErr
 	}
 
-	var jsonData lsblkOutput
-
-	jsonErr := json.Unmarshal([]byte(lsblkJSON), &jsonData)
+	output, jsonErr := ParseLsblkJSON(lsblkJSON)
 	if jsonErr != nil {
 		log.Debug("Unable to unmarshal lsblk response:")
 		log.Debug(fmt.Sprintf("%s", jsonErr))
-		return []blockDevice{}, lsblkErr
+		return &LsblkOutput{}, lsblkErr
 	}
 
-	return jsonData.BlockDevices, nil
+	return output, nil
 }
 
 // isFAT32 returns true if the filesystem of the drive
 // pointed to by backupPath is FAT32.
 func isFAT32(backupPath string) (bool, error) {
-	blockDevices, err := listBlockDevices()
+	lsblk, err := listBlockDevices()
 	if err != nil {
 		return false, err
 	}
 
 	mountPoint := filepath.Dir(backupPath)
-	device := findBlockDevice(blockDevices, mountPoint)
+	device := findBlockDevice(lsblk.BlockDevices, mountPoint)
 	if device != nil {
 		return device.FileSystem == "vfat", nil
 	}
@@ -111,7 +77,7 @@ func isFAT32(backupPath string) (bool, error) {
 	return false, nil
 }
 
-func findBlockDevice(blockDevices []blockDevice, mountPoint string) *blockDevice {
+func findBlockDevice(blockDevices []BlockDevice, mountPoint string) *BlockDevice {
 	for _, device := range blockDevices {
 		if mountPoint == device.MountPoint {
 			return &device
@@ -129,37 +95,11 @@ func findBlockDevice(blockDevices []blockDevice, mountPoint string) *blockDevice
 }
 
 func getBackupMediaLinux() map[string]string {
-	blockDevices, err := listBlockDevices()
+	lsblk, err := listBlockDevices()
 	if err != nil {
 		// Return empty set of media
 		return map[string]string{}
 	}
 
-	return getRemovableDisks(blockDevices)
-}
-
-func getRemovableDisks(blockdevices []blockDevice) map[string]string {
-	media := map[string]string{}
-
-	if blockdevices == nil {
-		return media
-	}
-
-	for blockdeviceIndex := range blockdevices {
-		thisBlockdevice := blockdevices[blockdeviceIndex]
-		if thisBlockdevice.IsRemovable() && thisBlockdevice.Children != nil {
-			thisChildren := thisBlockdevice.Children
-
-			for thisChildIndex := range thisChildren {
-				thisChild := thisChildren[thisChildIndex]
-
-				thisMountpoint := thisChild.MountPoint
-				if thisMountpoint != "" {
-					media[thisMountpoint] = fmt.Sprintf("%s, %s", thisBlockdevice.Vendor, thisBlockdevice.Model)
-				}
-			}
-		}
-	}
-
-	return media
+	return lsblk.GetRemovableDisks()
 }

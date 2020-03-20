@@ -1,0 +1,80 @@
+package backup
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"naksu/log"
+)
+
+// LsblkOutput represents the parsed JSON output of an lsblk -J command.
+type LsblkOutput struct {
+	BlockDevices []BlockDevice `json:"blockdevices"`
+}
+
+// BlockDevice represents a single block device entry in the JSON output of an
+// lsblk -J command.
+type BlockDevice struct {
+	Name       string        `json:"name"`
+	FileSystem string        `json:"fstype"`
+	MountPoint string        `json:"mountpoint"`
+	Vendor     string        `json:"vendor"`
+	Model      string        `json:"model"`
+	HotPlug    interface{}   `json:"hotplug"`
+	Children   []BlockDevice `json:"children"`
+}
+
+// GetRemovableDisks processes lsblk output to return a listing of connected
+// removable devices. The return value is a map from mount points to block
+// device names.
+func (blk *LsblkOutput) GetRemovableDisks() map[string]string {
+	media := map[string]string{}
+
+	if blk.BlockDevices == nil {
+		return media
+	}
+
+	for blockdeviceIndex := range blk.BlockDevices {
+		thisBlockdevice := blk.BlockDevices[blockdeviceIndex]
+		if thisBlockdevice.IsRemovable() && thisBlockdevice.Children != nil {
+			thisChildren := thisBlockdevice.Children
+
+			for thisChildIndex := range thisChildren {
+				thisChild := thisChildren[thisChildIndex]
+
+				thisMountpoint := thisChild.MountPoint
+				if thisMountpoint != "" {
+					media[thisMountpoint] = fmt.Sprintf("%s, %s", thisBlockdevice.Vendor, thisBlockdevice.Model)
+				}
+			}
+		}
+	}
+
+	return media
+}
+
+// IsRemovable returns true if the block device is a removable device (e.g. a
+// USB drive) and false otherwise.
+func (bd *BlockDevice) IsRemovable() bool {
+	switch hotplug := bd.HotPlug.(type) {
+	case bool:
+		return hotplug
+	case string:
+		switch hotplug {
+		case "0":
+			return false
+		case "1":
+			return true
+		}
+	}
+
+	log.Debug(fmt.Sprintf("Unknown format for hotplug field in lsblk output: %v", bd.HotPlug))
+	return false
+}
+
+// ParseLsblkJSON parses JSON output from an lsblk -J command.
+func ParseLsblkJSON(lsblkJSON string) (*LsblkOutput, error) {
+	var jsonData LsblkOutput
+	jsonErr := json.Unmarshal([]byte(lsblkJSON), &jsonData)
+	return &jsonData, jsonErr
+}

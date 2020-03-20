@@ -22,7 +22,7 @@ ci-test: bin/go2xunit
 	2>&1 GOPATH=$(current_dir)/ go test -v naksu/mebroutines naksu/boxversion | ./bin/go2xunit -output tests.xml
 
 test:
-	GOPATH=$(current_dir)/ go test naksu/mebroutines naksu/box naksu/boxversion naksu/network
+	GOPATH=$(current_dir)/ go test naksu/mebroutines naksu/mebroutines/backup naksu naksu/box naksu/boxversion naksu/network
 
 docker: clean
 	mkdir -p bin
