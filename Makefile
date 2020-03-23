@@ -4,6 +4,7 @@ GO=go
 # GO=/usr/lib/go-1.10/bin/go
 # Path to your rsrc executable (see README.md)
 RSRC=$(HOME)/go/bin/rsrc
+TESTS=naksu/mebroutines naksu/mebroutines/backup naksu naksu/box naksu/boxversion naksu/network
 
 bin/gometalinter:
 	curl https://raw.githubusercontent.com/alecthomas/gometalinter/master/scripts/install.sh | sh
@@ -19,10 +20,10 @@ lint: bin/gometalinter
 	./bin/gometalinter --deadline=240s --vendor ./src/naksu/...
 
 ci-test: bin/go2xunit
-	2>&1 GOPATH=$(current_dir)/ go test -v naksu/mebroutines naksu/boxversion | ./bin/go2xunit -output tests.xml
+	2>&1 GOPATH=$(current_dir)/ go test -v $(TESTS) | ./bin/go2xunit -output tests.xml
 
 test:
-	GOPATH=$(current_dir)/ go test naksu/mebroutines naksu/mebroutines/backup naksu naksu/box naksu/boxversion naksu/network
+	GOPATH=$(current_dir)/ go test $(TESTS)
 
 docker: clean
 	mkdir -p bin
