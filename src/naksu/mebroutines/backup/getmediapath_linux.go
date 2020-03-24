@@ -1,11 +1,9 @@
 package backup
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
-	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/xlate"
 )
@@ -37,33 +35,10 @@ func GetBackupMedia() map[string]string {
 	return media
 }
 
-func listBlockDevices() (*LsblkOutput, error) {
-	runParams := []string{"lsblk", "-J", "-o", "NAME,FSTYPE,MOUNTPOINT,VENDOR,MODEL,HOTPLUG"}
-
-	lsblkJSON, lsblkErr := mebroutines.RunAndGetOutput(runParams, true)
-
-	log.Debug("lsblk says:")
-	log.Debug(lsblkJSON)
-
-	if lsblkErr != nil {
-		log.Debug("Failed to run lsblk")
-		return &LsblkOutput{}, lsblkErr
-	}
-
-	output, jsonErr := ParseLsblkJSON(lsblkJSON)
-	if jsonErr != nil {
-		log.Debug("Unable to unmarshal lsblk response:")
-		log.Debug(fmt.Sprintf("%s", jsonErr))
-		return &LsblkOutput{}, lsblkErr
-	}
-
-	return output, nil
-}
-
 // isFAT32 returns true if the filesystem of the drive
 // pointed to by backupPath is FAT32.
 func isFAT32(backupPath string) (bool, error) {
-	lsblk, err := listBlockDevices()
+	lsblk, err := ListBlockDevices()
 	if err != nil {
 		return false, err
 	}
@@ -95,7 +70,7 @@ func findBlockDevice(blockDevices []BlockDevice, mountPoint string) *BlockDevice
 }
 
 func getBackupMediaLinux() map[string]string {
-	lsblk, err := listBlockDevices()
+	lsblk, err := ListBlockDevices()
 	if err != nil {
 		// Return empty set of media
 		return map[string]string{}

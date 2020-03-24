@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"naksu/log"
+	"naksu/mebroutines"
 )
 
 // LsblkOutput represents the parsed JSON output of an lsblk -J command.
@@ -22,6 +23,31 @@ type BlockDevice struct {
 	Model      string        `json:"model"`
 	HotPlug    interface{}   `json:"hotplug"`
 	Children   []BlockDevice `json:"children"`
+}
+
+// ListBlockDevices generates a listing of the available block devices using
+// lsblk. Usable only on Linux hosts.
+func ListBlockDevices() (*LsblkOutput, error) {
+	runParams := []string{"lsblk", "-J", "-o", "NAME,FSTYPE,MOUNTPOINT,VENDOR,MODEL,HOTPLUG"}
+
+	lsblkJSON, lsblkErr := mebroutines.RunAndGetOutput(runParams, true)
+
+	log.Debug("lsblk says:")
+	log.Debug(lsblkJSON)
+
+	if lsblkErr != nil {
+		log.Debug("Failed to run lsblk")
+		return &LsblkOutput{}, lsblkErr
+	}
+
+	output, jsonErr := ParseLsblkJSON(lsblkJSON)
+	if jsonErr != nil {
+		log.Debug("Unable to unmarshal lsblk response:")
+		log.Debug(fmt.Sprintf("%s", jsonErr))
+		return &LsblkOutput{}, lsblkErr
+	}
+
+	return output, nil
 }
 
 // GetRemovableDisks processes lsblk output to return a listing of connected
