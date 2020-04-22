@@ -165,6 +165,10 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 1.11.2 (22-APR-2020)
+
+- Fix removable media listing when selecting a backup device on Ubuntu 18.04.
+
 ### 1.11.1 (05-MAR-2020)
 
 - Fix "Failed to execute vagrant up" after remove exams button leaves trash VM directories in VirtualBox default virtual machine directory.
