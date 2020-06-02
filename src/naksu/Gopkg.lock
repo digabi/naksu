@@ -197,6 +197,14 @@
   revision = "ae0ab99deb4dc413a2b4bd6c8bdd0eb67f1e4d06"
   version = "v1.2.0"
 
+[[projects]]
+  digest = "1:c805e517269b0ba4c21ded5836019ed7d16953d4026cb7d00041d039c7906be9"
+  name = "gopkg.in/natefinch/lumberjack.v2"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a96e63847dc3c67d17befa69c303767e2f84e54f"
+  version = "v2.1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -213,6 +221,7 @@
     "github.com/mitchellh/go-homedir",
     "github.com/rhysd/go-github-selfupdate/selfupdate",
     "golang.org/x/sys/windows",
+    "gopkg.in/natefinch/lumberjack.v2",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
