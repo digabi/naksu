@@ -2,7 +2,6 @@ package log
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,14 +12,6 @@ import (
 
 var isDebug bool
 var debugFilename string
-
-// Close gracefully handles closing of closable item. defer Close(item)
-func Close(c io.Closer) {
-	err := c.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
 func appendLogFile(message string) {
 	if debugFilename != "" {
