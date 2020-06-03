@@ -12,18 +12,11 @@ import (
 
 var isDebug bool
 var debugFilename string
+var logger *log.Logger
 
 func appendLogFile(message string) {
 	if debugFilename != "" {
 		// Append only if the logfile has been set
-
-		lumberLog := lumberjack.Logger{
-			Filename:   debugFilename,
-			MaxSize:    1, // megabytes
-			MaxBackups: 3,
-		}
-
-		logger := log.New(&lumberLog, "", log.Ldate|log.Ltime)
 		logger.Print(message)
 	}
 }
@@ -46,6 +39,14 @@ func SetDebug(newValue bool) {
 // SetDebugFilename sets debug log path
 func SetDebugFilename(newFilename string) {
 	debugFilename = newFilename
+
+	lumberLog := lumberjack.Logger{
+		Filename:   debugFilename,
+		MaxSize:    1, // megabytes
+		MaxBackups: 3,
+	}
+
+	logger = log.New(&lumberLog, "", log.Ldate|log.Ltime)
 }
 
 // GetNewDebugFilename suggests a new debug log filename
