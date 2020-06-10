@@ -81,6 +81,14 @@ func RunAndGetOutput(commandArgs []string, showWarningOnError bool) (string, err
 	cmd.Env = getRunEnvironment()
 
 	out, err := cmd.CombinedOutput()
+
+	if out != nil {
+		log.Debug("RunAndGetOutput returns combined STDOUT and STDERR:")
+		log.Debug(string(out))
+	} else {
+		log.Debug("RunAndGetOutput returned nothing as combined STDOUT and STDERR")
+	}
+
 	if err != nil {
 		// Executing failed, return error condition
 		if showWarningOnError {
@@ -88,18 +96,9 @@ func RunAndGetOutput(commandArgs []string, showWarningOnError bool) (string, err
 		} else {
 			log.Debug(fmt.Sprintf(xlate.Get("command failed: %s (%v)"), strings.Join(commandArgs, " "), err))
 		}
-		log.Debug(fmt.Sprintf("RunAndGetOutput (STDOUT & STDERR):\n%s", string(out)))
-		return string(out), err
 	}
 
-	if out != nil {
-		log.Debug("RunAndGetOutput returns combined STDOUT and STDERR:")
-		log.Debug(string(out))
-	} else {
-		log.Debug("RunAndGetOutput returned NIL as combined STDOUT and STDERR")
-	}
-
-	return string(out), nil
+	return string(out), err
 }
 
 // RunAndGetError runs command with arguments and returns error code
