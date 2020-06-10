@@ -88,6 +88,7 @@ func RunAndGetOutput(commandArgs []string, showWarningOnError bool) (string, err
 		} else {
 			log.Debug(fmt.Sprintf(xlate.Get("command failed: %s (%v)"), strings.Join(commandArgs, " "), err))
 		}
+		log.Debug(fmt.Sprintf("RunAndGetOutput (STDOUT & STDERR):\n%s", string(out)))
 		return string(out), err
 	}
 
