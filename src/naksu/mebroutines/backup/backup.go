@@ -99,7 +99,7 @@ func checkForFATFilesystem(backupPath string, vmDiskLocation string) error {
 }
 
 func makeClone(diskUUID string, backupPath string) error {
-	vBoxManageOutput := mebroutines.RunVBoxManage([]string{"clonemedium", diskUUID, backupPath})
+	vBoxManageOutput := mebroutines.RunVBoxManage([]string{"clonemedium", diskUUID, backupPath}, false)
 
 	// Check whether clone was successful or not
 	matched, errRe := regexp.MatchString("Clone medium created in format 'VMDK'", vBoxManageOutput)
@@ -113,7 +113,7 @@ func makeClone(diskUUID string, backupPath string) error {
 }
 
 func deleteClone(backupPath string) {
-	_ = mebroutines.RunVBoxManage([]string{"closemedium", backupPath})
+	_ = mebroutines.RunVBoxManage([]string{"closemedium", backupPath}, true)
 }
 
 // GetBackupFilename returns generated filename

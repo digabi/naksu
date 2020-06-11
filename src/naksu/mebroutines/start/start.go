@@ -64,7 +64,7 @@ func cleanUpTrashVMDirectories() {
 }
 
 func virtualBoxDefaultVMDirectory() (string, error) {
-	systemProperties := mebroutines.RunVBoxManage([]string{"list", "systemproperties"})
+	systemProperties := mebroutines.RunVBoxManage([]string{"list", "systemproperties"}, false)
 	defaultVMDirectoryRE := regexp.MustCompile(`Default machine folder:\s+(\S.*)`)
 	result := defaultVMDirectoryRE.FindStringSubmatch(systemProperties)
 	if len(result) > 1 {

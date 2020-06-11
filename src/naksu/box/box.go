@@ -64,7 +64,7 @@ func getVBoxManageOutput() string {
 	}
 
 	cacheShowVMInfo.updateStarted = time.Now().Unix()
-	return mebroutines.RunVBoxManage([]string{"showvminfo", "--machinereadable", boxID})
+	return mebroutines.RunVBoxManage([]string{"showvminfo", "--machinereadable", boxID}, false)
 }
 
 // getVMInfoRegexp returns result of the given vmRegexp from the current VBoxManage showvminfo
@@ -177,7 +177,7 @@ func MediumSizeOnDisk(location string) (uint64, error) {
 	// According to documentation, showmediuminfo should also accept a disk uuid
 	// as a parameter, but that doesn't seem to be the case. To be safe, we'll
 	// use the location of the disk instead.
-	mediumInfo := mebroutines.RunVBoxManage([]string{"showmediuminfo", location})
+	mediumInfo := mebroutines.RunVBoxManage([]string{"showmediuminfo", location}, false)
 	sizeOnDiskRE := regexp.MustCompile(`Size on disk:\s+(\d+)\s+MBytes`)
 	result := sizeOnDiskRE.FindStringSubmatch(mediumInfo)
 	if len(result) > 1 {

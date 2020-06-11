@@ -160,7 +160,8 @@ func RunVagrant(args []string) {
 }
 
 // RunVBoxManage runs vboxmanage command with given arguments
-func RunVBoxManage(args []string) string {
+// If showErrors is true calls ShowErrorMessage on errors
+func RunVBoxManage(args []string, showErrors bool) string {
 	vboxmanagepathArr := []string{getVBoxManagePath()}
 	runArgs := append(vboxmanagepathArr, args...)
 	vBoxManageOutput, err := RunAndGetOutput(runArgs, false)
@@ -178,14 +179,18 @@ func RunVBoxManage(args []string) string {
 		fixed, fixErr := detectAndFixDuplicateHardDiskProblem(vBoxManageOutput)
 		if !fixed || fixErr != nil {
 			log.Debug(fmt.Sprintf("Failed to fix problem with command %s (%v)", strings.Join(runArgs, " "), fixErr))
-			showErrorAndQuit(err)
+			if showErrors {
+				showErrorAndQuit(err)
+			}
 		}
 
 		log.Debug(fmt.Sprintf("Retrying '%s' after fixing problem", strings.Join(runArgs, " ")))
 		vBoxManageOutput, err = RunAndGetOutput(runArgs, false)
 		if err != nil {
 			logError(vBoxManageOutput, err)
-			showErrorAndQuit(err)
+			if showErrors {
+				showErrorAndQuit(err)
+			}
 		} else {
 			return vBoxManageOutput
 		}
