@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"runtime"
 
 	"naksu/config"
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/xlate"
+	"naksu/host"
 
 	flags "github.com/jessevdk/go-flags"
 	"github.com/kardianos/osext"
@@ -58,6 +60,15 @@ func logDirectoryPaths() {
 	}
 }
 
+func logHardwareDetails() {
+	hwLog := host.GetHwLog()
+
+	// We need to do this only for Windows as Linux has already logged this by RunAndGetOutput()
+	if runtime.GOOS == "windows" {
+		log.Debug(hwLog)
+	}
+}
+
 func main() {
 	// Load configuration if it exists
 	config.Load()
@@ -102,6 +113,8 @@ func main() {
 	log.Debug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
 
 	logDirectoryPaths()
+
+	logHardwareDetails()
 
 	// Check whether we have a terminal (restart with x-terminal-emulator, if missing)
 	if !mebroutines.ExistsStdin() {

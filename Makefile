@@ -4,7 +4,7 @@ GO=go
 # GO=/usr/lib/go-1.10/bin/go
 # Path to your rsrc executable (see README.md)
 RSRC=$(HOME)/go/bin/rsrc
-TESTS=naksu/mebroutines naksu/mebroutines/backup naksu naksu/box naksu/boxversion naksu/network
+TESTS=naksu/mebroutines naksu/mebroutines/backup naksu naksu/box naksu/host naksu/boxversion naksu/network
 
 bin/gometalinter:
 	curl https://raw.githubusercontent.com/alecthomas/gometalinter/master/scripts/install.sh | sh
