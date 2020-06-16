@@ -2,46 +2,22 @@ package log
 
 import (
 	"fmt"
+	"log"
 	"os"
-  "io"
-  "time"
-  "log"
 	"path/filepath"
 
-  "github.com/mitchellh/go-homedir"
+	"github.com/mitchellh/go-homedir"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var isDebug bool
 var debugFilename string
-
-// Close gracefully handles closing of closable item. defer Close(item)
-func Close(c io.Closer) {
-	err := c.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+var logger *log.Logger
 
 func appendLogFile(message string) {
 	if debugFilename != "" {
 		// Append only if the logfile has been set
-
-		// Current timestamp
-		t := time.Now()
-
-		/* #nosec */
-		f, err := os.OpenFile(debugFilename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0660)
-		if err != nil {
-			panic(fmt.Sprintf("Could not append to log file %s: %s", debugFilename, err))
-		}
-		defer Close(f)
-
-		_, err = f.WriteString(fmt.Sprintf("[%s] %s\n", t.Format("2006-01-02 15:04:05"), message))
-		if err != nil {
-			if f.Sync() != nil {
-				defer Close(f)
-			}
-		}
+		logger.Print(message)
 	}
 }
 
@@ -49,16 +25,6 @@ func existsDir(path string) bool {
 	fi, err := os.Lstat(path)
 
 	if err == nil && fi.Mode().IsDir() {
-		return true
-	}
-
-	return false
-}
-
-func existsFile(path string) bool {
-	fi, err := os.Lstat(path)
-
-	if err == nil && fi.Mode().IsRegular() {
 		return true
 	}
 
@@ -74,24 +40,24 @@ func SetDebug(newValue bool) {
 func SetDebugFilename(newFilename string) {
 	debugFilename = newFilename
 
-	if debugFilename != "" && existsFile(debugFilename) {
-		// Re-create the log file
-		err := os.Remove(debugFilename)
-		if err != nil {
-			panic(fmt.Sprintf("Could not open log file %s: %s", debugFilename, err))
-		}
+	lumberLog := lumberjack.Logger{
+		Filename:   debugFilename,
+		MaxSize:    1, // megabytes
+		MaxBackups: 3,
 	}
+
+	logger = log.New(&lumberLog, "", log.Ldate|log.Ltime)
 }
 
 // GetNewDebugFilename suggests a new debug log filename
 func GetNewDebugFilename() string {
 	newDebugFilename := ""
 
-  homeDir, err := homedir.Dir()
+	homeDir, err := homedir.Dir()
 
-  if err != nil {
-    panic("Could not get home directory")
-  }
+	if err != nil {
+		panic("Could not get home directory")
+	}
 
 	if existsDir(filepath.Join(homeDir, "ktp")) {
 		newDebugFilename = filepath.Join(homeDir, "ktp", "naksu_lastlog.txt")
