@@ -1,28 +1,42 @@
 package host
 
-import "fmt"
+import (
+	"fmt"
+	"os/exec"
+	"strings"
+)
 
-import "naksu/mebroutines"
+// simpleRunAndGetOutput does almost the same as mebroutines.RunAndGetOutput, but
+// it does not write anything on log and returns a string
+func simpleRunAndGetOutput(commandArgs []string) string {
+	/* #nosec */
+	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
 
-// getOutput executes `cat filename` and returns output
-func getOutput(commandArgs []string) string {
-	output, err := mebroutines.RunAndGetOutput(commandArgs, false)
+	out, err := cmd.CombinedOutput()
 
-	if err != nil {
-		output = "n/a"
+	var outString string
+
+	if out == nil {
+		outString = "n/a"
+	} else {
+		outString = string(out)
 	}
 
-	return output
+	if err != nil {
+		outString = fmt.Sprintf("command failed: %s (%v)", strings.Join(commandArgs, " "), err)
+	}
+
+	return outString
 }
 
 // GetHwLog returns a single string containing various hardware
 // information to be printed to a log file
 func GetHwLog() string {
-	cpuinfo := getOutput([]string{"cat", "/proc/cpuinfo"})
-	meminfo := getOutput([]string{"cat", "/proc/meminfo"})
-	lshw := getOutput([]string{"lshw"})
-	lspci := getOutput([]string{"lspci"})
-	lsusb := getOutput([]string{"lsusb"})
+	cpuinfo := simpleRunAndGetOutput([]string{"cat", "/proc/cpuinfo"})
+	meminfo := simpleRunAndGetOutput([]string{"cat", "/proc/meminfo"})
+	lshw := simpleRunAndGetOutput([]string{"lshw"})
+	lspci := simpleRunAndGetOutput([]string{"lspci"})
+	lsusb := simpleRunAndGetOutput([]string{"lsusb"})
 
 	return fmt.Sprintf(`Output of /proc/cpuinfo
 %s

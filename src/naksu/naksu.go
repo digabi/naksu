@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"runtime"
 
 	"naksu/config"
+	"naksu/host"
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/xlate"
-	"naksu/host"
 
 	flags "github.com/jessevdk/go-flags"
 	"github.com/kardianos/osext"
@@ -61,12 +60,7 @@ func logDirectoryPaths() {
 }
 
 func logHardwareDetails() {
-	hwLog := host.GetHwLog()
-
-	// We need to do this only for Windows as Linux has already logged this by RunAndGetOutput()
-	if runtime.GOOS == "windows" {
-		log.Debug(hwLog)
-	}
+	log.Debug(fmt.Sprintf("---Hardware data dump (start)\n%s\n---Hardware data dump (end)", host.GetHwLog()))
 }
 
 func main() {
