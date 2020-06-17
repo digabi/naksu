@@ -3,6 +3,7 @@ package host
 import (
 	"fmt"
 	"strings"
+	"sort"
 
 	"naksu/log"
 
@@ -26,12 +27,23 @@ type Win32_Processor struct { //nolint
 	Name              string
 }
 
-// Win32_ComputerSystem is a struct used to query Windows WMI
+type Win32_ComputerSystem struct { //nolint
+	// Win32_ComputerSystem is a struct used to query Windows WMI
+	// (Windows Management Instrumentation)
+	// The struct must be named with an underscore, otherwise it is not recognised
+	// and results "Invalid class" exception.
+	TotalPhysicalMemory uint64
+}
+
+// Win32_PnPEntity is a struct used to query Windows WMI
 // (Windows Management Instrumentation)
 // The struct must be named with an underscore, otherwise it is not recognised
 // and results "Invalid class" exception.
-type Win32_ComputerSystem struct { //nolint
-	TotalPhysicalMemory uint64
+type Win32_PnPEntity struct { //nolint
+	PNPClass     string
+	Manufacturer string
+	Name         string
+	DeviceID     string
 }
 
 func getProcessorData() []Win32_Processor {
@@ -51,6 +63,17 @@ func getMemoryData() []Win32_ComputerSystem {
 	err := wmi.Query(query, &dst)
 	if err != nil {
 		log.Debug(fmt.Sprintf("getMemoryData() could not make WMI query: %v", err))
+	}
+
+	return dst
+}
+
+func getPnpEntityData() []Win32_PnPEntity {
+	var dst []Win32_PnPEntity
+	query := wmi.CreateQuery(&dst, "")
+	err := wmi.Query(query, &dst)
+	if err != nil {
+		log.Debug(fmt.Sprintf("getPnpEntityData() could not make WMI query: %v", err))
 	}
 
 	return dst
@@ -94,14 +117,40 @@ func getMemoryString() string {
 	return fmt.Sprintf("Total Memory: %d (%s)", totalPhysicalMemory, humanize.Bytes(totalPhysicalMemory))
 }
 
+func getPnpEntityString() string {
+	pnpEntityData := getPnpEntityData()
+
+	var pnpEntities []string
+
+	for thisEntity := range pnpEntityData {
+		pnpEntities = append(pnpEntities,
+			fmt.Sprintf(
+				"%s %s %s [%s]",
+				pnpEntityData[thisEntity].PNPClass,
+				pnpEntityData[thisEntity].Manufacturer,
+				pnpEntityData[thisEntity].Name,
+				pnpEntityData[thisEntity].DeviceID,
+			),
+		)
+	}
+
+	// Sort in alphabetical order
+	sort.Strings(pnpEntities)
+
+	return strings.Join(pnpEntities[:], "\n")
+}
+
 // GetHwLog returns a single string containing various hardware
 // information to be printed to a log file
 func GetHwLog() string {
 	cpuinfo := getProcessorString()
 	memoryinfo := getMemoryString()
+	pnpentities := getPnpEntityString()
 
 	return fmt.Sprintf(`Processor Info
 %s
 Memory Info
-%s`, cpuinfo, memoryinfo)
+%s
+Plug-And-Play Devices
+%s`, cpuinfo, memoryinfo, pnpentities)
 }
