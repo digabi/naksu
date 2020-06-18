@@ -55,24 +55,6 @@ func getRunEnvironment() []string {
 	return runEnv
 }
 
-// Run executes command with arguments
-func Run(commandArgs []string) error {
-	log.Debug(fmt.Sprintf("run: %s", strings.Join(commandArgs, " ")))
-	/* #nosec */
-	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
-	cmd.Stdout = os.Stdout
-	cmd.Stdin = os.Stdin
-	cmd.Stderr = os.Stderr
-	cmd.Env = getRunEnvironment()
-
-	err := cmd.Run()
-	if err != nil {
-		ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s (%v)"), strings.Join(commandArgs, " "), err))
-	}
-
-	return err
-}
-
 // RunAndGetOutput runs command with arguments and returns output as a string
 func RunAndGetOutput(commandArgs []string) (string, error) {
 	log.Debug(fmt.Sprintf("RunAndGetOutput: %s", strings.Join(commandArgs, " ")))
