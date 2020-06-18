@@ -56,11 +56,10 @@ func SetCacheShowVMInfo(newShowVMInfo string) {
 	cacheShowVMInfo.updateStarted = 0
 }
 
-// getVBoxManageOutput executes "VBoxManage showvminfo".
-func getVBoxManageOutput() string {
+func getVMInfo() (string, error) {
 	boxID := getVagrantBoxID()
 	if boxID == "" {
-		return ""
+		return "", errors.New("could not get box id")
 	}
 
 	cacheShowVMInfo.updateStarted = time.Now().Unix()
@@ -68,16 +67,16 @@ func getVBoxManageOutput() string {
 	vboxManageOutput, err := mebroutines.RunVBoxManage([]string{"showvminfo", "--machinereadable", boxID})
 
 	if err != nil {
-		log.Debug("Failing to get a vm info is not a fatal error, continuing normally")
+		log.Debug("Failing to get VM info")
 	}
 
-	return vboxManageOutput
+	return vboxManageOutput, err
 }
 
 // getVMInfoRegexp returns result of the given vmRegexp from the current VBoxManage showvminfo
 // output. This function gets the output either from the cache or calls getVBoxManageOutput()
 func getVMInfoRegexp(vmRegexp string) string {
-	var vBoxManageOutput string
+	var rawVMInfo string
 
 	// There is a avail version fetch going on (break free after 240 loops)
 	// This locking avoids executing multiple instances of VBoxManage at the same time. Calling
@@ -92,17 +91,23 @@ func getVMInfoRegexp(vmRegexp string) string {
 	if cacheShowVMInfo.outputTimestamp < (time.Now().Unix() - constants.VBoxManageCacheTimeout) {
 		// Cache is too old or not set
 
-		vBoxManageOutput = getVBoxManageOutput()
-		SetCacheShowVMInfo(vBoxManageOutput)
-		log.Debug("getVMIInfoRegexp executed 'VBoxManage showvminfo' and updated cache")
+		var err error
+		rawVMInfo, err = getVMInfo()
+
+		if err != nil {
+			log.Debug(fmt.Sprintf("Could not update raw info of virtual machine: %v", err))
+		} else {
+			SetCacheShowVMInfo(rawVMInfo)
+			log.Debug("Raw info of virtual machine was updated successfully")
+		}
 	} else {
-		vBoxManageOutput = cacheShowVMInfo.output
+		rawVMInfo = cacheShowVMInfo.output
 		log.Debug("getVMIInfoRegexp got 'VBoxManage showvminfo' output from the cache")
 	}
 
 	// Extract server name
 	pattern := regexp.MustCompile(vmRegexp)
-	result := pattern.FindStringSubmatch(vBoxManageOutput)
+	result := pattern.FindStringSubmatch(rawVMInfo)
 
 	if len(result) > 1 {
 		return result[1]
