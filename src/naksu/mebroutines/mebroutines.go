@@ -123,21 +123,21 @@ func RunVagrant(args []string) error {
 			log.Debug("Running vagrant gives me timeout - things are probably ok. User was not notified. Complete output:")
 			log.Debug(vagrantOutput)
 			// This case should not be considered as an error
-			err = nil
+			return nil
 		} else if errMacAddress == nil && matchedMacAddress {
 			// Vagrant in Windows host give this error message - just restart vagrant and you're good
 			log.Debug("Running vagrant gives me a known --macaddress/RTGetOpt error (generated every time by vagrant after a new box in Windows). Complete output:")
 			log.Debug(vagrantOutput)
-			err = errors.New("macaddress/rtgetopt")
+			return errors.New("macaddress/rtgetopt")
 		} else if errConnectionRefused == nil && matchedConnectionRefused {
 			log.Debug("Vagrant entered invalid state while booting. We expect this to occur because user has closed the VM window. User was not notified. Complete output:")
 			log.Debug(vagrantOutput)
 			// This case should not be considered as an error
-			err = nil
-		} else {
-			log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", strings.Join(runArgs, " "), err))
-			log.Debug(vagrantOutput)
+			return nil
 		}
+
+		log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", strings.Join(runArgs, " "), err))
+		log.Debug(vagrantOutput)
 	}
 
 	return err
