@@ -158,7 +158,8 @@ func RunVBoxManage(args []string) (string, error) {
 
 		fixed, fixErr := detectAndFixDuplicateHardDiskProblem(vBoxManageOutput)
 		if !fixed || fixErr != nil {
-			log.Debug(fmt.Sprintf("Failed to fix problem with command %s (%v)", strings.Join(runArgs, " "), fixErr))
+			log.Debug(fmt.Sprintf("Failed to detect & fix duplicate hard disk problem: %v", fixErr))
+			return "",errors.New("failed to fix duplicate hard disk problem")
 		}
 
 		log.Debug(fmt.Sprintf("Retrying '%s' after fixing problem", strings.Join(runArgs, " ")))
