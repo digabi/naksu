@@ -7,6 +7,7 @@ import (
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
+	"naksu/xlate"
 	"os"
 	"path"
 	"regexp"
@@ -20,12 +21,22 @@ func Server() {
 	// chdir ~/ktp
 	if !mebroutines.ChdirVagrantDirectory() {
 		mebroutines.ShowErrorMessage("Could not change to vagrant directory ~/ktp")
+		return
 	}
 
 	// Start VM
 	progress.TranslateAndSetMessage("Starting Exam server. This takes a while.")
 	upRunParams := []string{"up"}
-	mebroutines.RunVagrant(upRunParams)
+	err := mebroutines.RunVagrant(upRunParams)
+
+	if err != nil {
+		if err.Error() == "macaddress/rtgetopt" {
+			mebroutines.ShowInfoMessage(xlate.Get("Server failed to start. This is typical in Windows after an update. Please try again to start the server."))
+		} else {
+			mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Failed to execute %s: %v"), "vagrant up", err))
+			return
+		}
+	}
 }
 
 // cleanUpTrashVMDirectories tries to find and delete leftover VM directories that only contain one .vbox file and nothing else
@@ -43,7 +54,7 @@ func cleanUpTrashVMDirectories() {
 	}
 
 	for _, entryInDefaultVMDirRoot := range entriesInDefaultVMDir {
-		if ! entryInDefaultVMDirRoot.IsDir() {
+		if !entryInDefaultVMDirRoot.IsDir() {
 			continue
 		}
 
@@ -64,7 +75,12 @@ func cleanUpTrashVMDirectories() {
 }
 
 func virtualBoxDefaultVMDirectory() (string, error) {
-	systemProperties := mebroutines.RunVBoxManage([]string{"list", "systemproperties"}, false)
+	systemProperties, err := mebroutines.RunVBoxManage([]string{"list", "systemproperties"})
+
+	if err != nil {
+		log.Debug("Failing to list system properties is not a fatal error, continuing normally")
+	}
+
 	defaultVMDirectoryRE := regexp.MustCompile(`Default machine folder:\s+(\S.*)`)
 	result := defaultVMDirectoryRE.FindStringSubmatch(systemProperties)
 	if len(result) > 1 {

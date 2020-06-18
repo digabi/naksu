@@ -116,4 +116,3 @@ func replaceVirtualBoxConfigWithFixedOne(fixedVirtualBoxConfigPath string, virtu
 
 	return nil
 }
-

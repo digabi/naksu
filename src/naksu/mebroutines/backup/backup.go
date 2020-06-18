@@ -57,14 +57,14 @@ func MakeBackup(backupPath string) error {
 	progress.TranslateAndSetMessage("Please wait, writing backup...")
 	cloneErr := makeClone(diskUUID, backupPath)
 	if cloneErr != nil {
-		return errors.New("writing backup failed")
+		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not back up disk %s to %s"), diskUUID, backupPath))
+	} else {
+		// Close backup media (detach it from VirtualBox disk management)
+		progress.TranslateAndSetMessage("Detaching backup disk image...")
+		cloneErr = deleteClone(backupPath)
 	}
 
-	// Close backup media (detach it from VirtualBox disk management)
-	progress.TranslateAndSetMessage("Detaching backup disk image...")
-	deleteClone(backupPath)
-
-	return nil
+	return cloneErr
 }
 
 func checkForFATFilesystem(backupPath string, vmDiskLocation string) error {
@@ -99,21 +99,26 @@ func checkForFATFilesystem(backupPath string, vmDiskLocation string) error {
 }
 
 func makeClone(diskUUID string, backupPath string) error {
-	vBoxManageOutput := mebroutines.RunVBoxManage([]string{"clonemedium", diskUUID, backupPath}, false)
+	vBoxManageOutput, err := mebroutines.RunVBoxManage([]string{"clonemedium", diskUUID, backupPath})
+
+	if err != nil {
+		return err
+	}
 
 	// Check whether clone was successful or not
 	matched, errRe := regexp.MatchString("Clone medium created in format 'VMDK'", vBoxManageOutput)
 	if errRe != nil || !matched {
 		// Failure
-		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not back up disk %s to %s"), diskUUID, backupPath))
-		return errors.New("backup failed")
+		log.Debug("VBoxManage output does not report successfull clone in format 'VMDK'")
+		return errors.New("backup failed: could not get correct response from vboxmanage")
 	}
 
 	return nil
 }
 
-func deleteClone(backupPath string) {
-	_ = mebroutines.RunVBoxManage([]string{"closemedium", backupPath}, true)
+func deleteClone(backupPath string) error {
+	_, err := mebroutines.RunVBoxManage([]string{"closemedium", backupPath})
+	return err
 }
 
 // GetBackupFilename returns generated filename

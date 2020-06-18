@@ -27,8 +27,8 @@ func SetLanguage(newLanguage string) {
 			"Network status: ":                     "Verkon tila: ",
 			"No network connection":                "Ei verkkoyhteyttä",
 			"Network speed is too low (%d Mbit/s)": "Verkon nopeus ei riitä (%d Mbit/s)",
-			"OK":                                   "OK",
-			"Wireless connection":                  "Langaton yhteys",
+			"OK": "OK",
+			"Wireless connection": "Langaton yhteys",
 
 			// Main window, other
 			"Current version: %s":                                                                        "Asennettu versio: %s",
@@ -85,9 +85,10 @@ func SetLanguage(newLanguage string) {
 			"Server was removed succesfully.": "Palvelimen poistaminen onnistui.",
 
 			// mebroutines
-			"command failed: %s":    "komento epäonnistui: %s",
-			"Failed to execute %s":  "Komennon suorittaminen epäonnistui: %s",
-			"Could not chdir to %s": "Hakemistoon %s siirtyminen epäonnistui",
+			"command failed: %s":       "komento epäonnistui: %s",
+			"Failed to execute %s":     "Komennon suorittaminen epäonnistui: %s",
+			"Failed to execute %s: %v": "Komennon suorittaminen epäonnistui: %s (%v)",
+			"Could not chdir to %s":    "Hakemistoon %s siirtyminen epäonnistui",
 			"Server failed to start. This is typical in Windows after an update. Please try again to start the server.": "Palvelimen käynnistys epäonnistui. Tämä on tyypillista Windows-koneissa päivityksen jälkeen. Yritä käynnistää palvelin uudelleen.",
 			"Error":   "Virhe",
 			"Warning": "Varoitus",
@@ -156,8 +157,8 @@ func SetLanguage(newLanguage string) {
 			"Network status :":                     "Nätverksstatus: ",
 			"No network connection":                "Inget nätverk",
 			"Network speed is too low (%d Mbit/s)": "Hastigheten är för låg (%d Mbit/s)",
-			"OK":                                   "OK",
-			"Wireless connection":                  "Trådlös anslutning",
+			"OK": "OK",
+			"Wireless connection": "Trådlös anslutning",
 
 			// Main window, other
 			"Current version: %s":                                                                        "Installerad version: %s",
@@ -214,9 +215,10 @@ func SetLanguage(newLanguage string) {
 			"Server was removed succesfully.": "Avlägsning av servern lyckades.",
 
 			// mebroutines
-			"command failed: %s":    "Komandot misslyckades: %s",
-			"Failed to execute %s":  "Utförning av komandot misslyckades: %s",
-			"Could not chdir to %s": "Förflyttning till katalogen %s misslyckades",
+			"command failed: %s":       "Komandot misslyckades: %s",
+			"Failed to execute %s":     "Utförning av komandot misslyckades: %s",
+			"Failed to execute %s: %v": "Utförning av komandot misslyckades: %s (%v)",
+			"Could not chdir to %s":    "Förflyttning till katalogen %s misslyckades",
 			"Server failed to start. This is typical in Windows after an update. Please try again to start the server.": "Startandet av servern misslyckades. Detta är typiskt i Windows efter en uppdatering. Vänligen försök igen för att starta servern.",
 			"Error":   "Fel",
 			"Warning": "Varning",
