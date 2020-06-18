@@ -193,6 +193,7 @@ func MediumSizeOnDisk(location string) (uint64, error) {
 	mediumInfo, err := mebroutines.RunVBoxManage([]string{"showmediuminfo", location})
 
 	if err != nil {
+		log.Debug(fmt.Sprintf("Could not get medium info to calculate its size: %v", err))
 		return 0, errors.New("failed to get medium size: could not execute vboxmanage")
 	}
 
