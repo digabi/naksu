@@ -15,29 +15,14 @@ import (
 )
 
 // GetServer downloads vagrantfile and starts server
-// nolint: gocyclo 
 func GetServer(newVagrantfilePath string) {
-	// Create ~/ktp if missing
-	progress.TranslateAndSetMessage("Creating ~/ktp")
-	ktpPath, errKtpPath := createKtpDir()
+	ktpPath, _, errDir := ensureNaksuDirectoriesExist()
 
-	if errKtpPath != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not create ~/ktp to %s"), ktpPath))
+	if errDir != nil {
+		log.Debug(fmt.Sprintf("Failed to ensure Naksu directories exist: %v", errDir))
+		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not create directory: %v"), errDir))
 		return
 	}
-
-	log.Debug(fmt.Sprintf("ktpPath is %s", ktpPath))
-
-	// Create ~/ktp-jako if missing
-	progress.TranslateAndSetMessage("Creating ~/ktp-jako")
-	ktpJakoPath, errKtpJakoDir := createKtpJakoDir()
-
-	if errKtpJakoDir != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not create ~/ktp-jako to %s"), ktpJakoPath))
-		return
-	}
-
-	log.Debug(fmt.Sprintf("ktpJakoPath is %s", ktpJakoPath))
 
 	var vagrantfilePath = filepath.Join(ktpPath, "Vagrantfile")
 
@@ -50,7 +35,7 @@ func GetServer(newVagrantfilePath string) {
 		errDownload := network.DownloadFile(constants.AbittiVagrantURL, abittiVagrantfilePath)
 		if errDownload != nil {
 			log.Debug(fmt.Sprintf("Download failed: %v", errDownload))
-			mebroutines.ShowWarningMessage(xlate.Get("Could not update Abitti stickless server. Please check your network connection."))
+			mebroutines.ShowErrorMessage(xlate.Get("Could not update Abitti stickless server. Please check your network connection."))
 			return
 		}
 
@@ -110,6 +95,30 @@ func GetServer(newVagrantfilePath string) {
 
 	progress.TranslateAndSetMessage("Downloading stickless server and starting it for the first time. This takes a long time...\n\nIf the server fails to start please try to start it again from the Naksu main menu.")
 	start.Server()
+}
+
+func ensureNaksuDirectoriesExist() (string, string, error) {
+	// Create ~/ktp if missing
+	progress.TranslateAndSetMessage("Creating ~/ktp")
+	ktpPath, errKtpPath := createKtpDir()
+
+	if errKtpPath != nil {
+		return "", "", fmt.Errorf("could not create ktp (%s): %v", ktpPath, errKtpPath)
+	}
+
+	log.Debug(fmt.Sprintf("ktpPath is %s", ktpPath))
+
+	// Create ~/ktp-jako if missing
+	progress.TranslateAndSetMessage("Creating ~/ktp-jako")
+	ktpJakoPath, errKtpJakoPath := createKtpJakoDir()
+
+	if errKtpJakoPath != nil {
+		return "", "", fmt.Errorf("could not create ktp-jako (%s): %v", ktpJakoPath, errKtpJakoPath)
+	}
+
+	log.Debug(fmt.Sprintf("ktpJakoPath is %s", ktpJakoPath))
+
+	return ktpPath, ktpJakoPath, nil
 }
 
 func createKtpDir() (string, error) {
