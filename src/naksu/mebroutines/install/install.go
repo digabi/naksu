@@ -16,15 +16,13 @@ import (
 
 // GetServer downloads vagrantfile and starts server
 func GetServer(newVagrantfilePath string) {
-	// Create ~/ktp if missing
-	progress.TranslateAndSetMessage("Creating ~/ktp")
-	var ktpPath = createKtpDir()
-	log.Debug(fmt.Sprintf("ktpPath is %s", ktpPath))
+	ktpPath, _, errDir := ensureNaksuDirectoriesExist()
 
-	// Create ~/ktp-jako if missing
-	progress.TranslateAndSetMessage("Creating ~/ktp-jako")
-	var ktpJakoPath = createKtpJakoDir()
-	log.Debug(fmt.Sprintf("ktpJakoPath is %s", ktpJakoPath))
+	if errDir != nil {
+		log.Debug(fmt.Sprintf("Failed to ensure Naksu directories exist: %v", errDir))
+		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not create directory: %v"), errDir))
+		return
+	}
 
 	var vagrantfilePath = filepath.Join(ktpPath, "Vagrantfile")
 
@@ -37,7 +35,7 @@ func GetServer(newVagrantfilePath string) {
 		errDownload := network.DownloadFile(constants.AbittiVagrantURL, abittiVagrantfilePath)
 		if errDownload != nil {
 			log.Debug(fmt.Sprintf("Download failed: %v", errDownload))
-			mebroutines.ShowWarningMessage(xlate.Get("Could not update Abitti stickless server. Please check your network connection."))
+			mebroutines.ShowErrorMessage(xlate.Get("Could not update Abitti stickless server. Please check your network connection."))
 			return
 		}
 
@@ -47,6 +45,7 @@ func GetServer(newVagrantfilePath string) {
 	// chdir ~/ktp
 	if !mebroutines.ChdirVagrantDirectory() {
 		mebroutines.ShowErrorMessage("Could not change to vagrant directory ~/ktp")
+		return
 	}
 
 	// If there is ~/ktp/Vagrantfile
@@ -54,53 +53,96 @@ func GetServer(newVagrantfilePath string) {
 		// Destroy current VM
 		progress.TranslateAndSetMessage("Destroying existing server")
 		destroyRunParams := []string{"destroy", "-f"}
-		mebroutines.RunVagrant(destroyRunParams)
+		errDestroy := mebroutines.RunVagrant(destroyRunParams)
+
+		if errDestroy != nil {
+			log.Debug("Failed to destroy the existing server while installing a new server")
+			mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Failed to execute %s: %v"), "vagrant destroy -f", errDestroy))
+			// This is only a warning as the "vagrant box update" is the critical command here
+		}
 
 		removeVagrantfile(vagrantfilePath)
 	}
 
 	progress.TranslateAndSetMessage("Copying Vagrantfile")
-	err := mebroutines.CopyFile(newVagrantfilePath, vagrantfilePath)
+	errCopy := mebroutines.CopyFile(newVagrantfilePath, vagrantfilePath)
 
-	if err != nil {
-		log.Debug(fmt.Sprintf("Copying failed, error: %v", err))
-		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Error while copying new Vagrantfile: %d"), err))
+	if errCopy != nil {
+		log.Debug(fmt.Sprintf("Failed to copy Vagrantfile, error: %v", errCopy))
+		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Error while copying new Vagrantfile: %d"), errCopy))
+		return
 	}
 
 	progress.TranslateAndSetMessage("Installing/updating VM: box update")
 	updateRunParams := []string{"box", "update"}
-	mebroutines.RunVagrant(updateRunParams)
+	errUpdate := mebroutines.RunVagrant(updateRunParams)
+
+	if errUpdate != nil {
+		log.Debug("Failed to install/update new box when installing a new server")
+		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Failed to execute %s: %v"), "vagrant box update", errUpdate))
+		return
+	}
 
 	progress.TranslateAndSetMessage("Installing/updating VM: box prune")
 	pruneRunParams := []string{"box", "prune"}
-	mebroutines.RunVagrant(pruneRunParams)
+	errPrune := mebroutines.RunVagrant(pruneRunParams)
+
+	if errPrune != nil {
+		log.Debug("Failed to prune new box when installing a new server")
+		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Failed to execute %s: %v"), "vagrant box prune", errPrune))
+		return
+	}
 
 	progress.TranslateAndSetMessage("Downloading stickless server and starting it for the first time. This takes a long time...\n\nIf the server fails to start please try to start it again from the Naksu main menu.")
 	start.Server()
 }
 
-func createKtpDir() string {
-	var ktpPath = mebroutines.GetVagrantDirectory()
+func ensureNaksuDirectoriesExist() (string, string, error) {
+	// Create ~/ktp if missing
+	progress.TranslateAndSetMessage("Creating ~/ktp")
+	ktpPath, errKtpPath := createKtpDir()
 
-	if !mebroutines.ExistsDir(ktpPath) {
-		if mebroutines.CreateDir(ktpPath) != nil {
-			mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not create ~/ktp to %s"), ktpPath))
-		}
+	if errKtpPath != nil {
+		return "", "", fmt.Errorf("could not create ktp (%s): %v", ktpPath, errKtpPath)
 	}
 
-	return ktpPath
+	log.Debug(fmt.Sprintf("ktpPath is %s", ktpPath))
+
+	// Create ~/ktp-jako if missing
+	progress.TranslateAndSetMessage("Creating ~/ktp-jako")
+	ktpJakoPath, errKtpJakoPath := createKtpJakoDir()
+
+	if errKtpJakoPath != nil {
+		return "", "", fmt.Errorf("could not create ktp-jako (%s): %v", ktpJakoPath, errKtpJakoPath)
+	}
+
+	log.Debug(fmt.Sprintf("ktpJakoPath is %s", ktpJakoPath))
+
+	return ktpPath, ktpJakoPath, nil
 }
 
-func createKtpJakoDir() string {
-	var ktpJakoPath = mebroutines.GetMebshareDirectory()
+func createKtpDir() (string, error) {
+	var ktpPath = mebroutines.GetVagrantDirectory()
 
-	if !mebroutines.ExistsDir(ktpJakoPath) {
-		if mebroutines.CreateDir(ktpJakoPath) != nil {
-			mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not create ~/ktp-jako to %s"), ktpJakoPath))
-		}
+	var err error
+
+	if !mebroutines.ExistsDir(ktpPath) {
+		err = mebroutines.CreateDir(ktpPath)
 	}
 
-	return ktpJakoPath
+	return ktpPath, err
+}
+
+func createKtpJakoDir() (string, error) {
+	var ktpJakoPath = mebroutines.GetMebshareDirectory()
+
+	var err error
+
+	if !mebroutines.ExistsDir(ktpJakoPath) {
+		err = mebroutines.CreateDir(ktpJakoPath)
+	}
+
+	return ktpJakoPath, err
 }
 
 func removeVagrantfile(vagrantfilePath string) {

@@ -10,7 +10,7 @@ import (
 	"naksu/ui/progress"
 )
 
-// Server destroys existing exam server
+// Server destroys existing exam server. The errors are reported upstream.
 func Server() error {
 	// chdir ~/ktp
 	if !mebroutines.ChdirVagrantDirectory() {
@@ -21,9 +21,9 @@ func Server() error {
 	// Start VM
 	progress.TranslateAndSetMessage("Removing exams. This takes a while.")
 	destroyRunParams := []string{mebroutines.GetVagrantPath(), "destroy", "-f"}
-	destroyOutput, destroyErr := mebroutines.RunAndGetOutput(destroyRunParams, false)
+	destroyOutput, err := mebroutines.RunAndGetOutput(destroyRunParams)
 
-	if destroyErr == nil {
+	if err == nil {
 		reBoxExists, errBoxExists := regexp.MatchString("Destroying VM and associated drives", destroyOutput)
 		reBoxNotCreated, errBoxNotCreated := regexp.MatchString("VM not created", destroyOutput)
 
@@ -36,9 +36,11 @@ func Server() error {
 			log.Debug("Destroy completed. There was no existing box but the destroy process finished without errors.")
 			return nil
 		}
+
+		err = errors.New("destroy was executed but success was not confirmed")
 	}
 
-	log.Debug(fmt.Sprintf("Could not remove exams. vagrant destroy says:\n%s", destroyOutput))
+	log.Debug(fmt.Sprintf("Could not remove exams (%v). vagrant destroy says:\n%s", err, destroyOutput))
 
-	return errors.New("failed to remove exams")
+	return err
 }
