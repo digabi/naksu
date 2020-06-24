@@ -2,8 +2,8 @@ package host
 
 import (
 	"fmt"
-	"strings"
 	"sort"
+	"strings"
 
 	"naksu/log"
 
@@ -106,7 +106,6 @@ func getMemoryString() string {
 	memoryData := getMemoryData()
 
 	var totalPhysicalMemory uint64
-	totalPhysicalMemory = 0
 
 	for thisMemoryRecord := range memoryData {
 		if memoryData[thisMemoryRecord].TotalPhysicalMemory > totalPhysicalMemory {
@@ -147,10 +146,13 @@ func GetHwLog() string {
 	memoryinfo := getMemoryString()
 	pnpentities := getPnpEntityString()
 
-	return fmt.Sprintf(`Processor Info
+	return fmt.Sprintf(`
+Processor Info
 %s
+
 Memory Info
 %s
+
 Plug-And-Play Devices
 %s`, cpuinfo, memoryinfo, pnpentities)
 }

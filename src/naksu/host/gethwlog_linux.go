@@ -38,14 +38,19 @@ func GetHwLog() string {
 	lspci := simpleRunAndGetOutput([]string{"lspci"})
 	lsusb := simpleRunAndGetOutput([]string{"lsusb"})
 
-	return fmt.Sprintf(`Output of /proc/cpuinfo
+	return fmt.Sprintf(`
+Output of /proc/cpuinfo
 %s
+
 Output of /proc/meminfo
 %s
+
 Output of lshw
 %s
+
 Output of lspci
 %s
+
 Output of lsusb
 %s`, cpuinfo, meminfo, lshw, lspci, lsusb)
 }
