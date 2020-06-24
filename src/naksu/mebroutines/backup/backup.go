@@ -26,14 +26,13 @@ func MakeBackup(backupPath string) error {
 	progress.TranslateAndSetMessage("Checking backup path...")
 	wrErr := mebroutines.CreateFile(backupPath)
 	if wrErr != nil {
-		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not write backup file %s. Try another location."), backupPath))
-		return errors.New("could not write backup file")
+		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not write test backup file %s. Try another location."), backupPath))
+		return fmt.Errorf("could not write test backup file: %v", wrErr)
 	}
 
 	remErr := os.Remove(backupPath)
 	if remErr != nil {
-		log.Debug("Backup remove returned error code")
-		return errors.New("removing backup returned error code")
+		return fmt.Errorf("removing test backup file returned error code: %v", remErr)
 	}
 
 	// Get disk UUID
@@ -43,26 +42,29 @@ func MakeBackup(backupPath string) error {
 	log.Debug(fmt.Sprintf("Disk UUID: %s", diskUUID))
 	log.Debug(fmt.Sprintf("Disk location: %s", diskLocation))
 	if diskUUID == "" || diskLocation == "" {
-		mebroutines.ShowWarningMessage(xlate.Get("Could not make backup: failed to get disk UUID or location"))
 		return errors.New("could not get disk uuid or location")
 	}
 
-	err := checkForFATFilesystem(backupPath, diskLocation)
-	if err != nil {
+	progress.TranslateAndSetMessage("Checking for FAT32 filesystem...")
+	errFAT := checkForFATFilesystem(backupPath, diskLocation)
+	if errFAT != nil {
 		mebroutines.ShowWarningMessage(xlate.Get("The backup file is too large for a FAT32 filesystem. Please reformat the backup disk as exFAT."))
-		return errors.New("writing backup failed")
+		return fmt.Errorf("backup file too large for fat32 filesystem")
 	}
 
 	// Make clone to path_backup
 	progress.TranslateAndSetMessage("Please wait, writing backup...")
 	cloneErr := makeClone(diskUUID, backupPath)
 	if cloneErr != nil {
-		return errors.New("writing backup failed")
+		return fmt.Errorf("failed to make clone: %v", cloneErr)
 	}
 
 	// Close backup media (detach it from VirtualBox disk management)
 	progress.TranslateAndSetMessage("Detaching backup disk image...")
-	deleteClone(backupPath)
+	deleteErr := deleteClone(backupPath)
+	if deleteErr != nil {
+		return fmt.Errorf("failed to detach disk image")
+	}
 
 	return nil
 }
@@ -99,21 +101,26 @@ func checkForFATFilesystem(backupPath string, vmDiskLocation string) error {
 }
 
 func makeClone(diskUUID string, backupPath string) error {
-	vBoxManageOutput := mebroutines.RunVBoxManage([]string{"clonemedium", diskUUID, backupPath})
+	vBoxManageOutput, err := mebroutines.RunVBoxManage([]string{"clonemedium", diskUUID, backupPath})
+
+	if err != nil {
+		return err
+	}
 
 	// Check whether clone was successful or not
 	matched, errRe := regexp.MatchString("Clone medium created in format 'VMDK'", vBoxManageOutput)
 	if errRe != nil || !matched {
 		// Failure
-		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not back up disk %s to %s"), diskUUID, backupPath))
-		return errors.New("backup failed")
+		log.Debug("VBoxManage output does not report successfull clone in format 'VMDK'")
+		return errors.New("backup failed: could not get correct response from vboxmanage")
 	}
 
 	return nil
 }
 
-func deleteClone(backupPath string) {
-	_ = mebroutines.RunVBoxManage([]string{"closemedium", backupPath})
+func deleteClone(backupPath string) error {
+	_, err := mebroutines.RunVBoxManage([]string{"closemedium", backupPath})
+	return err
 }
 
 // GetBackupFilename returns generated filename

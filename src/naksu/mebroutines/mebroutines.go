@@ -55,40 +55,17 @@ func getRunEnvironment() []string {
 	return runEnv
 }
 
-// Run executes command with arguments
-func Run(commandArgs []string) error {
-	log.Debug(fmt.Sprintf("run: %s", strings.Join(commandArgs, " ")))
-	/* #nosec */
-	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
-	cmd.Stdout = os.Stdout
-	cmd.Stdin = os.Stdin
-	cmd.Stderr = os.Stderr
-	cmd.Env = getRunEnvironment()
-
-	err := cmd.Run()
-	if err != nil {
-		ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s (%v)"), strings.Join(commandArgs, " "), err))
-	}
-
-	return err
-}
-
 // RunAndGetOutput runs command with arguments and returns output as a string
-func RunAndGetOutput(commandArgs []string, showWarningOnError bool) (string, error) {
+func RunAndGetOutput(commandArgs []string) (string, error) {
 	log.Debug(fmt.Sprintf("RunAndGetOutput: %s", strings.Join(commandArgs, " ")))
 	/* #nosec */
 	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
 	cmd.Env = getRunEnvironment()
 
 	out, err := cmd.CombinedOutput()
+
 	if err != nil {
-		// Executing failed, return error condition
-		if showWarningOnError {
-			ShowWarningMessage(fmt.Sprintf(xlate.Get("command failed: %s (%v)"), strings.Join(commandArgs, " "), err))
-		} else {
-			log.Debug(fmt.Sprintf(xlate.Get("command failed: %s (%v)"), strings.Join(commandArgs, " "), err))
-		}
-		return string(out), err
+		log.Debug(fmt.Sprintf(xlate.Get("command failed: %s (%v)"), strings.Join(commandArgs, " "), err))
 	}
 
 	if out != nil {
@@ -98,7 +75,7 @@ func RunAndGetOutput(commandArgs []string, showWarningOnError bool) (string, err
 		log.Debug("RunAndGetOutput returned NIL as combined STDOUT and STDERR")
 	}
 
-	return string(out), nil
+	return string(out), err
 }
 
 // RunAndGetError runs command with arguments and returns error code
@@ -133,7 +110,7 @@ func GetVagrantPath() string {
 }
 
 // RunVagrant executes Vagrant with given arguments
-func RunVagrant(args []string) {
+func RunVagrant(args []string) error {
 	runVagrant := []string{GetVagrantPath()}
 	runArgs := append(runVagrant, args...)
 	vagrantOutput, err := RunAndGetError(runArgs)
@@ -145,53 +122,54 @@ func RunVagrant(args []string) {
 			// We've obviously started the VM
 			log.Debug("Running vagrant gives me timeout - things are probably ok. User was not notified. Complete output:")
 			log.Debug(vagrantOutput)
+			// This case should not be considered as an error
+			return nil
 		} else if errMacAddress == nil && matchedMacAddress {
 			// Vagrant in Windows host give this error message - just restart vagrant and you're good
-			ShowInfoMessage(xlate.Get("Server failed to start. This is typical in Windows after an update. Please try again to start the server."))
+			log.Debug("Running vagrant gives me a known --macaddress/RTGetOpt error (generated every time by vagrant after a new box in Windows). Complete output:")
+			log.Debug(vagrantOutput)
+			return errors.New("macaddress/rtgetopt")
 		} else if errConnectionRefused == nil && matchedConnectionRefused {
 			log.Debug("Vagrant entered invalid state while booting. We expect this to occur because user has closed the VM window. User was not notified. Complete output:")
 			log.Debug(vagrantOutput)
-		} else {
-			log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", strings.Join(runArgs, " "), err))
-			log.Debug(vagrantOutput)
-			ShowWarningMessage(fmt.Sprintf(xlate.Get("Failed to execute %s (%v)"), strings.Join(runArgs, " "), err))
+			// This case should not be considered as an error
+			return nil
 		}
+
+		log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", strings.Join(runArgs, " "), err))
+		log.Debug(vagrantOutput)
 	}
+
+	return err
 }
 
 // RunVBoxManage runs vboxmanage command with given arguments
-func RunVBoxManage(args []string) string {
+func RunVBoxManage(args []string) (string, error) {
 	vboxmanagepathArr := []string{getVBoxManagePath()}
 	runArgs := append(vboxmanagepathArr, args...)
-	vBoxManageOutput, err := RunAndGetOutput(runArgs, false)
+	vBoxManageOutput, err := RunAndGetOutput(runArgs)
 	if err != nil {
 		logError := func(output string, err error) {
 			log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", strings.Join(runArgs, " "), err))
 			log.Debug(output)
-		}
-		showErrorAndQuit := func(err error) {
-			ShowErrorMessage(fmt.Sprintf(xlate.Get("Failed to execute %s (%v)"), strings.Join(runArgs, " "), err))
 		}
 
 		logError(vBoxManageOutput, err)
 
 		fixed, fixErr := detectAndFixDuplicateHardDiskProblem(vBoxManageOutput)
 		if !fixed || fixErr != nil {
-			log.Debug(fmt.Sprintf("Failed to fix problem with command %s (%v)", strings.Join(runArgs, " "), fixErr))
-			showErrorAndQuit(err)
+			log.Debug(fmt.Sprintf("Failed to detect & fix duplicate hard disk problem: %v", fixErr))
+			return "",errors.New("failed to fix duplicate hard disk problem")
 		}
 
 		log.Debug(fmt.Sprintf("Retrying '%s' after fixing problem", strings.Join(runArgs, " ")))
-		vBoxManageOutput, err = RunAndGetOutput(runArgs, false)
+		vBoxManageOutput, err = RunAndGetOutput(runArgs)
 		if err != nil {
 			logError(vBoxManageOutput, err)
-			showErrorAndQuit(err)
-		} else {
-			return vBoxManageOutput
 		}
 	}
 
-	return vBoxManageOutput
+	return vBoxManageOutput, err
 }
 
 // IfFoundVagrant returns true if Vagrant can be found in path
@@ -200,7 +178,7 @@ func IfFoundVagrant() bool {
 
 	runParams := []string{vagrantpath, "--version"}
 
-	vagrantVersion, err := RunAndGetOutput(runParams, false)
+	vagrantVersion, err := RunAndGetOutput(runParams)
 	if err != nil {
 		// No vagrant was found
 		return false
@@ -222,7 +200,7 @@ func IfFoundVBoxManage() bool {
 
 	runParams := []string{vboxmanagepath, "--version"}
 
-	vBoxManageVersion, err := RunAndGetOutput(runParams, false)
+	vBoxManageVersion, err := RunAndGetOutput(runParams)
 	if err != nil {
 		// No VBoxManage was found
 		return false
@@ -378,7 +356,7 @@ func chdir(chdirTo string) bool {
 	log.Debug(fmt.Sprintf("chdir %s", chdirTo))
 	err := os.Chdir(chdirTo)
 	if err != nil {
-		ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not chdir to %s"), chdirTo))
+		log.Debug(fmt.Sprintf("Could not chdir to %s: %v", chdirTo, err))
 		return false
 	}
 
@@ -402,17 +380,14 @@ func SetMainWindow(win *ui.Window) {
 
 // ShowErrorMessage shows error message popup to user
 func ShowErrorMessage(message string) {
-	fmt.Printf("FATAL ERROR: %s\n\n", message)
-	log.Debug(fmt.Sprintf("FATAL ERROR: %s", message))
+	fmt.Printf("ERROR: %s\n\n", message)
+	log.Debug(fmt.Sprintf("ERROR: %s", message))
 
 	// Show libui box if main window has been set with Set_main_window
 	if mainWindow != nil {
 		ui.QueueMain(func() {
 			ui.MsgBoxError(mainWindow, xlate.Get("Error"), message)
-			ui.Quit()
 		})
-	} else {
-		os.Exit(1)
 	}
 }
 

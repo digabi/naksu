@@ -30,7 +30,7 @@ type BlockDevice struct {
 func ListBlockDevices() (*LsblkOutput, error) {
 	runParams := []string{"lsblk", "-J", "-o", "NAME,FSTYPE,MOUNTPOINT,VENDOR,MODEL,HOTPLUG"}
 
-	lsblkJSON, lsblkErr := mebroutines.RunAndGetOutput(runParams, true)
+	lsblkJSON, lsblkErr := mebroutines.RunAndGetOutput(runParams)
 
 	log.Debug("lsblk says:")
 	log.Debug(lsblkJSON)

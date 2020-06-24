@@ -56,21 +56,27 @@ func SetCacheShowVMInfo(newShowVMInfo string) {
 	cacheShowVMInfo.updateStarted = 0
 }
 
-// getVBoxManageOutput executes "VBoxManage showvminfo".
-func getVBoxManageOutput() string {
+func getVMInfo() (string, error) {
 	boxID := getVagrantBoxID()
 	if boxID == "" {
-		return ""
+		return "", errors.New("could not get box id")
 	}
 
 	cacheShowVMInfo.updateStarted = time.Now().Unix()
-	return mebroutines.RunVBoxManage([]string{"showvminfo", "--machinereadable", boxID})
+
+	vboxManageOutput, err := mebroutines.RunVBoxManage([]string{"showvminfo", "--machinereadable", boxID})
+
+	if err != nil {
+		log.Debug("Failing to get VM info")
+	}
+
+	return vboxManageOutput, err
 }
 
 // getVMInfoRegexp returns result of the given vmRegexp from the current VBoxManage showvminfo
 // output. This function gets the output either from the cache or calls getVBoxManageOutput()
 func getVMInfoRegexp(vmRegexp string) string {
-	var vBoxManageOutput string
+	var rawVMInfo string
 
 	// There is a avail version fetch going on (break free after 240 loops)
 	// This locking avoids executing multiple instances of VBoxManage at the same time. Calling
@@ -85,17 +91,23 @@ func getVMInfoRegexp(vmRegexp string) string {
 	if cacheShowVMInfo.outputTimestamp < (time.Now().Unix() - constants.VBoxManageCacheTimeout) {
 		// Cache is too old or not set
 
-		vBoxManageOutput = getVBoxManageOutput()
-		SetCacheShowVMInfo(vBoxManageOutput)
-		log.Debug("getVMIInfoRegexp executed 'VBoxManage showvminfo' and updated cache")
+		var err error
+		rawVMInfo, err = getVMInfo()
+
+		if err != nil {
+			log.Debug(fmt.Sprintf("Could not update raw info of virtual machine: %v", err))
+		} else {
+			SetCacheShowVMInfo(rawVMInfo)
+			log.Debug("Raw info of virtual machine was updated successfully")
+		}
 	} else {
-		vBoxManageOutput = cacheShowVMInfo.output
+		rawVMInfo = cacheShowVMInfo.output
 		log.Debug("getVMIInfoRegexp got 'VBoxManage showvminfo' output from the cache")
 	}
 
 	// Extract server name
 	pattern := regexp.MustCompile(vmRegexp)
-	result := pattern.FindStringSubmatch(vBoxManageOutput)
+	result := pattern.FindStringSubmatch(rawVMInfo)
 
 	if len(result) > 1 {
 		return result[1]
@@ -177,7 +189,14 @@ func MediumSizeOnDisk(location string) (uint64, error) {
 	// According to documentation, showmediuminfo should also accept a disk uuid
 	// as a parameter, but that doesn't seem to be the case. To be safe, we'll
 	// use the location of the disk instead.
-	mediumInfo := mebroutines.RunVBoxManage([]string{"showmediuminfo", location})
+
+	mediumInfo, err := mebroutines.RunVBoxManage([]string{"showmediuminfo", location})
+
+	if err != nil {
+		log.Debug(fmt.Sprintf("Could not get medium info to calculate its size: %v", err))
+		return 0, errors.New("failed to get medium size: could not execute vboxmanage")
+	}
+
 	sizeOnDiskRE := regexp.MustCompile(`Size on disk:\s+(\d+)\s+MBytes`)
 	result := sizeOnDiskRE.FindStringSubmatch(mediumInfo)
 	if len(result) > 1 {

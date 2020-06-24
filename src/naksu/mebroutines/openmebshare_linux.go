@@ -23,7 +23,7 @@ func OpenMebShare() {
 
 	for _, thisOpener := range openers {
 		runParams := []string{thisOpener, mebSharePath}
-		output, err := RunAndGetOutput(runParams, false)
+		output, err := RunAndGetOutput(runParams)
 
 		if err == nil {
 			log.Debug("MEB share directory open output:")
