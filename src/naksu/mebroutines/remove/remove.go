@@ -34,6 +34,9 @@ func Server() error {
 		return err
 	}
 
+	// Close current debug file in case it is located in ~/ktp
+	log.SetDebugFilename("-")
+
 	progress.TranslateAndSetMessage("Deleting ~/ktp")
 	err = mebroutines.RemoveDir(mebroutines.GetVagrantDirectory())
 	if err != nil {

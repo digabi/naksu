@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,6 +14,7 @@ import (
 var isDebug bool
 var debugFilename string
 var logger *log.Logger
+var loggerWriter io.WriteCloser
 
 func appendLogFile(message string) {
 	if debugFilename != "" {
@@ -37,16 +39,31 @@ func SetDebug(newValue bool) {
 }
 
 // SetDebugFilename sets debug log path
+// Setting filename of "-" prints errors to standard error
 func SetDebugFilename(newFilename string) {
 	debugFilename = newFilename
 
-	lumberLog := lumberjack.Logger{
-		Filename:   debugFilename,
-		MaxSize:    1, // megabytes
-		MaxBackups: 3,
+	if loggerWriter != nil {
+		err := loggerWriter.Close()
+		if err != nil {
+			// nolint: gosec, errcheck
+			os.Stderr.WriteString(fmt.Sprintf("Could not close log file: %v", err))
+		}
 	}
 
-	logger = log.New(&lumberLog, "", log.Ldate|log.Ltime)
+	if newFilename == "-" {
+		loggerWriter = os.Stderr
+	} else {
+		lumberLog := lumberjack.Logger{
+			Filename:   debugFilename,
+			MaxSize:    1, // megabytes
+			MaxBackups: 3,
+		}
+
+		loggerWriter = &lumberLog
+	}
+
+	logger = log.New(loggerWriter, "", log.Ldate|log.Ltime)
 }
 
 // GetNewDebugFilename suggests a new debug log filename
