@@ -52,6 +52,7 @@ func getProcessorData() []Win32_Processor {
 	err := wmi.Query(query, &dst)
 	if err != nil {
 		log.Debug(fmt.Sprintf("getProcessorData() could not make WMI query: %v", err))
+		return []Win32_Processor{}
 	}
 
 	return dst
@@ -63,6 +64,7 @@ func getMemoryData() []Win32_ComputerSystem {
 	err := wmi.Query(query, &dst)
 	if err != nil {
 		log.Debug(fmt.Sprintf("getMemoryData() could not make WMI query: %v", err))
+		return []Win32_ComputerSystem{}
 	}
 
 	return dst
@@ -74,6 +76,7 @@ func getPnpEntityData() []Win32_PnPEntity {
 	err := wmi.Query(query, &dst)
 	if err != nil {
 		log.Debug(fmt.Sprintf("getPnpEntityData() could not make WMI query: %v", err))
+		return []Win32_PnPEntity{}
 	}
 
 	return dst
@@ -92,14 +95,14 @@ func getProcessorString() string {
 				processorData[thisProcessor].Manufacturer,
 				processorData[thisProcessor].Name,
 				processorData[thisProcessor].Caption,
-				GetWinProcessorAvailabilityLegend(processorData[thisProcessor].Availability),
+				getWinProcessorAvailabilityLegend(processorData[thisProcessor].Availability),
 				processorData[thisProcessor].CurrentClockSpeed,
 				processorData[thisProcessor].MaxClockSpeed,
 			),
 		)
 	}
 
-	return strings.Join(processorInfo[:], "\n")
+	return strings.Join(processorInfo, "\n")
 }
 
 func getMemoryString() string {
@@ -136,15 +139,52 @@ func getPnpEntityString() string {
 	// Sort in alphabetical order
 	sort.Strings(pnpEntities)
 
-	return strings.Join(pnpEntities[:], "\n")
+	return strings.Join(pnpEntities, "\n")
+}
+
+// getWinProcessorAvailabilityLegend returns legend for Win32_Processor Availability
+// code. It is used by getProcessorString (gethwlog_windows) and is implemented
+// here in order to get tested
+// See https://docs.microsoft.com/en-us/windows/win32/cimwin32prov/win32-processor
+func getWinProcessorAvailabilityLegend(legendCode uint16) string {
+  legends := [22]string{
+    "N/A",
+    "Other",
+    "Unknown",
+    "Running/Full Power",
+    "Warning",
+    "In Test",
+    "Not Applicable",
+    "Power Off",
+    "Off Line",
+    "Off Duty",
+    "Degraded",
+    "Not Installed",
+    "Install Error",
+    "Power Save - Unknown",
+    "Power Save - Low Power Mode",
+    "Power Save - Standby",
+    "Power Cycle",
+    "Power Save - Warning",
+    "Paused",
+    "Not Ready",
+    "Not Configured",
+    "Quiesced",
+  }
+
+  if int(legendCode) > len(legends) {
+    legendCode = 0
+  }
+
+  return legends[legendCode]
 }
 
 // GetHwLog returns a single string containing various hardware
 // information to be printed to a log file
 func GetHwLog() string {
-	cpuinfo := getProcessorString()
-	memoryinfo := getMemoryString()
-	pnpentities := getPnpEntityString()
+	cpuInfo := getProcessorString()
+	memoryInfo := getMemoryString()
+	pnpEntities := getPnpEntityString()
 
 	return fmt.Sprintf(`
 Processor Info
@@ -154,5 +194,5 @@ Memory Info
 %s
 
 Plug-And-Play Devices
-%s`, cpuinfo, memoryinfo, pnpentities)
+%s`, cpuInfo, memoryInfo, pnpEntities)
 }
