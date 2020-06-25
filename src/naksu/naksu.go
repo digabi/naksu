@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"naksu/config"
+	"naksu/host"
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/xlate"
@@ -58,6 +59,10 @@ func logDirectoryPaths() {
 	}
 }
 
+func logHardwareDetails() {
+	log.Debug(fmt.Sprintf("---Hardware data dump (start)\n%s\n---Hardware data dump (end)", host.GetHwLog()))
+}
+
 func main() {
 	// Load configuration if it exists
 	config.Load()
@@ -102,6 +107,8 @@ func main() {
 	log.Debug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
 
 	logDirectoryPaths()
+
+	logHardwareDetails()
 
 	// Check whether we have a terminal (restart with x-terminal-emulator, if missing)
 	if !mebroutines.ExistsStdin() {
