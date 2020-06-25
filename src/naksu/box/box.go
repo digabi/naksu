@@ -53,7 +53,6 @@ func getVagrantBoxID() string {
 func SetCacheShowVMInfo(newShowVMInfo string) {
 	cacheShowVMInfo.output = newShowVMInfo
 	cacheShowVMInfo.outputTimestamp = time.Now().Unix()
-	cacheShowVMInfo.updateStarted = 0
 }
 
 func getVMInfo() (string, error) {
@@ -67,8 +66,10 @@ func getVMInfo() (string, error) {
 	vboxManageOutput, err := mebroutines.RunVBoxManage([]string{"showvminfo", "--machinereadable", boxID})
 
 	if err != nil {
-		log.Debug("Failing to get VM info")
+		log.Debug(fmt.Sprintf("getVMInfo() failed to get VM info: %v", err))
 	}
+
+	cacheShowVMInfo.updateStarted = 0
 
 	return vboxManageOutput, err
 }
