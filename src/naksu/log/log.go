@@ -44,7 +44,11 @@ func SetDebugFilename(newFilename string) {
 	debugFilename = newFilename
 
 	if loggerWriter != nil {
-		loggerWriter.Close()
+		err := loggerWriter.Close()
+		if err != nil {
+			// nolint: gosec, errcheck
+			os.Stderr.WriteString(fmt.Sprintf("Could not close log file: %v", err))
+		}
 	}
 
 	if newFilename == "-" {
