@@ -17,14 +17,14 @@ import (
 // and results "Invalid class" exception.
 type Win32_Processor struct { //nolint
 	Availability      uint16
-	Caption           string
+	Caption           *string
 	CurrentClockSpeed uint32
-	Description       string
-	DeviceID          string
+	Description       *string
+	DeviceID          *string
 	LoadPercentage    uint16
-	Manufacturer      string
+	Manufacturer      *string
 	MaxClockSpeed     uint32
-	Name              string
+	Name              *string
 }
 
 type Win32_ComputerSystem struct { //nolint
@@ -40,10 +40,10 @@ type Win32_ComputerSystem struct { //nolint
 // The struct must be named with an underscore, otherwise it is not recognised
 // and results "Invalid class" exception.
 type Win32_PnPEntity struct { //nolint
-	PNPClass     string
-	Manufacturer string
-	Name         string
-	DeviceID     string
+	PNPClass     *string
+	Manufacturer *string
+	Name         *string
+	DeviceID     *string
 }
 
 func getProcessorData() []Win32_Processor {
@@ -91,10 +91,10 @@ func getProcessorString() string {
 		processorInfo = append(processorInfo,
 			fmt.Sprintf(
 				"%s: %s, %s, %s Availability: %s, CurrentClockSpeed: %d, MaxClockSpeed: %d",
-				processorData[thisProcessor].DeviceID,
-				processorData[thisProcessor].Manufacturer,
-				processorData[thisProcessor].Name,
-				processorData[thisProcessor].Caption,
+				*processorData[thisProcessor].DeviceID,
+				*processorData[thisProcessor].Manufacturer,
+				*processorData[thisProcessor].Name,
+				*processorData[thisProcessor].Caption,
 				getWinProcessorAvailabilityLegend(processorData[thisProcessor].Availability),
 				processorData[thisProcessor].CurrentClockSpeed,
 				processorData[thisProcessor].MaxClockSpeed,
@@ -128,10 +128,10 @@ func getPnpEntityString() string {
 		pnpEntities = append(pnpEntities,
 			fmt.Sprintf(
 				"%s %s %s [%s]",
-				pnpEntityData[thisEntity].PNPClass,
-				pnpEntityData[thisEntity].Manufacturer,
-				pnpEntityData[thisEntity].Name,
-				pnpEntityData[thisEntity].DeviceID,
+				*pnpEntityData[thisEntity].PNPClass,
+				*pnpEntityData[thisEntity].Manufacturer,
+				*pnpEntityData[thisEntity].Name,
+				*pnpEntityData[thisEntity].DeviceID,
 			),
 		)
 	}
