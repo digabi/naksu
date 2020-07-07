@@ -184,6 +184,11 @@ func GetDiskLocation() string {
 	return getVMInfoRegexp("\"SATA Controller-0-0\"=\"(.*)\"")
 }
 
+// GetLogDir returns the full path of VirtualBox log directory
+func GetLogDir() string {
+	return getVMInfoRegexp("LogFldr=\"(.*)\"")
+}
+
 // MediumSizeOnDisk returns the size of the current VM disk image on disk
 // (= the expected size of a VM backup) in megabytes.
 func MediumSizeOnDisk(location string) (uint64, error) {

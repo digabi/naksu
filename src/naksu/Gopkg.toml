@@ -52,10 +52,18 @@
 [[constraint]]
   name = "github.com/go-ini/ini"
   version = "1.39.0"
-  
+
 [[constraint]]
   name = "github.com/jessevdk/go-flags"
   branch = "master"
+
+[[constraint]]
+  name = "github.com/aws/aws-sdk-go"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/atotto/clipboard"
+  version = "0.1.2"
 
 [prune]
   go-tests = true
