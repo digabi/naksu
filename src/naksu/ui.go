@@ -780,7 +780,7 @@ func bindOnBackup(mainUIStatus chan string) {
 	backupWindow.OnClosing(func(*ui.Window) bool {
 		backupWindow.Hide()
 		enableUI(mainUIStatus)
-		return true
+		return false
 	})
 }
 
@@ -922,7 +922,7 @@ func RunUI() error {
 		window.OnClosing(func(*ui.Window) bool {
 			log.Debug("User exits through window exit")
 			ui.Quit()
-			return true
+			return false
 		})
 
 		window.Show()
