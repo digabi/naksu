@@ -36,7 +36,7 @@ func GetBackupMedia() map[string]string {
 // pointed to by backupPath is FAT32.
 func isFAT32(backupPath string) (bool, error) {
 	type Win32_Volume struct { // nolint
-		FileSystem string
+		FileSystem *string
 	}
 
 	driveLetter := filepath.VolumeName(backupPath)
@@ -49,7 +49,7 @@ func isFAT32(backupPath string) (bool, error) {
 		return false, err
 	}
 
-	return dst[0].FileSystem == "FAT32", nil
+	return *dst[0].FileSystem == "FAT32", nil
 }
 
 func getBackupMediaWindows() map[string]string {
