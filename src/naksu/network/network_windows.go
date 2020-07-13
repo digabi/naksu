@@ -16,7 +16,7 @@ import (
 // Win32_NetworkAdapter must be named with an underscore.
 // Otherwise it is not recognised, which results in an "Invalid class" exception.
 type Win32_NetworkAdapter struct { //nolint
-	Name            string
+	Name            *string
 	Speed           uint64
 	PhysicalAdapter bool
 	NetEnabled      bool
@@ -52,13 +52,13 @@ func GetExtInterfaces() []constants.AvailableSelection {
 	}
 
 	for thisInterface := range interfaces {
-		if isIgnoredExtInterfaceWindows(interfaces[thisInterface].Name) {
-			log.Debug(fmt.Sprintf("Ignoring external network interface '%s'", interfaces[thisInterface].Name))
+		if isIgnoredExtInterfaceWindows(*interfaces[thisInterface].Name) {
+			log.Debug(fmt.Sprintf("Ignoring external network interface '%s'", *interfaces[thisInterface].Name))
 		} else if interfaces[thisInterface].PhysicalAdapter {
 			linkSpeed := formatLinkSpeed(&interfaces[thisInterface])
 			physicalInterface := constants.AvailableSelection{
-				ConfigValue: interfaces[thisInterface].Name,
-				Legend:      fmt.Sprintf("%s (%s)", interfaces[thisInterface].Name, linkSpeed),
+				ConfigValue: *interfaces[thisInterface].Name,
+				Legend:      fmt.Sprintf("%s (%s)", *interfaces[thisInterface].Name, linkSpeed),
 			}
 
 			result = append(result, physicalInterface)
@@ -103,7 +103,7 @@ func CurrentLinkSpeed() uint64 {
 
 	var minLinkSpeed uint64 = math.MaxUint64
 	for _, thisInterface := range interfaces {
-		if !isIgnoredExtInterfaceWindows(thisInterface.Name) && thisInterface.Speed < minLinkSpeed {
+		if !isIgnoredExtInterfaceWindows(*thisInterface.Name) && thisInterface.Speed < minLinkSpeed {
 			minLinkSpeed = thisInterface.Speed
 		}
 	}
