@@ -932,15 +932,15 @@ func RunUI() error {
 		// Make sure we have vagrant
 		if !mebroutines.IfFoundVagrant() {
 			mebroutines.ShowErrorMessage(xlate.Get("Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?"))
-			log.Debug("Exiting as Vagrant is missing")
-			ui.Quit()
+			log.Debug("Vagrant is missing, disabling UI")
+			disableUI(mainUIStatus)
 		}
 
 		// Make sure we have VBoxManage
 		if !mebroutines.IfFoundVBoxManage() {
 			mebroutines.ShowErrorMessage(xlate.Get("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?"))
-			log.Debug("Exiting as VBoxManage is missing")
-			ui.Quit()
+			log.Debug("VBoxManage is missing, disabling UI")
+			disableUI(mainUIStatus)
 		}
 
 		// Make sure Hyper-V is not running
