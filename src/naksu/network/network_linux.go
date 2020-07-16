@@ -97,7 +97,7 @@ func getPCIDeviceLegend(vendor string, device string) (string, error) {
 	}
 
 	log.Debug(fmt.Sprintf("Did not find any matches from PCI database for key %s", searchKey))
-	return "", errors.New("No matching legend found")
+	return "", errors.New("no matching legend found")
 }
 
 func getExtInterfaceDefaultLegend(extInterface string) string {
