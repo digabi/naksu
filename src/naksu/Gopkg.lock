@@ -161,6 +161,14 @@
   revision = "1a4a6f06a1c643c8fbd339bd61d980960627d09e"
 
 [[projects]]
+  digest = "1:d541be58c42bf6025cb539e7f36df691d4b476359bf97d9296a521a63e688f3f"
+  name = "github.com/jaypipes/pcidb"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "98ef3ee36c69f20650fe7855047ad042338c6983"
+  version = "v0.5.0"
+
+[[projects]]
   branch = "master"
   digest = "1:4bb169ce06341a7c5e6c9a6734b25c606f59e2f765703301f92d159cf999672e"
   name = "github.com/jessevdk/go-flags"
@@ -289,6 +297,7 @@
     "github.com/dustin/go-humanize",
     "github.com/go-ini/ini",
     "github.com/intel-go/cpuid",
+    "github.com/jaypipes/pcidb",
     "github.com/jessevdk/go-flags",
     "github.com/kardianos/osext",
     "github.com/mitchellh/go-homedir",
