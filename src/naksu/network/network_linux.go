@@ -1,6 +1,7 @@
 package network
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -10,6 +11,7 @@ import (
 	"strings"
 
 	humanize "github.com/dustin/go-humanize"
+	"github.com/jaypipes/pcidb"
 
 	"naksu/config"
 	"naksu/constants"
@@ -22,16 +24,20 @@ const (
 	nicRegexEthernet = "^(en)|(em)|(eth)"
 )
 
-// extNicNixLegendRules is a map between regular expressions matching *nix device names
-// and user-friendly legends. This is necessary while we don't call lshw or similair
-// to description of the network devices
-var extNicNixLegendRules = []struct {
+// extNicNixDefaultLegendRules is a map between regular expressions matching *nix device names
+// and user-friendly legends. This map will be used if we cannot detect the real product name
+// from /sys/class/net/*/device/{vendor,device}
+var extNicNixDefaultLegendRules = []struct {
 	RegExp string
 	Legend string
 }{
 	{nicRegexWireless, "Wireless"},
 	{nicRegexEthernet, "Ethernet"},
 }
+
+// linuxPCIDatabase is a map reflecting the PCI device database. It will be initialised
+// by getPCIDeviceLegend()
+var linuxPCIDatabase *pcidb.PCIDB
 
 func getExtInterfaceSpeed(extInterface string) uint64 {
 	carrierPath := fmt.Sprintf("/sys/class/net/%s/carrier", extInterface)
@@ -68,8 +74,34 @@ func getExtInterfaceSpeed(extInterface string) uint64 {
 	return speedInt * 1000000
 }
 
-func getExtInterfaceLegend(extInterface string) string {
-	for _, table := range extNicNixLegendRules {
+func getPCIDeviceLegend(vendor string, device string) (string, error) {
+	searchKey := fmt.Sprintf("%s%s", strings.ToLower(vendor), strings.ToLower(device))
+	log.Debug(fmt.Sprintf("Getting device name from PCI database: %s", searchKey))
+
+	if linuxPCIDatabase == nil {
+		var err error
+		// Do not try to load PCI database from the network
+		pcidb.WithDisableNetworkFetch()
+		linuxPCIDatabase, err = pcidb.New()
+		if err != nil {
+			log.Debug(fmt.Sprintf("Could not initialise PCI database: %v", err))
+			return "", err
+		}
+	}
+
+	for key, devProduct := range linuxPCIDatabase.Products {
+		if key == searchKey {
+			log.Debug(fmt.Sprintf("Found device from PCI database: %s", devProduct.Name))
+			return devProduct.Name, nil
+		}
+	}
+
+	log.Debug(fmt.Sprintf("Did not find any matches from PCI database for key %s", searchKey))
+	return "", errors.New("No matching legend found")
+}
+
+func getExtInterfaceDefaultLegend(extInterface string) string {
+	for _, table := range extNicNixDefaultLegendRules {
 		matched, err := regexp.MatchString(table.RegExp, extInterface)
 		if err == nil && matched {
 			return table.Legend
@@ -77,6 +109,46 @@ func getExtInterfaceLegend(extInterface string) string {
 	}
 
 	return "Unknown device"
+}
+
+func getExtInterfaceLegend(extInterface string) string {
+	vendorPath := fmt.Sprintf("/sys/class/net/%s/device/vendor", extInterface)
+	devicePath := fmt.Sprintf("/sys/class/net/%s/device/device", extInterface)
+
+	defaultLegend := getExtInterfaceDefaultLegend(extInterface)
+
+	prepareID := func(idByte []byte) string {
+		idStr := string(idByte)
+		if len(idStr) < 6 {
+			return ""
+		}
+
+		return idStr[2:6]
+	}
+
+	/* #nosec */
+	vendor, errVendor := ioutil.ReadFile(vendorPath)
+	if errVendor != nil {
+		log.Debug(fmt.Sprintf("Trying to get vendor ID for %s but could not open %s for reading: %v", extInterface, vendorPath, errVendor))
+		return defaultLegend
+	}
+	vendorID := prepareID(vendor)
+
+	/* #nosec */
+	device, errDevice := ioutil.ReadFile(devicePath)
+	if errDevice != nil {
+		log.Debug(fmt.Sprintf("Trying to get device ID for %s but could not open %s for reading: %v", extInterface, devicePath, errDevice))
+		return defaultLegend
+	}
+	deviceID := prepareID(device)
+
+	pciLegend, errSearch := getPCIDeviceLegend(vendorID, deviceID)
+	if errSearch != nil {
+		log.Debug(fmt.Sprintf("Failed to get device legend for a PCI device %s:%s: %v", vendorID, deviceID, errSearch))
+		return defaultLegend
+	}
+
+	return pciLegend
 }
 
 func interfaceNames() []string {
@@ -156,14 +228,13 @@ func GetExtInterfaces() []constants.AvailableSelection {
 				var oneInterface constants.AvailableSelection
 				oneInterface.ConfigValue = interfaces[n].Name
 
-				// Some day we might use lshw or similar to get more user-friendly description
-				guessedLegend := getExtInterfaceLegend(interfaces[n].Name)
+				legend := getExtInterfaceLegend(interfaces[n].Name)
 
 				speed := getExtInterfaceSpeed(interfaces[n].Name)
 				if speed > 0 {
-					oneInterface.Legend = fmt.Sprintf("%s %s (%s)", guessedLegend, interfaces[n].Name, humanize.SI(float64(speed), "bit/s"))
+					oneInterface.Legend = fmt.Sprintf("%s %s (%s)", legend, interfaces[n].Name, humanize.SI(float64(speed), "bit/s"))
 				} else {
-					oneInterface.Legend = fmt.Sprintf("%s %s", guessedLegend, interfaces[n].Name)
+					oneInterface.Legend = fmt.Sprintf("%s %s", legend, interfaces[n].Name)
 				}
 
 				result = append(result, oneInterface)
