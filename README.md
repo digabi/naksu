@@ -91,7 +91,8 @@ and build a Mac OS X binary with
 
 `make darwin-docker`
 
-Mac OS X test version can be started with command `./bin/naksu-darwin
+Mac OS X test version can be started with command `./bin/naksu-darwin`
+
 ## Compilation details
 
 Preferred way to compile `naksu` is using Docker.
@@ -105,6 +106,7 @@ Make sure `go` points to your compiler or set `GO` to point your go binary (in `
 ### Building Linux version
 
 - Install `libgtk-3-dev` which is required by `libui`.
+- Install `libusb-1.0-0-dev` which is required by `github.com/google/gousb/usbid`.
 - Run `make update_libs` to get all required golang dependencies.
 - `make linux`
 

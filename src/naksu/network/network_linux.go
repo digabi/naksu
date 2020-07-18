@@ -11,6 +11,8 @@ import (
 	"strings"
 
 	humanize "github.com/dustin/go-humanize"
+	"github.com/google/gousb"
+	"github.com/google/gousb/usbid"
 	"github.com/jaypipes/pcidb"
 
 	"naksu/config"
@@ -22,6 +24,8 @@ import (
 const (
 	nicRegexWireless = "^w"
 	nicRegexEthernet = "^(en)|(em)|(eth)"
+	nicTypePCI       = 1
+	nicTypeUSB       = 2
 )
 
 // extNicNixDefaultLegendRules is a map between regular expressions matching *nix device names
@@ -74,9 +78,48 @@ func getExtInterfaceSpeed(extInterface string) uint64 {
 	return speedInt * 1000000
 }
 
+func getExtInterfaceType(extInterface string) int {
+	modaliasPath := fmt.Sprintf("/sys/class/net/%s/device/modalias", extInterface)
+
+	/* #nosec */
+	modaliasContent, err := ioutil.ReadFile(modaliasPath)
+	if err != nil {
+		log.Debug(fmt.Sprintf("Could not detect type of external network interface %s: %v", extInterface, err))
+		return 0
+	}
+
+	modaliasStr := string(modaliasContent)
+	if len(modaliasStr) >= 4 {
+		if modaliasStr[:4] == "usb:" {
+			return nicTypeUSB
+		}
+		if modaliasStr[:4] == "pci:" {
+			return nicTypePCI
+		}
+	}
+
+	log.Debug(fmt.Sprintf("Could not detect type of external network interface %s (%s): %s", extInterface, modaliasPath, modaliasStr))
+	return 0
+}
+
+func getExtInterfaceDefaultLegend(extInterface string) string {
+	for _, table := range extNicNixDefaultLegendRules {
+		matched, err := regexp.MatchString(table.RegExp, extInterface)
+		if err == nil && matched {
+			return table.Legend
+		}
+	}
+
+	return "Unknown device"
+}
+
 func getPCIDeviceLegend(vendor string, device string) (string, error) {
-	searchKey := fmt.Sprintf("%s%s", strings.ToLower(vendor), strings.ToLower(device))
-	log.Debug(fmt.Sprintf("Getting device name from PCI database: %s", searchKey))
+	vendor = strings.ToLower(vendor)
+	device = strings.ToLower(device)
+
+	log.Debug(fmt.Sprintf("Getting device name from PCI database: %s:%s", vendor, device))
+
+	searchKey := fmt.Sprintf("%s%s", vendor, device)
 
 	if linuxPCIDatabase == nil {
 		var err error
@@ -100,55 +143,125 @@ func getPCIDeviceLegend(vendor string, device string) (string, error) {
 	return "", errors.New("no matching legend found")
 }
 
-func getExtInterfaceDefaultLegend(extInterface string) string {
-	for _, table := range extNicNixDefaultLegendRules {
-		matched, err := regexp.MatchString(table.RegExp, extInterface)
-		if err == nil && matched {
-			return table.Legend
-		}
+func getUSBDeviceLegend(vendor string, product string) (string, error) {
+	var desc *gousb.DeviceDesc
+
+	log.Debug(fmt.Sprintf("Getting device name from USB database: %s:%s", vendor, product))
+
+	vendorInt, vendorErr := strconv.ParseUint(vendor, 16, 32)
+	if vendorErr != nil {
+		return "", fmt.Errorf("vendor id cannot be converted to hex: %v", vendorErr)
 	}
 
-	return "Unknown device"
+	productInt, productErr := strconv.ParseUint(product, 16, 32)
+	if productErr != nil {
+		return "", fmt.Errorf("product id cannot be converted to hex: %v", productErr)
+	}
+
+	desc = &gousb.DeviceDesc{Vendor: gousb.ID(vendorInt), Product: gousb.ID(productInt)}
+
+	legend := usbid.Describe(desc)
+	log.Debug(fmt.Sprintf("USB database gives following legend to device %s:%s: %s", vendor, product, legend))
+
+	return legend, nil
 }
 
-func getExtInterfaceLegend(extInterface string) string {
+func getPCIExtInterfaceLegend(extInterface string) (string, error) {
 	vendorPath := fmt.Sprintf("/sys/class/net/%s/device/vendor", extInterface)
 	devicePath := fmt.Sprintf("/sys/class/net/%s/device/device", extInterface)
 
-	defaultLegend := getExtInterfaceDefaultLegend(extInterface)
-
-	prepareID := func(idByte []byte) string {
+	prepareID := func(idByte []byte) (string, error) {
 		idStr := string(idByte)
 		if len(idStr) < 6 {
-			return ""
+			return "", fmt.Errorf("malformatted pci device code: %s", idStr)
 		}
 
-		return idStr[2:6]
+		return idStr[2:6], nil
 	}
 
 	/* #nosec */
 	vendor, errVendor := ioutil.ReadFile(vendorPath)
 	if errVendor != nil {
 		log.Debug(fmt.Sprintf("Trying to get vendor ID for %s but could not open %s for reading: %v", extInterface, vendorPath, errVendor))
-		return defaultLegend
+		return "", fmt.Errorf("failed to get vendor id for external pci network interface %s", extInterface)
 	}
-	vendorID := prepareID(vendor)
+	vendorID, vendorErr := prepareID(vendor)
+
+	if vendorErr != nil {
+		log.Debug(fmt.Sprintf("Failed to get PCI vendor ID for %s: %v", extInterface, vendorErr))
+		return "", vendorErr
+	}
 
 	/* #nosec */
 	device, errDevice := ioutil.ReadFile(devicePath)
 	if errDevice != nil {
 		log.Debug(fmt.Sprintf("Trying to get device ID for %s but could not open %s for reading: %v", extInterface, devicePath, errDevice))
-		return defaultLegend
+		return "", fmt.Errorf("failed to get device id for external pci network interface %s", extInterface)
 	}
-	deviceID := prepareID(device)
+	deviceID, deviceErr := prepareID(device)
+
+	if deviceErr != nil {
+		log.Debug(fmt.Sprintf("Failed to get PCI device ID for %s: %v", extInterface, deviceErr))
+		return "", deviceErr
+	}
 
 	pciLegend, errSearch := getPCIDeviceLegend(vendorID, deviceID)
 	if errSearch != nil {
 		log.Debug(fmt.Sprintf("Failed to get device legend for a PCI device %s:%s: %v", vendorID, deviceID, errSearch))
-		return defaultLegend
 	}
 
-	return pciLegend
+	return pciLegend, errSearch
+}
+
+func getUSBExtInterfaceLegend(extInterface string) (string, error) {
+	modaliasPath := fmt.Sprintf("/sys/class/net/%s/device/modalias", extInterface)
+
+	/* #nosec */
+	modaliasContent, err := ioutil.ReadFile(modaliasPath)
+	if err != nil {
+		log.Debug(fmt.Sprintf("Could not get vendor/product codes for external network interface %s: %v", extInterface, err))
+		return "", fmt.Errorf("could not get vendor/product codes for external network interface %s: %v", extInterface, err)
+	}
+
+	modaliasStr := string(modaliasContent)
+
+	if len(modaliasStr) > 14 {
+		vendorID := strings.ToLower(modaliasStr[5:9])
+		deviceID := strings.ToLower(modaliasStr[10:14])
+
+		usbLegend, errSearch := getUSBDeviceLegend(vendorID, deviceID)
+		if errSearch != nil {
+			log.Debug(fmt.Sprintf("Failed to get device legend for a USB device %s:%s: %v", vendorID, deviceID, errSearch))
+		}
+
+		return usbLegend, errSearch
+	}
+
+	return "", fmt.Errorf("malformatted modalias string for external network interface %s (%s): %s", extInterface, modaliasPath, modaliasStr)
+}
+
+func getExtInterfaceLegend(extInterface string) string {
+	// Defaults to generic legend derived from network name
+	var legend string
+	var err error
+
+	extInterfaceType := getExtInterfaceType(extInterface)
+
+	switch extInterfaceType {
+	case nicTypePCI:
+		legend, err = getPCIExtInterfaceLegend(extInterface)
+	case nicTypeUSB:
+		legend, err = getUSBExtInterfaceLegend(extInterface)
+	default:
+		err = fmt.Errorf("unknown network interface type: %d", extInterfaceType)
+	}
+
+	if err != nil {
+		log.Debug(fmt.Sprintf("Failed to get legend for external network interface %s: %v", extInterface, err))
+		legend = getExtInterfaceDefaultLegend(extInterface)
+	}
+
+	return legend
 }
 
 func interfaceNames() []string {
