@@ -168,6 +168,13 @@ However, please report these problems since we would like to make naksu as easy 
 ### 1.12.0 (19-JUL-2020)
 
 - Add button for sending logs to Abitti support to aid in problem solving.
+- Small fixes (avoid WMI queries to fail on null values, don't exit on missing utilities) (#37)
+- Fix crash when reopening dialogs after closing with native button
+- Log host hardware data to naksu_lastlog (#33)
+- Fix: "Remove server" failed to delete ~/ktp on Windows host (#35)
+- Avoid deadlock if showvminfo fails (#34)
+- Don't croak if VBoxManage returns error (#32)
+- Rotate naksu lastlog (#30)
 
 ### 1.11.2 (22-APR-2020)
 
