@@ -1,5 +1,7 @@
 package constants
 
+import "time"
+
 const (
 	// LowDiskLimit sets the warning level of low disk (in bytes)
 	LowDiskLimit uint64 = 50 * 1024 * 1024 * 1024 // 50 Gb
@@ -22,6 +24,16 @@ const (
 	// VBoxManageCacheTimeout is a timeout for executing VBoxManage showvminfo
 	// See naksu/box getVMInfoRegexp()
 	VBoxManageCacheTimeout int64 = 15
+
+	// LogCopyRequestFilename is for requesting logs from ktp
+	LogCopyRequestFilename = "_log_copy_requested"
+	// LogCopyDoneFilename is for detecting when log request is done
+	LogCopyDoneFilename    = "_log_copy_done"
+	// LogCopyStatusFilename is for progress info on log copying
+	LogCopyStatusFilename  = "_log_copy_status"
+
+	// LogRequestTimeout is the timeout for log request from ktp
+	LogRequestTimeout = 1 * time.Minute
 )
 
 // AvailableSelection is a struct for a UI/configuration option

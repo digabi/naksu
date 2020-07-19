@@ -11,6 +11,7 @@ import (
 	"naksu/constants"
 	"naksu/host"
 	"naksu/log"
+	"naksu/logdelivery"
 	"naksu/mebroutines"
 	"naksu/mebroutines/backup"
 	"naksu/mebroutines/destroy"
@@ -18,11 +19,12 @@ import (
 	"naksu/mebroutines/remove"
 	"naksu/mebroutines/start"
 	"naksu/network"
-	"naksu/ui/progress"
 	"naksu/ui/networkstatus"
+	"naksu/ui/progress"
 	"naksu/xlate"
 
 	"github.com/andlabs/ui"
+	"github.com/atotto/clipboard"
 	humanize "github.com/dustin/go-humanize"
 )
 
@@ -34,6 +36,7 @@ var buttonSwitchServer *ui.Button
 var buttonDestroyServer *ui.Button
 var buttonRemoveServer *ui.Button
 var buttonMakeBackup *ui.Button
+var buttonDeliverLogs *ui.Button
 var buttonMebShare *ui.Button
 
 var comboboxLang *ui.Combobox
@@ -72,6 +75,18 @@ var backupLabel *ui.Label
 
 var backupMediaPath []string
 
+// Log Delivery Window
+var logDeliveryWindow *ui.Window
+
+var logDeliveryBox *ui.Box
+var logDeliveryFilenameBox *ui.Box
+
+var logDeliveryFilenameLabelLabel *ui.Label
+var logDeliveryFilenameLabel *ui.Label
+var logDeliveryFilenameCopyButton *ui.Button
+var logDeliveryStatusLabel *ui.Label
+var logDeliveryButtonClose *ui.Button
+
 // Destroy Confirmation Window
 var destroyWindow *ui.Window
 
@@ -102,6 +117,7 @@ func createMainWindowElements() {
 	buttonDestroyServer = ui.NewButton("Remove Exams")
 	buttonRemoveServer = ui.NewButton("Remove Server")
 	buttonMakeBackup = ui.NewButton("Make Exam Server Backup")
+	buttonDeliverLogs = ui.NewButton("Send logs to Abitti support")
 	buttonMebShare = ui.NewButton("Open virtual USB stick (ktp-jako)")
 
 	// Define language setting combobox
@@ -176,6 +192,7 @@ func createMainWindowElements() {
 	boxAdvanced.Append(comboboxNic, false)
 	boxAdvanced.Append(ui.NewHorizontalSeparator(), false)
 	boxAdvanced.Append(buttonMakeBackup, true)
+	boxAdvanced.Append(buttonDeliverLogs, true)
 	boxAdvanced.Append(ui.NewHorizontalSeparator(), false)
 	boxAdvanced.Append(labelAdvancedUpdate, false)
 	boxAdvanced.Append(boxAdvancedUpdate, true)
@@ -228,6 +245,34 @@ func createBackupElements(backupMedia map[string]string) {
 
 	backupWindow.SetMargined(true)
 	backupWindow.SetChild(backupBox)
+}
+
+func createLogDeliveryElements() {
+	// Define Backup SaveAs window/dialog
+	logDeliveryFilenameLabelLabel = ui.NewLabel(xlate.Get("Filename for Abitti support:"))
+	logDeliveryFilenameLabel = ui.NewLabel(xlate.Get("Wait..."))
+	logDeliveryFilenameCopyButton = ui.NewButton(xlate.Get("Copy to clipboard"))
+	logDeliveryStatusLabel = ui.NewLabel(fmt.Sprintf(xlate.Get("Copying logs: %s"), xlate.Get("0 % (this can take a while...)")))
+	logDeliveryButtonClose = ui.NewButton(xlate.Get("Close"))
+
+	logDeliveryBox = ui.NewVerticalBox()
+	logDeliveryBox.SetPadded(true)
+
+	logDeliveryBox.Append(logDeliveryFilenameLabelLabel, false)
+
+	logDeliveryFilenameBox = ui.NewHorizontalBox()
+	logDeliveryFilenameBox.Append(logDeliveryFilenameLabel, true)
+	logDeliveryFilenameBox.Append(logDeliveryFilenameCopyButton, true)
+	logDeliveryFilenameBox.SetPadded(true)
+	logDeliveryBox.Append(logDeliveryFilenameBox, true)
+
+	logDeliveryBox.Append(ui.NewHorizontalSeparator(), false)
+	logDeliveryBox.Append(logDeliveryStatusLabel, false)
+	logDeliveryBox.Append(logDeliveryButtonClose, false)
+
+	logDeliveryWindow = ui.NewWindow("", 400, 1, false)
+	logDeliveryWindow.SetMargined(true)
+	logDeliveryWindow.SetChild(logDeliveryBox)
 }
 
 func createDestroyElements() {
@@ -461,6 +506,7 @@ func translateUILabels() {
 		buttonDestroyServer.SetText(xlate.Get("Remove Exams"))
 		buttonRemoveServer.SetText(xlate.Get("Remove Server"))
 		buttonMakeBackup.SetText(xlate.Get("Make Exam Server Backup"))
+		buttonDeliverLogs.SetText(xlate.Get("Send logs to Abitti support"))
 		buttonMebShare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
 
 		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), box.GetVersion()))
@@ -484,6 +530,11 @@ func translateUILabels() {
 		backupLabel.SetText(xlate.Get("Please select target path"))
 		backupButtonSave.SetText(xlate.Get("Save"))
 		backupButtonCancel.SetText(xlate.Get("Cancel"))
+
+		logDeliveryWindow.SetTitle(xlate.Get("naksu: Send Logs"))
+		logDeliveryFilenameLabelLabel.SetText(xlate.Get("Filename for Abitti support:"))
+		logDeliveryFilenameCopyButton.SetText(xlate.Get("Copy to clipboard"))
+		logDeliveryButtonClose.SetText(xlate.Get("Close"))
 
 		destroyWindow.SetTitle(xlate.Get("naksu: Remove Exams"))
 		destroyInfoLabel[0].SetText(xlate.Get("Remove Exams restores server to its initial status."))
@@ -726,6 +777,86 @@ func bindOnMakeBackup(mainUIStatus chan string) {
 	})
 }
 
+func setLogDeliveryLabelTextInGoroutine(text string) {
+	log.Debug(fmt.Sprintf("Log delivery status: %s", text))
+	ui.QueueMain(func() {
+		logDeliveryStatusLabel.SetText(text)
+	})
+}
+
+func bindOnDeliverLogs(mainUIStatus chan string) {
+	buttonDeliverLogs.OnClicked(func(*ui.Button) {
+		disableUI(mainUIStatus)
+		buttonDeliverLogs.Disable()
+
+		logDeliveryFilenameLabel.SetText(xlate.Get("Wait..."))
+		logDeliveryStatusLabel.SetText(fmt.Sprintf(xlate.Get("Copying logs: %s"), xlate.Get("0 % (this can take a while...)")))
+		logDeliveryWindow.Show()
+
+		go func() {
+			copyDoneChannel, copyProgressChannel := logdelivery.RequestLogsFromServer()
+			followLogCopyProgress(copyDoneChannel, copyProgressChannel)
+
+			logFilename, zipProgressChannel, zipErrorChannel := logdelivery.CollectLogsToZip()
+
+			ui.QueueMain(func() {
+				logDeliveryFilenameLabel.SetText(logFilename)
+			})
+
+			if followLogDeliveryZippingProgress(zipProgressChannel, zipErrorChannel) != nil {
+				return
+			}
+
+			if network.CheckIfNetworkAvailable() {
+				setLogDeliveryLabelTextInGoroutine(xlate.Get("Sending logs"))
+				err := logdelivery.SendLogs(logFilename, func(progress uint8) {
+					setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Sending logs: %d %%"), progress))
+				})
+				if err != nil {
+					setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Error sending logs: %s"), err))
+				} else {
+					setLogDeliveryLabelTextInGoroutine(xlate.Get("Logs sent!"))
+				}
+			} else {
+				setLogDeliveryLabelTextInGoroutine(xlate.Get("Cannot send logs because there is no Internet connection. Logs are in a zip archive in the ktp folder."))
+			}
+		}()
+	})
+}
+
+func followLogCopyProgress(copyDoneChannel chan bool, copyProgressChannel chan string) {
+	for {
+		select {
+		case copyDone := <-copyDoneChannel:
+			if copyDone {
+				setLogDeliveryLabelTextInGoroutine(xlate.Get("Done copying"))
+				return
+			}
+		case copyProgress := <-copyProgressChannel:
+			if copyProgress != "0 %" {
+				setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Copying logs: %s"), copyProgress))
+			}
+		}
+	}
+}
+
+func followLogDeliveryZippingProgress(zipProgressChannel chan uint8, zipErrorChannel chan error) error {
+	for {
+		select {
+		case zipProgress := <-zipProgressChannel:
+			if zipProgress <= 100 {
+				setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Zipping logs: %d %%"), zipProgress))
+			} else {
+				setLogDeliveryLabelTextInGoroutine(xlate.Get("Done zipping"))
+				return nil
+			}
+		case zipError := <-zipErrorChannel:
+			setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Error zipping logs: %s"), zipError))
+			return zipError
+		}
+	}
+}
+
 func bindOnMebShare() {
 	buttonMebShare.OnClicked(func(*ui.Button) {
 		log.Debug("Opening MEB share (~/ktp-jako)")
@@ -779,6 +910,28 @@ func bindOnBackup(mainUIStatus chan string) {
 
 	backupWindow.OnClosing(func(*ui.Window) bool {
 		backupWindow.Hide()
+		enableUI(mainUIStatus)
+		return false
+	})
+}
+
+func bindOnLogDelivery(mainUIStatus chan string) {
+	logDeliveryFilenameCopyButton.OnClicked(func(*ui.Button) {
+		err := clipboard.WriteAll(logDeliveryFilenameLabel.Text())
+		if err != nil {
+			log.Debug("Could not write to clipboard")
+		}
+	})
+
+	logDeliveryButtonClose.OnClicked(func(*ui.Button) {
+		logDeliveryWindow.Hide()
+		buttonDeliverLogs.Enable()
+		enableUI(mainUIStatus)
+	})
+
+	logDeliveryWindow.OnClosing(func(*ui.Window) bool {
+		logDeliveryWindow.Hide()
+		buttonDeliverLogs.Enable()
 		enableUI(mainUIStatus)
 		return false
 	})
@@ -875,6 +1028,7 @@ func RunUI() error {
 		createMainWindowElements()
 
 		createBackupElements(backupMedia)
+		createLogDeliveryElements()
 		createDestroyElements()
 		createRemoveElements()
 
@@ -911,11 +1065,13 @@ func RunUI() error {
 		bindOnGetServer(mainUIStatus)
 		bindOnSwitchServer(mainUIStatus)
 		bindOnMakeBackup(mainUIStatus)
+		bindOnDeliverLogs(mainUIStatus)
 		bindOnDestroyServer(mainUIStatus)
 		bindOnRemoveServer(mainUIStatus)
 		bindOnMebShare()
 
 		bindOnBackup(mainUIStatus)
+		bindOnLogDelivery(mainUIStatus)
 		bindOnDestroy(mainUIStatus)
 		bindOnRemove(mainUIStatus)
 
@@ -971,5 +1127,7 @@ func RunUI() error {
 		}
 
 		log.Debug(fmt.Sprintf("Currently installed box: %s %s", box.GetVersion(), box.GetType()))
+
+		logdelivery.DeleteLogCopyFiles()
 	})
 }
