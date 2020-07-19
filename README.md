@@ -165,6 +165,10 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 1.12.0 (19-JUL-2020)
+
+- Add button for sending logs to Abitti support to aid in problem solving.
+
 ### 1.11.2 (22-APR-2020)
 
 - Fix removable media listing when selecting a backup device on Ubuntu 18.04.
