@@ -21,11 +21,14 @@ import (
 	"naksu/mebroutines"
 )
 
+type nicType = int
+
 const (
 	nicRegexWireless = "^w"
 	nicRegexEthernet = "^(en)|(em)|(eth)"
-	nicTypePCI       = 1
-	nicTypeUSB       = 2
+	nicTypeUnknown   = iota
+	nicTypePCI
+	nicTypeUSB
 )
 
 // extNicNixDefaultLegendRules is a map between regular expressions matching *nix device names
@@ -78,7 +81,7 @@ func getExtInterfaceSpeed(extInterface string) uint64 {
 	return speedInt * 1000000
 }
 
-func getExtInterfaceType(extInterface string) int {
+func getExtInterfaceType(extInterface string) nicType {
 	modaliasPath := fmt.Sprintf("/sys/class/net/%s/device/modalias", extInterface)
 
 	/* #nosec */
@@ -88,18 +91,20 @@ func getExtInterfaceType(extInterface string) int {
 		return 0
 	}
 
+	// Sample modalias string:
+	// pci:v00008086d000024FBsv00008086sd00002110bc02sc80i00
 	modaliasStr := string(modaliasContent)
 	if len(modaliasStr) >= 4 {
-		if modaliasStr[:4] == "usb:" {
+		switch modaliasStr[:4] {
+		case "usb:":
 			return nicTypeUSB
-		}
-		if modaliasStr[:4] == "pci:" {
+		case "pci:":
 			return nicTypePCI
 		}
 	}
 
 	log.Debug(fmt.Sprintf("Could not detect type of external network interface %s (%s): %s", extInterface, modaliasPath, modaliasStr))
-	return 0
+	return nicTypeUnknown
 }
 
 func getExtInterfaceDefaultLegend(extInterface string) string {
@@ -225,6 +230,7 @@ func getUSBExtInterfaceLegend(extInterface string) (string, error) {
 
 	modaliasStr := string(modaliasContent)
 
+	// See http://people.skolelinux.org/pere/blog/Modalias_strings___a_practical_way_to_map__stuff__to_hardware.html
 	if len(modaliasStr) > 14 {
 		vendorID := strings.ToLower(modaliasStr[5:9])
 		deviceID := strings.ToLower(modaliasStr[10:14])
@@ -241,7 +247,7 @@ func getUSBExtInterfaceLegend(extInterface string) (string, error) {
 }
 
 func getExtInterfaceLegend(extInterface string) string {
-	// Defaults to generic legend derived from network name
+	// Defaults to generic device type derived from network name, see getExtInterfaceDefaultLegend()
 	var legend string
 	var err error
 
