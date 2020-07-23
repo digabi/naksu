@@ -141,6 +141,17 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:7784cd19b0c20bd9ddc181889e1a86baac8c1d735752f2cb3fb61ef2bf9fbe8f"
+  name = "github.com/google/gousb"
+  packages = [
+    ".",
+    "usbid",
+  ]
+  pruneopts = "UT"
+  revision = "e4c3f66a1571a02d7cae859fa0be08edcb940541"
+  version = "v1.1.0"
+
+[[projects]]
   branch = "master"
   digest = "1:f3b0cfd42716269884bf06df5d5be9e54161d5af0a2f0ccca08717928dd45fc5"
   name = "github.com/inconshreveable/go-update"
@@ -159,6 +170,14 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "1a4a6f06a1c643c8fbd339bd61d980960627d09e"
+
+[[projects]]
+  digest = "1:d541be58c42bf6025cb539e7f36df691d4b476359bf97d9296a521a63e688f3f"
+  name = "github.com/jaypipes/pcidb"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "98ef3ee36c69f20650fe7855047ad042338c6983"
+  version = "v0.5.0"
 
 [[projects]]
   branch = "master"
@@ -288,7 +307,10 @@
     "github.com/blang/semver",
     "github.com/dustin/go-humanize",
     "github.com/go-ini/ini",
+    "github.com/google/gousb",
+    "github.com/google/gousb/usbid",
     "github.com/intel-go/cpuid",
+    "github.com/jaypipes/pcidb",
     "github.com/jessevdk/go-flags",
     "github.com/kardianos/osext",
     "github.com/mitchellh/go-homedir",
