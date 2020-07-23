@@ -13,7 +13,8 @@ bin/go2xunit:
 	GOPATH=$(current_dir)/ go get github.com/tebeka/go2xunit
 
 checkstyle: bin/gometalinter
-	-GOOS=linux GOARCH=amd64 CGO_ENABLED=1 ./bin/gometalinter --deadline=240s --vendor --checkstyle ./src/naksu/... > checkstyle-linux.xml
+	-GOOS=linux GOARCH=amd64 CGO_ENABLED=1 ./bin/gometalinter --deadline=240s --vendor \
+		--exclude ./src/naksu/vendor/github.com/google/gousb --checkstyle ./src/naksu/... > checkstyle-linux.xml
 	-GOOS=windows GOARCH=amd64 CGO_ENABLED=1 ./bin/gometalinter --deadline=240s --vendor --checkstyle ./src/naksu/... > checkstyle-windows.xml
 
 lint: bin/gometalinter
