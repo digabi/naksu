@@ -18,6 +18,7 @@ linters:
     - ineffassign
     - interfacer
     - lll
+    - maligned
     - misspell
     - nakedret
     - scopelint
