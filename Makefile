@@ -7,8 +7,10 @@ RSRC=$(HOME)/go/bin/rsrc
 TESTS=naksu/mebroutines naksu/mebroutines/backup naksu naksu/box naksu/boxversion naksu/network
 
 bin/golangci-lint:
-	# 1.15.0 is latest supporting go 1.10
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.15.0
+	# 1.15.0 is latest officially supporting go 1.10
+	# however, it fails to run with -GOOS-windows (https://github.com/golangci/golangci-lint/issues/323)
+	# thus, we use 1.16.0
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.16.0
 
 bin/go2xunit:
 	GOPATH=$(current_dir)/ go get github.com/tebeka/go2xunit
