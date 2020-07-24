@@ -6,19 +6,19 @@ GO=go
 RSRC=$(HOME)/go/bin/rsrc
 TESTS=naksu/mebroutines naksu/mebroutines/backup naksu naksu/box naksu/boxversion naksu/network
 
-bin/gometalinter:
-	curl https://raw.githubusercontent.com/alecthomas/gometalinter/master/scripts/install.sh | sh
+bin/golangci-lint:
+	# 1.15.0 is latest supporting go 1.10
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.15.0
 
 bin/go2xunit:
 	GOPATH=$(current_dir)/ go get github.com/tebeka/go2xunit
 
-checkstyle: bin/gometalinter
-	-GOOS=linux GOARCH=amd64 CGO_ENABLED=1 ./bin/gometalinter --deadline=240s --vendor \
-		--exclude ./src/naksu/vendor/github.com/google/gousb --checkstyle ./src/naksu/... > checkstyle-linux.xml
-	-GOOS=windows GOARCH=amd64 CGO_ENABLED=1 ./bin/gometalinter --deadline=240s --vendor --checkstyle ./src/naksu/... > checkstyle-windows.xml
+checkstyle: bin/golangci-lint
+	-GOOS=linux GOARCH=amd64 CGO_ENABLED=1 ./bin/golangci-lint run --out-format checkstyle ./src/naksu/... > checkstyle-linux.xml
+	-GOOS=windows GOARCH=amd64 CGO_ENABLED=1 ./bin/golangci-lint run --out-format checkstyle ./src/naksu/... > checkstyle-windows.xml
 
-lint: bin/gometalinter
-	./bin/gometalinter --deadline=240s --vendor ./src/naksu/...
+lint: bin/golangci-lint
+	GOPATH=$(current_dir) ./bin/golangci-lint run --out-format checkstyle ./src/naksu/...
 
 ci-test: bin/go2xunit
 	2>&1 GOPATH=$(current_dir)/ go test -v $(TESTS) | ./bin/go2xunit -output tests.xml

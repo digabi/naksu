@@ -3,7 +3,8 @@ RUN apt-get update && apt-get -y install zip wget curl golang-1.10 libgtk-3-dev 
 ENV PATH="/usr/lib/go-1.10/bin/:/root/go/bin:${PATH}"
 RUN mkdir -p /root/go/bin && curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 COPY Makefile /app/
-RUN cd /app && make bin/gometalinter bin/go2xunit
+COPY .golangci.yaml /app/
+RUN cd /app && make bin/golangci-lint bin/go2xunit
 COPY phony-scripts /app/phony-scripts
 COPY res /app/res
 COPY src /app/src
