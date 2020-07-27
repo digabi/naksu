@@ -167,6 +167,10 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 1.12.1 (27-JUL-2020)
+
+- Show hardware info of network devices on Linux host (#38)
+
 ### 1.12.0 (19-JUL-2020)
 
 - Add button for sending logs to Abitti support to aid in problem solving.
