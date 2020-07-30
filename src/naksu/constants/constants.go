@@ -28,9 +28,9 @@ const (
 	// LogCopyRequestFilename is for requesting logs from ktp
 	LogCopyRequestFilename = "_log_copy_requested"
 	// LogCopyDoneFilename is for detecting when log request is done
-	LogCopyDoneFilename    = "_log_copy_done"
+	LogCopyDoneFilename = "_log_copy_done"
 	// LogCopyStatusFilename is for progress info on log copying
-	LogCopyStatusFilename  = "_log_copy_status"
+	LogCopyStatusFilename = "_log_copy_status"
 
 	// LogRequestTimeout is the timeout for log request from ktp
 	LogRequestTimeout = 1 * time.Minute
@@ -45,15 +45,15 @@ type AvailableSelection struct {
 // AvailableLangs is an array of possible language selection values.
 // The first value is the default.
 var AvailableLangs = []AvailableSelection{
-	AvailableSelection{
+	{
 		ConfigValue: "fi",
 		Legend:      "Suomeksi",
 	},
-	AvailableSelection{
+	{
 		ConfigValue: "sv",
 		Legend:      "På svenska",
 	},
-	AvailableSelection{
+	{
 		ConfigValue: "en",
 		Legend:      "In English",
 	},
@@ -62,27 +62,27 @@ var AvailableLangs = []AvailableSelection{
 // AvailableNics is an array of possible NIC selection values.
 // The first value is the default.
 var AvailableNics = []AvailableSelection{
-	AvailableSelection{
+	{
 		ConfigValue: "virtio",
 		Legend:      "virtio",
 	},
-	AvailableSelection{
+	{
 		ConfigValue: "Am79C970A",
 		Legend:      "Am79C970A",
 	},
-	AvailableSelection{
+	{
 		ConfigValue: "Am79C973",
 		Legend:      "Am79C973",
 	},
-	AvailableSelection{
+	{
 		ConfigValue: "82540EM",
 		Legend:      "82540EM",
 	},
-	AvailableSelection{
+	{
 		ConfigValue: "82543GC",
 		Legend:      "82543GC",
 	},
-	AvailableSelection{
+	{
 		ConfigValue: "82545EM",
 		Legend:      "82545EM",
 	},
@@ -90,7 +90,7 @@ var AvailableNics = []AvailableSelection{
 
 // DefaultExtNicArray is an array holding the default EXTNIC value
 var DefaultExtNicArray = []AvailableSelection{
-	AvailableSelection{
+	{
 		ConfigValue: "",
 		Legend:      "Select in terminal",
 	},

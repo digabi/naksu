@@ -57,7 +57,7 @@ func isHypervisorPresent() bool {
 	// This struct must be named with an underscore, otherwise it is not recognised
 	// and results "Invalid class" exception.
 	type Win32_ComputerSystem struct { //nolint
-		HypervisorPresent	bool
+		HypervisorPresent bool
 	}
 
 	var dst []Win32_ComputerSystem

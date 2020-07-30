@@ -17,7 +17,7 @@ func IsHWVirtualisation() bool {
 
 	ret, _, err := proc.Call(uintptr(PF_VIRT_FIRMWARE_ENABLED))
 
-	if (err != windows.ERROR_SUCCESS) {
+	if err != windows.ERROR_SUCCESS {
 		log.Debug(fmt.Sprintf("Error while making call to kernel32.dll, IsProcessorFeaturePresent: %v", err))
 		return false
 	}

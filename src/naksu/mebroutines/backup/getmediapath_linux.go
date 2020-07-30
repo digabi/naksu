@@ -55,7 +55,8 @@ func isFAT32(backupPath string) (bool, error) {
 func findBlockDevice(blockDevices []BlockDevice, mountPoint string) *BlockDevice {
 	for _, device := range blockDevices {
 		if mountPoint == device.MountPoint {
-			return &device
+			correctDevice := device
+			return &correctDevice
 		}
 
 		if len(device.Children) > 0 {

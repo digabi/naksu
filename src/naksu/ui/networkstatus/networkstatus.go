@@ -66,12 +66,14 @@ func Update() {
 		showNetworkStatus(xlate.Get("Wireless connection"), true)
 	} else {
 		linkSpeedMbit := network.CurrentLinkSpeed()
-		if linkSpeedMbit == 0 {
+
+		switch {
+		case linkSpeedMbit == 0:
 			showNetworkStatus(xlate.Get("No network connection"), true)
-		} else if linkSpeedMbit < 1000 {
+		case linkSpeedMbit < 1000:
 			statusText := fmt.Sprintf(xlate.Get("Network speed is too low (%d Mbit/s)"), linkSpeedMbit)
 			showNetworkStatus(statusText, true)
-		} else {
+		default:
 			showNetworkStatus(xlate.Get("OK"), false)
 		}
 	}

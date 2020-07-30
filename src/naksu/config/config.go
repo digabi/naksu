@@ -33,11 +33,11 @@ type defaultValue struct {
 }
 
 var defaults = []defaultValue{
-	defaultValue{"common", "iniVersion", strconv.FormatInt(1, 10)},
-	defaultValue{"common", "language", constants.AvailableLangs[0].ConfigValue},
-	defaultValue{"selfupdate", "disabled", strconv.FormatBool(false)},
-	defaultValue{"environment", "nic", constants.AvailableNics[0].ConfigValue},
-	defaultValue{"environment", "extnic", ""},
+	{"common", "iniVersion", strconv.FormatInt(1, 10)},
+	{"common", "language", constants.AvailableLangs[0].ConfigValue},
+	{"selfupdate", "disabled", strconv.FormatBool(false)},
+	{"environment", "nic", constants.AvailableNics[0].ConfigValue},
+	{"environment", "extnic", ""},
 }
 
 func fillDefaults() {

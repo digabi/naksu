@@ -1,8 +1,9 @@
 package mebroutines
 
 import (
-	"github.com/mitchellh/go-homedir"
 	"path/filepath"
+
+	"github.com/mitchellh/go-homedir"
 )
 
 func getVirtualBoxConfigPath() string {

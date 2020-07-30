@@ -1,12 +1,12 @@
 package box_test
 
 import (
-  "testing"
-  "naksu/box"
+	"naksu/box"
+	"testing"
 )
 
 func TestGetEverything(t *testing.T) {
-  sampleShowVmInfoOutput1 := `
+	sampleShowVMInfoOutput1 := `
   name="SERVER1919C v114"
   groups="/"
   ostype="Debian (32-bit)"
@@ -142,31 +142,31 @@ func TestGetEverything(t *testing.T) {
   GuestMemoryBalloon=0
   `
 
-  tables := []struct {
-    showVmInfoOutput string
-    expectedType string
-    expectedVersion string
-    expectedDiskUUID string
-  }{
-    {sampleShowVmInfoOutput1, "digabi/ktp-qa", "SERVER1919C v114", "ced7cfb7-82cd-4f36-9e83-c933ba0e0220"},
-  }
+	tables := []struct {
+		showVMInfoOutput string
+		expectedType     string
+		expectedVersion  string
+		expectedDiskUUID string
+	}{
+		{sampleShowVMInfoOutput1, "digabi/ktp-qa", "SERVER1919C v114", "ced7cfb7-82cd-4f36-9e83-c933ba0e0220"},
+	}
 
-  for _, table := range tables {
-    box.SetCacheShowVMInfo(table.showVmInfoOutput)
+	for _, table := range tables {
+		box.SetCacheShowVMInfo(table.showVMInfoOutput)
 
-    observedType := box.GetType()
-    if observedType != table.expectedType {
-      t.Errorf("GetType() returns '%s' instead of expected '%s'", observedType, table.expectedType)
-    }
+		observedType := box.GetType()
+		if observedType != table.expectedType {
+			t.Errorf("GetType() returns '%s' instead of expected '%s'", observedType, table.expectedType)
+		}
 
-    observedVersion := box.GetVersion()
-    if observedVersion != table.expectedVersion {
-      t.Errorf("GetVersion() returns '%s' instead of expected '%s'", observedVersion, table.expectedVersion)
-    }
+		observedVersion := box.GetVersion()
+		if observedVersion != table.expectedVersion {
+			t.Errorf("GetVersion() returns '%s' instead of expected '%s'", observedVersion, table.expectedVersion)
+		}
 
-    observedDiskUUID := box.GetDiskUUID()
-    if observedDiskUUID != table.expectedDiskUUID {
-      t.Errorf("GetDiskUUID() returns '%s' instead of expected '%s'", observedDiskUUID, table.expectedDiskUUID)
-    }
-  }
+		observedDiskUUID := box.GetDiskUUID()
+		if observedDiskUUID != table.expectedDiskUUID {
+			t.Errorf("GetDiskUUID() returns '%s' instead of expected '%s'", observedDiskUUID, table.expectedDiskUUID)
+		}
+	}
 }
