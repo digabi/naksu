@@ -818,7 +818,7 @@ func bindOnDeliverLogs(mainUIStatus chan string) {
 					setLogDeliveryLabelTextInGoroutine(xlate.Get("Logs sent!"))
 				}
 			} else {
-				setLogDeliveryLabelTextInGoroutine(xlate.Get("Cannot send logs because there is no Internet connection. Logs are in a zip archive in the ktp folder."))
+				setLogDeliveryLabelTextInGoroutine(xlate.Get("Cannot send logs because there is no Internet connection. Logs are in a zip archive in the ktp-jako folder."))
 			}
 		}()
 	})
