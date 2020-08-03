@@ -262,7 +262,13 @@ func createLogDeliveryElements() {
 
 	logDeliveryFilenameBox = ui.NewHorizontalBox()
 	logDeliveryFilenameBox.Append(logDeliveryFilenameLabel, true)
-	logDeliveryFilenameBox.Append(logDeliveryFilenameCopyButton, true)
+
+	if clipboard.Unsupported {
+		log.Debug("Not adding logDeliveryFilenameCopyButton as clipboard is unsupported. If you're on Linux, install xsel or xclip.")
+	} else {
+		logDeliveryFilenameBox.Append(logDeliveryFilenameCopyButton, true)
+	}
+
 	logDeliveryFilenameBox.SetPadded(true)
 	logDeliveryBox.Append(logDeliveryFilenameBox, true)
 
@@ -919,7 +925,7 @@ func bindOnLogDelivery(mainUIStatus chan string) {
 	logDeliveryFilenameCopyButton.OnClicked(func(*ui.Button) {
 		err := clipboard.WriteAll(logDeliveryFilenameLabel.Text())
 		if err != nil {
-			log.Debug("Could not write to clipboard")
+			log.Debug(fmt.Sprintf("Could not write to clipboard: %v", err))
 		}
 	})
 
