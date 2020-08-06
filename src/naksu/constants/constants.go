@@ -21,9 +21,9 @@ const (
 	// In seconds (5 minutes)
 	VagrantBoxAvailVersionDetailsCacheTimeout int64 = 5 * 60
 
-	// VBoxManageCacheTimeout is a timeout for executing VBoxManage showvminfo
-	// See naksu/box getVMInfoRegexp()
-	VBoxManageCacheTimeout int64 = 15
+	// VBoxManageCacheTimeout is a timeout for VBoxManage cache
+	// See naksu/box
+	VBoxManageCacheTimeout = 30 * time.Second
 
 	// LogCopyRequestFilename is for requesting logs from ktp
 	LogCopyRequestFilename = "_log_copy_requested"

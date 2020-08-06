@@ -7,7 +7,7 @@ import (
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
-	"naksu/xlate"
+	"naksu/box"
 	"os"
 	"path"
 	"regexp"
@@ -18,25 +18,13 @@ import (
 func Server() {
 	cleanUpTrashVMDirectories()
 
-	// chdir ~/ktp
-	if !mebroutines.ChdirVagrantDirectory() {
-		mebroutines.ShowErrorMessage("Could not change to vagrant directory ~/ktp")
+	err := box.StartCurrentBox()
+	if err != nil {
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not start VM: %v", err))
 		return
 	}
 
-	// Start VM
-	progress.TranslateAndSetMessage("Starting Exam server. This takes a while.")
-	upRunParams := []string{"up"}
-	err := mebroutines.RunVagrant(upRunParams)
-
-	if err != nil {
-		if err.Error() == "macaddress/rtgetopt" {
-			mebroutines.ShowInfoMessage(xlate.Get("Server failed to start. This is typical in Windows after an update. Please try again to start the server."))
-		} else {
-			mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Failed to execute %s: %v"), "vagrant up", err))
-			return
-		}
-	}
+	progress.SetMessage("Virtual machine was started")
 }
 
 // cleanUpTrashVMDirectories tries to find and delete leftover VM directories that only contain one .vbox file and nothing else

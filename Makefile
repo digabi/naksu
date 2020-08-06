@@ -4,7 +4,7 @@ GO=go
 # GO=/usr/lib/go-1.10/bin/go
 # Path to your rsrc executable (see README.md)
 RSRC=$(HOME)/go/bin/rsrc
-TESTS=naksu/mebroutines naksu/mebroutines/backup naksu naksu/box naksu/boxversion naksu/network
+TESTS=naksu/mebroutines naksu/mebroutines/backup naksu naksu/boxversion naksu/network
 
 bin/golangci-lint:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.30.0
