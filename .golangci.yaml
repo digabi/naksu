@@ -1,0 +1,35 @@
+linters-settings:
+  gocyclo:
+    min-complexity: 10
+
+linters:
+  disable-all: true
+  enable:
+    - deadcode
+    - depguard
+    - dupl
+    - errcheck
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - golint
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - interfacer
+    - maligned
+    - misspell
+    - nakedret
+    - scopelint
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck

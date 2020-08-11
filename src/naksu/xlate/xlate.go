@@ -7,6 +7,10 @@ var xlateStrings map[string]string
 func SetLanguage(newLanguage string) {
 	currentLanguage = newLanguage
 
+	xlateStrings = nil
+
+	// dupl thinks find this code segment equal with the Swedish translations
+	// nolint: dupl
 	if currentLanguage == "fi" {
 		xlateStrings = map[string]string{
 			// Main window, buttons
@@ -37,13 +41,13 @@ func SetLanguage(newLanguage string) {
 			"Error sending logs: %s": "Virhe lokitietojen lähetyksessä: %s",
 			"Logs sent!":             "Lokitiedot lähetetty!",
 			"Cannot send logs because there is no Internet connection. Logs are in a zip archive in the ktp folder.": "Lokitietoja ei voi lähettää, koska yhteys Internetiin ei toimi. Lokitiedot löytyvät zip-pakettina ktp-kansiosta.",
-			"Copying logs: %s":       "Lokitietoja kopioidaan: %s",
+			"Copying logs: %s":               "Lokitietoja kopioidaan: %s",
 			"0 % (this can take a while...)": "0 % (tässä voi mennä hetki...)",
-			"Done copying":           "Lokitiedot kopioitu",
-			"Zipping logs: %d %%":    "Lokitietoja pakataan: %d %%",
-			"Done zipping":           "Lokitiedot pakattu",
-			"Error zipping logs: %s": "Virhe lokitietojen pakkaamisessa: %s",
-			"Copy to clipboard":      "Kopioi leikepöydälle",
+			"Done copying":                   "Lokitiedot kopioitu",
+			"Zipping logs: %d %%":            "Lokitietoja pakataan: %d %%",
+			"Done zipping":                   "Lokitiedot pakattu",
+			"Error zipping logs: %s":         "Virhe lokitietojen pakkaamisessa: %s",
+			"Copy to clipboard":              "Kopioi leikepöydälle",
 
 			// Main window, other
 			"Current version: %s":             "Asennettu versio: %s",
@@ -79,7 +83,7 @@ func SetLanguage(newLanguage string) {
 			// Log delivery dialog
 			"naksu: Send Logs":             "naksu: Lähetä lokitiedot",
 			"Filename for Abitti support:": "Tiedostonimi Abitti-tuelle:",
-			"Wait...":						"Odota...",
+			"Wait...":                      "Odota...",
 			"Close":                        "Sulje",
 
 			// Destroy dialog
@@ -156,7 +160,11 @@ func SetLanguage(newLanguage string) {
 			"Abitti server":      "Abitti-palvelin",
 			"Matric Exam server": "Yo-palvelin",
 		}
-	} else if currentLanguage == "sv" {
+	}
+
+	// dupl thinks find this code segment equal with the Finnish translations
+	// nolint: dupl
+	if currentLanguage == "sv" {
 		xlateStrings = map[string]string{
 			// Main window, buttons
 			"Start Exam Server":                 "Starta provlokalsserver",
@@ -186,13 +194,13 @@ func SetLanguage(newLanguage string) {
 			"Error sending logs: %s": "Fel i skickande av logguppgifter: %s",
 			"Logs sent!":             "Logguppgifterna har skickats!",
 			"Cannot send logs because there is no Internet connection. Logs are in a zip archive in the ktp folder.": "Logguppgifterna kan inte skickas, eftersom anslutningen till Internet inte fungerar. Logguppgifterna finns sparade som en zip-fil i ktp-mappen.",
-			"Copying logs: %s":       "Kopierar logguppgifter: %s",
+			"Copying logs: %s":               "Kopierar logguppgifter: %s",
 			"0 % (this can take a while...)": "0 % (kan ta ett tag...)",
-			"Done copying":           "Logguppgifterna är kopierade",
-			"Zipping logs: %d %%":    "Komprimerar logguppgifter: %d %%",
-			"Done zipping":           "Logguppgifterna är komprimerade",
-			"Error zipping logs: %s": "Fel i komprimering av logguppgifter: %s",
-			"Copy to clipboard":      "Kopiera till urklipp",
+			"Done copying":                   "Logguppgifterna är kopierade",
+			"Zipping logs: %d %%":            "Komprimerar logguppgifter: %d %%",
+			"Done zipping":                   "Logguppgifterna är komprimerade",
+			"Error zipping logs: %s":         "Fel i komprimering av logguppgifter: %s",
+			"Copy to clipboard":              "Kopiera till urklipp",
 
 			// Main window, other
 			"Current version: %s":             "Installerad version: %s",
@@ -228,7 +236,7 @@ func SetLanguage(newLanguage string) {
 			// Log delivery dialog
 			"naksu: Send Logs":             "naksu: Skicka logguppgifterna",
 			"Filename for Abitti support:": "Filnamn för Abitti-stödet",
-			"Wait...":						"Vänta...",
+			"Wait...":                      "Vänta...",
 			"Close":                        "Stäng",
 
 			// Destroy dialog
@@ -305,8 +313,6 @@ func SetLanguage(newLanguage string) {
 			"Abitti server":      "Abitti-server",
 			"Matric Exam server": "Examensserver",
 		}
-	} else {
-		xlateStrings = nil
 	}
 }
 

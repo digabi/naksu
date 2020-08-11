@@ -1,70 +1,69 @@
 package boxversion_test
 
 import (
-  "testing"
-  "naksu/boxversion"
+	"naksu/boxversion"
+	"testing"
 )
 
-func TestGetVagrantBoxType (t *testing.T) {
-  tables := []struct {
-    vagrantVersionString string
-    vagrantBoxTypeString string
-  }{
-    {"", "-"},
-    {"digabi/foobar", "-"},
-    {"digabi/ktp-qa", "Abitti server"},
-    {"digabi/ktp-k2018-45489", "Matric Exam server"},
-  }
+func TestGetVagrantBoxType(t *testing.T) {
+	tables := []struct {
+		vagrantVersionString string
+		vagrantBoxTypeString string
+	}{
+		{"", "-"},
+		{"digabi/foobar", "-"},
+		{"digabi/ktp-qa", "Abitti server"},
+		{"digabi/ktp-k2018-45489", "Matric Exam server"},
+	}
 
-  for _, table := range tables {
-    boxType := boxversion.GetVagrantBoxType(table.vagrantVersionString)
-    if boxType != table.vagrantBoxTypeString {
-      t.Errorf("GetVagrantBoxType gives '%s' instead of '%s'", boxType, table.vagrantBoxTypeString)
-    }
-  }
+	for _, table := range tables {
+		boxType := boxversion.GetVagrantBoxType(table.vagrantVersionString)
+		if boxType != table.vagrantBoxTypeString {
+			t.Errorf("GetVagrantBoxType gives '%s' instead of '%s'", boxType, table.vagrantBoxTypeString)
+		}
+	}
 }
 
-func TestGetVagrantBoxTypeIsAbitti (t *testing.T) {
-  tables := []struct {
-    vagrantVersionString string
-    vagrantVersionIsAbitti bool
-  }{
-    {"", false},
-    {"digabi/foobar", false},
-    {"digabi/ktp-qa", true},
-    {"digabi/ktp-k2018-45489", false},
-  }
+func TestGetVagrantBoxTypeIsAbitti(t *testing.T) {
+	tables := []struct {
+		vagrantVersionString   string
+		vagrantVersionIsAbitti bool
+	}{
+		{"", false},
+		{"digabi/foobar", false},
+		{"digabi/ktp-qa", true},
+		{"digabi/ktp-k2018-45489", false},
+	}
 
-  for _, table := range tables {
-    boxIsAbitti := boxversion.GetVagrantBoxTypeIsAbitti(table.vagrantVersionString)
-    if boxIsAbitti != table.vagrantVersionIsAbitti {
-      t.Errorf("GetVagrantBoxTypeIsAbitti fails with parameter '%s'", table.vagrantVersionString)
-    }
-  }
+	for _, table := range tables {
+		boxIsAbitti := boxversion.GetVagrantBoxTypeIsAbitti(table.vagrantVersionString)
+		if boxIsAbitti != table.vagrantVersionIsAbitti {
+			t.Errorf("GetVagrantBoxTypeIsAbitti fails with parameter '%s'", table.vagrantVersionString)
+		}
+	}
 }
 
-func TestGetVagrantBoxTypeIsMatriculationExam (t *testing.T) {
-  tables := []struct {
-    vagrantVersionString string
-    vagrantVersionIsME bool
-  }{
-    {"", false},
-    {"digabi/foobar", false},
-    {"digabi/ktp-qa", false},
-    {"digabi/ktp-k2018-45489", true},
-  }
+func TestGetVagrantBoxTypeIsMatriculationExam(t *testing.T) {
+	tables := []struct {
+		vagrantVersionString string
+		vagrantVersionIsME   bool
+	}{
+		{"", false},
+		{"digabi/foobar", false},
+		{"digabi/ktp-qa", false},
+		{"digabi/ktp-k2018-45489", true},
+	}
 
-  for _, table := range tables {
-    boxIsME := boxversion.GetVagrantBoxTypeIsMatriculationExam(table.vagrantVersionString)
-    if boxIsME != table.vagrantVersionIsME {
-      t.Errorf("GetVagrantBoxTypeIsMatriculationExam fails with parameter '%s'", table.vagrantVersionString)
-    }
-  }
+	for _, table := range tables {
+		boxIsME := boxversion.GetVagrantBoxTypeIsMatriculationExam(table.vagrantVersionString)
+		if boxIsME != table.vagrantVersionIsME {
+			t.Errorf("GetVagrantBoxTypeIsMatriculationExam fails with parameter '%s'", table.vagrantVersionString)
+		}
+	}
 }
 
-
-func TestGetVagrantFileVersionAbitti (t *testing.T) {
-  sampleAbittiVagrantFileContent := `
+func TestGetVagrantFileVersionAbitti(t *testing.T) {
+	sampleAbittiVagrantFileContent := `
   # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
   VAGRANTFILE_API_VERSION = "2"
 
@@ -137,7 +136,7 @@ func TestGetVagrantFileVersionAbitti (t *testing.T) {
   end
 `
 
-  sampleMebVagrantFileContent := `
+	sampleMebVagrantFileContent := `
   # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
   VAGRANTFILE_API_VERSION = "2"
 
@@ -186,30 +185,30 @@ func TestGetVagrantFileVersionAbitti (t *testing.T) {
   end
 `
 
-  tables := []struct {
-    vagrantfileContent string
-    versionString string
-    versionType string
-    humanReadableBoxType string
-  }{
-    {sampleAbittiVagrantFileContent, "SERVER7108X v57", "digabi/ktp-qa", "Abitti server"},
-    {sampleMebVagrantFileContent, "SERVER7304M v37", "digabi/ktp-k2018-45489", "Matric Exam server"},
-  }
+	tables := []struct {
+		vagrantfileContent   string
+		versionString        string
+		versionType          string
+		humanReadableBoxType string
+	}{
+		{sampleAbittiVagrantFileContent, "SERVER7108X v57", "digabi/ktp-qa", "Abitti server"},
+		{sampleMebVagrantFileContent, "SERVER7304M v37", "digabi/ktp-k2018-45489", "Matric Exam server"},
+	}
 
-  for _, table := range tables {
-    versionType, versionString, _ := boxversion.GetVagrantVersionDetails(table.vagrantfileContent)
-    humanReadableBoxType := boxversion.GetVagrantBoxType(versionType)
+	for _, table := range tables {
+		versionType, versionString, _ := boxversion.GetVagrantVersionDetails(table.vagrantfileContent)
+		humanReadableBoxType := boxversion.GetVagrantBoxType(versionType)
 
-    if versionString != table.versionString {
-      t.Errorf("GetVagrantVersionDetails returns wrong version string \"%s\" instead of \"%s\"", versionString, table.versionString)
-    }
+		if versionString != table.versionString {
+			t.Errorf("GetVagrantVersionDetails returns wrong version string \"%s\" instead of \"%s\"", versionString, table.versionString)
+		}
 
-    if versionType != table.versionType {
-      t.Errorf("GetVagrantVersionDetails returns wrong type string \"%s\" instead of \"%s\"", versionType, table.versionType)
-    }
+		if versionType != table.versionType {
+			t.Errorf("GetVagrantVersionDetails returns wrong type string \"%s\" instead of \"%s\"", versionType, table.versionType)
+		}
 
-    if humanReadableBoxType != table.humanReadableBoxType {
-      t.Errorf("GetVagrantBoxType return wrong result \"%s\" instead of \"%s\" when called with parameter \"%s\"", humanReadableBoxType, table.humanReadableBoxType, versionType)
-    }
-  }
+		if humanReadableBoxType != table.humanReadableBoxType {
+			t.Errorf("GetVagrantBoxType return wrong result \"%s\" instead of \"%s\" when called with parameter \"%s\"", humanReadableBoxType, table.humanReadableBoxType, versionType)
+		}
+	}
 }
