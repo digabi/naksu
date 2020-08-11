@@ -2,15 +2,15 @@ package vboxmanage
 
 import (
 	"fmt"
+	"regexp"
 	"time"
-  "regexp"
 
-	"github.com/paulusrobin/go-memory-cache/memory-cache"
 	semver "github.com/blang/semver/v4"
+	memory_cache "github.com/paulusrobin/go-memory-cache/memory-cache"
 
+	"naksu/constants"
 	"naksu/log"
 	"naksu/mebroutines"
-  "naksu/constants"
 )
 
 var vBoxResponseCache memory_cache.Cache
@@ -111,7 +111,7 @@ func getVBoxManageVersionSemanticPart() (string, error) {
 		return matches[1], nil
 	}
 
-	return "", fmt.Errorf("Could not find semantic version string from VBoxManage version '%s'", output)
+	return "", fmt.Errorf("could not find semantic version string from vboxmanage version '%s'", output)
 }
 
 func GetVBoxManageVersion() (semver.Version, error) {
@@ -133,7 +133,7 @@ func GetVBoxManageVersion() (semver.Version, error) {
 			return errorVersion, fmt.Errorf("vboxmanage version %s is not a semantic version number: %v", vBoxManageVersionString, errSemVer)
 		}
 
-		errCache = vBoxResponseCache.Set("vboxmanageversion", fmt.Sprintf("%s", vBoxManageVersion), constants.VBoxManageCacheTimeout)
+		errCache = vBoxResponseCache.Set("vboxmanageversion", vBoxManageVersion.String(), constants.VBoxManageCacheTimeout)
 		if errCache != nil {
 			log.Debug(fmt.Sprintf("GetVBoxManageVersion() could not store version to cache: %v", errCache))
 		}
