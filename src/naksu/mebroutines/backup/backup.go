@@ -14,7 +14,7 @@ import (
 	"naksu/xlate"
 )
 
-// MakeBackup creates virtual maching backup to path
+// MakeBackup creates virtual machine backup to path
 func MakeBackup(backupPath string) error {
 	progress.TranslateAndSetMessage("Checking existing file...")
 	if mebroutines.ExistsFile(backupPath) {

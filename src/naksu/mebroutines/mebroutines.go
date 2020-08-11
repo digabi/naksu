@@ -116,20 +116,24 @@ func RunVagrant(args []string) error {
 	vagrantOutput, err := RunAndGetError(runArgs)
 	if err != nil {
 		matchedTimeout, errTimeout := regexp.MatchString("Timed out while waiting for the machine to boot", vagrantOutput)
-		matchedMacAddress, errMacAddress := regexp.MatchString("error: --macaddress: RTGetOpt: Command line option needs argument", vagrantOutput)
-		matchedConnectionRefused, errConnectionRefused := regexp.MatchString("The guest machine entered an invalid state", vagrantOutput)
 		if errTimeout == nil && matchedTimeout {
 			// We've obviously started the VM
 			log.Debug("Running vagrant gives me timeout - things are probably ok. User was not notified. Complete output:")
 			log.Debug(vagrantOutput)
 			// This case should not be considered as an error
 			return nil
-		} else if errMacAddress == nil && matchedMacAddress {
+		}
+
+		matchedMacAddress, errMacAddress := regexp.MatchString("error: --macaddress: RTGetOpt: Command line option needs argument", vagrantOutput)
+		if errMacAddress == nil && matchedMacAddress {
 			// Vagrant in Windows host give this error message - just restart vagrant and you're good
 			log.Debug("Running vagrant gives me a known --macaddress/RTGetOpt error (generated every time by vagrant after a new box in Windows). Complete output:")
 			log.Debug(vagrantOutput)
 			return errors.New("macaddress/rtgetopt")
-		} else if errConnectionRefused == nil && matchedConnectionRefused {
+		}
+
+		matchedConnectionRefused, errConnectionRefused := regexp.MatchString("The guest machine entered an invalid state", vagrantOutput)
+		if errConnectionRefused == nil && matchedConnectionRefused {
 			log.Debug("Vagrant entered invalid state while booting. We expect this to occur because user has closed the VM window. User was not notified. Complete output:")
 			log.Debug(vagrantOutput)
 			// This case should not be considered as an error
@@ -159,7 +163,7 @@ func RunVBoxManage(args []string) (string, error) {
 		fixed, fixErr := detectAndFixDuplicateHardDiskProblem(vBoxManageOutput)
 		if !fixed || fixErr != nil {
 			log.Debug(fmt.Sprintf("Failed to detect & fix duplicate hard disk problem: %v", fixErr))
-			return "",errors.New("failed to fix duplicate hard disk problem")
+			return "", errors.New("failed to fix duplicate hard disk problem")
 		}
 
 		log.Debug(fmt.Sprintf("Retrying '%s' after fixing problem", strings.Join(runArgs, " ")))
@@ -283,14 +287,14 @@ func CopyFile(src, dst string) (err error) {
 	in, err := os.Open(src)
 	if err != nil {
 		log.Debug(fmt.Sprintf("Copying failed while opening source file: %v", err))
-		return
+		return fmt.Errorf("could not open source file: %v", err)
 	}
 	defer Close(in)
 
 	out, err := os.Create(dst)
 	if err != nil {
 		log.Debug(fmt.Sprintf("Copying failed while opening destination file: %v", err))
-		return
+		return fmt.Errorf("could not open destination file: %v", err)
 	}
 	defer func() {
 		cerr := out.Close()
@@ -299,10 +303,15 @@ func CopyFile(src, dst string) (err error) {
 		}
 	}()
 	if _, err = io.Copy(out, in); err != nil {
-		return
+		return fmt.Errorf("error when copying data: %v", err)
 	}
 	err = out.Sync()
-	return
+	if err != nil {
+		log.Debug(fmt.Sprintf("Copying failed while syncing destination file: %v", err))
+		return fmt.Errorf("error when syncing destination file: %v", err)
+	}
+
+	return nil
 }
 
 // IfIntlCharsInPath returns true if path contains non-ASCII characters

@@ -740,11 +740,12 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 			// Path to ~/ktp/Vagrantfile
 			pathOldVagrantfile := filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile")
 
-			if pathNewVagrantfile == "" {
+			switch pathNewVagrantfile {
+			case "":
 				mebroutines.ShowWarningMessage(xlate.Get("Did not get a path for a new Vagrantfile"))
-			} else if pathNewVagrantfile == pathOldVagrantfile {
+			case pathOldVagrantfile:
 				mebroutines.ShowWarningMessage(xlate.Get("Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)"))
-			} else {
+			default:
 				go func() {
 					disableUI(mainUIStatus)
 					install.GetServer(pathNewVagrantfile)
@@ -943,6 +944,8 @@ func bindOnLogDelivery(mainUIStatus chan string) {
 	})
 }
 
+// dupl linter finds this too similar with bindOnRemove()
+// nolint: dupl
 func bindOnDestroy(mainUIStatus chan string) {
 	// Define actions for Destroy window/dialog
 
@@ -980,6 +983,8 @@ func bindOnDestroy(mainUIStatus chan string) {
 	})
 }
 
+// dupl linter finds this too similar with bindOnDestroy()
+// nolint: dupl
 func bindOnRemove(mainUIStatus chan string) {
 	// Define actions for Remove window/dialog
 
