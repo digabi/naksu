@@ -10,8 +10,7 @@ func SetLanguage(newLanguage string) {
 	xlateStrings = nil
 
 	// dupl thinks find this code segment equal with the Swedish translations
-	// goimports, gofmt complains alignments which are made by itself
-	// nolint: dupl, goimports, gofmt
+	// nolint: dupl
 	if currentLanguage == "fi" {
 		xlateStrings = map[string]string{
 			// Main window, buttons
@@ -33,8 +32,8 @@ func SetLanguage(newLanguage string) {
 			"Network status: ":                     "Verkon tila: ",
 			"No network connection":                "Ei verkkoyhteyttä",
 			"Network speed is too low (%d Mbit/s)": "Verkon nopeus ei riitä (%d Mbit/s)",
-			"OK": "OK",
-			"Wireless connection": "Langaton yhteys",
+			"OK":                                   "OK",
+			"Wireless connection":                  "Langaton yhteys",
 
 			// Main window, log delivery statys
 			"Sending logs":           "Lokitietoja lähetetään",
@@ -51,13 +50,13 @@ func SetLanguage(newLanguage string) {
 			"Copy to clipboard":              "Kopioi leikepöydälle",
 
 			// Main window, other
-			"Current version: %s":                                                                        "Asennettu versio: %s",
-			"Update available: %s":                                                                       "Päivitys saatavilla: %s",
-			"Network device:":                                                                            "Verkkolaite:",
-			"Select in terminal":                                                                         "Valitse pääteikkunassa",
-			"Server networking hardware:":                                                                "Palvelimen verkkolaite:",
-			"Install/update server for:":                                                                 "Asenna tai päivitä palvelin:",
-			"DANGER! Annihilate your server:":                                                            "VAARA! Palvelimen tuhoaminen:",
+			"Current version: %s":             "Asennettu versio: %s",
+			"Update available: %s":            "Päivitys saatavilla: %s",
+			"Network device:":                 "Verkkolaite:",
+			"Select in terminal":              "Valitse pääteikkunassa",
+			"Server networking hardware:":     "Palvelimen verkkolaite:",
+			"Install/update server for:":      "Asenna tai päivitä palvelin:",
+			"DANGER! Annihilate your server:": "VAARA! Palvelimen tuhoaminen:",
 			"Naksu could not check for updates as there is no network connection.":                       "Naksu ei voinut etsiä uusia versioita, koska verkkoyhteys puuttuu.",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n\nVirhe: %s",
 			"Did not get a path for a new Vagrantfile":                                                   "Uuden Vagrantfile-tiedoston sijainti on annettava",
@@ -78,8 +77,8 @@ func SetLanguage(newLanguage string) {
 			// Backup dialog
 			"naksu: SaveTo":             "naksu: Tallennuspaikka",
 			"Please select target path": "Valitse tallennuspaikka",
-			"Save":   "Tallenna",
-			"Cancel": "Peruuta",
+			"Save":                      "Tallenna",
+			"Cancel":                    "Peruuta",
 
 			// Log delivery dialog
 			"naksu: Send Logs":             "naksu: Lähetä lokitiedot",
@@ -88,7 +87,7 @@ func SetLanguage(newLanguage string) {
 			"Close":                        "Sulje",
 
 			// Destroy dialog
-			"naksu: Remove Exams":                                                   "naksu: Poista kokeet",
+			"naksu: Remove Exams": "naksu: Poista kokeet",
 			"Remove Exams restores server to its initial status.":                   "Kokeiden poistaminen palauttaa palvelimen alkutilaan.",
 			"Exams, responses and logs in the server will be irreversibly deleted.": "Kokeet, suoritukset ja lokitiedot poistetaan peruuttamattomasti.",
 			"It is recommended to back up your server before removing exams.":       "On suositeltavaa ottaa palvelimesta varmuuskopio ennen kokeiden poistamista.",
@@ -100,7 +99,7 @@ func SetLanguage(newLanguage string) {
 			"Failed to remove exams.":             "Kokeiden poistaminen epäonnistui.",
 
 			// Remove dialog
-			"naksu: Remove Server":                                        "naksu: Poista palvelin",
+			"naksu: Remove Server": "naksu: Poista palvelin",
 			"Removing server destroys it and all downloaded disk images.": "Palvelimen poistaminen tuhoaa sen ja kaikki ladatut levynkuvat.",
 			// Already defined: "Exams, responses and logs in the server will be irreversibly deleted."
 			"It is recommended to back up your server before removing server.": "On suositeltavaa ottaa palvelimesta varmuuskopio ennen poistamista.",
@@ -164,8 +163,7 @@ func SetLanguage(newLanguage string) {
 	}
 
 	// dupl thinks find this code segment equal with the Finnish translations
-	// goimports, gofmt complains alignments which are made by itself
-	// nolint: dupl, goimports, gofmt
+	// nolint: dupl
 	if currentLanguage == "sv" {
 		xlateStrings = map[string]string{
 			// Main window, buttons
@@ -187,8 +185,8 @@ func SetLanguage(newLanguage string) {
 			"Network status :":                     "Nätverksstatus: ",
 			"No network connection":                "Inget nätverk",
 			"Network speed is too low (%d Mbit/s)": "Hastigheten är för låg (%d Mbit/s)",
-			"OK": "OK",
-			"Wireless connection": "Trådlös anslutning",
+			"OK":                                   "OK",
+			"Wireless connection":                  "Trådlös anslutning",
 
 			// Main window, log delivery statys
 			"Sending logs":           "Skickar logguppgifter",
@@ -205,13 +203,13 @@ func SetLanguage(newLanguage string) {
 			"Copy to clipboard":              "Kopiera till urklipp",
 
 			// Main window, other
-			"Current version: %s":                                                                        "Installerad version: %s",
-			"Update available: %s":                                                                       "Uppdatering tillgänglig: %s",
-			"Network device:":                                                                            "Nätverksanordning:",
-			"Select in terminal":                                                                         "Välj i terminalen",
-			"Server networking hardware:":                                                                "Servernätverkshårdvara:",
-			"Install/update server for:":                                                                 "Installera eller uppdatera server för:",
-			"DANGER! Annihilate your server:":                                                            "FARA! Förstörning av servern:",
+			"Current version: %s":             "Installerad version: %s",
+			"Update available: %s":            "Uppdatering tillgänglig: %s",
+			"Network device:":                 "Nätverksanordning:",
+			"Select in terminal":              "Välj i terminalen",
+			"Server networking hardware:":     "Servernätverkshårdvara:",
+			"Install/update server for:":      "Installera eller uppdatera server för:",
+			"DANGER! Annihilate your server:": "FARA! Förstörning av servern:",
 			"Naksu could not check for updates as there is no network connection.":                       "Naksu kunde inte söka nya uppdateringar för att nätförbindelse saknades.",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Uppdateringen av Naksu misslyckades. Du saknar möjligtvis nätförbindelse för tillfället?\n\nFel: %s",
 			"Did not get a path for a new Vagrantfile":                                                   "Ge sökvägen för den nya Vagrantfile-filen",
@@ -232,8 +230,8 @@ func SetLanguage(newLanguage string) {
 			// Backup dialog
 			"naksu: SaveTo":             "naksu: Spara till ",
 			"Please select target path": "Välj sökväg",
-			"Save":   "Spara",
-			"Cancel": "Avbryt",
+			"Save":                      "Spara",
+			"Cancel":                    "Avbryt",
 
 			// Log delivery dialog
 			"naksu: Send Logs":             "naksu: Skicka logguppgifterna",
@@ -242,7 +240,7 @@ func SetLanguage(newLanguage string) {
 			"Close":                        "Stäng",
 
 			// Destroy dialog
-			"naksu: Remove Exams":                                                   "naksu: Avlägsna proven",
+			"naksu: Remove Exams": "naksu: Avlägsna proven",
 			"Remove Exams restores server to its initial status.":                   "Avlägsnandet av proven återställer servern till sitt ursprungsläge.",
 			"Exams, responses and logs in the server will be irreversibly deleted.": "Alla prov, loggfiler och svar på servern avlägsnas oåterkalleligt.",
 			"It is recommended to back up your server before removing exams.":       "Det är rekommenderat att ta en säkerhetskopia av servern före proven avlägsnas.",
@@ -254,7 +252,7 @@ func SetLanguage(newLanguage string) {
 			"Failed to remove exams.":             "Avlägsning av proven misslyckades.",
 
 			// Remove dialog
-			"naksu: Remove Server":                                        "naksu: Avlägsna servern",
+			"naksu: Remove Server": "naksu: Avlägsna servern",
 			"Removing server destroys it and all downloaded disk images.": "Avlägsnandet av servern förstör den och alla nerladdade skivavbilder.",
 			// Already defined: "Exams, responses and logs in the server will be irreversibly deleted."
 			"It is recommended to back up your server before removing server.": "Det är rekommenderat att ta en säkerhetskopia av servern före den avlägsnas.",
