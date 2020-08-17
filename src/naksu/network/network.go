@@ -23,9 +23,9 @@ func CheckIfNetworkAvailable() bool {
 // testHTTPGet tests whether HTTP get succeeds to given URL in given timeout (seconds)
 func testHTTPGet(url string, timeout int) bool {
 	// Set timeout for a HTTP client
-	timeoutSeconds := time.Duration(timeout) * time.Second
+	timeoutDuration := time.Duration(timeout) * time.Second
 	client := http.Client{
-		Timeout: timeoutSeconds,
+		Timeout: timeoutDuration,
 	}
 
 	/* #nosec */

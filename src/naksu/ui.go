@@ -993,7 +993,7 @@ func bindOnRemove(mainUIStatus chan string) {
 				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Error while removing server: %v"), err))
 				progress.SetMessage(fmt.Sprintf(xlate.Get("Error while removing server: %v"), err))
 			} else {
-				progress.TranslateAndSetMessage("Server was removed succesfully.")
+				progress.TranslateAndSetMessage("Server was removed successfully.")
 			}
 
 			// Update installed version label

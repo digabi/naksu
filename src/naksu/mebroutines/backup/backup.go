@@ -111,7 +111,7 @@ func makeClone(diskUUID string, backupPath string) error {
 	matched, errRe := regexp.MatchString("Clone medium created in format 'VMDK'", vBoxManageOutput)
 	if errRe != nil || !matched {
 		// Failure
-		log.Debug("VBoxManage output does not report successfull clone in format 'VMDK'")
+		log.Debug("VBoxManage output does not report successful clone in format 'VMDK'")
 		return errors.New("backup failed: could not get correct response from vboxmanage")
 	}
 
