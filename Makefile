@@ -10,20 +10,20 @@ bin/golangci-lint:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.30.0
 
 bin/go2xunit:
-	GOPATH=$(current_dir)/ go get github.com/tebeka/go2xunit
+	go get github.com/tebeka/go2xunit
 
 checkstyle: bin/golangci-lint
-	-cd src/naksu && GOOS=linux GOARCH=amd64 CGO_ENABLED=1 GOPATH=$(current_dir)/ ../../bin/golangci-lint run --timeout 5m0s --out-format checkstyle > $(current_dir)/checkstyle-linux.xml
-	-cd src/naksu && GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ GOPATH=$(current_dir)/ ../../bin/golangci-lint run --timeout 5m0s --out-format checkstyle > $(current_dir)/checkstyle-windows.xml
+	-cd src/naksu && GOOS=linux GOARCH=amd64 CGO_ENABLED=1 ../../bin/golangci-lint run --timeout 5m0s --out-format checkstyle > $(current_dir)/checkstyle-linux.xml
+	-cd src/naksu && GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ../../bin/golangci-lint run --timeout 5m0s --out-format checkstyle > $(current_dir)/checkstyle-windows.xml
 
 lint: bin/golangci-lint
-	cd src/naksu && GOPATH=$(current_dir) ../../bin/golangci-lint run --out-format checkstyle
+	cd src/naksu && ../../bin/golangci-lint run --out-format checkstyle
 
 ci-test: bin/go2xunit
-	cd src/naksu && 2>&1 GOPATH=$(current_dir)/ go test -v $(TESTS) | ../../bin/go2xunit -output $(current_dir)/tests.xml
+	cd src/naksu && 2>&1 go test -v $(TESTS) | ../../bin/go2xunit -output $(current_dir)/tests.xml
 
 test:
-	cd src/naksu && GOPATH=$(current_dir)/ go test $(TESTS)
+	cd src/naksu && go test $(TESTS)
 
 docker: clean
 	mkdir -p bin
@@ -52,13 +52,13 @@ src/naksu.syso: res/windows/*
 	$(RSRC) -arch="amd64" -ico="res/windows/naksu.ico" -o src/naksu.syso
 
 naksu.exe: src/*
-	cd src/naksu && GOPATH=$(current_dir)/ GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ $(GO) build -o ../../bin/naksu.exe naksu
+	cd src/naksu && GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ $(GO) build -o ../../bin/naksu.exe naksu
 
 naksu: src/*
-	cd src/naksu && GOPATH=$(current_dir)/ GOOS=linux GOARCH=amd64 CGO_ENABLED=1 $(GO) build -o ../../bin/naksu naksu
+	cd src/naksu && GOOS=linux GOARCH=amd64 CGO_ENABLED=1 $(GO) build -o ../../bin/naksu naksu
 
 naksu-darwin: src/*
-	cd src/naksu && GOPATH=$(current_dir)/ GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 $(GO) build -o ../../bin/naksu-darwin naksu
+	cd src/naksu && GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 $(GO) build -o ../../bin/naksu-darwin naksu
 
 naksu_packages: all
 	rm -f naksu_linux_amd64.zip
