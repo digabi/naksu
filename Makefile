@@ -37,6 +37,8 @@ docker: clean
 	docker cp naksu-build:/app/bin/naksu.exe bin/naksu.exe
 	docker cp naksu-build:/app/naksu_linux_amd64.zip .
 	docker cp naksu-build:/app/naksu_windows_amd64.zip .
+	docker cp naksu-build:/app/src/naksu/go.sum ./src/naksu/
+	docker cp naksu-build:/app/src/naksu/go.mod ./src/naksu/
 
 all: test windows linux
 
