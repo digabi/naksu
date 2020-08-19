@@ -293,7 +293,7 @@ func UsingWirelessInterface() bool {
 	if selectedInterface := config.GetExtNic(); selectedInterface != "" {
 		isWireless, err := regexp.MatchString(nicRegexWireless, selectedInterface)
 		if err != nil {
-			log.Debug(fmt.Sprintf("Could not check if the current interface is wireless"))
+			log.Debug("Could not check if the current interface is wireless")
 			return false
 		}
 		return isWireless

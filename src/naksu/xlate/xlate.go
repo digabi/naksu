@@ -106,8 +106,8 @@ func SetLanguage(newLanguage string) {
 			"Do you wish to remove the server?":                                "Halutko poistaa palvelimen?",
 			// Already defined: "Yes, Remove"
 			// Already defined: "Cancel"
-			"Error while removing server: %v": "Palvelimen poistaminen epäonnistui: %v",
-			"Server was removed succesfully.": "Palvelimen poistaminen onnistui.",
+			"Error while removing server: %v":  "Palvelimen poistaminen epäonnistui: %v",
+			"Server was removed successfully.": "Palvelimen poistaminen onnistui.",
 
 			// mebroutines
 			"command failed: %s":       "komento epäonnistui: %s",
@@ -259,8 +259,8 @@ func SetLanguage(newLanguage string) {
 			"Do you wish to remove the server?":                                "Vill du avlägsna servern?",
 			// Already defined: "Yes, Remove"
 			// Already defined: "Cancel"
-			"Error while removing server: %v": "Avlägsning av servern misslyckades: %v",
-			"Server was removed succesfully.": "Avlägsning av servern lyckades.",
+			"Error while removing server: %v":  "Avlägsning av servern misslyckades: %v",
+			"Server was removed successfully.": "Avlägsning av servern lyckades.",
 
 			// mebroutines
 			"command failed: %s":       "Komandot misslyckades: %s",
