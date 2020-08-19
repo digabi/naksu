@@ -23,15 +23,22 @@ type Win32_NetworkAdapter struct { //nolint
 }
 
 func queryInterfaces(filter string) []Win32_NetworkAdapter {
-	var dst []Win32_NetworkAdapter
-	query := wmi.CreateQuery(&dst, filter)
-	err := wmi.Query(query, &dst)
-	if err != nil {
-		log.Debug("Could not query network adapters from WMI")
-		log.Debug(fmt.Sprint(err))
-		return []Win32_NetworkAdapter{}
-	}
-	return dst
+	result := make(chan []Win32_NetworkAdapter)
+
+	// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+	go func() {
+		var dst []Win32_NetworkAdapter
+		query := wmi.CreateQuery(&dst, filter)
+		err := wmi.Query(query, &dst)
+		if err != nil {
+			log.Debug(fmt.Sprintf("queryInterfaces() could not query network adapters from WMI: %v", err))
+			result <- []Win32_NetworkAdapter{}
+		} else {
+			result <- dst
+		}
+	}()
+
+	return <-result
 }
 
 // GetExtInterfaces returns a slice of network interfaces, represented as

@@ -47,39 +47,60 @@ type Win32_PnPEntity struct { //nolint
 }
 
 func getProcessorData() []Win32_Processor {
-	var dst []Win32_Processor
-	query := wmi.CreateQuery(&dst, "")
-	err := wmi.Query(query, &dst)
-	if err != nil {
-		log.Debug(fmt.Sprintf("getProcessorData() could not make WMI query: %v", err))
-		return []Win32_Processor{}
-	}
+	result := make(chan []Win32_Processor)
 
-	return dst
+	// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+	go func() {
+		var dst []Win32_Processor
+		query := wmi.CreateQuery(&dst, "")
+		err := wmi.Query(query, &dst)
+		if err != nil {
+			log.Debug(fmt.Sprintf("getProcessorData() could not make WMI query: %v", err))
+			result <- []Win32_Processor{}
+		} else {
+			result <- dst
+		}
+	}()
+
+	return <-result
 }
 
 func getMemoryData() []Win32_ComputerSystem {
-	var dst []Win32_ComputerSystem
-	query := wmi.CreateQuery(&dst, "")
-	err := wmi.Query(query, &dst)
-	if err != nil {
-		log.Debug(fmt.Sprintf("getMemoryData() could not make WMI query: %v", err))
-		return []Win32_ComputerSystem{}
-	}
+	result := make(chan []Win32_ComputerSystem)
 
-	return dst
+	// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+	go func() {
+		var dst []Win32_ComputerSystem
+		query := wmi.CreateQuery(&dst, "")
+		err := wmi.Query(query, &dst)
+		if err != nil {
+			log.Debug(fmt.Sprintf("getMemoryData() could not make WMI query: %v", err))
+			result <- []Win32_ComputerSystem{}
+		} else {
+			result <- dst
+		}
+	}()
+
+	return <-result
 }
 
 func getPnpEntityData() []Win32_PnPEntity {
-	var dst []Win32_PnPEntity
-	query := wmi.CreateQuery(&dst, "")
-	err := wmi.Query(query, &dst)
-	if err != nil {
-		log.Debug(fmt.Sprintf("getPnpEntityData() could not make WMI query: %v", err))
-		return []Win32_PnPEntity{}
-	}
+	result := make(chan []Win32_PnPEntity)
 
-	return dst
+	// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+	go func() {
+		var dst []Win32_PnPEntity
+		query := wmi.CreateQuery(&dst, "")
+		err := wmi.Query(query, &dst)
+		if err != nil {
+			log.Debug(fmt.Sprintf("getPnpEntityData() could not make WMI query: %v", err))
+			result <- []Win32_PnPEntity{}
+		} else {
+			result <- dst
+		}
+	}()
+
+	return <-result
 }
 
 func getProcessorString() string {
