@@ -60,13 +60,15 @@ func GetExtInterfaces() []constants.AvailableSelection {
 
 	for thisInterface := range interfaces {
 		if isIgnoredExtInterfaceWindows(*interfaces[thisInterface].Name) {
-			log.Debug(fmt.Sprintf("Ignoring external network interface '%s'", *interfaces[thisInterface].Name))
+			log.Debug(fmt.Sprintf("GetExtInterfaces() is ignoring external network interface '%s'", *interfaces[thisInterface].Name))
 		} else if interfaces[thisInterface].PhysicalAdapter {
 			linkSpeed := formatLinkSpeed(&interfaces[thisInterface])
 			physicalInterface := constants.AvailableSelection{
 				ConfigValue: *interfaces[thisInterface].Name,
 				Legend:      fmt.Sprintf("%s (%s)", *interfaces[thisInterface].Name, linkSpeed),
 			}
+
+			log.Debug(fmt.Sprintf("GetExtInterfaces() has found external network interface '%s', speed %s", *interfaces[thisInterface].Name, linkSpeed))
 
 			result = append(result, physicalInterface)
 		}
@@ -95,7 +97,10 @@ func selectedInterfaceOrAll() []Win32_NetworkAdapter {
 		// #nosec (SQL query formatting warning)
 		interfaces := queryInterfaces(fmt.Sprintf("WHERE Name='%s'AND  PhysicalAdapter=TRUE AND NetEnabled=TRUE", selectedInterface))
 		if len(interfaces) != 1 {
-			log.Debug(fmt.Sprintf("Found %d (not 1!) adapters with name %s", len(interfaces), selectedInterface))
+			log.Debug(fmt.Sprintf("Found %d (not 1!) adapters with name '%s' which are online", len(interfaces), selectedInterface))
+
+			offline_interfaces := queryInterfaces(fmt.Sprintf("WHERE Name='%s'AND  PhysicalAdapter=TRUE", selectedInterface))
+			log.Debug(fmt.Sprintf("However, there are %d interfaces with name '%s' which are offline", len(offline_interfaces), selectedInterface))
 		}
 		return interfaces
 	}
@@ -116,7 +121,11 @@ func CurrentLinkSpeed() uint64 {
 	}
 
 	if minLinkSpeed == math.MaxUint64 {
+		log.Debug("CurrentLinkSpeed() could not detect any network interfaces/their speed")
 		return 0
 	}
+
+	log.Debug(fmt.Sprintf("CurrentLinkSpeed() is %d Mbps (%s)", minLinkSpeed, humanize.SI(float64(minLinkSpeed), "bit/s")))
+
 	return bpsToMbps(minLinkSpeed)
 }
