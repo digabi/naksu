@@ -17,9 +17,9 @@ import (
 // Otherwise it is not recognised, which results in an "Invalid class" exception.
 type Win32_NetworkAdapter struct { //nolint
 	Name            *string
-	Speed           uint64
-	PhysicalAdapter bool
-	NetEnabled      bool
+	Speed           *uint64
+	PhysicalAdapter *bool
+	NetEnabled      *bool
 }
 
 func queryInterfaces(filter string) []Win32_NetworkAdapter {
@@ -52,8 +52,8 @@ func GetExtInterfaces() []constants.AvailableSelection {
 	interfaces := queryInterfaces("WHERE PhysicalAdapter=TRUE")
 
 	formatLinkSpeed := func(networkInterface *Win32_NetworkAdapter) string {
-		if networkInterface.NetEnabled {
-			return humanize.SI(float64(networkInterface.Speed), "bit/s")
+		if *networkInterface.NetEnabled {
+			return humanize.SI(float64(*networkInterface.Speed), "bit/s")
 		}
 		return "? bit/s"
 	}
@@ -61,7 +61,7 @@ func GetExtInterfaces() []constants.AvailableSelection {
 	for thisInterface := range interfaces {
 		if isIgnoredExtInterfaceWindows(*interfaces[thisInterface].Name) {
 			log.Debug(fmt.Sprintf("GetExtInterfaces() is ignoring external network interface '%s'", *interfaces[thisInterface].Name))
-		} else if interfaces[thisInterface].PhysicalAdapter {
+		} else if *interfaces[thisInterface].PhysicalAdapter {
 			linkSpeed := formatLinkSpeed(&interfaces[thisInterface])
 			physicalInterface := constants.AvailableSelection{
 				ConfigValue: *interfaces[thisInterface].Name,
@@ -115,8 +115,8 @@ func CurrentLinkSpeed() uint64 {
 
 	var minLinkSpeed uint64 = math.MaxUint64
 	for _, thisInterface := range interfaces {
-		if !isIgnoredExtInterfaceWindows(*thisInterface.Name) && thisInterface.Speed < minLinkSpeed {
-			minLinkSpeed = thisInterface.Speed
+		if !isIgnoredExtInterfaceWindows(*thisInterface.Name) && *thisInterface.Speed < minLinkSpeed {
+			minLinkSpeed = *thisInterface.Speed
 		}
 	}
 
