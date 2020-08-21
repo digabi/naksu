@@ -5,6 +5,7 @@ import (
 
 	"github.com/andlabs/ui"
 
+	"naksu/log"
 	"naksu/network"
 	naksuUi "naksu/ui"
 	"naksu/xlate"
@@ -90,6 +91,8 @@ func showNetworkStatus(text string, warning bool) {
 		appendWithAttributes(networkStatusString, text, normalTextColor)
 	}
 	networkStatusArea.QueueRedrawAll()
+
+	log.Debug(fmt.Sprintf("Network status: %s", text))
 }
 
 // Area returns the Area UI component singleton that shows the network status

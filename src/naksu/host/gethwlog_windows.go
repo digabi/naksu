@@ -16,14 +16,14 @@ import (
 // The struct must be named with an underscore, otherwise it is not recognised
 // and results "Invalid class" exception.
 type Win32_Processor struct { //nolint
-	Availability      uint16
+	Availability      *uint16
 	Caption           *string
-	CurrentClockSpeed uint32
+	CurrentClockSpeed *uint32
 	Description       *string
 	DeviceID          *string
-	LoadPercentage    uint16
+	LoadPercentage    *uint16
 	Manufacturer      *string
-	MaxClockSpeed     uint32
+	MaxClockSpeed     *uint32
 	Name              *string
 }
 
@@ -32,7 +32,7 @@ type Win32_ComputerSystem struct { //nolint
 	// (Windows Management Instrumentation)
 	// The struct must be named with an underscore, otherwise it is not recognised
 	// and results "Invalid class" exception.
-	TotalPhysicalMemory uint64
+	TotalPhysicalMemory *uint64
 }
 
 // Win32_PnPEntity is a struct used to query Windows WMI
@@ -47,39 +47,60 @@ type Win32_PnPEntity struct { //nolint
 }
 
 func getProcessorData() []Win32_Processor {
-	var dst []Win32_Processor
-	query := wmi.CreateQuery(&dst, "")
-	err := wmi.Query(query, &dst)
-	if err != nil {
-		log.Debug(fmt.Sprintf("getProcessorData() could not make WMI query: %v", err))
-		return []Win32_Processor{}
-	}
+	result := make(chan []Win32_Processor)
 
-	return dst
+	// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+	go func() {
+		var dst []Win32_Processor
+		query := wmi.CreateQuery(&dst, "")
+		err := wmi.Query(query, &dst)
+		if err != nil {
+			log.Debug(fmt.Sprintf("getProcessorData() could not make WMI query: %v", err))
+			result <- []Win32_Processor{}
+		} else {
+			result <- dst
+		}
+	}()
+
+	return <-result
 }
 
 func getMemoryData() []Win32_ComputerSystem {
-	var dst []Win32_ComputerSystem
-	query := wmi.CreateQuery(&dst, "")
-	err := wmi.Query(query, &dst)
-	if err != nil {
-		log.Debug(fmt.Sprintf("getMemoryData() could not make WMI query: %v", err))
-		return []Win32_ComputerSystem{}
-	}
+	result := make(chan []Win32_ComputerSystem)
 
-	return dst
+	// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+	go func() {
+		var dst []Win32_ComputerSystem
+		query := wmi.CreateQuery(&dst, "")
+		err := wmi.Query(query, &dst)
+		if err != nil {
+			log.Debug(fmt.Sprintf("getMemoryData() could not make WMI query: %v", err))
+			result <- []Win32_ComputerSystem{}
+		} else {
+			result <- dst
+		}
+	}()
+
+	return <-result
 }
 
 func getPnpEntityData() []Win32_PnPEntity {
-	var dst []Win32_PnPEntity
-	query := wmi.CreateQuery(&dst, "")
-	err := wmi.Query(query, &dst)
-	if err != nil {
-		log.Debug(fmt.Sprintf("getPnpEntityData() could not make WMI query: %v", err))
-		return []Win32_PnPEntity{}
-	}
+	result := make(chan []Win32_PnPEntity)
 
-	return dst
+	// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+	go func() {
+		var dst []Win32_PnPEntity
+		query := wmi.CreateQuery(&dst, "")
+		err := wmi.Query(query, &dst)
+		if err != nil {
+			log.Debug(fmt.Sprintf("getPnpEntityData() could not make WMI query: %v", err))
+			result <- []Win32_PnPEntity{}
+		} else {
+			result <- dst
+		}
+	}()
+
+	return <-result
 }
 
 func getProcessorString() string {
@@ -95,9 +116,9 @@ func getProcessorString() string {
 				*processorData[thisProcessor].Manufacturer,
 				*processorData[thisProcessor].Name,
 				*processorData[thisProcessor].Caption,
-				getWinProcessorAvailabilityLegend(processorData[thisProcessor].Availability),
-				processorData[thisProcessor].CurrentClockSpeed,
-				processorData[thisProcessor].MaxClockSpeed,
+				getWinProcessorAvailabilityLegend(*processorData[thisProcessor].Availability),
+				*processorData[thisProcessor].CurrentClockSpeed,
+				*processorData[thisProcessor].MaxClockSpeed,
 			),
 		)
 	}
@@ -111,8 +132,8 @@ func getMemoryString() string {
 	var totalPhysicalMemory uint64
 
 	for thisMemoryRecord := range memoryData {
-		if memoryData[thisMemoryRecord].TotalPhysicalMemory > totalPhysicalMemory {
-			totalPhysicalMemory = memoryData[thisMemoryRecord].TotalPhysicalMemory
+		if *memoryData[thisMemoryRecord].TotalPhysicalMemory > totalPhysicalMemory {
+			totalPhysicalMemory = *memoryData[thisMemoryRecord].TotalPhysicalMemory
 		}
 	}
 
