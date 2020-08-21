@@ -99,8 +99,8 @@ func selectedInterfaceOrAll() []Win32_NetworkAdapter {
 		if len(interfaces) != 1 {
 			log.Debug(fmt.Sprintf("Found %d (not 1!) adapters with name '%s' which are online", len(interfaces), selectedInterface))
 
-			offline_interfaces := queryInterfaces(fmt.Sprintf("WHERE Name='%s'AND  PhysicalAdapter=TRUE", selectedInterface))
-			log.Debug(fmt.Sprintf("However, there are %d interfaces with name '%s' which are offline", len(offline_interfaces), selectedInterface))
+			offlineInterfaces := queryInterfaces(fmt.Sprintf("WHERE Name='%s'AND  PhysicalAdapter=TRUE", selectedInterface))
+			log.Debug(fmt.Sprintf("However, there are %d interfaces with name '%s' which are offline", len(offlineInterfaces), selectedInterface))
 		}
 		return interfaces
 	}
