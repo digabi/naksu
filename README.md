@@ -167,6 +167,13 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 1.12.2 (21-AUG-2020)
+
+- Fix failing WMI queries (Windows)
+- Fix folder name (`ktp-jako` instead of `ktp`) in log delivery popups
+- Hide copy-to-clipboard button in log deliver popup if no supporting tool is found (Linux)
+- Use golang 1.13 instead of 1.10 (and golang 1.11 -style module management instead of `dep`)
+
 ### 1.12.1 (27-JUL-2020)
 
 - Show hardware info of network devices on Linux host (#38)
