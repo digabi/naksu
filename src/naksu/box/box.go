@@ -10,6 +10,8 @@ import (
 	"regexp"
 	"strconv"
 
+	semver "github.com/blang/semver/v4"
+
 	"naksu/config"
 	"naksu/log"
 	"naksu/mebroutines"
@@ -79,6 +81,30 @@ func CreateNewBox(ddImagePath string) error {
 	}
 
 	err := vbm.MultipleCallRunVBoxManage(createCommands)
+	if err != nil {
+		return err
+	}
+
+	v6_1, _ := semver.Make("6.1.0")
+	vBoxVersion, errVBoxManageVersion := vbm.GetVBoxManageVersion()
+	if errVBoxManageVersion != nil {
+		log.Debug(fmt.Sprintf("Could not get VBoxManage version: %v", errVBoxManageVersion))
+		return errVBoxManageVersion
+	}
+
+	// Set bidirectional clipboard for VirtualBox 6.1 and later
+	clipboardCommands := []vbm.VBoxCommand{
+		vbm.VBoxCommand{"modifyvm", boxName, "--clipboard-mode", "bidirectional"},
+	}
+
+	if vBoxVersion.LT(v6_1) {
+		// Override bidirectional clipboard for VirtualBox pre-6.1
+		clipboardCommands = []vbm.VBoxCommand{
+			vbm.VBoxCommand{"modifyvm", boxName, "--clipboard", "bidirectional"},
+		}
+	}
+
+	err = vbm.MultipleCallRunVBoxManage(clipboardCommands)
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ import (
   "regexp"
 
 	"github.com/paulusrobin/go-memory-cache/memory-cache"
+	semver "github.com/blang/semver/v4"
 
 	"naksu/log"
 	"naksu/mebroutines"
@@ -95,6 +96,54 @@ func GetVMInfoRegexp(boxName string, vmRegexp string) string {
 	}
 
 	return ""
+}
+
+func getVBoxManageVersionSemanticPart() (string, error) {
+	output, errVBM := CallRunVBoxManage([]string{"--version"})
+	if errVBM != nil {
+		log.Debug(fmt.Sprintf("GetVBoxManageVersion() failed to get VBoxManage version: %v", errVBM))
+		return "", fmt.Errorf("failed to get vboxmanage version: %v", errVBM)
+	}
+
+	re := regexp.MustCompile(`^(\d+\.\d+\.\d+)`)
+	matches := re.FindStringSubmatch(output)
+	if len(matches) == 2 {
+		return matches[1], nil
+	}
+
+	return "", fmt.Errorf("Could not find semantic version string from VBoxManage version '%s'", output)
+}
+
+func GetVBoxManageVersion() (semver.Version, error) {
+	ensureVBoxResponseCacheInitialised()
+
+	errorVersion, _ := semver.Make("0.0.0")
+
+	cachedVBoxManageVersion, errCache := vBoxResponseCache.Get("vboxmanageversion")
+	if errCache != nil {
+		vBoxManageVersionString, errVersionString := getVBoxManageVersionSemanticPart()
+		if errVersionString != nil {
+			log.Debug(fmt.Sprintf("GetVBoxManageVersion() could not get VBoxManage version: %v", errVersionString))
+			return errorVersion, errVersionString
+		}
+
+		vBoxManageVersion, errSemVer := semver.Make(vBoxManageVersionString)
+		if errSemVer != nil {
+			log.Debug(fmt.Sprintf("GetVBoxManageVersion() got VBoxManage version code '%s' but it is not semantic version number: %v", vBoxManageVersionString, errSemVer))
+			return errorVersion, fmt.Errorf("vboxmanage version %s is not a semantic version number: %v", vBoxManageVersionString, errSemVer)
+		}
+
+		errCache = vBoxResponseCache.Set("vboxmanageversion", fmt.Sprintf("%s", vBoxManageVersion), constants.VBoxManageCacheTimeout)
+		if errCache != nil {
+			log.Debug(fmt.Sprintf("GetVBoxManageVersion() could not store version to cache: %v", errCache))
+		}
+
+		return vBoxManageVersion, nil
+	}
+
+	cachedVBoxManageVersionSemVer, _ := semver.Make(fmt.Sprintf("%v", cachedVBoxManageVersion))
+
+	return cachedVBoxManageVersionSemVer, nil
 }
 
 func GetBoxProperty(boxName string, property string) string {
