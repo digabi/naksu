@@ -9,6 +9,9 @@ const (
 	// AbittiVagrantURL is the URL for the Abittti Vagrantfile
 	AbittiVagrantURL = "http://static.abitti.fi/usbimg/qa/vagrant/Vagrantfile"
 
+	// AbittiEtcherURL is the URL for the latest Abitti Etcher zip
+	AbittiEtcherURL = "http://static.abitti.fi/etcher-usb/ktp-etcher.zip"
+
 	// URLTest is a testing URL for network connectivity (network.CheckIfNetworkAvailable).
 	// Point this to something ultra-stable
 	URLTest = "http://static.abitti.fi/usbimg/qa/latest.txt"

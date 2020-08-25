@@ -2,16 +2,18 @@ package install
 
 import (
 	"fmt"
+	"os"
 
 	"naksu/box"
+	"naksu/cloud"
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
 	"naksu/xlate"
 )
 
-// NewServer creates new server using the given image path
-func NewServer(newImagePath string) {
+// NewServerAbitti downloads and creates new Abitti server using the given image path
+func NewServerAbitti() {
 	_, _, errDir := ensureNaksuDirectoriesExist()
 
 	if errDir != nil {
@@ -20,17 +22,38 @@ func NewServer(newImagePath string) {
 		return
 	}
 
-	if !mebroutines.ExistsFile(newImagePath) {
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Image file %s does not exist", newImagePath))
+	newImagePath, errTemp := mebroutines.GetTempFilename()
+	if errTemp != nil {
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to create temporary file: %v"))
 		return
 	}
 
-	progress.TranslateAndSetMessage("Installing new server")
+	errRemove := os.Remove(newImagePath)
+	if errRemove != nil {
+		mebroutines.ShowWarningMessage(fmt.Sprintf("Failed to remove raw image file %s: %v", newImagePath, errRemove))
+	}
+
+	progress.TranslateAndSetMessage("Getting Image from the Cloud")
+	errGet := cloud.GetAbittiImage(newImagePath, progress.TranslateAndSetMessage)
+
+	if errGet != nil {
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to get new VM image: %v", errGet))
+		return
+	}
+
+	progress.TranslateAndSetMessage("Creating New VM")
 	errCreate := box.CreateNewBox(newImagePath)
 
 	if errCreate != nil {
 		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to create new VM: %v", errCreate))
 		return
+	}
+
+	progress.SetMessage("Removing temporary raw image file")
+	errRemove = os.Remove(newImagePath)
+
+	if errRemove != nil {
+		mebroutines.ShowWarningMessage(fmt.Sprintf("Failed to remove raw image file %s: %v", newImagePath, errRemove))
 	}
 
 	progress.SetMessage("New VM was created")

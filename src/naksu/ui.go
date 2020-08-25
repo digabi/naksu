@@ -693,7 +693,7 @@ func bindOnGetServer(mainUIStatus chan string) {
 
 			go func() {
 				disableUI(mainUIStatus)
-				install.NewServer(filepath.Join(mebroutines.GetHomeDirectory(), "ktp", "ktp.dd"))
+				install.NewServerAbitti()
 				translateUILabels()
 				enableUI(mainUIStatus)
 				progress.SetMessage("")
@@ -748,7 +748,7 @@ func bindOnSwitchServer(mainUIStatus chan string) {
 			default:
 				go func() {
 					disableUI(mainUIStatus)
-					install.NewServer(filepath.Join(mebroutines.GetHomeDirectory(), "ktp", "ktp.dd"))
+					install.NewServerAbitti()
 					translateUILabels()
 					enableUI(mainUIStatus)
 					progress.SetMessage("")
