@@ -1,6 +1,7 @@
 package vboxmanage
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"time"
@@ -177,4 +178,64 @@ func GetBoxProperty(boxName string, property string) string {
 	}
 
 	return propertyValue
+}
+
+func getVMState(boxName string) (string, error) {
+	ensureVBoxResponseCacheInitialised()
+
+	vmState, err := vBoxResponseCache.Get("vmstate")
+	if err != nil {
+		rawVMInfo, err := CallRunVBoxManage([]string{"showvminfo", "--machinereadable", boxName})
+		if err != nil {
+			log.Debug(fmt.Sprintf("When trying to get VM state, could not get VM info: %v", err))
+			vmState = ""
+			return "", err
+		}
+
+		// Extract state string
+		pattern := regexp.MustCompile(`VMState="(.+)"`)
+		result := pattern.FindStringSubmatch(rawVMInfo)
+
+		if len(result) > 1 {
+			vmState = result[1]
+		} else {
+			log.Debug("Could not find VM state from the VM info")
+			return "", errors.New("could not find vm state from the vm info")
+		}
+
+		errCache := vBoxResponseCache.Set("vmstate", vmState, constants.VBoxRunningCacheTimeout)
+		if errCache != nil {
+			log.Debug(fmt.Sprintf("Could not store VM state to cache: %v", errCache))
+		}
+	}
+
+	return fmt.Sprintf("%v"), nil
+}
+
+func Running(boxName string) (bool, error) {
+	vmState, err := getVMState(boxName)
+
+	if vmState == "running" {
+		return true, err
+	} else {
+		return false, err
+	}
+}
+
+func Installed(boxName string) (bool, error) {
+	rawVMInfo, err := CallRunVBoxManage([]string{"showvminfo", "--machinereadable", boxName})
+
+	if err != nil {
+		pattern := regexp.MustCompile(`Could not find a registered machine named`)
+		if pattern.MatchString(fmt.Sprintf("%v", rawVMInfo)) {
+			// Response states that there is no such machine
+			return false, nil
+		}
+
+		// Other error, return it to the caller
+		return false, err
+	}
+
+	// We got the showvminfo all right, so the machine is installed
+	return true, nil
 }

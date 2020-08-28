@@ -28,6 +28,10 @@ const (
 	// See naksu/box
 	VBoxManageCacheTimeout = 30 * time.Second
 
+	// VBoxRunningCacheTimeout is a timeout for VM state cache
+	// See Running() at naksu/box
+	VBoxRunningCacheTimeout = 2 * time.Second
+
 	// LogCopyRequestFilename is for requesting logs from ktp
 	LogCopyRequestFilename = "_log_copy_requested"
 	// LogCopyDoneFilename is for detecting when log request is done

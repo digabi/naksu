@@ -26,6 +26,7 @@ const (
 	boxFinalImageSize = 56909 // VDI disk size in megs
 	boxType           = "digabi/ktp-qa"
 	boxVersion        = "SERVER7108X v69"
+	boxSnapshotName   = "Installed"
 )
 
 // CreateNewBox creates new VM using the given imagePath
@@ -79,11 +80,6 @@ func CreateNewBox(ddImagePath string) error {
 		},
 	}
 
-	err := vbm.MultipleCallRunVBoxManage(createCommands)
-	if err != nil {
-		return err
-	}
-
 	v6_1, _ := semver.Make("6.1.0")
 	vBoxVersion, errVBoxManageVersion := vbm.GetVBoxManageVersion()
 	if errVBoxManageVersion != nil {
@@ -91,19 +87,17 @@ func CreateNewBox(ddImagePath string) error {
 		return errVBoxManageVersion
 	}
 
-	// Set bidirectional clipboard for VirtualBox 6.1 and later
-	clipboardCommands := []vbm.VBoxCommand{
-		{"modifyvm", boxName, "--clipboard-mode", "bidirectional"},
-	}
-
 	if vBoxVersion.LT(v6_1) {
 		// Override bidirectional clipboard for VirtualBox pre-6.1
-		clipboardCommands = []vbm.VBoxCommand{
-			{"modifyvm", boxName, "--clipboard", "bidirectional"},
-		}
+		createCommands = append(createCommands, vbm.VBoxCommand{"modifyvm", boxName, "--clipboard", "bidirectional"})
+	} else {
+		// Set bidirectional clipboard for VirtualBox 6.1 and later
+		createCommands = append(createCommands, vbm.VBoxCommand{"modifyvm", boxName, "--clipboard-mode", "bidirectional"})
 	}
 
-	err = vbm.MultipleCallRunVBoxManage(clipboardCommands)
+	createCommands = append(createCommands, vbm.VBoxCommand{"snapshot", boxName, "take", boxSnapshotName})
+
+	err := vbm.MultipleCallRunVBoxManage(createCommands)
 	if err != nil {
 		return err
 	}
@@ -123,6 +117,36 @@ func StartCurrentBox() error {
 	}
 
 	return vbm.MultipleCallRunVBoxManage(startCommands)
+}
+
+// RestoreSnapshot returns installed VM to fresh state (to the snapshot taken just after the install)
+func RestoreSnapshot() error {
+	restoreCommands := []vbm.VBoxCommand{
+		{"snapshot", boxName, "restore", boxSnapshotName},
+	}
+
+	return vbm.MultipleCallRunVBoxManage(restoreCommands)
+}
+
+// Installed returns true if we have box installed, otherwise false
+func Installed() (bool, error) {
+	return vbm.Installed(boxName)
+}
+
+// Running returns true if current box is istalled and running, otherwise false
+func Running() (bool, error) {
+	isInstalled, errInstalled := vbm.Installed(boxName)
+	isRunning, errRunning := vbm.Running(boxName)
+
+	if errInstalled != nil {
+		return (isInstalled && isRunning), errInstalled
+	}
+
+	if errRunning != nil {
+		return (isInstalled && isRunning), errRunning
+	}
+
+	return (isInstalled && isRunning), nil
 }
 
 // GetType returns the box type (e.g. "digabi/ktp-qa") of the current VM
