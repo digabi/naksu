@@ -14,6 +14,17 @@ import (
 
 // NewServerAbitti downloads and creates new Abitti server using the given image path
 func NewServerAbitti() {
+	isInstalled, errInstalled := box.Installed()
+	if errInstalled != nil {
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not install server as we could not detect whether existing VM is installed: %v", errInstalled))
+		return
+	}
+
+	if isInstalled {
+		mebroutines.ShowErrorMessage("Please remove existing server before installing a new one.")
+		return
+	}
+
 	_, _, errDir := ensureNaksuDirectoriesExist()
 
 	if errDir != nil {
