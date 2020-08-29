@@ -209,12 +209,13 @@ func getVMState(boxName string) (string, error) {
 		}
 	}
 
-	return fmt.Sprintf("%v"), nil
+	return fmt.Sprintf("%v", vmState), nil
 }
 
 func Running(boxName string) (bool, error) {
 	vmState, err := getVMState(boxName)
 
+	log.Debug(fmt.Sprintf("vboxmanage.Running() got following state string: '%s'", vmState))
 	if vmState == "running" {
 		return true, err
 	} else {
