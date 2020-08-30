@@ -128,6 +128,32 @@ func RestoreSnapshot() error {
 	return vbm.MultipleCallRunVBoxManage(restoreCommands)
 }
 
+// WriteDiskClone creates a disk clone of the first disk of the current VM
+func WriteDiskClone(clonePath string) error {
+	diskUUID := getDiskUUID()
+	if diskUUID == "" {
+		return fmt.Errorf("could not get disk uuid")
+	}
+
+	vBoxManageOutput, err := vbm.CallRunVBoxManage(vbm.VBoxCommand{"clonemedium", diskUUID, clonePath, "--format", "VMDK"})
+
+	if err != nil {
+		return err
+	}
+
+	// Check whether clone was successful or not
+	matched, errRe := regexp.MatchString("Clone medium created in format 'VMDK'", vBoxManageOutput)
+	if errRe != nil || !matched {
+		// Failure
+		log.Debug("VBoxManage output does not report successful clone in format 'VMDK'")
+		return errors.New("could not get correct response from vboxmanage")
+	}
+
+	// Detach media from VirtualBox disk management
+	_, errCloseMedium := vbm.CallRunVBoxManage(vbm.VBoxCommand{"closemedium", clonePath})
+	return errCloseMedium
+}
+
 // Installed returns true if we have box installed, otherwise false
 func Installed() (bool, error) {
 	isInstalled, err := vbm.Installed(boxName)
@@ -177,8 +203,8 @@ func GetVersion() string {
 	return vbm.GetBoxProperty(boxName, "boxVersion")
 }
 
-// GetDiskUUID returns the VirtualBox UUID for the image of the current VM
-func GetDiskUUID() string {
+// getDiskUUID returns the VirtualBox UUID for the image of the current VM
+func getDiskUUID() string {
 	return vbm.GetVMInfoRegexp(boxName, "\"SATA Controller-ImageUUID-0-0\"=\"(.*?)\"")
 }
 

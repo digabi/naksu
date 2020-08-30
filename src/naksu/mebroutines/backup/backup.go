@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"regexp"
 	"time"
 
 	"naksu/box"
@@ -35,14 +34,12 @@ func MakeBackup(backupPath string) error {
 		return fmt.Errorf("removing test backup file returned error code: %v", remErr)
 	}
 
-	// Get disk UUID
-	progress.TranslateAndSetMessage("Getting disk UUID...")
-	diskUUID := box.GetDiskUUID()
+	// Get disk location
+	progress.TranslateAndSetMessage("Getting disk location...")
 	diskLocation := box.GetDiskLocation()
-	log.Debug(fmt.Sprintf("Disk UUID: %s", diskUUID))
 	log.Debug(fmt.Sprintf("Disk location: %s", diskLocation))
-	if diskUUID == "" || diskLocation == "" {
-		return errors.New("could not get disk uuid or location")
+	if diskLocation == "" {
+		return errors.New("could not get disk location")
 	}
 
 	progress.TranslateAndSetMessage("Checking for FAT32 filesystem...")
@@ -54,16 +51,9 @@ func MakeBackup(backupPath string) error {
 
 	// Make clone to path_backup
 	progress.TranslateAndSetMessage("Please wait, writing backup...")
-	cloneErr := makeClone(diskUUID, backupPath)
+	cloneErr := box.WriteDiskClone(backupPath)
 	if cloneErr != nil {
 		return fmt.Errorf("failed to make clone: %v", cloneErr)
-	}
-
-	// Close backup media (detach it from VirtualBox disk management)
-	progress.TranslateAndSetMessage("Detaching backup disk image...")
-	deleteErr := deleteClone(backupPath)
-	if deleteErr != nil {
-		return fmt.Errorf("failed to detach disk image")
 	}
 
 	return nil
@@ -98,29 +88,6 @@ func checkForFATFilesystem(backupPath string, vmDiskLocation string) error {
 	}
 
 	return nil
-}
-
-func makeClone(diskUUID string, backupPath string) error {
-	vBoxManageOutput, err := mebroutines.RunVBoxManage([]string{"clonemedium", diskUUID, backupPath})
-
-	if err != nil {
-		return err
-	}
-
-	// Check whether clone was successful or not
-	matched, errRe := regexp.MatchString("Clone medium created in format 'VMDK'", vBoxManageOutput)
-	if errRe != nil || !matched {
-		// Failure
-		log.Debug("VBoxManage output does not report successful clone in format 'VMDK'")
-		return errors.New("backup failed: could not get correct response from vboxmanage")
-	}
-
-	return nil
-}
-
-func deleteClone(backupPath string) error {
-	_, err := mebroutines.RunVBoxManage([]string{"closemedium", backupPath})
-	return err
 }
 
 // GetBackupFilename returns generated filename
