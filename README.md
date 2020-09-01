@@ -56,7 +56,6 @@ You can also build Naksu with [Travis CI](https://travis-ci.org). See [`TRAVIS-C
 ### Requirements
 
 - Install make
-- Install `dep` using [these instructions](https://golang.github.io/dep/docs/installation.html)
 - Install Docker daemon
 
 ### Build both versions using Docker
