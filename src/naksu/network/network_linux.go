@@ -58,11 +58,15 @@ func getExtInterfaceSpeed(extInterface string) uint64 {
 	/* #nosec */
 	carrierFileContent, err := ioutil.ReadFile(carrierPath)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Could not read network interface carrier from '%s': %v", carrierPath, err))
-		return 0
-	}
-	if strings.TrimSpace(string(carrierFileContent)) == "0" {
-		return 0 // Link not up
+		if strings.HasSuffix(err.Error(), "invalid argument") {
+			// When the network interface is powered down, trying to read /sys/class/net/<device>/carrier
+			// results in an "invalid argument" error. This is the kernel working as intended.
+			return 0
+		}
+
+		log.Debug(fmt.Sprintf("Unexpected error while trying to read link state from %s: %s", carrierPath, err.Error()))
+	} else if strings.TrimSpace(string(carrierFileContent)) == "0" {
+		return 0 // The link is down e.g. because the device is disconnected from the network.
 	}
 
 	/* #nosec */
