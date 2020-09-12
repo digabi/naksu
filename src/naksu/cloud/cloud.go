@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	humanize "github.com/dustin/go-humanize"
 
@@ -15,19 +16,28 @@ import (
 	"naksu/mebroutines"
 )
 
+// Suppress progress messages if there has been less than 2 seconds from a message
+const progressLastMessageTimeout = 2 * time.Second
 
 // writeCounter defines  io.Writer interface (see downloadServerImage, unZipServerImage)
 type writeCounter struct {
-	Total uint64
-	FileSize uint64
+	Total              uint64
+	FileSize           uint64
 	ProgressCallbackFn func(string)
-	ProgressString string
+	ProgressString     string
 }
+
+var progressLastMessageTime = time.Now()
 
 func (wc *writeCounter) Write(p []byte) (int, error) {
 	n := len(p)
 	wc.Total += uint64(n)
-	wc.ProgressCallbackFn(fmt.Sprintf(wc.ProgressString, (100*wc.Total)/wc.FileSize))
+
+	if time.Now().After(progressLastMessageTime.Add(progressLastMessageTimeout)) {
+		wc.ProgressCallbackFn(fmt.Sprintf(wc.ProgressString, (100*wc.Total)/wc.FileSize))
+		progressLastMessageTime = time.Now()
+	}
+
 	return n, nil
 }
 
