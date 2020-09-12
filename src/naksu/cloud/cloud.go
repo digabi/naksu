@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 
 	humanize "github.com/dustin/go-humanize"
 
@@ -15,6 +14,22 @@ import (
 	"naksu/log"
 	"naksu/mebroutines"
 )
+
+
+// writeCounter defines  io.Writer interface (see downloadServerImage, unZipServerImage)
+type writeCounter struct {
+	Total uint64
+	FileSize uint64
+	ProgressCallbackFn func(string)
+	ProgressString string
+}
+
+func (wc *writeCounter) Write(p []byte) (int, error) {
+	n := len(p)
+	wc.Total += uint64(n)
+	wc.ProgressCallbackFn(fmt.Sprintf(wc.ProgressString, (100*wc.Total)/wc.FileSize))
+	return n, nil
+}
 
 // GetServerImagePath returns path to cached server image (~/ktp/naksu_last_image.zip)
 func GetServerImagePath() string {
@@ -42,24 +57,14 @@ func downloadServerImage(url string, destinationZipPath string, progressCallback
 
 	progressCallbackFn("Downloading server image")
 
-	var bytesReadTotal uint64
+	counter := &writeCounter{}
+	counter.ProgressCallbackFn = progressCallbackFn
+	counter.FileSize = fileSize
+	counter.ProgressString = "Downloading image: %d %%"
 
-	for {
-		buffer := make([]byte, 100000)
-		bytesRead, errRead := response.Body.Read(buffer)
-		if errRead != nil && errRead != io.EOF {
-			log.Debug(fmt.Sprintf("Error while reading data from '%s': %v", url, errRead))
-			return errRead
-		}
-
-		zipFile.Write(buffer[0:bytesRead])
-
-		bytesReadTotal = bytesReadTotal + uint64(bytesRead)
-		progressCallbackFn(fmt.Sprintf("Downloading image: %d %%", (100*bytesReadTotal)/fileSize))
-
-		if errRead == io.EOF {
-			break
-		}
+	var errCopy error
+	if _, errCopy = io.Copy(zipFile, io.TeeReader(response.Body, counter)); errCopy != nil {
+		return errCopy
 	}
 
 	progressCallbackFn("Server image downloaded")
@@ -95,30 +100,14 @@ func unZipServerImage(zipPath string, destinationImagePath string, progressCallb
 
 			progressCallbackFn("Starting to unzip raw image")
 
-			unzipDone := make(chan bool)
+			counter := &writeCounter{}
+			counter.ProgressCallbackFn = progressCallbackFn
+			counter.FileSize = file.UncompressedSize64
+			counter.ProgressString = "Uncompressing image: %d %%"
 
-			go func() {
-				_, err = io.Copy(fImage, fZipped)
-				fZipped.Close()
-				fImage.Close()
-				unzipDone <- true
-			}()
-
-			waitForZip := true
-			for waitForZip {
-				time.Sleep(3 * time.Second)
-				imageFileStat, err := fImage.Stat()
-				if err != nil {
-					log.Debug(fmt.Sprintf("Failed to stat raw image file %s: %v", destinationImagePath, err))
-				} else {
-					progressCallbackFn(fmt.Sprintf("Unzipping image: %d %%", uint64(100*imageFileStat.Size())/file.UncompressedSize64))
-				}
-
-				select {
-				case unzipDoneValue := <-unzipDone:
-					waitForZip = !unzipDoneValue
-				default:
-				}
+			var errCopy error
+			if _, errCopy = io.Copy(fImage, io.TeeReader(fZipped, counter)); errCopy != nil {
+				return errCopy
 			}
 
 			progressCallbackFn("unzip finished")
