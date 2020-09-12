@@ -57,6 +57,12 @@ func NewServerAbitti() {
 
 	if errCreate != nil {
 		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to create new VM: %v", errCreate))
+		errRemove := os.Remove(newImagePath)
+
+		if errRemove != nil {
+			log.Debug(fmt.Sprintf("Failed to remove image file %s: %v", newImagePath, errRemove))
+		}
+
 		return
 	}
 
