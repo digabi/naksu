@@ -6,6 +6,7 @@ package box
 import (
 	"errors"
 	"fmt"
+	"math"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 
 	vbm "naksu/box/vboxmanage"
 	"naksu/config"
+	"naksu/host"
 	"naksu/log"
 	"naksu/mebroutines"
 )
@@ -21,13 +23,38 @@ import (
 const (
 	boxName           = "NaksuAbittiKTP"
 	boxOSType         = "Debian"
-	boxCPUs           = 2
-	boxMemory         = 4096  // RAM in megs
 	boxFinalImageSize = 56909 // VDI disk size in megs
 	boxType           = "digabi/ktp-qa"
 	boxVersion        = "SERVER7108X v69"
 	boxSnapshotName   = "Installed"
 )
+
+func calculateBoxCPUs() int {
+	calculatedCores := host.GetCPUCoreCount() - 1
+
+	if calculatedCores <= 2 {
+		return 2
+	}
+
+	return calculatedCores
+}
+
+func calculateBoxMemory() (uint64, error) {
+	hostMemory, err := host.GetMemory()
+
+	if err != nil {
+		return 0, fmt.Errorf("could not read system memory: %v", err)
+	}
+
+	freeVMMemory := uint64(math.Round(float64(hostMemory) * 0.74))
+	lowVMMemoryLimit := uint64(math.Round((8192 - 1024) * 0.74))
+
+	if freeVMMemory < lowVMMemoryLimit {
+		return 0, fmt.Errorf("allocated vm memory %d is less than required minimum memory limit %d", freeVMMemory, lowVMMemoryLimit)
+	}
+
+	return freeVMMemory, nil
+}
 
 // CreateNewBox creates new VM using the given imagePath
 func CreateNewBox(ddImagePath string) error {
@@ -37,6 +64,15 @@ func CreateNewBox(ddImagePath string) error {
 		return fmt.Errorf("existing vdi file %s already exists", vdiImagePath)
 	}
 
+	calculatedBoxCPUs := calculateBoxCPUs()
+
+	calculatedBoxMemory, errMemory := calculateBoxMemory()
+	if errMemory != nil {
+		return errMemory
+	}
+
+	log.Debug(fmt.Sprintf("Calculated new VM specs - CPUs: %d, Memory: %d", calculatedBoxCPUs, calculatedBoxMemory))
+
 	createCommands := []vbm.VBoxCommand{
 		{"convertfromraw", ddImagePath, vdiImagePath, "--format", "VDI"},
 		{"modifyhd", vdiImagePath, "--resize", fmt.Sprintf("%d", boxFinalImageSize)},
@@ -44,8 +80,8 @@ func CreateNewBox(ddImagePath string) error {
 		{
 			"modifyvm", boxName,
 			"--pae", "on",
-			"--cpus", fmt.Sprintf("%d", boxCPUs),
-			"--memory", fmt.Sprintf("%d", boxMemory),
+			"--cpus", fmt.Sprintf("%d", calculatedBoxCPUs),
+			"--memory", fmt.Sprintf("%d", calculatedBoxMemory),
 			"--acpi", "on",
 			"--ioapic", "on",
 			"--ostype", boxOSType,

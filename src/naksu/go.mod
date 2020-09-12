@@ -18,6 +18,7 @@ require (
 	github.com/jaypipes/pcidb v0.5.0
 	github.com/jessevdk/go-flags v1.4.1-0.20181029123624-5de817a9aa20
 	github.com/kardianos/osext v0.0.0-20170510131534-ae77be60afb1
+	github.com/mackerelio/go-osstat v0.1.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/paulusrobin/go-memory-cache v1.1.4
 	github.com/rhysd/go-github-selfupdate v1.0.0
