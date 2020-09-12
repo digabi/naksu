@@ -48,10 +48,10 @@ func GetServerImagePath() string {
 
 func downloadServerImage(url string, destinationZipPath string, progressCallbackFn func(string)) error {
 	progressCallbackFn("Contacting server")
-	response, errHttpGet := http.Get(url)
-	if errHttpGet != nil {
-		log.Debug(fmt.Sprintf("HTTP GET from url '%s' gives an error: %v", url, errHttpGet))
-		return errHttpGet
+	response, errHTTPGet := http.Get(url) // #nosec
+	if errHTTPGet != nil {
+		log.Debug(fmt.Sprintf("HTTP GET from url '%s' gives an error: %v", url, errHTTPGet))
+		return errHTTPGet
 	}
 	defer response.Body.Close()
 

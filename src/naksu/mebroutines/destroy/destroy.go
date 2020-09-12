@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"naksu/log"
 	"naksu/box"
+	"naksu/log"
 	"naksu/ui/progress"
 )
 
@@ -13,17 +13,17 @@ import (
 func Server() error {
 	isInstalled, errInstalled := box.Installed()
 	if errInstalled != nil {
-		log.Debug(fmt.Sprintf("Could not start destoroying server as we could not detect whether existing VM is installed: %v", errInstalled))
+		log.Debug(fmt.Sprintf("Could not start destroying server as we could not detect whether existing VM is installed: %v", errInstalled))
 		return errors.New("could not detect wheteher there is an existing vm installed")
 	}
 
-	if ! isInstalled {
+	if !isInstalled {
 		return errors.New("there is no vm installed")
 	}
 
 	isRunning, errRunning := box.Running()
 	if errRunning != nil {
-		log.Debug(fmt.Sprintf("Could not start destoroying server as we could not detect whether existing VM is running: %v", errRunning))
+		log.Debug(fmt.Sprintf("Could not start destroying server as we could not detect whether existing VM is running: %v", errRunning))
 		return errors.New("could not detect whether there is existing vm running")
 	}
 

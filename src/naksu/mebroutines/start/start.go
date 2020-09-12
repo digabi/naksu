@@ -24,7 +24,7 @@ func Server() {
 		return
 	}
 
-	if ! isInstalled {
+	if !isInstalled {
 		mebroutines.ShowErrorMessage("No server has been installed.")
 		return
 	}

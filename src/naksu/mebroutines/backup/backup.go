@@ -15,6 +15,11 @@ import (
 
 // MakeBackup creates virtual machine backup to path
 func MakeBackup(backupPath string) error {
+	errBox := ensureBoxInstalledAndNotRunning()
+	if errBox != nil {
+		return errBox
+	}
+
 	progress.TranslateAndSetMessage("Checking existing file...")
 	if mebroutines.ExistsFile(backupPath) {
 		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("File %s already exists"), backupPath))
@@ -54,6 +59,28 @@ func MakeBackup(backupPath string) error {
 	cloneErr := box.WriteDiskClone(backupPath)
 	if cloneErr != nil {
 		return fmt.Errorf("failed to make clone: %v", cloneErr)
+	}
+
+	return nil
+}
+
+func ensureBoxInstalledAndNotRunning() error {
+	isInstalled, errInstalled := box.Installed()
+	if errInstalled != nil {
+		return fmt.Errorf("could not back up server as we could not detect whether vm is installed: %v", errInstalled)
+	}
+
+	if !isInstalled {
+		return errors.New("no server has been installed")
+	}
+
+	isRunning, errRunning := box.Running()
+	if errRunning != nil {
+		return fmt.Errorf("could not start server as we could not detect whether vm is running: %v", errRunning)
+	}
+
+	if isRunning {
+		return errors.New("the server is already running")
 	}
 
 	return nil

@@ -188,7 +188,6 @@ func getVMState(boxName string) (string, error) {
 		rawVMInfo, err := CallRunVBoxManage([]string{"showvminfo", "--machinereadable", boxName})
 		if err != nil {
 			log.Debug(fmt.Sprintf("When trying to get VM state, could not get VM info: %v", err))
-			vmState = ""
 			return "", err
 		}
 
@@ -218,9 +217,9 @@ func Running(boxName string) (bool, error) {
 	log.Debug(fmt.Sprintf("vboxmanage.Running() got following state string: '%s'", vmState))
 	if vmState == "running" {
 		return true, err
-	} else {
-		return false, err
 	}
+
+	return false, err
 }
 
 func Installed(boxName string) (bool, error) {

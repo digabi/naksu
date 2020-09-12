@@ -35,7 +35,7 @@ func NewServerAbitti() {
 
 	newImagePath, errTemp := mebroutines.GetTempFilename()
 	if errTemp != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to create temporary file: %v"))
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to create temporary file: %v", errTemp))
 		return
 	}
 
