@@ -6,9 +6,6 @@ const (
 	// LowDiskLimit sets the warning level of low disk (in bytes)
 	LowDiskLimit uint64 = 50 * 1024 * 1024 * 1024 // 50 Gb
 
-	// AbittiVagrantURL is the URL for the Abittti Vagrantfile
-	AbittiVagrantURL = "http://static.abitti.fi/usbimg/qa/vagrant/Vagrantfile"
-
 	// AbittiEtcherURL is the URL for the latest Abitti Etcher zip
 	//AbittiEtcherURL = "http://static.abitti.fi/etcher-usb/ktp-etcher.zip"
 	AbittiEtcherURL = "http://localhost:8080/ktp-etcher.zip"
@@ -19,11 +16,6 @@ const (
 
 	// URLTestTimeout is the timeout in seconds for the test above
 	URLTestTimeout = 4
-
-	// VagrantBoxAvailVersionDetailsCacheTimeout is a timeout for vagrant box version
-	// cache. See naksu/boxversion GetVagrantBoxAvailVersionDetails() for more
-	// In seconds (5 minutes)
-	VagrantBoxAvailVersionDetailsCacheTimeout int64 = 5 * 60
 
 	// VBoxManageCacheTimeout is a timeout for VBoxManage cache
 	// See naksu/box

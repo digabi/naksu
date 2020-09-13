@@ -4,7 +4,7 @@ GO=go
 # GO=/usr/lib/go-1.10/bin/go
 # Path to your rsrc executable (see README.md)
 RSRC=$(HOME)/go/bin/rsrc
-TESTS=naksu/mebroutines naksu/mebroutines/backup naksu naksu/boxversion naksu/network
+TESTS=naksu/mebroutines naksu/mebroutines/backup naksu naksu/network
 
 bin/golangci-lint:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.30.0
@@ -70,9 +70,3 @@ clean:
 	rm -f bin/naksu bin/naksu.exe
 	rm -f tests.xml
 	if [ -d pkg/ ]; then chmod -R 777 pkg/; rm -fR pkg/; fi
-
-phony_get-server:
-	VAGRANTPATH=phony-scripts/vagrant VBOXMANAGEPATH=phony-scripts/VBoxManage bin/get-server
-
-phony_start-server:
-	VAGRANTPATH=phony-scripts/vagrant VBOXMANAGEPATH=phony-scripts/VBoxManage bin/start-server

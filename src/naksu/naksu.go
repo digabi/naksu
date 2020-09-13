@@ -43,9 +43,8 @@ func logDirectoryPaths() {
 		dirPath string
 	}{
 		{"Home directory (~)", mebroutines.GetHomeDirectory()},
-		{"Vagrant directory (~/ktp)", mebroutines.GetVagrantDirectory()},
+		{"KTP directory (~/ktp)", mebroutines.GetKtpDirectory()},
 		{"MEB share directory (~/ktp-jako)", mebroutines.GetMebshareDirectory()},
-		{"Vagrant internal settings directory (~/vagrant.d)", mebroutines.GetVagrantdDirectory()},
 		{"VirtualBox hidden directory (~/.VirtualBox)", mebroutines.GetVirtualBoxHiddenDirectory()},
 		{"VirtualBox VMs directory (~/VirtualBox VMs)", mebroutines.GetVirtualBoxVMsDirectory()},
 	}

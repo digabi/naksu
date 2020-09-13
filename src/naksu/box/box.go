@@ -1,7 +1,6 @@
 package box
 
-// box gets information about the Vagrant box "default" directly from VirtualBox
-// This package gives most up-to-date information about the server box
+// box gets information about the currently installed VM
 
 import (
 	"errors"
@@ -18,6 +17,7 @@ import (
 	"naksu/host"
 	"naksu/log"
 	"naksu/mebroutines"
+	"naksu/xlate"
 )
 
 const (
@@ -232,6 +232,36 @@ func Running() (bool, error) {
 // GetType returns the box type (e.g. "digabi/ktp-qa") of the current VM
 func GetType() string {
 	return vbm.GetBoxProperty(boxName, "boxType")
+}
+
+// GetTypeLegend returns an user-readable type legend of the current VM
+func GetTypeLegend() string {
+	if TypeIsAbitti() {
+		return xlate.Get("Abitti server")
+	}
+
+	if TypeIsMatriculationExam() {
+		return xlate.Get("Matric Exam server")
+	}
+
+	// Unknown box type
+	log.Debug(fmt.Sprintf("Warning: We have a type string '%s' which does not resolve to Abitti/Matriculation box type (GetTypeLegend)", GetType()))
+	return "-"
+}
+
+// TypeIsAbitti returns true if currently installed box is Abitti box
+func TypeIsAbitti() bool {
+	boxType := GetType()
+
+	return (boxType == "digabi/ktp-qa")
+}
+
+// TypeIsMatriculationExam returns true if currently installed box is Matriculation Exam box
+func TypeIsMatriculationExam() bool {
+	boxType := GetType()
+
+	re := regexp.MustCompile(`[ksKS]*\d\d\d\d[ksKS]*-\d+`)
+	return re.MatchString(boxType)
 }
 
 // GetVersion returns the version string (e.g. "SERVER7108X v69") of the current VM

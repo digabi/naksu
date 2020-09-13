@@ -9,7 +9,7 @@ import (
 	"naksu/ui/progress"
 )
 
-// Server removes all directories related to Vagrant and VirtualBox
+// Server removes all directories related to VirtualBox
 func Server() error {
 	isRunning, errRunning := box.Running()
 

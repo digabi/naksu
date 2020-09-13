@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"naksu/box"
-	"naksu/boxversion"
+	"naksu/cloud"
 	"naksu/config"
 	"naksu/constants"
 	"naksu/host"
@@ -428,28 +428,27 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 // 1) if currently installed box is Abitti
 // 2) and there is a new version available
 func checkAbittiUpdate() (bool, string) {
-	abittiUpdate := false
 	availAbittiVersion := ""
 
-	currentBoxType := box.GetType()
 	currentBoxVersion := box.GetVersion()
 
-	if boxversion.GetVagrantBoxTypeIsAbitti(currentBoxType) {
-		_, availBoxVersion, errAvail := boxversion.GetVagrantBoxAvailVersionDetails()
-		if errAvail == nil && currentBoxVersion != availBoxVersion {
-			abittiUpdate = true
-			availAbittiVersion = availBoxVersion
+	if box.TypeIsAbitti() {
+		var errAvail error
+
+		availAbittiVersion, errAvail = cloud.GetAvailableAbittiVersion()
+		if errAvail == nil && currentBoxVersion != availAbittiVersion {
+			return true, availAbittiVersion
 		}
 	}
 
-	return abittiUpdate, availAbittiVersion
+	return false, availAbittiVersion
 }
 
 // updateStartButtonLabel updates label for start button depending on the
 // installed VM style. If there is no box installed the default label is set.
 func updateStartButtonLabel() {
 	go func() {
-		boxTypeString := boxversion.GetVagrantBoxType(box.GetType())
+		boxTypeString := box.GetTypeLegend()
 		ui.QueueMain(func() {
 			if boxTypeString == "-" {
 				buttonStartServer.SetText(xlate.Get("Start Exam Server"))
@@ -460,15 +459,15 @@ func updateStartButtonLabel() {
 	}()
 }
 
-// updateVagrantBoxAvailLabel updates UI "update available" label if the currently
+// updateBoxAvailLabel updates UI "update available" label if the currently
 // installed box is Abitti and there is new version available
-func updateVagrantBoxAvailLabel() {
+func updateBoxAvailLabel() {
 	go func() {
 		abittiUpdate, _ := checkAbittiUpdate()
 		if abittiUpdate {
-			vagrantBoxAvailVersion := boxversion.GetVagrantBoxAvailVersion()
+			availAbittiVersion, _ := cloud.GetAvailableAbittiVersion()
 			ui.QueueMain(func() {
-				labelBoxAvailable.SetText(fmt.Sprintf(xlate.Get("Update available: %s"), vagrantBoxAvailVersion))
+				labelBoxAvailable.SetText(fmt.Sprintf(xlate.Get("Update available: %s"), availAbittiVersion))
 				// Select "advanced features" checkbox
 				checkboxAdvanced.SetChecked(true)
 				boxAdvanced.Show()
@@ -518,7 +517,7 @@ func translateUILabels() {
 		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), box.GetVersion()))
 
 		// Show available box version if we have a Abitti box
-		updateVagrantBoxAvailLabel()
+		updateBoxAvailLabel()
 
 		// Suggest VM install if none installed
 		emptyVersionProgressMessage := "Start by installing a server: Show management features"
@@ -628,8 +627,7 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 			}
 
 			// Get defails of the current installed box and warn if we're having Matric Exam box & internet connection
-			currentBoxType := box.GetType()
-			if boxversion.GetVagrantBoxTypeIsMatriculationExam(currentBoxType) {
+			if box.TypeIsMatriculationExam() {
 				if network.CheckIfNetworkAvailable() {
 					mebroutines.ShowWarningMessage(xlate.Get("You are starting Matriculation Examination server with an Internet connection."))
 				} else {
@@ -652,11 +650,11 @@ func checkFreeDisk(chFreeDisk chan uint64) {
 	go func() {
 		var freeDisk uint64
 		var err error
-		if mebroutines.ExistsDir(mebroutines.GetVagrantDirectory()) {
-			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetVagrantDirectory())
+		if mebroutines.ExistsDir(mebroutines.GetKtpDirectory()) {
+			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetKtpDirectory())
 			if err != nil {
-				log.Debug("Getting free disk space from Vagrant directory failed")
-				mebroutines.ShowWarningMessage("Failed to calculate free disk space of the Vagrant directory")
+				log.Debug("Getting free disk space from KTP directory failed")
+				mebroutines.ShowWarningMessage("Failed to calculate free disk space of the KTP directory")
 			}
 		} else {
 			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetHomeDirectory())
@@ -706,59 +704,8 @@ func bindOnGetServer(mainUIStatus chan string) {
 
 func bindOnSwitchServer(mainUIStatus chan string) {
 	buttonSwitchServer.OnClicked(func(*ui.Button) {
-		log.Debug("Starting Matriculation Examination box update")
-
-		chFreeDisk := make(chan uint64)
-		chDiskLowPopup := make(chan bool)
-		chPathNewVagrantfile := make(chan string)
-
-		checkFreeDisk(chFreeDisk)
-
-		go func() {
-			freeDisk := <-chFreeDisk
-			if freeDisk < constants.LowDiskLimit {
-				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(freeDisk)))
-			}
-
-			chDiskLowPopup <- true
-		}()
-
-		go func() {
-			// Wait until free disk check has been carried out
-			<-chDiskLowPopup
-
-			ui.QueueMain(func() {
-				pathNewVagrantfile := ui.OpenFile(window)
-				chPathNewVagrantfile <- pathNewVagrantfile
-			})
-		}()
-
-		go func() {
-			// Wait until you have path_new_vagrantfile
-			pathNewVagrantfile := <-chPathNewVagrantfile
-
-			// Path to ~/ktp/Vagrantfile
-			pathOldVagrantfile := filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile")
-
-			switch pathNewVagrantfile {
-			case "":
-				mebroutines.ShowWarningMessage(xlate.Get("Did not get a path for a new Vagrantfile"))
-			case pathOldVagrantfile:
-				mebroutines.ShowWarningMessage(xlate.Get("Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)"))
-			default:
-				go func() {
-					disableUI(mainUIStatus)
-					install.NewServerAbitti()
-					translateUILabels()
-					enableUI(mainUIStatus)
-					progress.SetMessage("")
-
-					log.Debug(fmt.Sprintf("Finished Matriculation Examination box update, new version is: %s", box.GetVersion()))
-				}()
-			}
-		}()
+		mebroutines.ShowWarningMessage("FIXME: Install MEB server")
 	})
-
 }
 
 func bindOnDestroyServer(mainUIStatus chan string) {
@@ -1096,13 +1043,6 @@ func RunUI() error {
 		mainUIStatus <- "enable"
 		backupWindow.Hide()
 
-		// Make sure we have vagrant
-		if !mebroutines.IfFoundVagrant() {
-			mebroutines.ShowErrorMessage(xlate.Get("Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?"))
-			log.Debug("Vagrant is missing, disabling UI")
-			disableUI(mainUIStatus)
-		}
-
 		// Make sure we have VBoxManage
 		if !mebroutines.IfFoundVBoxManage() {
 			mebroutines.ShowErrorMessage(xlate.Get("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?"))
@@ -1130,11 +1070,6 @@ func RunUI() error {
 			if !host.IsHWVirtualisation() {
 				mebroutines.ShowWarningMessage(xlate.Get("Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before continuing."))
 			}
-		}
-
-		// Check if home directory contains non-american characters which may cause problems to vagrant
-		if mebroutines.IfIntlCharsInPath(mebroutines.GetHomeDirectory()) {
-			mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your home directory path (%s) contains characters which may cause problems to Vagrant."), mebroutines.GetHomeDirectory()))
 		}
 
 		log.Debug(fmt.Sprintf("Currently installed box: %s %s", box.GetVersion(), box.GetType()))

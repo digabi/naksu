@@ -57,6 +57,7 @@ func SetLanguage(newLanguage string) {
 			"Server networking hardware:":     "Palvelimen verkkolaite:",
 			"Install/update server for:":      "Asenna tai päivitä palvelin:",
 			"DANGER! Annihilate your server:": "VAARA! Palvelimen tuhoaminen:",
+<<<<<<< HEAD
 			"Naksu could not check for updates as there is no network connection.":                                "Naksu ei voinut etsiä uusia versioita, koska verkkoyhteys puuttuu.",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                          "Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n\nVirhe: %s",
 			"Did not get a path for a new Vagrantfile":                                                            "Uuden Vagrantfile-tiedoston sijainti on annettava",
@@ -70,6 +71,17 @@ func SetLanguage(newLanguage string) {
 			"Your free disk size is getting low (%s).":                                                            "Levytilasi on loppumassa (jäljellä %s).",
 			"Start by installing a server: Show management features":                                              "Aloita asentamalla palvelin: Näytä hallintaominaisuudet",
 			"You are starting Matriculation Examination server with an Internet connection.":                      "Olet käynnistämässä yo-palvelinta, vaikka palvelimella on internet-yhteys.",
+=======
+			"Naksu could not check for updates as there is no network connection.":                       "Naksu ei voinut etsiä uusia versioita, koska verkkoyhteys puuttuu.",
+			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n\nVirhe: %s",
+			"Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?":           "Ohjelman VBoxManage käynnistys epäonnistui. Oletko varma, että koneeseen on asennettu Oracle VirtualBox?",
+			"Please turn Windows Hypervisor off as it may cause problems.":                               "Ole hyvä ja kytke Windows Hypervisor pois päältä, koska se voi aiheuttaa ongelmia.",
+			"It appears your CPU does not support hardware virtualisation (VT-x or AMD-V).":              "Näyttää siltä, että prosessorisi ei tue laitetason virtualisointia (VT-x tai AMD-V).",
+			"Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before continuing.":   "Laitetason virtualisointi (VT-x tai AMD-V) on kytketty pois päältä. Kytke se päälle koneen asetuksista.",
+			"Your free disk size is getting low (%s).":                                                   "Levytilasi on loppumassa (jäljellä %s).",
+			"Start by installing a server: Show management features":                                     "Aloita asentamalla palvelin: Näytä hallintaominaisuudet",
+			"You are starting Matriculation Examination server with an Internet connection.":             "Olet käynnistämässä yo-palvelinta, vaikka palvelimella on internet-yhteys.",
+>>>>>>> Remove references to Vagrant, Vagrantfile etc.
 
 			"You have not set network device. Follow terminal for device selection menu.":                              "Et ole valinnut verkkolaitetta. Seuraa pääteikkunaa mahdollista verkkolaitteen valintaa varten.",
 			"You have selected network device '%s' which is not available. Follow terminal for device selection menu.": "Olet valinnut verkkolaitteen '%s', joka ei ole käytettävissä. Seuraa pääteikkunaa mahdollista verkkolaitteen valintaa varten.",
@@ -122,7 +134,6 @@ func SetLanguage(newLanguage string) {
 			// backup
 			"File %s already exists":                                "Tiedosto %s on jo olemassa",
 			"Backup has been made to %s":                            "Varmuuskopio on talletettu tiedostoon %s",
-			"Could not get vagrantbox ID: %d":                       "Vagrantboxin ID:tä ei voitu lukea: %d",
 			"Could not back up disk %s to %s":                       "Varmuuskopion ottaminen levystä %s tiedostoon %s epäonnistui",
 			"Could not write backup file %s. Try another location.": "Varmuuskopion kirjoittaminen tiedostoon %s epäonnistui. Kokeile toista tallennuspaikkaa.",
 			"Backup failed: %v":                                     "Varmuuskopiointi epäonnistui: %v",
@@ -130,7 +141,6 @@ func SetLanguage(newLanguage string) {
 
 			"Checking existing file...":      "Etsin olemassaolevaa tiedostoa...",
 			"Checking backup path...":        "Tarkistan varmistushakemistoa...",
-			"Getting vagrantbox ID...":       "Haen vagrantbox ID:tä...",
 			"Getting disk UUID...":           "Haen levyn UUID:tä...",
 			"Please wait, writing backup...": "Odota, kirjoitan varmuuskopiota...",
 			"Detaching backup disk image...": "Irrotan varmuuskopion levynkuvan...",
@@ -144,17 +154,12 @@ func SetLanguage(newLanguage string) {
 
 			// install
 			"Could not update Abitti stickless server. Please check your network connection.": "virtuaalisen Abitti-palvelimen päivitys epäonnistui. Tarkista verkkoyhteytesi.",
-			"Could not change to vagrant directory ~/ktp":                                     "Vagrant-hakemistoon ~/ktp siirtyminen epäonnistui",
-			"Error while copying new Vagrantfile: %d":                                         "Uuden Vagrantfile-tiedoston kopiointi epäonnistui: %d",
 			"Could not create directory: %v":                                                  "Hakemiston luominen epäonnistui: %v",
 			"Failed to delete %s":                                                             "Tiedoston %s poistaminen epäonnistui",
 			"Failed to rename %s to %s":                                                       "Tiedoston %s nimeäminen tiedostoksi %s epäonnistui",
 			"Failed to create file %s":                                                        "Tiedoston %s luominen epäonnistui",
 			"Failed to retrieve %s":                                                           "Sijainnista %s lataaminen epäonnistui",
 			"Could not copy body from %s to %s":                                               "Sisällön %s kopioint sijaintiin %s epäonnistui",
-
-			// start
-			// Already defined: "Could not change to vagrant directory ~/ktp"
 
 			// boxversion
 			"Abitti server":      "Abitti-palvelin",
@@ -210,6 +215,7 @@ func SetLanguage(newLanguage string) {
 			"Server networking hardware:":     "Servernätverkshårdvara:",
 			"Install/update server for:":      "Installera eller uppdatera server för:",
 			"DANGER! Annihilate your server:": "FARA! Förstörning av servern:",
+<<<<<<< HEAD
 			"Naksu could not check for updates as there is no network connection.":                                "Naksu kunde inte söka nya uppdateringar för att nätförbindelse saknades.",
 			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                          "Uppdateringen av Naksu misslyckades. Du saknar möjligtvis nätförbindelse för tillfället?\n\nFel: %s",
 			"Did not get a path for a new Vagrantfile":                                                            "Ge sökvägen för den nya Vagrantfile-filen",
@@ -223,6 +229,17 @@ func SetLanguage(newLanguage string) {
 			"Your free disk size is getting low (%s).":                                                            "Ditt diskutrymme börjar ta slut (kvar %s).",
 			"Start by installing a server: Show management features":                                              "Börja med att installera servern: Visa hanteringsegenskaper",
 			"You are starting Matriculation Examination server with an Internet connection.":                      "Då håller på att starta provlokalsservern för studentexamen, fast servern har internetförbindelse.",
+=======
+			"Naksu could not check for updates as there is no network connection.":                       "Naksu kunde inte söka nya uppdateringar för att nätförbindelse saknades.",
+			"Naksu update failed. Maybe you don't have network connection?\n\nError: %s":                 "Uppdateringen av Naksu misslyckades. Du saknar möjligtvis nätförbindelse för tillfället?\n\nFel: %s",
+			"Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?":           "Utförandet av programmet VBoxManage misslyckades. Är du säker, att Oracle VirtualBox har installerats på datorn?",
+			"Please turn Windows Hypervisor off as it may cause problems.":                               "Vänligen stäng Windows Hypervisor eftersom den kan orsaka problem.",
+			"It appears your CPU does not support hardware virtualisation (VT-x or AMD-V).":              "Det verkar som om din processor inte stöder virtualisering av hårdvara (VT-x eller AMD-V).",
+			"Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before continuing.":   "Virtualiseringen av hårdvaran (VT-x eller AMD-V) är avstängd. Vänligen aktivera den innan du fortsätter.",
+			"Your free disk size is getting low (%s).":                                                   "Ditt diskutrymme börjar ta slut (kvar %s).",
+			"Start by installing a server: Show management features":                                     "Börja med att installera servern: Visa hanteringsegenskaper",
+			"You are starting Matriculation Examination server with an Internet connection.":             "Då håller på att starta provlokalsservern för studentexamen, fast servern har internetförbindelse.",
+>>>>>>> Remove references to Vagrant, Vagrantfile etc.
 
 			"You have not set network device. Follow terminal for device selection menu.":                              "Du har inte valt nätverksanordning. Följ terminalfönstret för eventuellt val av nätverksanordning.",
 			"You have selected network device '%s' which is not available. Follow terminal for device selection menu.": "Du har valt nätverksanordningen '%s', som inte är tillgänglig. Följ terminalfönstret för eventuellt val av nätverksanordning.",
@@ -275,7 +292,6 @@ func SetLanguage(newLanguage string) {
 			// backup
 			"File %s already exists":                                "Filen %s existerar redan",
 			"Backup has been made to %s":                            "Säkerhetskopian har sparats i filen %s",
-			"Could not get vagrantbox ID: %d":                       "Det gick inte att läsa ID:n på Vagrantboxen: %d",
 			"Could not back up disk %s to %s":                       "Säkerhetskopieringen av skivan %s i filen %s misslyckades",
 			"Could not write backup file %s. Try another location.": "Det gick inte att säkerhetskopiera till filen %s. Pröva att spara filen på ett annat ställe.",
 			"Backup failed: %v":                                     "Säkerhetskopieringen misslyckades: %v",
@@ -283,7 +299,6 @@ func SetLanguage(newLanguage string) {
 
 			"Checking existing file...":      "Granskar existerande fil...",
 			"Checking backup path...":        "Granskar säkerhetskopians katalog...",
-			"Getting vagrantbox ID...":       "Söker vagrantbox ID...",
 			"Getting disk UUID...":           "Söker skivans UUID...",
 			"Please wait, writing backup...": "Vänligen vänta, skriver säkerhetskopian...",
 			"Detaching backup disk image...": "Lösgör säkerhetskopians skivavbild...",
@@ -297,17 +312,12 @@ func SetLanguage(newLanguage string) {
 
 			// install
 			"Could not update Abitti stickless server. Please check your network connection.": "Det gick inte att uppdatera den virtuella Abitti-servern. Kontrollera din nätförbindelse.",
-			"Could not change to vagrant directory ~/ktp":                                     "Förflyttningen till Vagrant-katalogen ~/ktp misslyckades",
-			"Error while copying new Vagrantfile: %d":                                         "Kopieringen av en ny Vagrantfile-fil misslyckades: %d",
 			"Could not create directory: %v":                                                  "Det gick inte att skapa katalogen: %v",
 			"Failed to delete %s":                                                             "Det gick inte att avlägsna filen %s",
 			"Failed to rename %s to %s":                                                       "Det gick inte att namnge filen %s som %s",
 			"Failed to create file %s":                                                        "Det gick inte att skapa filen %s",
 			"Failed to retrieve %s":                                                           "Det gick inte att ladda ner från sökvägen %s",
 			"Could not copy body from %s to %s":                                               "Det gick inte att kopiera från sökvägen %s till %s",
-
-			// start
-			// Already defined: "Could not change to vagrant directory ~/ktp"
 
 			// boxversion
 			"Abitti server":      "Abitti-server",

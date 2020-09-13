@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-// Server starts exam server by running vagrant
+// Server starts exam server
 func Server() {
 	cleanUpTrashVMDirectories()
 

@@ -43,7 +43,7 @@ func (wc *writeCounter) Write(p []byte) (int, error) {
 
 // GetServerImagePath returns path to cached server image (~/ktp/naksu_last_image.zip)
 func GetServerImagePath() string {
-	return filepath.Join(mebroutines.GetVagrantDirectory(), "naksu_last_image.zip")
+	return filepath.Join(mebroutines.GetKtpDirectory(), "naksu_last_image.zip")
 }
 
 func downloadServerImage(url string, destinationZipPath string, progressCallbackFn func(string)) error {
@@ -147,4 +147,8 @@ func getAndUnzipCloudImage(url string, destinationImagePath string, progressCall
 
 func GetAbittiImage(destinationImagePath string, progressCallbackFn func(string)) error {
 	return getAndUnzipCloudImage(constants.AbittiEtcherURL, destinationImagePath, progressCallbackFn)
+}
+
+func GetAvailableAbittiVersion() (string, error) {
+	return "FIXME: cloud.GetAvailableAbittiVersion", nil
 }

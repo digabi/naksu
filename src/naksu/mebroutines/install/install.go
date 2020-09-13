@@ -101,7 +101,7 @@ func ensureNaksuDirectoriesExist() (string, string, error) {
 }
 
 func createKtpDir() (string, error) {
-	var ktpPath = mebroutines.GetVagrantDirectory()
+	var ktpPath = mebroutines.GetKtpDirectory()
 
 	var err error
 

@@ -11,10 +11,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 
-	"naksu/config"
 	"naksu/log"
 	"naksu/xlate"
 
@@ -32,36 +30,11 @@ func Close(c io.Closer) {
 	}
 }
 
-// getRunEnvironment returns array of strings containing environment strings
-func getRunEnvironment() []string {
-	runEnv := os.Environ()
-
-	config.Load()
-
-	envs := []struct {
-		envName  string
-		envValue string
-	}{
-		{"NIC", config.GetNic()},
-		{"EXTNIC", config.GetExtNic()},
-	}
-
-	for _, thisEnv := range envs {
-		if thisEnv.envValue != "" {
-			runEnv = append(runEnv, fmt.Sprintf("%s=%s", thisEnv.envName, thisEnv.envValue))
-			log.Debug(fmt.Sprintf("Adding environment value %s=%s", thisEnv.envName, thisEnv.envValue))
-		}
-	}
-
-	return runEnv
-}
-
 // RunAndGetOutput runs command with arguments and returns output as a string
 func RunAndGetOutput(commandArgs []string) (string, error) {
 	log.Debug(fmt.Sprintf("RunAndGetOutput: %s", strings.Join(commandArgs, " ")))
 	/* #nosec */
 	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
-	cmd.Env = getRunEnvironment()
 
 	out, err := cmd.CombinedOutput()
 
@@ -90,7 +63,6 @@ func RunAndGetError(commandArgs []string) (string, error) {
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = &stderr
-	cmd.Env = getRunEnvironment()
 
 	err := cmd.Run()
 
@@ -98,54 +70,6 @@ func RunAndGetError(commandArgs []string) (string, error) {
 	log.Debug(stderr.String())
 
 	return stderr.String(), err
-}
-
-// GetVagrantPath returns path for Vagrant binary
-func GetVagrantPath() string {
-	var path = "vagrant"
-	if os.Getenv("VAGRANTPATH") != "" {
-		path = os.Getenv("VAGRANTPATH")
-	}
-
-	return path
-}
-
-// RunVagrant executes Vagrant with given arguments
-func RunVagrant(args []string) error {
-	runVagrant := []string{GetVagrantPath()}
-	runArgs := append(runVagrant, args...)
-	vagrantOutput, err := RunAndGetError(runArgs)
-	if err != nil {
-		matchedTimeout, errTimeout := regexp.MatchString("Timed out while waiting for the machine to boot", vagrantOutput)
-		if errTimeout == nil && matchedTimeout {
-			// We've obviously started the VM
-			log.Debug("Running vagrant gives me timeout - things are probably ok. User was not notified. Complete output:")
-			log.Debug(vagrantOutput)
-			// This case should not be considered as an error
-			return nil
-		}
-
-		matchedMacAddress, errMacAddress := regexp.MatchString("error: --macaddress: RTGetOpt: Command line option needs argument", vagrantOutput)
-		if errMacAddress == nil && matchedMacAddress {
-			// Vagrant in Windows host give this error message - just restart vagrant and you're good
-			log.Debug("Running vagrant gives me a known --macaddress/RTGetOpt error (generated every time by vagrant after a new box in Windows). Complete output:")
-			log.Debug(vagrantOutput)
-			return errors.New("macaddress/rtgetopt")
-		}
-
-		matchedConnectionRefused, errConnectionRefused := regexp.MatchString("The guest machine entered an invalid state", vagrantOutput)
-		if errConnectionRefused == nil && matchedConnectionRefused {
-			log.Debug("Vagrant entered invalid state while booting. We expect this to occur because user has closed the VM window. User was not notified. Complete output:")
-			log.Debug(vagrantOutput)
-			// This case should not be considered as an error
-			return nil
-		}
-
-		log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", strings.Join(runArgs, " "), err))
-		log.Debug(vagrantOutput)
-	}
-
-	return err
 }
 
 // RunVBoxManage runs vboxmanage command with given arguments
@@ -176,23 +100,6 @@ func RunVBoxManage(args []string) (string, error) {
 	}
 
 	return vBoxManageOutput, err
-}
-
-// IfFoundVagrant returns true if Vagrant can be found in path
-func IfFoundVagrant() bool {
-	var vagrantpath = GetVagrantPath()
-
-	runParams := []string{vagrantpath, "--version"}
-
-	vagrantVersion, err := RunAndGetOutput(runParams)
-	if err != nil {
-		// No vagrant was found
-		return false
-	}
-
-	log.Debug(fmt.Sprintf("vagrant says: %s", vagrantVersion))
-
-	return true
 }
 
 // IfFoundVBoxManage returns true if vboxmanage can be found in path
@@ -316,16 +223,6 @@ func CopyFile(src, dst string) (err error) {
 	return nil
 }
 
-// IfIntlCharsInPath returns true if path contains non-ASCII characters
-func IfIntlCharsInPath(path string) bool {
-	matched, err := regexp.MatchString(`[^a-zA-Z0-9_\-\/\:\\ \.]`, path)
-	if err == nil && matched {
-		return true
-	}
-
-	return false
-}
-
 // GetHomeDirectory returns home directory path
 func GetHomeDirectory() string {
 	homeDir, err := homedir.Dir()
@@ -337,14 +234,9 @@ func GetHomeDirectory() string {
 	return homeDir
 }
 
-// GetVagrantDirectory returns ktp-directory path from under home directory
-func GetVagrantDirectory() string {
+// GetKtpDirectory returns ktp-directory path from under home directory
+func GetKtpDirectory() string {
 	return filepath.Join(GetHomeDirectory(), "ktp")
-}
-
-// GetVagrantdDirectory returns .vagrantd-directory path from under home directory
-func GetVagrantdDirectory() string {
-	return filepath.Join(GetHomeDirectory(), ".vagrant.d")
 }
 
 // GetMebshareDirectory returns ktp-jako path from under home directory
@@ -385,11 +277,6 @@ func chdir(chdirTo string) bool {
 	}
 
 	return true
-}
-
-// ChdirVagrantDirectory changes current working directory to vagrant path (ktp)
-func ChdirVagrantDirectory() bool {
-	return chdir(GetVagrantDirectory())
 }
 
 // ChdirHomeDirectory changes current working directory to home directory
