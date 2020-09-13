@@ -2,7 +2,6 @@
 package mebroutines
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -50,78 +49,6 @@ func RunAndGetOutput(commandArgs []string) (string, error) {
 	}
 
 	return string(out), err
-}
-
-// RunAndGetError runs command with arguments and returns error code
-func RunAndGetError(commandArgs []string) (string, error) {
-	log.Debug(fmt.Sprintf("RunAndGetError: %s", strings.Join(commandArgs, " ")))
-
-	var stderr bytes.Buffer
-
-	/* #nosec */
-	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
-	cmd.Stdout = os.Stdout
-	cmd.Stdin = os.Stdin
-	cmd.Stderr = &stderr
-
-	err := cmd.Run()
-
-	log.Debug("RunAndGetError returns STDERR:")
-	log.Debug(stderr.String())
-
-	return stderr.String(), err
-}
-
-// RunVBoxManage runs vboxmanage command with given arguments
-func RunVBoxManage(args []string) (string, error) {
-	vboxmanagepathArr := []string{getVBoxManagePath()}
-	runArgs := append(vboxmanagepathArr, args...)
-	vBoxManageOutput, err := RunAndGetOutput(runArgs)
-	if err != nil {
-		command := strings.Join(runArgs, " ")
-		logError := func(output string, err error) {
-			log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", command, err))
-			log.Debug(output)
-		}
-
-		logError(vBoxManageOutput, err)
-
-		fixed, fixErr := detectAndFixDuplicateHardDiskProblem(vBoxManageOutput)
-		if !fixed || fixErr != nil {
-			log.Debug(fmt.Sprintf("Failed to fix problem with command %s (%v)", command, fixErr))
-			return "", fmt.Errorf(xlate.Get("Failed to execute %s: %v"), command, err)
-		}
-
-		log.Debug(fmt.Sprintf("Retrying '%s' after fixing problem", command))
-		vBoxManageOutput, err = RunAndGetOutput(runArgs)
-		if err != nil {
-			logError(vBoxManageOutput, err)
-		}
-	}
-
-	return vBoxManageOutput, err
-}
-
-// IfFoundVBoxManage returns true if vboxmanage can be found in path
-func IfFoundVBoxManage() bool {
-	var vboxmanagepath = getVBoxManagePath()
-
-	if vboxmanagepath == "" {
-		log.Debug("Could not get VBoxManage path")
-		return false
-	}
-
-	runParams := []string{vboxmanagepath, "--version"}
-
-	vBoxManageVersion, err := RunAndGetOutput(runParams)
-	if err != nil {
-		// No VBoxManage was found
-		return false
-	}
-
-	log.Debug(fmt.Sprintf("VBoxManage says: %s", vBoxManageVersion))
-
-	return true
 }
 
 func getFileMode(path string) (os.FileMode, error) {

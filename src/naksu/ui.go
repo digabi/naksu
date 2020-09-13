@@ -704,7 +704,9 @@ func bindOnGetServer(mainUIStatus chan string) {
 
 func bindOnSwitchServer(mainUIStatus chan string) {
 	buttonSwitchServer.OnClicked(func(*ui.Button) {
+		disableUI(mainUIStatus)
 		mebroutines.ShowWarningMessage("FIXME: Install MEB server")
+		enableUI(mainUIStatus)
 	})
 }
 
@@ -1044,7 +1046,7 @@ func RunUI() error {
 		backupWindow.Hide()
 
 		// Make sure we have VBoxManage
-		if !mebroutines.IfFoundVBoxManage() {
+		if !host.InstalledVBoxManage() {
 			mebroutines.ShowErrorMessage(xlate.Get("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?"))
 			log.Debug("VBoxManage is missing, disabling UI")
 			disableUI(mainUIStatus)

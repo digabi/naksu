@@ -3,6 +3,7 @@ package host
 import (
 	"runtime"
 
+	vbm "naksu/box/vboxmanage"
 	"naksu/log"
 
 	"github.com/intel-go/cpuid"
@@ -42,4 +43,9 @@ func GetMemory() (uint64, error) {
 	}
 
 	return memory.Total / (1024 * 1024), nil
+}
+
+// InstalledVBoxManage returns true if we have VBoxManage installed
+func InstalledVBoxManage() bool {
+	return vbm.InstalledVBoxManage()
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	semver "github.com/blang/semver/v4"
@@ -31,7 +32,7 @@ func CallRunVBoxManage(args VBoxCommand) (string, error) {
 	}
 
 	vBoxManageStarted = time.Now().Unix()
-	vBoxManageOutput, err := mebroutines.RunVBoxManage(args)
+	vBoxManageOutput, err := runVBoxManage(args)
 	vBoxManageStarted = 0
 
 	return vBoxManageOutput, err
@@ -46,6 +47,35 @@ func MultipleCallRunVBoxManage(commands []VBoxCommand) error {
 	}
 
 	return nil
+}
+
+// runVBoxManage runs vboxmanage command with given arguments
+func runVBoxManage(args []string) (string, error) {
+	vboxmanagepathArr := []string{getVBoxManagePath()}
+	runArgs := append(vboxmanagepathArr, args...)
+	vBoxManageOutput, err := mebroutines.RunAndGetOutput(runArgs)
+	if err != nil {
+		logError := func(output string, err error) {
+			log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", strings.Join(runArgs, " "), err))
+			log.Debug(output)
+		}
+
+		logError(vBoxManageOutput, err)
+
+		fixed, fixErr := detectAndFixDuplicateHardDiskProblem(vBoxManageOutput)
+		if !fixed || fixErr != nil {
+			log.Debug(fmt.Sprintf("Failed to detect & fix duplicate hard disk problem: %v", fixErr))
+			return "", errors.New("failed to fix duplicate hard disk problem")
+		}
+
+		log.Debug(fmt.Sprintf("Retrying '%s' after fixing problem", strings.Join(runArgs, " ")))
+		vBoxManageOutput, err = mebroutines.RunAndGetOutput(runArgs)
+		if err != nil {
+			logError(vBoxManageOutput, err)
+		}
+	}
+
+	return vBoxManageOutput, err
 }
 
 func ensureVBoxResponseCacheInitialised() {
@@ -238,4 +268,24 @@ func Installed(boxName string) (bool, error) {
 
 	// We got the showvminfo all right, so the machine is installed
 	return true, nil
+}
+
+// InstalledVBoxManage returns true if VBoxManage has been installed
+func InstalledVBoxManage() bool {
+	var vboxmanagepath = getVBoxManagePath()
+
+	if vboxmanagepath == "" {
+		log.Debug("Could not get VBoxManage path")
+		return false
+	}
+
+	vBoxManageVersion, err := CallRunVBoxManage([]string{"--version"})
+	if err != nil {
+		// No VBoxManage was found
+		log.Debug("VBoxManage was not found")
+		return false
+	}
+
+	log.Debug(fmt.Sprintf("VBoxManage version: %s", vBoxManageVersion))
+	return true
 }
