@@ -342,19 +342,25 @@ func populateBackupCombobox(backupMedia map[string]string, combobox *ui.Combobox
 	return mediaPath
 }
 
-func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
+func setupMainLoop(mainUIStatus chan string, mainUIUpdate *time.Ticker) {
 	go func() {
 		lastStatus := ""
 		for {
 			select {
-			case <-mainUINetupdate.C:
+			case <-mainUIUpdate.C:
 				networkstatus.Update()
 
 				if lastStatus == "enable" {
-					// Require network connection for install/update
+					boxRunning, boxRunningErr := box.Running()
+					if boxRunningErr != nil {
+						log.Debug(fmt.Sprintf("Could not query whether VM is running: %v", boxRunningErr))
+						boxRunning = true
+					}
+
+					// Require network connection and stopped box for install/update
 
 					ui.QueueMain(func() {
-						if network.CheckIfNetworkAvailable() {
+						if network.CheckIfNetworkAvailable() && !boxRunning {
 							buttonGetServer.Enable()
 							buttonSwitchServer.Enable()
 						} else {
@@ -362,10 +368,31 @@ func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
 							buttonSwitchServer.Disable()
 						}
 					})
+
+					// Require stopped box for these objects
+					ui.QueueMain(func () {
+						if !boxRunning {
+							buttonStartServer.Enable()
+							buttonDestroyServer.Enable()
+							buttonMakeBackup.Enable()
+							comboboxNic.Enable()
+							comboboxExtNic.Enable()
+						} else {
+							buttonStartServer.Disable()
+							buttonDestroyServer.Disable()
+							buttonMakeBackup.Disable()
+							comboboxNic.Disable()
+							comboboxExtNic.Disable()
+						}
+					})
 				}
 			case newStatus := <-mainUIStatus:
 				log.Debug(fmt.Sprintf("main_ui_status: %s", newStatus))
 				// Got new status
+				if newStatus == "enable_automatically" {
+					log.Debug("enable ui automatically")
+					lastStatus = "enable"
+				}
 				if newStatus == "enable" {
 					log.Debug("enable ui")
 
@@ -570,6 +597,11 @@ func enableUI(mainUIStatus chan string) {
 	mainUIStatus <- "enable"
 }
 
+// enableAutomaticallyUI tells UI handler to enable/disable elements based on network/box status
+func enableAutomaticallyUI(mainUIStatus chan string) {
+	mainUIStatus <- "enable_automatically"
+}
+
 func bindLanguageSwitching() {
 	// Define language selection action main window
 	comboboxLang.OnSelected(func(*ui.Combobox) {
@@ -637,7 +669,9 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 
 			disableUI(mainUIStatus)
 			start.Server()
-			enableUI(mainUIStatus)
+			// Wait over one UI loop
+			time.Sleep(5)
+			enableAutomaticallyUI(mainUIStatus)
 			progress.SetMessage("")
 		}()
 	})
@@ -997,11 +1031,11 @@ func RunUI() error {
 
 		// Define command channel & goroutine for disabling/enabling main UI buttons
 		mainUIStatus := make(chan string)
-		mainUINetupdate := time.NewTicker(5 * time.Second)
+		mainUIUpdate := time.NewTicker(5 * time.Second)
 
 		networkstatus.Update()
 
-		setupMainLoop(mainUIStatus, mainUINetupdate)
+		setupMainLoop(mainUIStatus, mainUIUpdate)
 
 		enableUI(mainUIStatus)
 
