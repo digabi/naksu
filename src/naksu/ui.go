@@ -46,7 +46,7 @@ var comboboxNic *ui.Combobox
 var labelBox *ui.Label
 var labelBoxAvailable *ui.Label
 var labelStatus *ui.Label
-var labelAdvancedExtNic *ui.Label
+var labelExtNic *ui.Label
 var labelAdvancedNic *ui.Label
 var labelAdvancedUpdate *ui.Label
 var labelAdvancedAnnihilate *ui.Label
@@ -144,7 +144,7 @@ func createMainWindowElements() {
 	labelBox = ui.NewLabel("")
 	labelBoxAvailable = ui.NewLabel("")
 	labelStatus = ui.NewLabel("")
-	labelAdvancedExtNic = ui.NewLabel("")
+	labelExtNic = ui.NewLabel("")
 	labelAdvancedNic = ui.NewLabel("")
 	labelAdvancedUpdate = ui.NewLabel("")
 	labelAdvancedAnnihilate = ui.NewLabel("")
@@ -171,6 +171,8 @@ func createMainWindowElements() {
 	boxBasic.Append(labelStatus, true)
 	boxBasic.Append(buttonStartServer, false)
 	boxBasic.Append(buttonMebShare, false)
+	boxBasic.Append(labelExtNic, false)
+	boxBasic.Append(comboboxExtNic, false)
 	boxBasic.Append(checkboxAdvanced, true)
 
 	boxAdvancedUpdate = ui.NewHorizontalBox()
@@ -186,8 +188,6 @@ func createMainWindowElements() {
 	boxAdvanced = ui.NewVerticalBox()
 	boxAdvanced.SetPadded(true)
 	boxAdvanced.Append(ui.NewHorizontalSeparator(), false)
-	boxAdvanced.Append(labelAdvancedExtNic, false)
-	boxAdvanced.Append(comboboxExtNic, false)
 	boxAdvanced.Append(labelAdvancedNic, false)
 	boxAdvanced.Append(comboboxNic, false)
 	boxAdvanced.Append(ui.NewHorizontalSeparator(), false)
@@ -354,13 +354,13 @@ func setupMainLoop(mainUIStatus chan string, mainUIUpdate *time.Ticker) {
 					boxRunning, boxRunningErr := box.Running()
 					if boxRunningErr != nil {
 						log.Debug(fmt.Sprintf("Could not query whether VM is running: %v", boxRunningErr))
-						boxRunning = true
+						boxRunning = false
 					}
 
 					// Require network connection and stopped box for install/update
 
 					ui.QueueMain(func() {
-						if network.CheckIfNetworkAvailable() && !boxRunning {
+						if network.CheckIfNetworkAvailable() && boxRunningErr == nil && !boxRunning {
 							buttonGetServer.Enable()
 							buttonSwitchServer.Enable()
 						} else {
@@ -371,7 +371,7 @@ func setupMainLoop(mainUIStatus chan string, mainUIUpdate *time.Ticker) {
 
 					// Require stopped box for these objects
 					ui.QueueMain(func () {
-						if !boxRunning {
+						if boxRunningErr == nil && !boxRunning {
 							buttonStartServer.Enable()
 							buttonDestroyServer.Enable()
 							buttonMakeBackup.Enable()
@@ -540,6 +540,7 @@ func translateUILabels() {
 		buttonMakeBackup.SetText(xlate.Get("Make Exam Server Backup"))
 		buttonDeliverLogs.SetText(xlate.Get("Send logs to Abitti support"))
 		buttonMebShare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
+		labelExtNic.SetText(xlate.Get("Network device:"))
 
 		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), box.GetVersion()))
 
@@ -553,7 +554,6 @@ func translateUILabels() {
 		}
 
 		checkboxAdvanced.SetText(xlate.Get("Show management features"))
-		labelAdvancedExtNic.SetText(xlate.Get("Network device:"))
 		labelAdvancedNic.SetText(xlate.Get("Server networking hardware:"))
 		labelAdvancedUpdate.SetText(xlate.Get("Install/update server for:"))
 		labelAdvancedAnnihilate.SetText(xlate.Get("DANGER! Annihilate your server:"))
@@ -649,13 +649,13 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 			// Give warnings if there is problems with configured external network device
 			// and there are more than one available
 			if config.GetExtNic() == "" {
-				if len(extInterfaces) > 2 {
-					mebroutines.ShowWarningMessage(xlate.Get("You have not set network device. Follow terminal for device selection menu."))
-				}
-			} else if !network.IsExtInterface(config.GetExtNic()) {
-				if len(extInterfaces) > 2 {
-					mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("You have selected network device '%s' which is not available. Follow terminal for device selection menu."), config.GetExtNic()))
-				}
+				mebroutines.ShowErrorMessage(xlate.Get("Please select the network device which is connected to your exam network."))
+				return
+			}
+
+			if !network.IsExtInterface(config.GetExtNic()) {
+				mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("You have selected network device '%s' which is not available."), config.GetExtNic()))
+				return
 			}
 
 			// Get defails of the current installed box and warn if we're having Matric Exam box & internet connection

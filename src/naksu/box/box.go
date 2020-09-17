@@ -203,30 +203,16 @@ func Installed() (bool, error) {
 	return isInstalled, nil
 }
 
-// Running returns true if current box is installed and running, otherwise false
 func Running() (bool, error) {
-	isInstalled, errInstalled := Installed()
-	isRunning, errRunning := vbm.Running(boxName)
+	isRunning, err := vbm.Running(boxName)
 
-	isInstalledAndRunning := isInstalled && isRunning
-
-	if errInstalled == nil {
-		log.Debug(fmt.Sprintf("box.Running(): VM installed: %t", isInstalled))
+	if err == nil {
+		log.Debug(fmt.Sprintf("Server '%s' running: %t", boxName, isRunning))
 	} else {
-		log.Debug(fmt.Sprintf("box.Running() could not detect whether VM is installed: %v", errInstalled))
-		return isInstalledAndRunning, errInstalled
+		log.Debug(fmt.Sprintf("box.Running() could not detect whether VM is running: %v", err))
 	}
 
-	if errRunning == nil {
-		log.Debug(fmt.Sprintf("box.Running(): VM running: %t", isRunning))
-	} else {
-		log.Debug(fmt.Sprintf("box.Running() could not detect whether VM is running: %v", errRunning))
-		return isInstalledAndRunning, errRunning
-	}
-
-	log.Debug(fmt.Sprintf("box.Running(): Server '%s' is installed and running: %t", boxName, isInstalledAndRunning))
-
-	return isInstalledAndRunning, nil
+	return isRunning, nil
 }
 
 // GetType returns the box type (e.g. "digabi/ktp-qa") of the current VM

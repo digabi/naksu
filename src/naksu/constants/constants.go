@@ -91,7 +91,7 @@ var AvailableNics = []AvailableSelection{
 var DefaultExtNicArray = []AvailableSelection{
 	{
 		ConfigValue: "",
-		Legend:      "Select in terminal",
+		Legend:      "Select network device",
 	},
 }
 
