@@ -28,6 +28,9 @@ import (
 	humanize "github.com/dustin/go-humanize"
 )
 
+const mainUIStatusEnabled = ""
+const mainUIStatusDisabled = "disable"
+
 var window *ui.Window
 
 var buttonStartServer *ui.Button
@@ -344,108 +347,94 @@ func populateBackupCombobox(backupMedia map[string]string, combobox *ui.Combobox
 
 func setupMainLoop(mainUIStatus chan string, mainUIUpdate *time.Ticker) {
 	go func() {
-		lastStatus := ""
+		// Define UI button status handler
+		mainUIStatusHandler := func (currentMainUIStatus string) {
+			networkstatus.Update()
+
+			// Check general UI status
+			mainUIEnabled := (currentMainUIStatus == mainUIStatusEnabled)
+
+			boxInstalled := false
+			boxRunning := false
+			netAvailable := false
+
+			// Make these checks only if main UI is enable to save time when disabling the UI
+			if mainUIEnabled {
+				// Query box installation status
+				var boxInstalledErr error
+				boxInstalled, boxInstalledErr = box.Installed()
+				if boxInstalledErr != nil {
+					log.Debug(fmt.Sprintf("Could not query whether VM is installed: %v", boxInstalledErr))
+				}
+
+				boxInstalled = (boxInstalledErr == nil) && boxInstalled
+
+				// Query box running status
+				var boxRunningErr error
+				boxRunning, boxRunningErr = box.Running()
+				if boxRunningErr != nil {
+					log.Debug(fmt.Sprintf("Could not query whether VM is running: %v", boxRunningErr))
+				}
+
+				boxRunning = (boxRunningErr == nil) && boxRunning
+
+				// Query network (internet) connection status
+				netAvailable = network.CheckIfNetworkAvailable()
+			}
+
+			// Create rule for "enabled" for each button
+			buttonRules := []struct {
+				element *ui.Button
+				enable bool
+			}{
+				{ buttonStartServer, mainUIEnabled && boxInstalled && !boxRunning },
+				{ buttonMebShare, true },
+				{ buttonMakeBackup, mainUIEnabled && boxInstalled && !boxRunning },
+				{ buttonDeliverLogs, mainUIEnabled && true },
+				{ buttonGetServer, mainUIEnabled && !boxRunning && netAvailable },
+				{ buttonSwitchServer, mainUIEnabled && !boxRunning && netAvailable },
+				{ buttonDestroyServer, mainUIEnabled && boxInstalled && !boxRunning },
+				{ buttonRemoveServer, true },
+			}
+
+			comboboxRules := []struct {
+				element *ui.Combobox
+				enable bool
+			}{
+				{ comboboxLang, mainUIEnabled && !boxRunning },
+				{ comboboxNic, mainUIEnabled && !boxRunning },
+				{ comboboxExtNic, mainUIEnabled && !boxRunning },
+			}
+
+			ui.QueueMain(func() {
+				for _, buttonRule := range buttonRules {
+					if buttonRule.enable {
+						buttonRule.element.Enable()
+					} else {
+						buttonRule.element.Disable()
+					}
+				}
+
+				for _, comboboxRule := range comboboxRules {
+					if comboboxRule.enable {
+						comboboxRule.element.Enable()
+					} else {
+						comboboxRule.element.Disable()
+					}
+				}
+			})
+		}
+
+		// Start with all functions disabled
+		currentMainUIStatus := mainUIStatusDisabled
+
 		for {
 			select {
 			case <-mainUIUpdate.C:
-				networkstatus.Update()
-
-				if lastStatus == "enable" {
-					boxRunning, boxRunningErr := box.Running()
-					if boxRunningErr != nil {
-						log.Debug(fmt.Sprintf("Could not query whether VM is running: %v", boxRunningErr))
-						boxRunning = false
-					}
-
-					// Require network connection and stopped box for install/update
-
-					ui.QueueMain(func() {
-						if network.CheckIfNetworkAvailable() && boxRunningErr == nil && !boxRunning {
-							buttonGetServer.Enable()
-							buttonSwitchServer.Enable()
-						} else {
-							buttonGetServer.Disable()
-							buttonSwitchServer.Disable()
-						}
-					})
-
-					// Require stopped box for these objects
-					ui.QueueMain(func () {
-						if boxRunningErr == nil && !boxRunning {
-							buttonStartServer.Enable()
-							buttonDestroyServer.Enable()
-							buttonMakeBackup.Enable()
-							comboboxNic.Enable()
-							comboboxExtNic.Enable()
-						} else {
-							buttonStartServer.Disable()
-							buttonDestroyServer.Disable()
-							buttonMakeBackup.Disable()
-							comboboxNic.Disable()
-							comboboxExtNic.Disable()
-						}
-					})
-				}
+				mainUIStatusHandler(currentMainUIStatus)
 			case newStatus := <-mainUIStatus:
-				log.Debug(fmt.Sprintf("main_ui_status: %s", newStatus))
-				// Got new status
-				if newStatus == "enable_automatically" {
-					log.Debug("enable ui automatically")
-					lastStatus = "enable"
-				}
-				if newStatus == "enable" {
-					log.Debug("enable ui")
-
-					ui.QueueMain(func() {
-						comboboxLang.Enable()
-						comboboxNic.Enable()
-						comboboxExtNic.Enable()
-
-						// Require installed version to start server
-						if box.GetVersion() == "" {
-							buttonStartServer.Disable()
-						} else {
-							updateStartButtonLabel()
-							buttonStartServer.Enable()
-						}
-
-						buttonMebShare.Enable()
-
-						// Require network connection for install/update
-						if network.CheckIfNetworkAvailable() {
-							buttonGetServer.Enable()
-							buttonSwitchServer.Enable()
-						} else {
-							buttonGetServer.Disable()
-							buttonSwitchServer.Disable()
-						}
-						buttonMakeBackup.Enable()
-						buttonDestroyServer.Enable()
-						buttonRemoveServer.Enable()
-					})
-
-					lastStatus = newStatus
-				}
-				if newStatus == "disable" {
-					log.Debug("disable ui")
-
-					ui.QueueMain(func() {
-						comboboxLang.Disable()
-						comboboxNic.Disable()
-						comboboxExtNic.Disable()
-
-						buttonStartServer.Disable()
-						buttonMebShare.Enable()
-
-						buttonGetServer.Disable()
-						buttonSwitchServer.Disable()
-						buttonMakeBackup.Disable()
-						buttonDestroyServer.Disable()
-						buttonRemoveServer.Disable()
-					})
-
-					lastStatus = newStatus
-				}
+				currentMainUIStatus = newStatus
+				mainUIStatusHandler(currentMainUIStatus)
 			}
 		}
 	}()
@@ -589,17 +578,13 @@ func translateUILabels() {
 	networkstatus.Update()
 }
 
+// disableUI sends
 func disableUI(mainUIStatus chan string) {
-	mainUIStatus <- "disable"
+	mainUIStatus <- mainUIStatusDisabled
 }
 
 func enableUI(mainUIStatus chan string) {
-	mainUIStatus <- "enable"
-}
-
-// enableAutomaticallyUI tells UI handler to enable/disable elements based on network/box status
-func enableAutomaticallyUI(mainUIStatus chan string) {
-	mainUIStatus <- "enable_automatically"
+	mainUIStatus <- mainUIStatusEnabled
 }
 
 func bindLanguageSwitching() {
@@ -667,11 +652,13 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 				}
 			}
 
+			// Disable UI to prevent multiple simultaneous server starts
 			disableUI(mainUIStatus)
 			start.Server()
 			// Wait over one UI loop
 			time.Sleep(5)
-			enableAutomaticallyUI(mainUIStatus)
+			enableUI(mainUIStatus)
+
 			progress.SetMessage("")
 		}()
 	})
@@ -1076,7 +1063,7 @@ func RunUI() error {
 		})
 
 		window.Show()
-		mainUIStatus <- "enable"
+		enableUI(mainUIStatus)
 		backupWindow.Hide()
 
 		// Make sure we have VBoxManage
