@@ -8,9 +8,11 @@ const (
 
 	// AbittiEtcherURL is the URL for the latest Abitti Etcher zip
 	AbittiEtcherURL = "http://static.abitti.fi/etcher-usb/ktp-etcher.zip"
-	
+	AbittiBoxType = "abitti"
+
 	// ExamEtcherURL is the URL for an Exam Etcher zip
 	ExamEtcherURL = "http://static.abitti.fi/etcher-usb/releases/###PASSPHRASEHASH###/ktp-etcher.zip"
+	ExamBoxType = "exam"
 
 	// URLTest is a testing URL for network connectivity (network.CheckIfNetworkAvailable).
 	// Point this to something ultra-stable

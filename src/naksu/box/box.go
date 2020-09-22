@@ -13,6 +13,7 @@ import (
 	semver "github.com/blang/semver/v4"
 
 	vbm "naksu/box/vboxmanage"
+	"naksu/constants"
 	"naksu/config"
 	"naksu/host"
 	"naksu/log"
@@ -24,7 +25,6 @@ const (
 	boxName           = "NaksuAbittiKTP"
 	boxOSType         = "Debian"
 	boxFinalImageSize = 56909 // VDI disk size in megs
-	boxType           = "digabi/ktp-qa"
 	boxVersion        = "SERVER7108X v69"
 	boxSnapshotName   = "Installed"
 )
@@ -57,7 +57,7 @@ func calculateBoxMemory() (uint64, error) {
 }
 
 // CreateNewBox creates new VM using the given imagePath
-func CreateNewBox(ddImagePath string) error {
+func CreateNewBox(boxType string, ddImagePath string) error {
 	vdiImagePath := filepath.Join(mebroutines.GetHomeDirectory(), "ktp", "naksu_ktp_disk.vdi")
 	if mebroutines.ExistsFile(vdiImagePath) {
 		log.Debug(fmt.Sprintf("Existing VDI file %s already exists", vdiImagePath))
@@ -239,15 +239,14 @@ func GetTypeLegend() string {
 func TypeIsAbitti() bool {
 	boxType := GetType()
 
-	return (boxType == "digabi/ktp-qa")
+	return (boxType == constants.AbittiBoxType)
 }
 
 // TypeIsMatriculationExam returns true if currently installed box is Matriculation Exam box
 func TypeIsMatriculationExam() bool {
 	boxType := GetType()
 
-	re := regexp.MustCompile(`[ksKS]*\d\d\d\d[ksKS]*-\d+`)
-	return re.MatchString(boxType)
+	return (boxType == constants.ExamBoxType)
 }
 
 // GetVersion returns the version string (e.g. "SERVER7108X v69") of the current VM

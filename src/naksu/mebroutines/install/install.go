@@ -22,7 +22,7 @@ import (
 )
 
 // newServer downloads and creates new Abitti or Exam server using the given image URL
-func newServer(imageURL string) {
+func newServer(boxType string, imageURL string) {
 	isInstalled, errInstalled := box.Installed()
 	if errInstalled != nil {
 		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not install server as we could not detect whether existing VM is installed: %v", errInstalled))
@@ -73,7 +73,7 @@ func newServer(imageURL string) {
 	}
 
 	progress.TranslateAndSetMessage("Creating New VM")
-	errCreate := box.CreateNewBox(newImagePath)
+	errCreate := box.CreateNewBox(boxType, newImagePath)
 
 	if errCreate != nil {
 		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to create new VM: %v", errCreate))
@@ -98,14 +98,14 @@ func newServer(imageURL string) {
 
 // NewAbittiServer downloads and installs a new Abitti server
 func NewAbittiServer() {
-	newServer(constants.AbittiEtcherURL)
+	newServer(constants.AbittiBoxType, constants.AbittiEtcherURL)
 }
 
 func NewExamServer(passphrase string) {
 	passphraseMD5 := getMD5Sum(passphrase)
 	imageURL := getExamImageURL(passphraseMD5)
 
-	newServer(imageURL)
+	newServer(constants.ExamBoxType, imageURL)
 }
 
 func ensureNaksuDirectoriesExist() (string, string, error) {
