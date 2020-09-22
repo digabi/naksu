@@ -3,17 +3,26 @@ package install
 import (
 	"fmt"
 	"os"
+	"crypto/md5"
+	"io"
+	"regexp"
+	"strings"
+	"path/filepath"
 
 	"naksu/box"
+	"naksu/host"
 	"naksu/cloud"
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
 	"naksu/xlate"
+	"naksu/constants"
+
+	humanize "github.com/dustin/go-humanize"
 )
 
-// NewServerAbitti downloads and creates new Abitti server using the given image path
-func NewServerAbitti() {
+// newServer downloads and creates new Abitti or Exam server using the given image URL
+func newServer(imageURL string) {
 	isInstalled, errInstalled := box.Installed()
 	if errInstalled != nil {
 		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not install server as we could not detect whether existing VM is installed: %v", errInstalled))
@@ -44,8 +53,19 @@ func NewServerAbitti() {
 		mebroutines.ShowWarningMessage(fmt.Sprintf("Failed to remove raw image file %s: %v", newImagePath, errRemove))
 	}
 
+	errDiskFree, freeSize := host.CheckFreeDisk(constants.LowDiskLimit, []string{filepath.Dir(newImagePath), mebroutines.GetKtpDirectory(), mebroutines.GetVirtualBoxHiddenDirectory(), mebroutines.GetVirtualBoxVMsDirectory()})
+
+	switch {
+		case errDiskFree != nil && strings.HasPrefix(fmt.Sprintf("%v",errDiskFree), "low:"):
+			mebroutines.ShowWarningMessage(fmt.Sprintf("Your free disk size is getting low (%s)", humanize.Bytes(freeSize)))
+			break
+		case errDiskFree != nil:
+			mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to query free disk space: %v", errDiskFree))
+			return
+	}
+
 	progress.TranslateAndSetMessage("Getting Image from the Cloud")
-	errGet := cloud.GetAbittiImage(newImagePath, progress.TranslateAndSetMessage)
+	errGet := cloud.GetServerImage(imageURL, newImagePath, progress.TranslateAndSetMessage)
 
 	if errGet != nil {
 		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to get new VM image: %v", errGet))
@@ -74,6 +94,18 @@ func NewServerAbitti() {
 	}
 
 	progress.SetMessage("New VM was created")
+}
+
+// NewAbittiServer downloads and installs a new Abitti server
+func NewAbittiServer() {
+	newServer(constants.AbittiEtcherURL)
+}
+
+func NewExamServer(passphrase string) {
+	passphraseMD5 := getMD5Sum(passphrase)
+	imageURL := getExamImageURL(passphraseMD5)
+
+	newServer(imageURL)
 }
 
 func ensureNaksuDirectoriesExist() (string, string, error) {
@@ -122,4 +154,15 @@ func createKtpJakoDir() (string, error) {
 	}
 
 	return ktpJakoPath, err
+}
+
+func getMD5Sum(md5String string) string {
+	o := md5.New()
+	io.WriteString(o, md5String)
+	return fmt.Sprintf("%x", o.Sum(nil))
+}
+
+func getExamImageURL(passphraseMD5 string) string {
+	re := regexp.MustCompile(`###PASSPHRASEHASH###`)
+	return re.ReplaceAllString(constants.ExamEtcherURL, passphraseMD5)
 }

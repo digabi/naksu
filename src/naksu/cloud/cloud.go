@@ -11,7 +11,6 @@ import (
 
 	humanize "github.com/dustin/go-humanize"
 
-	"naksu/constants"
 	"naksu/log"
 	"naksu/mebroutines"
 )
@@ -48,11 +47,19 @@ func GetServerImagePath() string {
 
 func downloadServerImage(url string, destinationZipPath string, progressCallbackFn func(string)) error {
 	progressCallbackFn("Contacting server")
+	log.Debug(fmt.Sprintf("Starting to download image from '%s'", url))
 	response, errHTTPGet := http.Get(url) // #nosec
+
 	if errHTTPGet != nil {
 		log.Debug(fmt.Sprintf("HTTP GET from url '%s' gives an error: %v", url, errHTTPGet))
 		return errHTTPGet
 	}
+
+	if response.StatusCode != 200 {
+		log.Debug(fmt.Sprintf("HTTP GET from url '%s' gives a status code %d", url, response.StatusCode))
+		return fmt.Errorf("%d", response.StatusCode)
+	}
+
 	defer response.Body.Close()
 
 	fileSize := uint64(response.ContentLength)
@@ -145,8 +152,8 @@ func getAndUnzipCloudImage(url string, destinationImagePath string, progressCall
 	return nil
 }
 
-func GetAbittiImage(destinationImagePath string, progressCallbackFn func(string)) error {
-	return getAndUnzipCloudImage(constants.AbittiEtcherURL, destinationImagePath, progressCallbackFn)
+func GetServerImage(zipServerImageURL string, destinationImagePath string, progressCallbackFn func(string)) error {
+	return getAndUnzipCloudImage(zipServerImageURL, destinationImagePath, progressCallbackFn)
 }
 
 func GetAvailableAbittiVersion() (string, error) {

@@ -27,14 +27,21 @@ func getDiskFreeWindows(path string) (uint64, error) {
 	/* #nosec */
 	wmiQuery := fmt.Sprintf(`WHERE DeviceID="%s"`, diskletter)
 
-	var dst []Win32_LogicalDisk
-	/* #nosec */
-	query := wmi.CreateQuery(&dst, wmiQuery)
-	err := wmi.Query(query, &dst)
-	if err != nil {
-		log.Debug(fmt.Sprintf("getDiskFreeWindows() could not make WMI query (%s): %s", wmiQuery, fmt.Sprint(err)))
-		return 0, errors.New("could not detect free disk size as it could not query wmi")
+	result := make(chan []Win32_LogicalDisk)
+
+	// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
+	go func() {
+		var dst []Win32_LogicalDisk
+		/* #nosec */
+		query := wmi.CreateQuery(&dst, wmiQuery)
+		err := wmi.Query(query, &dst)
+		if err != nil {
+			log.Debug(fmt.Sprintf("getDiskFreeWindows() could not make WMI query (%s): %s", wmiQuery, fmt.Sprint(err)))
+			return <- []Win32_LogicalDisk{}
+		} else {
+			result <- dst
+		}
 	}
 
-	return ExtractDiskFreeWindows(dst)
+	return ExtractDiskFreeWindows(<-result)
 }

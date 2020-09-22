@@ -5,12 +5,18 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"strings"
+	"path/filepath"
 
 	"naksu/box"
 	"naksu/log"
+	"naksu/host"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
 	"naksu/xlate"
+	"naksu/constants"
+
+	humanize "github.com/dustin/go-humanize"
 )
 
 // MakeBackup creates virtual machine backup to path
@@ -18,6 +24,12 @@ func MakeBackup(backupPath string) error {
 	errBox := ensureBoxInstalledAndNotRunning()
 	if errBox != nil {
 		return errBox
+	}
+
+	errDiskFree, freeSize := host.CheckFreeDisk(constants.LowDiskLimit, []string{filepath.Dir(backupPath)})
+
+	if errDiskFree != nil && strings.HasPrefix(fmt.Sprintf("%v",errDiskFree), "low:"){
+		mebroutines.ShowWarningMessage(fmt.Sprintf("Your free disk size is getting low (%s). If backup process fails please consider freeing some disk space.", humanize.Bytes(freeSize)))
 	}
 
 	progress.TranslateAndSetMessage("Checking existing file...")

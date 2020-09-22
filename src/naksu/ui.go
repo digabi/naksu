@@ -25,7 +25,6 @@ import (
 
 	"github.com/andlabs/ui"
 	"github.com/atotto/clipboard"
-	humanize "github.com/dustin/go-humanize"
 )
 
 type mainUIStatusType = string
@@ -36,8 +35,8 @@ const mainUIStatusDisabled mainUIStatusType = "disable"
 var window *ui.Window
 
 var buttonStartServer *ui.Button
-var buttonGetServer *ui.Button
-var buttonSwitchServer *ui.Button
+var buttonInstallAbittiServer *ui.Button
+var buttonInstallExamServer *ui.Button
 var buttonDestroyServer *ui.Button
 var buttonRemoveServer *ui.Button
 var buttonMakeBackup *ui.Button
@@ -92,6 +91,15 @@ var logDeliveryFilenameCopyButton *ui.Button
 var logDeliveryStatusLabel *ui.Label
 var logDeliveryButtonClose *ui.Button
 
+// Exam Install Window
+var examInstallWindow *ui.Window
+
+var examInstallBox *ui.Box
+var examInstallPassphraseLabel *ui.Label
+var examInstallPassphraseEntry *ui.Entry
+var examInstallButtonInstall *ui.Button
+var examInstallButtonCancel *ui.Button
+
 // Destroy Confirmation Window
 var destroyWindow *ui.Window
 
@@ -117,8 +125,8 @@ var extInterfaces []constants.AvailableSelection
 func createMainWindowElements() {
 	// Define main window
 	buttonStartServer = ui.NewButton("Start Exam Server")
-	buttonGetServer = ui.NewButton("Abitti Exam")
-	buttonSwitchServer = ui.NewButton("Matriculation Exam")
+	buttonInstallAbittiServer = ui.NewButton("Abitti Exam")
+	buttonInstallExamServer = ui.NewButton("Matriculation Exam")
 	buttonDestroyServer = ui.NewButton("Remove Exams")
 	buttonRemoveServer = ui.NewButton("Remove Server")
 	buttonMakeBackup = ui.NewButton("Make Exam Server Backup")
@@ -182,8 +190,8 @@ func createMainWindowElements() {
 
 	boxAdvancedUpdate = ui.NewHorizontalBox()
 	boxAdvancedUpdate.SetPadded(true)
-	boxAdvancedUpdate.Append(buttonGetServer, true)
-	boxAdvancedUpdate.Append(buttonSwitchServer, true)
+	boxAdvancedUpdate.Append(buttonInstallAbittiServer, true)
+	boxAdvancedUpdate.Append(buttonInstallExamServer, true)
 
 	boxAdvancedAnnihilate = ui.NewHorizontalBox()
 	boxAdvancedAnnihilate.SetPadded(true)
@@ -286,6 +294,26 @@ func createLogDeliveryElements() {
 	logDeliveryWindow.SetChild(logDeliveryBox)
 }
 
+func createExamInstallElements() {
+	// Define exam install passhrase dialog window
+	examInstallPassphraseLabel = ui.NewLabel(xlate.Get("Give passphrase for exam server:"))
+	examInstallPassphraseEntry = ui.NewEntry()
+	examInstallButtonCancel = ui.NewButton(xlate.Get("Cancel"))
+	examInstallButtonInstall = ui.NewButton(xlate.Get("Install"))
+
+	examInstallBox = ui.NewVerticalBox()
+	examInstallBox.SetPadded(true)
+
+	examInstallBox.Append(examInstallPassphraseLabel, false)
+	examInstallBox.Append(examInstallPassphraseEntry, false)
+	examInstallBox.Append(examInstallButtonInstall, false)
+	examInstallBox.Append(examInstallButtonCancel, false)
+
+	examInstallWindow = ui.NewWindow("", 400, 1, false)
+	examInstallWindow.SetMargined(true)
+	examInstallWindow.SetChild(examInstallBox)
+}
+
 func createDestroyElements() {
 	// Define Destroy Confirmation window/dialog
 	for i := 0; i <= 4; i++ {
@@ -368,7 +396,7 @@ func setupMainLoop(mainUIStatus chan string, mainUIUpdate *time.Ticker) {
 // Define UI button status handler
 func mainUIStatusHandler(currentMainUIStatus mainUIStatusType) { //nolint:gocyclo
 	// The cyclomatic complexity calculated by gocyclo is 20
-	
+
 	networkstatus.Update()
 
 	// Check general UI status
@@ -392,8 +420,8 @@ func mainUIStatusHandler(currentMainUIStatus mainUIStatusType) { //nolint:gocycl
 		{buttonMebShare, true},
 		{buttonMakeBackup, mainUIEnabled && boxInstalled && !boxRunning},
 		{buttonDeliverLogs, mainUIEnabled && true},
-		{buttonGetServer, mainUIEnabled && !boxRunning && netAvailable},
-		{buttonSwitchServer, mainUIEnabled && !boxRunning && netAvailable},
+		{buttonInstallAbittiServer, mainUIEnabled && !boxRunning && netAvailable},
+		{buttonInstallExamServer, mainUIEnabled && !boxRunning && netAvailable},
 		{buttonDestroyServer, mainUIEnabled && boxInstalled && !boxRunning},
 		{buttonRemoveServer, true},
 	}
@@ -510,19 +538,19 @@ func updateBoxAvailLabel() {
 // Make sure you call this inside ui.Queuemain() only
 func updateGetServerButtonLabel() {
 	// Set default text for an empty button before doing time-consuming Abitti update check
-	if buttonGetServer.Text() == "" {
-		buttonGetServer.SetText(xlate.Get("Abitti Exam"))
+	if buttonInstallAbittiServer.Text() == "" {
+		buttonInstallAbittiServer.SetText(xlate.Get("Abitti Exam"))
 	}
 
 	go func() {
 		abittiUpdate, availAbittiVersion := checkAbittiUpdate()
 		if abittiUpdate {
 			ui.QueueMain(func() {
-				buttonGetServer.SetText(fmt.Sprintf(xlate.Get("Abitti Exam (%s)"), availAbittiVersion))
+				buttonInstallAbittiServer.SetText(fmt.Sprintf(xlate.Get("Abitti Exam (%s)"), availAbittiVersion))
 			})
 		} else {
 			ui.QueueMain(func() {
-				buttonGetServer.SetText(xlate.Get("Abitti Exam"))
+				buttonInstallAbittiServer.SetText(xlate.Get("Abitti Exam"))
 			})
 		}
 	}()
@@ -532,7 +560,7 @@ func translateUILabels() {
 	ui.QueueMain(func() {
 		updateStartButtonLabel()
 		updateGetServerButtonLabel()
-		buttonSwitchServer.SetText(xlate.Get("Matriculation Exam"))
+		buttonInstallExamServer.SetText(xlate.Get("Matriculation Exam"))
 		buttonDestroyServer.SetText(xlate.Get("Remove Exams"))
 		buttonRemoveServer.SetText(xlate.Get("Remove Server"))
 		buttonMakeBackup.SetText(xlate.Get("Make Exam Server Backup"))
@@ -565,6 +593,11 @@ func translateUILabels() {
 		logDeliveryFilenameLabelLabel.SetText(xlate.Get("Filename for Abitti support:"))
 		logDeliveryFilenameCopyButton.SetText(xlate.Get("Copy to clipboard"))
 		logDeliveryButtonClose.SetText(xlate.Get("Close"))
+
+		examInstallWindow.SetTitle(xlate.Get("naksu: Install Exam Server"))
+		examInstallPassphraseLabel.SetText(xlate.Get("Enter Exam Server passphrase:"))
+		examInstallButtonInstall.SetText(xlate.Get("Install"))
+		examInstallButtonCancel.SetText(xlate.Get("Cancel"))
 
 		destroyWindow.SetTitle(xlate.Get("naksu: Remove Exams"))
 		destroyInfoLabel[0].SetText(xlate.Get("Remove Exams restores server to its initial status."))
@@ -697,46 +730,56 @@ func checkFreeDisk(chFreeDisk chan uint64) {
 	}()
 }
 
-func bindOnGetServer(mainUIStatus chan string) {
-	buttonGetServer.OnClicked(func(*ui.Button) {
-		log.Debug("Starting Abitti box update")
+func bindOnInstallAbittiServer(mainUIStatus chan string) {
+	buttonInstallAbittiServer.OnClicked(func(*ui.Button) {
+		go func () {
+			log.Debug("Starting Abitti box update")
 
-		chFreeDisk := make(chan uint64)
-		chDiskLowPopup := make(chan bool)
+			disableUI(mainUIStatus)
+			install.NewAbittiServer()
+			translateUILabels()
+			enableUI(mainUIStatus)
+			progress.SetMessage("")
 
-		checkFreeDisk(chFreeDisk)
-
-		go func() {
-			freeDisk := <-chFreeDisk
-			if freeDisk < constants.LowDiskLimit {
-				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(freeDisk)))
-			}
-
-			chDiskLowPopup <- true
-		}()
-
-		go func() {
-			// Wait until disk low popup has been processed
-			<-chDiskLowPopup
-
-			go func() {
-				disableUI(mainUIStatus)
-				install.NewServerAbitti()
-				translateUILabels()
-				enableUI(mainUIStatus)
-				progress.SetMessage("")
-
-				log.Debug(fmt.Sprintf("Finished Abitti box update, version is: %s", box.GetVersion()))
-			}()
+			log.Debug(fmt.Sprintf("Finished Abitti box update, version is: %s", box.GetVersion()))
 		}()
 	})
 }
 
-func bindOnSwitchServer(mainUIStatus chan string) {
-	buttonSwitchServer.OnClicked(func(*ui.Button) {
+func bindOnInstallExamServer(mainUIStatus chan string) {
+	buttonInstallExamServer.OnClicked(func(*ui.Button) {
 		disableUI(mainUIStatus)
-		mebroutines.ShowWarningMessage("FIXME: Install MEB server")
+		examInstallWindow.Show()
+	})
+
+	examInstallButtonInstall.OnClicked(func(*ui.Button) {
+		go func () {
+			passphrase := examInstallPassphraseEntry.Text()
+			examInstallPassphraseEntry.SetText("")
+			disableUI(mainUIStatus)
+			if passphrase != "" {
+				examInstallWindow.Hide()
+				install.NewExamServer(passphrase)
+				translateUILabels()
+				log.Debug(fmt.Sprintf("Finished Exam box update, version is: %s", box.GetVersion()))
+			} else {
+				mebroutines.ShowWarningMessage(xlate.Get("Please enter passphrase to install the exam server"))
+			}
+			enableUI(mainUIStatus)
+		}()
+	})
+
+	examInstallButtonCancel.OnClicked(func(*ui.Button) {
+		examInstallWindow.Hide()
+		examInstallPassphraseEntry.SetText("")
 		enableUI(mainUIStatus)
+	})
+
+	examInstallWindow.OnClosing(func(*ui.Window) bool {
+		examInstallWindow.Hide()
+		enableUI(mainUIStatus)
+		examInstallPassphraseEntry.SetText("")
+		return false
 	})
 }
 
@@ -853,39 +896,22 @@ func bindOnMebShare() {
 func bindOnBackup(mainUIStatus chan string) {
 	// Define actions for SaveAs window/dialog
 	backupButtonSave.OnClicked(func(*ui.Button) {
-		pathBackup := filepath.Join(backupMediaPath[backupCombobox.Selected()], backup.GetBackupFilename(time.Now()))
-		log.Debug(fmt.Sprintf("Starting backup to: %s", pathBackup))
-
-		chFreeDisk := make(chan uint64)
-		chDiskLowPopup := make(chan bool)
-
-		checkFreeDisk(chFreeDisk)
-
 		go func() {
-			freeDisk := <-chFreeDisk
-			if freeDisk < constants.LowDiskLimit {
-				mebroutines.ShowWarningMessage("Your free disk size is getting low. If backup process fails please consider freeing some disk space.")
+			pathBackup := filepath.Join(backupMediaPath[backupCombobox.Selected()], backup.GetBackupFilename(time.Now()))
+			log.Debug(fmt.Sprintf("Starting backup to: %s", pathBackup))
+
+			backupWindow.Hide()
+			err := backup.MakeBackup(pathBackup)
+			if err != nil {
+				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Backup failed: %v"), err))
+				progress.SetMessage(fmt.Sprintf(xlate.Get("Backup failed: %v"), err))
+			} else {
+				progress.SetMessage(fmt.Sprintf(xlate.Get("Backup done: %s"), pathBackup))
 			}
-			chDiskLowPopup <- true
-		}()
 
-		go func() {
-			<-chDiskLowPopup
+			enableUI(mainUIStatus)
 
-			go func() {
-				backupWindow.Hide()
-				err := backup.MakeBackup(pathBackup)
-				if err != nil {
-					mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Backup failed: %v"), err))
-					progress.SetMessage(fmt.Sprintf(xlate.Get("Backup failed: %v"), err))
-				} else {
-					progress.SetMessage(fmt.Sprintf(xlate.Get("Backup done: %s"), pathBackup))
-				}
-
-				enableUI(mainUIStatus)
-
-				log.Debug("Finished creating backup")
-			}()
+			log.Debug("Finished creating backup")
 		}()
 	})
 
@@ -1019,6 +1045,7 @@ func RunUI() error {
 
 		createBackupElements(backupMedia)
 		createLogDeliveryElements()
+		createExamInstallElements()
 		createDestroyElements()
 		createRemoveElements()
 
@@ -1052,8 +1079,8 @@ func RunUI() error {
 		bindUIDisableOnStart(mainUIStatus)
 
 		// Bind buttons
-		bindOnGetServer(mainUIStatus)
-		bindOnSwitchServer(mainUIStatus)
+		bindOnInstallAbittiServer(mainUIStatus)
+		bindOnInstallExamServer(mainUIStatus)
 		bindOnMakeBackup(mainUIStatus)
 		bindOnDeliverLogs(mainUIStatus)
 		bindOnDestroyServer(mainUIStatus)
