@@ -25,7 +25,6 @@ const (
 	boxName           = "NaksuAbittiKTP"
 	boxOSType         = "Debian"
 	boxFinalImageSize = 56909 // VDI disk size in megs
-	boxVersion        = "SERVER7108X v69"
 	boxSnapshotName   = "Installed"
 )
 
@@ -57,7 +56,7 @@ func calculateBoxMemory() (uint64, error) {
 }
 
 // CreateNewBox creates new VM using the given imagePath
-func CreateNewBox(boxType string, ddImagePath string) error {
+func CreateNewBox(boxType string, ddImagePath string, boxVersion string) error {
 	vdiImagePath := filepath.Join(mebroutines.GetHomeDirectory(), "ktp", "naksu_ktp_disk.vdi")
 	if mebroutines.ExistsFile(vdiImagePath) {
 		log.Debug(fmt.Sprintf("Existing VDI file %s already exists", vdiImagePath))

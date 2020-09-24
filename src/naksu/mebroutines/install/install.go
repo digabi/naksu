@@ -22,7 +22,13 @@ import (
 )
 
 // newServer downloads and creates new Abitti or Exam server using the given image URL
-func newServer(boxType string, imageURL string) {
+func newServer(boxType string, imageURL string, versionURL string) {
+	version, errVersion := cloud.GetAvailableVersion(versionURL)
+	if errVersion != nil {
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not get version string for a new server: %v", errVersion))
+		return
+	}
+
 	isInstalled, errInstalled := box.Installed()
 	if errInstalled != nil {
 		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not install server as we could not detect whether existing VM is installed: %v", errInstalled))
@@ -73,7 +79,7 @@ func newServer(boxType string, imageURL string) {
 	}
 
 	progress.TranslateAndSetMessage("Creating New VM")
-	errCreate := box.CreateNewBox(boxType, newImagePath)
+	errCreate := box.CreateNewBox(boxType, newImagePath, version)
 
 	if errCreate != nil {
 		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to create new VM: %v", errCreate))
@@ -98,14 +104,15 @@ func newServer(boxType string, imageURL string) {
 
 // NewAbittiServer downloads and installs a new Abitti server
 func NewAbittiServer() {
-	newServer(constants.AbittiBoxType, constants.AbittiEtcherURL)
+	newServer(constants.AbittiBoxType, constants.AbittiEtcherURL, constants.AbittiVersionURL)
 }
 
 func NewExamServer(passphrase string) {
 	passphraseMD5 := getMD5Sum(passphrase)
-	imageURL := getExamImageURL(passphraseMD5)
+	imageURL := getExamURL(constants.ExamEtcherURL, passphraseMD5)
+	versionURL := getExamURL(constants.ExamVersionURL, passphraseMD5)
 
-	newServer(constants.ExamBoxType, imageURL)
+	newServer(constants.ExamBoxType, imageURL, versionURL)
 }
 
 func ensureNaksuDirectoriesExist() (string, string, error) {
@@ -162,7 +169,7 @@ func getMD5Sum(md5String string) string {
 	return fmt.Sprintf("%x", o.Sum(nil))
 }
 
-func getExamImageURL(passphraseMD5 string) string {
+func getExamURL(url string, passphraseMD5 string) string {
 	re := regexp.MustCompile(`###PASSPHRASEHASH###`)
-	return re.ReplaceAllString(constants.ExamEtcherURL, passphraseMD5)
+	return re.ReplaceAllString(url, passphraseMD5)
 }

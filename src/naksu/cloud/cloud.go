@@ -4,10 +4,12 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
+	"strings"
 
 	humanize "github.com/dustin/go-humanize"
 
@@ -158,4 +160,27 @@ func GetServerImage(zipServerImageURL string, destinationImagePath string, progr
 
 func GetAvailableAbittiVersion() (string, error) {
 	return "FIXME: cloud.GetAvailableAbittiVersion", nil
+}
+
+func GetAvailableVersion(versionURL string) (string, error) {
+	response, err := http.Get(versionURL)
+	if err != nil {
+		log.Debug(fmt.Sprintf("Getting available version from '%s' resulted an error: %v", versionURL, err))
+		return "", err
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode != 200 {
+		log.Debug(fmt.Sprintf("Getting available version from '%s' gives a status code %d", versionURL, response.StatusCode))
+		return "", fmt.Errorf("%d", response.StatusCode)
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Debug(fmt.Sprintf("Reading available version from '%s' resulted and error: %v", versionURL, err))
+		return "", err
+	}
+
+	return strings.Trim(string(body), " \n"), nil
 }
