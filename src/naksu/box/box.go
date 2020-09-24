@@ -13,8 +13,8 @@ import (
 	semver "github.com/blang/semver/v4"
 
 	vbm "naksu/box/vboxmanage"
-	"naksu/constants"
 	"naksu/config"
+	"naksu/constants"
 	"naksu/host"
 	"naksu/log"
 	"naksu/mebroutines"

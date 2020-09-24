@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 	"strings"
+	"time"
 
 	humanize "github.com/dustin/go-humanize"
 	memory_cache "github.com/paulusrobin/go-memory-cache/memory-cache"
@@ -172,7 +172,7 @@ func GetAvailableVersion(versionURL string) (string, error) {
 	if errCacheGet == nil {
 		version = fmt.Sprintf("%v", cachedVersion)
 	} else {
-		response, err := http.Get(versionURL)
+		response, err := http.Get(versionURL) // #nosec
 		if err != nil {
 			log.Debug(fmt.Sprintf("Getting available version from '%s' resulted an error: %v", versionURL, err))
 			return "", err

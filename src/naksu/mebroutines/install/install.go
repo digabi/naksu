@@ -1,22 +1,23 @@
 package install
 
 import (
+	"crypto/md5" // #nosec
+	"errors"
 	"fmt"
-	"os"
-	"crypto/md5"
 	"io"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
-	"path/filepath"
 
 	"naksu/box"
-	"naksu/host"
 	"naksu/cloud"
+	"naksu/constants"
+	"naksu/host"
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
 	"naksu/xlate"
-	"naksu/constants"
 
 	humanize "github.com/dustin/go-humanize"
 )
@@ -29,58 +30,21 @@ func newServer(boxType string, imageURL string, versionURL string) {
 		return
 	}
 
-	isRunning, errRunning := box.Running()
-	if errRunning != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not install server as we could not detect whether existing VM is running: %v", errRunning))
+	errRI := ensureServerIsNotRunningAndDoesNotExist()
+	if errRI != nil {
 		return
 	}
 
-	if isRunning {
-		mebroutines.ShowErrorMessage("Please stop the current server before installing a new one")
-		return
-	}
-
-	isInstalled, errInstalled := box.Installed()
-	if errInstalled != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not install server as we could not detect whether existing VM is installed: %v", errInstalled))
-		return
-	}
-
-	if isInstalled {
-		errRemove := box.RemoveCurrentBox()
-		if errRemove != nil {
-			mebroutines.ShowWarningMessage(fmt.Sprintf("Could not remove current VM before installing new one: %v", errRemove))
-		}
-	}
-
-	_, _, errDir := ensureNaksuDirectoriesExist()
-
+	errDir := ensureNaksuDirectoriesExist()
 	if errDir != nil {
 		log.Debug(fmt.Sprintf("Failed to ensure Naksu directories exist: %v", errDir))
 		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not create directory: %v"), errDir))
 		return
 	}
 
-	newImagePath, errTemp := mebroutines.GetTempFilename()
-	if errTemp != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to create temporary file: %v", errTemp))
+	newImagePath, errNewImagePath := ensureGoodTempFilename()
+	if errNewImagePath != nil {
 		return
-	}
-
-	errRemove := os.Remove(newImagePath)
-	if errRemove != nil {
-		mebroutines.ShowWarningMessage(fmt.Sprintf("Failed to remove raw image file %s: %v", newImagePath, errRemove))
-	}
-
-	errDiskFree, freeSize := host.CheckFreeDisk(constants.LowDiskLimit, []string{filepath.Dir(newImagePath), mebroutines.GetKtpDirectory(), mebroutines.GetVirtualBoxHiddenDirectory(), mebroutines.GetVirtualBoxVMsDirectory()})
-
-	switch {
-		case errDiskFree != nil && strings.HasPrefix(fmt.Sprintf("%v",errDiskFree), "low:"):
-			mebroutines.ShowWarningMessage(fmt.Sprintf("Your free disk size is getting low (%s)", humanize.Bytes(freeSize)))
-			break
-		case errDiskFree != nil:
-			mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to query free disk space: %v", errDiskFree))
-			return
 	}
 
 	progress.TranslateAndSetMessage("Getting Image from the Cloud")
@@ -106,7 +70,7 @@ func newServer(boxType string, imageURL string, versionURL string) {
 	}
 
 	progress.SetMessage("Removing temporary raw image file")
-	errRemove = os.Remove(newImagePath)
+	errRemove := os.Remove(newImagePath)
 
 	if errRemove != nil {
 		mebroutines.ShowWarningMessage(fmt.Sprintf("Failed to remove raw image file %s: %v", newImagePath, errRemove))
@@ -128,13 +92,41 @@ func NewExamServer(passphrase string) {
 	newServer(constants.ExamBoxType, imageURL, versionURL)
 }
 
-func ensureNaksuDirectoriesExist() (string, string, error) {
+func ensureServerIsNotRunningAndDoesNotExist() error {
+	isRunning, errRunning := box.Running()
+	if errRunning != nil {
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not install server as we could not detect whether existing VM is running: %v", errRunning))
+		return errRunning
+	}
+
+	if isRunning {
+		mebroutines.ShowErrorMessage("Please stop the current server before installing a new one")
+		return errors.New("please stop the current server before installing a new one")
+	}
+
+	isInstalled, errInstalled := box.Installed()
+	if errInstalled != nil {
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not install server as we could not detect whether existing VM is installed: %v", errInstalled))
+		return errInstalled
+	}
+
+	if isInstalled {
+		errRemove := box.RemoveCurrentBox()
+		if errRemove != nil {
+			mebroutines.ShowWarningMessage(fmt.Sprintf("Could not remove current VM before installing new one: %v", errRemove))
+		}
+	}
+
+	return nil
+}
+
+func ensureNaksuDirectoriesExist() error {
 	// Create ~/ktp if missing
 	progress.TranslateAndSetMessage("Creating ~/ktp")
 	ktpPath, errKtpPath := createKtpDir()
 
 	if errKtpPath != nil {
-		return "", "", fmt.Errorf("could not create ktp (%s): %v", ktpPath, errKtpPath)
+		return fmt.Errorf("could not create ktp (%s): %v", ktpPath, errKtpPath)
 	}
 
 	log.Debug(fmt.Sprintf("ktpPath is %s", ktpPath))
@@ -144,12 +136,38 @@ func ensureNaksuDirectoriesExist() (string, string, error) {
 	ktpJakoPath, errKtpJakoPath := createKtpJakoDir()
 
 	if errKtpJakoPath != nil {
-		return "", "", fmt.Errorf("could not create ktp-jako (%s): %v", ktpJakoPath, errKtpJakoPath)
+		return fmt.Errorf("could not create ktp-jako (%s): %v", ktpJakoPath, errKtpJakoPath)
 	}
 
 	log.Debug(fmt.Sprintf("ktpJakoPath is %s", ktpJakoPath))
 
-	return ktpPath, ktpJakoPath, nil
+	return nil
+}
+
+func ensureGoodTempFilename() (string, error) {
+	newImagePath, errTemp := mebroutines.GetTempFilename()
+	if errTemp != nil {
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to create temporary file: %v", errTemp))
+		return "", errTemp
+	}
+
+	errRemove := os.Remove(newImagePath)
+	if errRemove != nil {
+		mebroutines.ShowWarningMessage(fmt.Sprintf("Failed to remove raw image file %s: %v", newImagePath, errRemove))
+	}
+
+	freeSize, errDiskFree := host.CheckFreeDisk(constants.LowDiskLimit, []string{filepath.Dir(newImagePath), mebroutines.GetKtpDirectory(), mebroutines.GetVirtualBoxHiddenDirectory(), mebroutines.GetVirtualBoxVMsDirectory()})
+
+	switch {
+	case errDiskFree != nil && strings.HasPrefix(fmt.Sprintf("%v", errDiskFree), "low:"):
+		mebroutines.ShowWarningMessage(fmt.Sprintf("Your free disk size is getting low (%s)", humanize.Bytes(freeSize)))
+		return "", fmt.Errorf("low disk size: %s", humanize.Bytes(freeSize))
+	case errDiskFree != nil:
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to query free disk space: %v", errDiskFree))
+		return "", errDiskFree
+	}
+
+	return newImagePath, nil
 }
 
 func createKtpDir() (string, error) {
@@ -177,8 +195,14 @@ func createKtpJakoDir() (string, error) {
 }
 
 func getMD5Sum(md5String string) string {
-	o := md5.New()
-	io.WriteString(o, md5String)
+	// We're using MD5 here for a digest, not for cryptographic purposes
+	o := md5.New() // #nosec
+	_, err := io.WriteString(o, md5String)
+
+	if err != nil {
+		panic(err)
+	}
+
 	return fmt.Sprintf("%x", o.Sum(nil))
 }
 

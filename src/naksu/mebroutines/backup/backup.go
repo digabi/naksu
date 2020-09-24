@@ -4,17 +4,17 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"time"
-	"strings"
 	"path/filepath"
+	"strings"
+	"time"
 
 	"naksu/box"
-	"naksu/log"
+	"naksu/constants"
 	"naksu/host"
+	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
 	"naksu/xlate"
-	"naksu/constants"
 
 	humanize "github.com/dustin/go-humanize"
 )
@@ -26,9 +26,9 @@ func MakeBackup(backupPath string) error {
 		return errBox
 	}
 
-	errDiskFree, freeSize := host.CheckFreeDisk(constants.LowDiskLimit, []string{filepath.Dir(backupPath)})
+	freeSize, errDiskFree := host.CheckFreeDisk(constants.LowDiskLimit, []string{filepath.Dir(backupPath)})
 
-	if errDiskFree != nil && strings.HasPrefix(fmt.Sprintf("%v",errDiskFree), "low:"){
+	if errDiskFree != nil && strings.HasPrefix(fmt.Sprintf("%v", errDiskFree), "low:") {
 		mebroutines.ShowWarningMessage(fmt.Sprintf("Your free disk size is getting low (%s). If backup process fails please consider freeing some disk space.", humanize.Bytes(freeSize)))
 	}
 

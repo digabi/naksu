@@ -709,32 +709,9 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 
 }
 
-func checkFreeDisk(chFreeDisk chan uint64) {
-	// Check free disk
-	// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
-	go func() {
-		var freeDisk uint64
-		var err error
-		if mebroutines.ExistsDir(mebroutines.GetKtpDirectory()) {
-			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetKtpDirectory())
-			if err != nil {
-				log.Debug("Getting free disk space from KTP directory failed")
-				mebroutines.ShowWarningMessage("Failed to calculate free disk space of the KTP directory")
-			}
-		} else {
-			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetHomeDirectory())
-			if err != nil {
-				log.Debug("Getting free disk space from home directory failed")
-				mebroutines.ShowWarningMessage("Failed to calculate free disk space of the home directory")
-			}
-		}
-		chFreeDisk <- freeDisk
-	}()
-}
-
 func bindOnInstallAbittiServer(mainUIStatus chan string) {
 	buttonInstallAbittiServer.OnClicked(func(*ui.Button) {
-		go func () {
+		go func() {
 			log.Debug("Starting Abitti box update")
 
 			disableUI(mainUIStatus)
@@ -755,7 +732,7 @@ func bindOnInstallExamServer(mainUIStatus chan string) {
 	})
 
 	examInstallButtonInstall.OnClicked(func(*ui.Button) {
-		go func () {
+		go func() {
 			passphrase := examInstallPassphraseEntry.Text()
 			examInstallPassphraseEntry.SetText("")
 			disableUI(mainUIStatus)
