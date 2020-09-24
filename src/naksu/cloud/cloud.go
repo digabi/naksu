@@ -12,7 +12,9 @@ import (
 	"strings"
 
 	humanize "github.com/dustin/go-humanize"
+	memory_cache "github.com/paulusrobin/go-memory-cache/memory-cache"
 
+	"naksu/constants"
 	"naksu/log"
 	"naksu/mebroutines"
 )
@@ -29,6 +31,8 @@ type writeCounter struct {
 }
 
 var progressLastMessageTime = time.Now()
+
+var cloudStatusCache memory_cache.Cache
 
 func (wc *writeCounter) Write(p []byte) (int, error) {
 	n := len(p)
@@ -158,29 +162,56 @@ func GetServerImage(zipServerImageURL string, destinationImagePath string, progr
 	return getAndUnzipCloudImage(zipServerImageURL, destinationImagePath, progressCallbackFn)
 }
 
-func GetAvailableAbittiVersion() (string, error) {
-	return "FIXME: cloud.GetAvailableAbittiVersion", nil
+func GetAvailableVersion(versionURL string) (string, error) {
+	ensureCloudStatusCacheInitialised()
+
+	var version string
+
+	cachedVersion, errCacheGet := cloudStatusCache.Get(versionURL)
+
+	if errCacheGet == nil {
+		version = fmt.Sprintf("%v", cachedVersion)
+	} else {
+		response, err := http.Get(versionURL)
+		if err != nil {
+			log.Debug(fmt.Sprintf("Getting available version from '%s' resulted an error: %v", versionURL, err))
+			return "", err
+		}
+
+		defer response.Body.Close()
+
+		if response.StatusCode != 200 {
+			log.Debug(fmt.Sprintf("Getting available version from '%s' gives a status code %d", versionURL, response.StatusCode))
+			return "", fmt.Errorf("%d", response.StatusCode)
+		}
+
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			log.Debug(fmt.Sprintf("Reading available version from '%s' resulted and error: %v", versionURL, err))
+			return "", err
+		}
+
+		version = strings.Trim(string(body), " \n")
+
+		errCacheSet := cloudStatusCache.Set(versionURL, version, constants.CloudStatusTimeout)
+		if errCacheSet != nil {
+			log.Debug(fmt.Sprintf("Could not set cloud status cache: %v", errCacheSet))
+		}
+
+		log.Debug(fmt.Sprintf("Box version from '%s' is '%s'", versionURL, version))
+	}
+
+	return version, nil
 }
 
-func GetAvailableVersion(versionURL string) (string, error) {
-	response, err := http.Get(versionURL)
-	if err != nil {
-		log.Debug(fmt.Sprintf("Getting available version from '%s' resulted an error: %v", versionURL, err))
-		return "", err
+func ensureCloudStatusCacheInitialised() {
+	var err error
+
+	if cloudStatusCache == nil {
+		cloudStatusCache, err = memory_cache.New()
+		if err != nil {
+			log.Debug(fmt.Sprintf("Fatal error: Failed to initialise memory cache: %v", err))
+			panic(err)
+		}
 	}
-
-	defer response.Body.Close()
-
-	if response.StatusCode != 200 {
-		log.Debug(fmt.Sprintf("Getting available version from '%s' gives a status code %d", versionURL, response.StatusCode))
-		return "", fmt.Errorf("%d", response.StatusCode)
-	}
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Debug(fmt.Sprintf("Reading available version from '%s' resulted and error: %v", versionURL, err))
-		return "", err
-	}
-
-	return strings.Trim(string(body), " \n"), nil
 }

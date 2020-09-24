@@ -485,10 +485,12 @@ func checkAbittiUpdate() (bool, string) {
 
 	currentBoxVersion := box.GetVersion()
 
-	if box.TypeIsAbitti() {
+	boxInstalled, boxInstalledErr := box.Installed()
+
+	if (boxInstalledErr == nil && !boxInstalled) || box.TypeIsAbitti() {
 		var errAvail error
 
-		availAbittiVersion, errAvail = cloud.GetAvailableAbittiVersion()
+		availAbittiVersion, errAvail = cloud.GetAvailableVersion(constants.AbittiVersionURL)
 		if errAvail == nil && currentBoxVersion != availAbittiVersion {
 			return true, availAbittiVersion
 		}
@@ -518,7 +520,7 @@ func updateBoxAvailLabel() {
 	go func() {
 		abittiUpdate, _ := checkAbittiUpdate()
 		if abittiUpdate {
-			availAbittiVersion, _ := cloud.GetAvailableAbittiVersion()
+			availAbittiVersion, _ := cloud.GetAvailableVersion(constants.AbittiVersionURL)
 			ui.QueueMain(func() {
 				labelBoxAvailable.SetText(fmt.Sprintf(xlate.Get("Update available: %s"), availAbittiVersion))
 				// Select "advanced features" checkbox
