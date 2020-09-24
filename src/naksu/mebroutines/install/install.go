@@ -29,6 +29,17 @@ func newServer(boxType string, imageURL string, versionURL string) {
 		return
 	}
 
+	isRunning, errRunning := box.Running()
+	if errRunning != nil {
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not install server as we could not detect whether existing VM is running: %v", errRunning))
+		return
+	}
+
+	if isRunning {
+		mebroutines.ShowErrorMessage("Please stop the current server before installing a new one")
+		return
+	}
+
 	isInstalled, errInstalled := box.Installed()
 	if errInstalled != nil {
 		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not install server as we could not detect whether existing VM is installed: %v", errInstalled))
@@ -36,8 +47,10 @@ func newServer(boxType string, imageURL string, versionURL string) {
 	}
 
 	if isInstalled {
-		mebroutines.ShowErrorMessage("Please remove existing server before installing a new one.")
-		return
+		errRemove := box.RemoveCurrentBox()
+		if errRemove != nil {
+			mebroutines.ShowWarningMessage(fmt.Sprintf("Could not remove current VM before installing new one: %v", errRemove))
+		}
 	}
 
 	_, _, errDir := ensureNaksuDirectoriesExist()

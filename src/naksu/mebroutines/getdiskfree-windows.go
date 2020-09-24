@@ -37,11 +37,11 @@ func getDiskFreeWindows(path string) (uint64, error) {
 		err := wmi.Query(query, &dst)
 		if err != nil {
 			log.Debug(fmt.Sprintf("getDiskFreeWindows() could not make WMI query (%s): %s", wmiQuery, fmt.Sprint(err)))
-			return <- []Win32_LogicalDisk{}
+			result <- []Win32_LogicalDisk{}
 		} else {
 			result <- dst
 		}
-	}
+	}()
 
 	return ExtractDiskFreeWindows(<-result)
 }

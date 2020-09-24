@@ -163,6 +163,15 @@ func RestoreSnapshot() error {
 	return vbm.MultipleCallRunVBoxManage(restoreCommands)
 }
 
+// RemoveCurrentBox deletes currently installed VM
+func RemoveCurrentBox() error {
+	removeCommands := []vbm.VBoxCommand{
+		{"unregistervm", boxName, "--delete"},
+	}
+
+	return vbm.MultipleCallRunVBoxManage(removeCommands)
+}
+
 // WriteDiskClone creates a disk clone of the first disk of the current VM
 func WriteDiskClone(clonePath string) error {
 	diskUUID := getDiskUUID()
