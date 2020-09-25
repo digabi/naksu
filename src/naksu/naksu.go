@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"naksu/config"
 	"naksu/host"
@@ -12,7 +11,6 @@ import (
 	"naksu/xlate"
 
 	flags "github.com/jessevdk/go-flags"
-	"github.com/kardianos/osext"
 
 	_ "github.com/andlabs/ui/winmanifest"
 )
@@ -108,25 +106,6 @@ func main() {
 	logDirectoryPaths()
 
 	logHardwareDetails()
-
-	// Check whether we have a terminal (restart with x-terminal-emulator, if missing)
-	if !mebroutines.ExistsStdin() {
-		pathToMe, err := osext.Executable()
-		if err != nil {
-			log.Debug("Failed to get executable path")
-		}
-		commandArgs := []string{"x-terminal-emulator", "-e", pathToMe}
-
-		log.Debug(fmt.Sprintf("No stdin, restarting with terminal: %s", strings.Join(commandArgs, " ")))
-		_, err = mebroutines.RunAndGetOutput(commandArgs)
-		if err != nil {
-			log.Debug(fmt.Sprintf("Failed to restart with terminal: %d", err))
-		}
-		log.Debug(fmt.Sprintf("No stdin, returned from %s", strings.Join(commandArgs, " ")))
-
-		// Normal termination
-		os.Exit(0)
-	}
 
 	var err = RunUI()
 

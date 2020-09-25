@@ -7,14 +7,14 @@ const (
 	LowDiskLimit uint64 = 50 * 1024 * 1024 * 1024 // 50 Gb
 
 	// AbittiEtcherURL is the URL for the latest Abitti Etcher zip
-	AbittiEtcherURL = "http://static.abitti.fi/etcher-usb/ktp-etcher.zip"
+	AbittiEtcherURL  = "http://static.abitti.fi/etcher-usb/ktp-etcher.zip"
 	AbittiVersionURL = "http://static.abitti.fi/etcher-usb/ktp-etcher.ver"
-	AbittiBoxType = "abitti"
+	AbittiBoxType    = "abitti"
 
 	// ExamEtcherURL is the URL for an Exam Etcher zip
-	ExamEtcherURL = "http://static.abitti.fi/etcher-usb/releases/###PASSPHRASEHASH###/ktp-etcher.zip"
+	ExamEtcherURL  = "http://static.abitti.fi/etcher-usb/releases/###PASSPHRASEHASH###/ktp-etcher.zip"
 	ExamVersionURL = "http://static.abitti.fi/etcher-usb/releases/###PASSPHRASEHASH###/ktp-etcher.ver"
-	ExamBoxType = "exam"
+	ExamBoxType    = "exam"
 
 	// URLTest is a testing URL for network connectivity (network.CheckIfNetworkAvailable).
 	// Point this to something ultra-stable
