@@ -6,6 +6,29 @@ GO=go
 RSRC=$(HOME)/go/bin/rsrc
 TESTS=naksu/mebroutines/backup naksu naksu/network
 
+update-pot:
+	find src/ -name "*.go" >xgettext-sourcefiles
+	xgettext -k --keyword="Get:1" --keyword="AddToTranslation:1" --keyword="TranslateAndSetMessage:1" \
+		--keyword="ShowTranslatedInfoMessage:1" \
+		--keyword="ShowTranslatedErrorMessage:1" \
+		--keyword="ShowTranslatedWarningMessage:1" \
+		-C --output=res/gettext/naksu.pot --files-from=xgettext-sourcefiles
+	rm xgettext-sourcefiles
+
+xlate: src/naksu/xlate/xlate_fi.go src/naksu/xlate/xlate_sv.go
+
+src/naksu/xlate/xlate_fi.go: res/gettext/naksu.pot
+	echo "package xlate\n\nfunc getPoStrFi() string {\n return \`" >src/naksu/xlate/xlate_fi.go
+	cat res/gettext/fi.po >>src/naksu/xlate/xlate_fi.go
+	echo "\`\n}" >>src/naksu/xlate/xlate_fi.go
+	gofmt -s -w src/naksu/xlate/xlate_fi.go
+
+src/naksu/xlate/xlate_sv.go: res/gettext/naksu.pot
+	echo "package xlate\n\nfunc getPoStrSv() string {\n return \`" >src/naksu/xlate/xlate_sv.go
+	cat res/gettext/sv.po >>src/naksu/xlate/xlate_sv.go
+	echo "\`\n}" >>src/naksu/xlate/xlate_sv.go
+	gofmt -s -w src/naksu/xlate/xlate_sv.go
+
 bin/golangci-lint:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.30.0
 
@@ -42,11 +65,11 @@ docker: clean
 
 all: test windows linux
 
-windows: naksu.exe
+windows: xlate naksu.exe
 
-linux: naksu
+linux: xlate naksu
 
-mac: naksu-darwin
+mac: xlate naksu-darwin
 
 src/naksu.syso: res/windows/*
 	$(RSRC) -arch="amd64" -ico="res/windows/naksu.ico" -o src/naksu.syso
@@ -69,4 +92,5 @@ naksu_packages: all
 clean:
 	rm -f bin/naksu bin/naksu.exe
 	rm -f tests.xml
+	rm -f src/naksu/xlate/xlate_??.go
 	if [ -d pkg/ ]; then chmod -R 777 pkg/; rm -fR pkg/; fi

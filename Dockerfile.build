@@ -8,4 +8,4 @@ RUN cd /app && make bin/golangci-lint bin/go2xunit
 COPY res /app/res
 COPY src /app/src
 ENV GOPATH=/app
-RUN cd /app && make test checkstyle linux windows naksu_packages
+RUN cd /app && make xlate test checkstyle linux windows naksu_packages
