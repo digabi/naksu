@@ -18,13 +18,13 @@ update-pot:
 xlate: src/naksu/xlate/xlate_fi.go src/naksu/xlate/xlate_sv.go
 
 src/naksu/xlate/xlate_fi.go: res/gettext/naksu.pot
-	echo "package xlate\n\nfunc getPoStrFi() string {\n return \`" >src/naksu/xlate/xlate_fi.go
+	echo "package xlate\n\nfunc getPoStrFi() string {\n //nolint:misspell\n return \`" >src/naksu/xlate/xlate_fi.go
 	cat res/gettext/fi.po >>src/naksu/xlate/xlate_fi.go
 	echo "\`\n}" >>src/naksu/xlate/xlate_fi.go
 	gofmt -s -w src/naksu/xlate/xlate_fi.go
 
 src/naksu/xlate/xlate_sv.go: res/gettext/naksu.pot
-	echo "package xlate\n\nfunc getPoStrSv() string {\n return \`" >src/naksu/xlate/xlate_sv.go
+	echo "package xlate\n\nfunc getPoStrSv() string {\n //nolint:misspell\n return \`" >src/naksu/xlate/xlate_sv.go
 	cat res/gettext/sv.po >>src/naksu/xlate/xlate_sv.go
 	echo "\`\n}" >>src/naksu/xlate/xlate_sv.go
 	gofmt -s -w src/naksu/xlate/xlate_sv.go
