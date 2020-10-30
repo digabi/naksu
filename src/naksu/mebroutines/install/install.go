@@ -160,8 +160,8 @@ func ensureGoodTempFilename() (string, error) {
 
 	switch {
 	case errDiskFree != nil && strings.HasPrefix(fmt.Sprintf("%v", errDiskFree), "low:"):
-		mebroutines.ShowWarningMessage(fmt.Sprintf("Your free disk size is getting low (%s)", humanize.Bytes(freeSize)))
-		return "", fmt.Errorf("low disk size: %s", humanize.Bytes(freeSize))
+		mebroutines.ShowTranslatedWarningMessage("Your free disk size is getting low (%s)", humanize.Bytes(freeSize))
+		// We just inform the user instead of returning an error
 	case errDiskFree != nil:
 		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to query free disk space: %v", errDiskFree))
 		return "", errDiskFree
