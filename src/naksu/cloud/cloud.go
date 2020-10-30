@@ -116,12 +116,16 @@ func unZipServerImage(zipPath string, destinationImagePath string, progressCallb
 				return fmt.Errorf("could not create image file %s: %v", destinationImagePath, errImage)
 			}
 
+			defer fImage.Close()
+
 			fZipped, errZipped := file.Open()
 			if errZipped != nil {
 				return fmt.Errorf("could not open file inside the zip: %v", errZipped)
 			}
 
-			progressCallbackFn("Starting to unzip raw image")
+			defer fZipped.Close()
+
+			progressCallbackFn(xlate.Get("Starting to uncompress raw image"))
 
 			counter := &writeCounter{}
 			counter.ProgressCallbackFn = progressCallbackFn
