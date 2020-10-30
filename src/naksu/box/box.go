@@ -208,7 +208,7 @@ func Installed() (bool, error) {
 		log.Debug(fmt.Sprintf("box.Installed() could not detect whether VM is installed: %v", err))
 	}
 
-	return isInstalled, nil
+	return isInstalled, err
 }
 
 func Running() (bool, error) {
@@ -220,7 +220,7 @@ func Running() (bool, error) {
 		log.Debug(fmt.Sprintf("box.Running() could not detect whether VM is running: %v", err))
 	}
 
-	return isRunning, nil
+	return isRunning, err
 }
 
 // GetType returns the box type (e.g. "digabi/ktp-qa") of the current VM

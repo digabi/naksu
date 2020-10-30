@@ -55,20 +55,27 @@ func runVBoxManage(args []string) (string, error) {
 	runArgs := append(vboxmanagepathArr, args...)
 	vBoxManageOutput, err := mebroutines.RunAndGetOutput(runArgs)
 	if err != nil {
+		command := strings.Join(runArgs, " ")
 		logError := func(output string, err error) {
-			log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", strings.Join(runArgs, " "), err))
+			log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", command, err))
 			log.Debug(output)
 		}
 
 		logError(vBoxManageOutput, err)
 
 		fixed, fixErr := detectAndFixDuplicateHardDiskProblem(vBoxManageOutput)
-		if !fixed || fixErr != nil {
-			log.Debug(fmt.Sprintf("Failed to detect & fix duplicate hard disk problem: %v", fixErr))
-			return "", errors.New("failed to fix duplicate hard disk problem")
+		if fixErr != nil {
+			log.Debug(fmt.Sprintf("Failed to fix duplicate hard disk problem with command %s: (%v)", command, fixErr))
+			return "", fmt.Errorf("failed to execute %s: %v", command, err)
 		}
 
-		log.Debug(fmt.Sprintf("Retrying '%s' after fixing problem", strings.Join(runArgs, " ")))
+		if fixed {
+			log.Debug("Duplicate hard disk problem was fixed")
+		} else {
+			log.Debug("Duplicate hard disk problem was not fixed")
+		}
+
+		log.Debug(fmt.Sprintf("Retrying '%s' after fixing problem", command))
 		vBoxManageOutput, err = mebroutines.RunAndGetOutput(runArgs)
 		if err != nil {
 			logError(vBoxManageOutput, err)
@@ -210,24 +217,44 @@ func GetBoxProperty(boxName string, property string) string {
 	return propertyValue
 }
 
+func checkOutputIfNoVMInstalled(output string) bool {
+	re := regexp.MustCompile(`Could not find a registered machine named`)
+	return re.MatchString(output)
+}
+
+func checkOutputGetVMState(output string) string {
+	re := regexp.MustCompile(`VMState="(.+)"`)
+	result := re.FindStringSubmatch(output)
+
+	if len(result) > 1 {
+		return result[1]
+	}
+
+	return ""
+}
+
 func getVMState(boxName string) (string, error) {
 	ensureVBoxResponseCacheInitialised()
 
 	vmState, err := vBoxResponseCache.Get("vmstate")
 	if err != nil {
 		rawVMInfo, err := CallRunVBoxManage([]string{"showvminfo", "--machinereadable", boxName})
+
+		// Check whether VM is installed
+		if checkOutputIfNoVMInstalled(rawVMInfo) {
+			log.Debug("When trying to get VM state, VM is not installed")
+			return "", nil
+		}
+
+		// Process other VBoxManage errors
 		if err != nil {
 			log.Debug(fmt.Sprintf("When trying to get VM state, could not get VM info: %v", err))
 			return "", err
 		}
 
 		// Extract state string
-		pattern := regexp.MustCompile(`VMState="(.+)"`)
-		result := pattern.FindStringSubmatch(rawVMInfo)
-
-		if len(result) > 1 {
-			vmState = result[1]
-		} else {
+		vmState := checkOutputGetVMState(rawVMInfo)
+		if vmState == "" {
 			log.Debug("Could not find VM state from the VM info")
 			return "", errors.New("could not find vm state from the vm info")
 		}
@@ -256,9 +283,8 @@ func Installed(boxName string) (bool, error) {
 	rawVMInfo, err := CallRunVBoxManage([]string{"showvminfo", "--machinereadable", boxName})
 
 	if err != nil {
-		pattern := regexp.MustCompile(`Could not find a registered machine named`)
-		if pattern.MatchString(fmt.Sprintf("%v", rawVMInfo)) {
-			// Response states that there is no such machine
+		if checkOutputIfNoVMInstalled(rawVMInfo) {
+			log.Debug("box.Installed: Box is not installed")
 			return false, nil
 		}
 
