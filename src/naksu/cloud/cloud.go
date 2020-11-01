@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
+	"regexp"
 	"time"
 
 	humanize "github.com/dustin/go-humanize"
@@ -195,7 +195,7 @@ func GetAvailableVersion(versionURL string) (string, error) {
 			return "", err
 		}
 
-		version = strings.Trim(string(body), " \n")
+		version = sanitizeBoxVersionString(string(body))
 
 		errCacheSet := cloudStatusCache.Set(versionURL, version, constants.CloudStatusTimeout)
 		if errCacheSet != nil {
@@ -206,6 +206,12 @@ func GetAvailableVersion(versionURL string) (string, error) {
 	}
 
 	return version, nil
+}
+
+// sanitizeBoxVersionString removes all unallowed characters from box version string
+func sanitizeBoxVersionString(str string) string {
+	re := regexp.MustCompile(`\W`)
+	return re.ReplaceAllString(str, "")
 }
 
 func ensureCloudStatusCacheInitialised() {

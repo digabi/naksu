@@ -193,7 +193,7 @@ func GetBoxProperty(boxName string, property string) string {
 	if errCache != nil {
 		output, errVBoxManage := CallRunVBoxManage([]string{"guestproperty", "get", boxName, property})
 		if errVBoxManage != nil {
-			log.Debug(fmt.Sprintf("Could not get VM guest property: %v", errVBoxManage))
+			log.Debug(fmt.Sprintf("Could not get VM guest property '%s': %v", property, errVBoxManage))
 			output = ""
 		}
 
@@ -205,9 +205,9 @@ func GetBoxProperty(boxName string, property string) string {
 
 		errCacheSet := vBoxResponseCache.Set(property, propertyValue, constants.VBoxManageCacheTimeout)
 		if errCacheSet == nil {
-			log.Debug(fmt.Sprintf("Stored VM guest property %s to cache: %s", property, propertyValue))
+			log.Debug(fmt.Sprintf("Stored VM guest property '%s' value '%s' to cache", property, propertyValue))
 		} else {
-			log.Debug(fmt.Sprintf("Could not store VM guest property %s, value %s to cache: %v", property, propertyValue, errCacheSet))
+			log.Debug(fmt.Sprintf("Could not store VM guest property '%s', value '%s' to cache: %v", property, propertyValue, errCacheSet))
 		}
 	} else {
 		propertyValue = fmt.Sprintf("%v", propertyValueInterface)
