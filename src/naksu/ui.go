@@ -1119,7 +1119,7 @@ func RunUI() error {
 		}()
 
 		if <-isHyperV {
-			mebroutines.ShowWarningMessage(xlate.Get("Please turn Windows Hypervisor off as it may cause problems."))
+			mebroutines.ShowWarningMessage(xlate.Get("Please turn Windows Hypervisor and Windows Virtualization Platform off as those may cause problems."))
 		} else {
 			// Does CPU support hardware virtualisation?
 			if !host.IsHWVirtualisationCPU() {

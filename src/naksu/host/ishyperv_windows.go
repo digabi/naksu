@@ -53,6 +53,7 @@ func isHyperVOptionalFeature() bool {
 }
 
 // isHypervisorPresent returns true if Win32_ComputerSystem.HypervisorPresent is true
+// it is true at least when Windows Hypervisor feature or Windows Virtualization Platform feature is on
 func isHypervisorPresent() bool {
 	// This struct must be named with an underscore, otherwise it is not recognised
 	// and results "Invalid class" exception.
