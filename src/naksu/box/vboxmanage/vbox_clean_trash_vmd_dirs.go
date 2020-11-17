@@ -51,7 +51,7 @@ func virtualBoxDefaultVMDirectory() (string, error) {
 	systemProperties, err := RunCommand([]string{"list", "systemproperties"})
 
 	if err != nil {
-		log.Debug("Failing to list system properties is not a fatal error, continuing normally")
+		log.Debug(fmt.Sprintf("Failing to list system properties is not a fatal error, continuing normally. Error: %v", err))
 	}
 
 	defaultVMDirectoryRE := regexp.MustCompile(`Default machine folder:\s+(\S.*)`)
