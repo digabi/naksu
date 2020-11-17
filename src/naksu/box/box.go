@@ -132,7 +132,7 @@ func CreateNewBox(boxType string, ddImagePath string, boxVersion string) error {
 
 	createCommands = append(createCommands, vbm.VBoxCommand{"snapshot", boxName, "take", boxSnapshotName})
 
-	err := vbm.MultipleCallRunVBoxManage(createCommands)
+	err := vbm.RunCommands(createCommands)
 	if err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func StartCurrentBox() error {
 		{"startvm", boxName, "--type", "gui"},
 	}
 
-	return vbm.MultipleCallRunVBoxManage(startCommands)
+	return vbm.RunCommands(startCommands)
 }
 
 // RestoreSnapshot returns installed VM to fresh state (to the snapshot taken just after the install)
@@ -160,7 +160,7 @@ func RestoreSnapshot() error {
 		{"snapshot", boxName, "restore", boxSnapshotName},
 	}
 
-	return vbm.MultipleCallRunVBoxManage(restoreCommands)
+	return vbm.RunCommands(restoreCommands)
 }
 
 // RemoveCurrentBox deletes currently installed VM
@@ -169,7 +169,7 @@ func RemoveCurrentBox() error {
 		{"unregistervm", boxName, "--delete"},
 	}
 
-	return vbm.MultipleCallRunVBoxManage(removeCommands)
+	return vbm.RunCommands(removeCommands)
 }
 
 // WriteDiskClone creates a disk clone of the first disk of the current VM
@@ -179,7 +179,7 @@ func WriteDiskClone(clonePath string) error {
 		return fmt.Errorf("could not get disk uuid")
 	}
 
-	vBoxManageOutput, err := vbm.CallRunVBoxManage(vbm.VBoxCommand{"clonemedium", diskUUID, clonePath, "--format", "VMDK"})
+	vBoxManageOutput, err := vbm.RunCommand(vbm.VBoxCommand{"clonemedium", diskUUID, clonePath, "--format", "VMDK"})
 
 	if err != nil {
 		return err
@@ -194,7 +194,7 @@ func WriteDiskClone(clonePath string) error {
 	}
 
 	// Detach media from VirtualBox disk management
-	_, errCloseMedium := vbm.CallRunVBoxManage(vbm.VBoxCommand{"closemedium", clonePath})
+	_, errCloseMedium := vbm.RunCommand(vbm.VBoxCommand{"closemedium", clonePath})
 	return errCloseMedium
 }
 
@@ -284,7 +284,7 @@ func MediumSizeOnDisk(location string) (uint64, error) {
 	// as a parameter, but that doesn't seem to be the case. To be safe, we'll
 	// use the location of the disk instead.
 
-	mediumInfo, err := vbm.CallRunVBoxManage([]string{"showmediuminfo", location})
+	mediumInfo, err := vbm.RunCommand([]string{"showmediuminfo", location})
 
 	if err != nil {
 		log.Debug(fmt.Sprintf("Could not get medium info to calculate its size: %v", err))

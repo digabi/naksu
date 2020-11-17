@@ -48,7 +48,7 @@ func CleanUpTrashVMDirectories() {
 }
 
 func virtualBoxDefaultVMDirectory() (string, error) {
-	systemProperties, err := CallRunVBoxManage([]string{"list", "systemproperties"})
+	systemProperties, err := RunCommand([]string{"list", "systemproperties"})
 
 	if err != nil {
 		log.Debug("Failing to list system properties is not a fatal error, continuing normally")

@@ -20,7 +20,7 @@ var vBoxManageStarted int64
 
 type VBoxCommand = []string
 
-func CallRunVBoxManage(args VBoxCommand) (string, error) {
+func RunCommand(args VBoxCommand) (string, error) {
 	// There is an ongoing VBoxManage call (break free after 240 loops)
 	// This locking avoids executing multiple instances of VBoxManage at the same time. Calling
 	// VBoxManage simulaneously tends to cause E_ACCESSDENIED errors from VBoxManage.
@@ -28,7 +28,7 @@ func CallRunVBoxManage(args VBoxCommand) (string, error) {
 	for (vBoxManageStarted != 0) && (tryCounter < 240) {
 		time.Sleep(500 * time.Millisecond)
 		tryCounter++
-		log.Debug(fmt.Sprintf("CallRunVBoxManage is waiting VBoxManage to exit (race condition lock count %d)", tryCounter))
+		log.Debug(fmt.Sprintf("RunCommand is waiting VBoxManage to exit (race condition lock count %d)", tryCounter))
 	}
 
 	vBoxManageStarted = time.Now().Unix()
@@ -38,9 +38,9 @@ func CallRunVBoxManage(args VBoxCommand) (string, error) {
 	return vBoxManageOutput, err
 }
 
-func MultipleCallRunVBoxManage(commands []VBoxCommand) error {
+func RunCommands(commands []VBoxCommand) error {
 	for curCommand := 0; curCommand < len(commands); curCommand++ {
-		_, err := CallRunVBoxManage(commands[curCommand])
+		_, err := RunCommand(commands[curCommand])
 		if err != nil {
 			return err
 		}
@@ -111,7 +111,7 @@ func GetVMInfoRegexp(boxName string, vmRegexp string) string {
 
 	rawVMInfoInterface, err := vBoxResponseCache.Get("showvminfo")
 	if err != nil {
-		rawVMInfo, err = CallRunVBoxManage([]string{"showvminfo", "--machinereadable", boxName})
+		rawVMInfo, err = RunCommand([]string{"showvminfo", "--machinereadable", boxName})
 		if err != nil {
 			log.Debug(fmt.Sprintf("Could not get VM info: %v", err))
 			rawVMInfo = ""
@@ -137,7 +137,7 @@ func GetVMInfoRegexp(boxName string, vmRegexp string) string {
 }
 
 func getVBoxManageVersionSemanticPart() (string, error) {
-	output, errVBM := CallRunVBoxManage([]string{"--version"})
+	output, errVBM := RunCommand([]string{"--version"})
 	if errVBM != nil {
 		log.Debug(fmt.Sprintf("GetVBoxManageVersion() failed to get VBoxManage version: %v", errVBM))
 		return "", fmt.Errorf("failed to get vboxmanage version: %v", errVBM)
@@ -191,7 +191,7 @@ func GetBoxProperty(boxName string, property string) string {
 
 	propertyValueInterface, errCache := vBoxResponseCache.Get(property)
 	if errCache != nil {
-		output, errVBoxManage := CallRunVBoxManage([]string{"guestproperty", "get", boxName, property})
+		output, errVBoxManage := RunCommand([]string{"guestproperty", "get", boxName, property})
 		if errVBoxManage != nil {
 			log.Debug(fmt.Sprintf("Could not get VM guest property '%s': %v", property, errVBoxManage))
 			output = ""
@@ -238,7 +238,7 @@ func getVMState(boxName string) (string, error) {
 
 	vmState, err := vBoxResponseCache.Get("vmstate")
 	if err != nil {
-		rawVMInfo, err := CallRunVBoxManage([]string{"showvminfo", "--machinereadable", boxName})
+		rawVMInfo, err := RunCommand([]string{"showvminfo", "--machinereadable", boxName})
 
 		// Check whether VM is installed
 		if checkOutputIfNoVMInstalled(rawVMInfo) {
@@ -280,7 +280,7 @@ func Running(boxName string) (bool, error) {
 }
 
 func Installed(boxName string) (bool, error) {
-	rawVMInfo, err := CallRunVBoxManage([]string{"showvminfo", "--machinereadable", boxName})
+	rawVMInfo, err := RunCommand([]string{"showvminfo", "--machinereadable", boxName})
 
 	if err != nil {
 		if checkOutputIfNoVMInstalled(rawVMInfo) {
@@ -305,7 +305,7 @@ func InstalledVBoxManage() bool {
 		return false
 	}
 
-	vBoxManageVersion, err := CallRunVBoxManage([]string{"--version"})
+	vBoxManageVersion, err := RunCommand([]string{"--version"})
 	if err != nil {
 		// No VBoxManage was found
 		log.Debug("VBoxManage was not found")
