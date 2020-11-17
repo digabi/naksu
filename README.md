@@ -9,14 +9,14 @@ Download either Windows or Linux version and execute the file in the OS-related 
 
 ## History
 
-In the first version of so-called diskless exam server the schools downloaded a
-VM definition file `Vagrantfile` which was read by the HashiCorp Vagrant. It created a VirtualBox VM
+In the first version of so-called stickless exam server the schools downloaded a
+VM definition file `Vagrantfile` which was read by HashiCorp Vagrant. It created a VirtualBox VM
 based on the shipped disk image. However, entering `vagrant up` to create the VM was too
 technical for the teachers arranging course exams. A need for some kind of helper scripts appeared
 to be evident as we followed support requests and feedback from school IT staff and teachers.
 
-Later the features of the Vagrant (downloading the image and creating a VirtualBox VM) were coded
-into Naksu. Currently, the Vagrant is not used at all and can be uninstalled from the host machine.
+Later the features of Vagrant (downloading the image and creating a VirtualBox VM) were coded
+into Naksu. Currently, Vagrant is not used at all and can be uninstalled from the host machine.
 
 ## Updates
 
