@@ -197,7 +197,7 @@ func GetBoxProperty(boxName string, property string) string {
 			output = ""
 		}
 
-		propRegexp := regexp.MustCompile(`Value: (.+)`)
+		propRegexp := regexp.MustCompile(`Value:\s*(\w+)`)
 		propMatches := propRegexp.FindStringSubmatch(output)
 		if len(propMatches) == 2 {
 			propertyValue = propMatches[1]
