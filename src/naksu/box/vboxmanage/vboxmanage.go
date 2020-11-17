@@ -155,20 +155,18 @@ func getVBoxManageVersionSemanticPart() (string, error) {
 func GetVBoxManageVersion() (semver.Version, error) {
 	ensureVBoxResponseCacheInitialised()
 
-	errorVersion, _ := semver.Make("0.0.0")
-
 	cachedVBoxManageVersion, errCache := vBoxResponseCache.Get("vboxmanageversion")
 	if errCache != nil {
 		vBoxManageVersionString, errVersionString := getVBoxManageVersionSemanticPart()
 		if errVersionString != nil {
 			log.Debug(fmt.Sprintf("GetVBoxManageVersion() could not get VBoxManage version: %v", errVersionString))
-			return errorVersion, errVersionString
+			return semver.Version{}, errVersionString
 		}
 
 		vBoxManageVersion, errSemVer := semver.Make(vBoxManageVersionString)
 		if errSemVer != nil {
 			log.Debug(fmt.Sprintf("GetVBoxManageVersion() got VBoxManage version code '%s' but it is not semantic version number: %v", vBoxManageVersionString, errSemVer))
-			return errorVersion, fmt.Errorf("vboxmanage version %s is not a semantic version number: %v", vBoxManageVersionString, errSemVer)
+			return semver.Version{}, fmt.Errorf("vboxmanage version %s is not a semantic version number: %v", vBoxManageVersionString, errSemVer)
 		}
 
 		errCache = vBoxResponseCache.Set("vboxmanageversion", vBoxManageVersion.String(), constants.VBoxManageCacheTimeout)
@@ -179,7 +177,11 @@ func GetVBoxManageVersion() (semver.Version, error) {
 		return vBoxManageVersion, nil
 	}
 
-	cachedVBoxManageVersionSemVer, _ := semver.Make(fmt.Sprintf("%v", cachedVBoxManageVersion))
+	cachedVBoxManageVersionSemVer, err := semver.Make(fmt.Sprintf("%v", cachedVBoxManageVersion))
+
+	if err != nil {
+		return semver.Version{}, fmt.Errorf("getting semantic version object from '%v' caused error: %v", cachedVBoxManageVersion, err)
+	}
 
 	return cachedVBoxManageVersionSemVer, nil
 }
