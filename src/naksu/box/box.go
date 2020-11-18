@@ -24,7 +24,7 @@ import (
 const (
 	boxName           = "NaksuAbittiKTP"
 	boxOSType         = "Debian"
-	boxFinalImageSize = 56909 // VDI disk size in megs
+	boxFinalImageSize = 55 * 1024 // VDI disk size in megs
 	boxSnapshotName   = "Installed"
 )
 
