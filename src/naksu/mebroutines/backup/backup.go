@@ -77,18 +77,18 @@ func MakeBackup(backupPath string) error {
 }
 
 func ensureBoxInstalledAndNotRunning() error {
-	isInstalled, errInstalled := box.Installed()
-	if errInstalled != nil {
-		return fmt.Errorf("could not back up server as we could not detect whether vm is installed: %v", errInstalled)
+	isInstalled, err := box.Installed()
+	if err != nil {
+		return fmt.Errorf("could not back up server as we could not detect whether vm is installed: %v", err)
 	}
 
 	if !isInstalled {
 		return errors.New("no server has been installed")
 	}
 
-	isRunning, errRunning := box.Running()
-	if errRunning != nil {
-		return fmt.Errorf("could not start server as we could not detect whether vm is running: %v", errRunning)
+	isRunning, err := box.Running()
+	if err != nil {
+		return fmt.Errorf("could not back up server as we could not detect whether vm is running: %v", err)
 	}
 
 	if isRunning {
