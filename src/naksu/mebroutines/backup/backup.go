@@ -92,7 +92,7 @@ func ensureBoxInstalledAndNotRunning() error {
 	}
 
 	if isRunning {
-		return errors.New("the server is already running")
+		return errors.New("could not back up server as the server is running")
 	}
 
 	return nil
