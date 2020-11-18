@@ -267,17 +267,17 @@ func GetVersion() string {
 
 // getDiskUUID returns the VirtualBox UUID for the image of the current VM
 func getDiskUUID() string {
-	return vboxmanage.GetVMInfoRegexp(boxName, "\"SATA Controller-ImageUUID-0-0\"=\"(.*?)\"")
+	return vboxmanage.GetVMInfoByRegexp(boxName, "\"SATA Controller-ImageUUID-0-0\"=\"(.*?)\"")
 }
 
 // GetDiskLocation returns the full path of the current VM disk image.
 func GetDiskLocation() string {
-	return vboxmanage.GetVMInfoRegexp(boxName, "\"SATA Controller-0-0\"=\"(.*)\"")
+	return vboxmanage.GetVMInfoByRegexp(boxName, "\"SATA Controller-0-0\"=\"(.*)\"")
 }
 
 // GetLogDir returns the full path of VirtualBox log directory
 func GetLogDir() string {
-	return vboxmanage.GetVMInfoRegexp(boxName, "LogFldr=\"(.*)\"")
+	return vboxmanage.GetVMInfoByRegexp(boxName, "LogFldr=\"(.*)\"")
 }
 
 // MediumSizeOnDisk returns the size of the current VM disk image on disk

@@ -108,9 +108,9 @@ func ResetVBoxResponseCache() {
 	ensureVBoxResponseCacheInitialised()
 }
 
-// GetVMInfoRegexp returns result of the given vmRegexp from the current VBoxManage showvminfo
+// GetVMInfoByRegexp returns result of the given vmRegexp from the current VBoxManage showvminfo
 // output. This function gets the output either from the cache or calls getVBoxManageOutput()
-func GetVMInfoRegexp(boxName string, vmRegexp string) string {
+func GetVMInfoByRegexp(boxName string, vmRegexp string) string {
 	rawVMInfo := getVMInfo(boxName)
 
 	// Extract server name
