@@ -11,10 +11,10 @@ const (
 	AbittiVersionURL = "http://static.abitti.fi/etcher-usb/ktp-etcher.ver"
 	AbittiBoxType    = "abitti"
 
-	// ExamEtcherURL is the URL for an Exam Etcher zip
-	ExamEtcherURL  = "http://static.abitti.fi/etcher-usb/releases/###PASSPHRASEHASH###/ktp-etcher.zip"
-	ExamVersionURL = "http://static.abitti.fi/etcher-usb/releases/###PASSPHRASEHASH###/ktp-etcher.ver"
-	ExamBoxType    = "exam"
+	// MatriculationExamEtcherURL is the URL for an Exam Etcher zip
+	MatriculationExamEtcherURL  = "http://static.abitti.fi/etcher-usb/releases/###PASSPHRASEHASH###/ktp-etcher.zip"
+	MatriculationExamVersionURL = "http://static.abitti.fi/etcher-usb/releases/###PASSPHRASEHASH###/ktp-etcher.ver"
+	MatriculationExamBoxType    = "exam"
 
 	// URLTest is a testing URL for network connectivity (network.CheckIfNetworkAvailable).
 	// Point this to something ultra-stable

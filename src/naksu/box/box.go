@@ -257,7 +257,7 @@ func TypeIsAbitti() bool {
 func TypeIsMatriculationExam() bool {
 	boxType := GetType()
 
-	return (boxType == constants.ExamBoxType)
+	return (boxType == constants.MatriculationExamBoxType)
 }
 
 // GetVersion returns the version string (e.g. "SERVER7108X v69") of the current VM

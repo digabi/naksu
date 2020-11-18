@@ -86,10 +86,10 @@ func NewAbittiServer() {
 
 func NewExamServer(passphrase string) {
 	passphraseMD5 := getMD5Sum(passphrase)
-	imageURL := getExamURL(constants.ExamEtcherURL, passphraseMD5)
-	versionURL := getExamURL(constants.ExamVersionURL, passphraseMD5)
+	imageURL := getExamURL(constants.MatriculationExamEtcherURL, passphraseMD5)
+	versionURL := getExamURL(constants.MatriculationExamVersionURL, passphraseMD5)
 
-	newServer(constants.ExamBoxType, imageURL, versionURL)
+	newServer(constants.MatriculationExamBoxType, imageURL, versionURL)
 }
 
 func ensureServerIsNotRunningAndDoesNotExist() error {
