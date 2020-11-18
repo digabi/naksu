@@ -14,7 +14,7 @@ func Server() error {
 	isInstalled, errInstalled := box.Installed()
 	if errInstalled != nil {
 		log.Debug(fmt.Sprintf("Could not start destroying server as we could not detect whether existing VM is installed: %v", errInstalled))
-		return errors.New("could not detect wheteher there is an existing vm installed")
+		return errors.New("could not detect whether there is an existing vm installed")
 	}
 
 	if !isInstalled {

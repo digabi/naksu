@@ -1,7 +1,7 @@
 package install
 
 import (
-	"crypto/md5" // #nosec
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"io"
@@ -85,9 +85,9 @@ func NewAbittiServer() {
 }
 
 func NewExamServer(passphrase string) {
-	passphraseMD5 := getMD5Sum(passphrase)
-	imageURL := getExamURL(constants.MatriculationExamEtcherURL, passphraseMD5)
-	versionURL := getExamURL(constants.MatriculationExamVersionURL, passphraseMD5)
+	passphraseHash := getPassphraseHash(passphrase)
+	imageURL := getExamURL(constants.MatriculationExamEtcherURL, passphraseHash)
+	versionURL := getExamURL(constants.MatriculationExamVersionURL, passphraseHash)
 
 	newServer(constants.MatriculationExamBoxType, imageURL, versionURL)
 }
@@ -194,10 +194,9 @@ func createKtpJakoDir() (string, error) {
 	return ktpJakoPath, err
 }
 
-func getMD5Sum(md5String string) string {
-	// We're using MD5 here for a digest, not for cryptographic purposes
-	o := md5.New() // #nosec
-	_, err := io.WriteString(o, md5String)
+func getPassphraseHash(passphrase string) string {
+	o := sha256.New()
+	_, err := io.WriteString(o, passphrase)
 
 	if err != nil {
 		panic(err)
@@ -206,7 +205,7 @@ func getMD5Sum(md5String string) string {
 	return fmt.Sprintf("%x", o.Sum(nil))
 }
 
-func getExamURL(url string, passphraseMD5 string) string {
+func getExamURL(url string, passphraseHash string) string {
 	re := regexp.MustCompile(`###PASSPHRASEHASH###`)
-	return re.ReplaceAllString(url, passphraseMD5)
+	return re.ReplaceAllString(url, passphraseHash)
 }
