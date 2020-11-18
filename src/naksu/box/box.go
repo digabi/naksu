@@ -115,11 +115,16 @@ func CreateNewBox(boxType string, ddImagePath string, boxVersion string) error {
 		},
 	}
 
-	v6_1, _ := semver.Make("6.1.0")
-	vBoxVersion, errVBoxManageVersion := vbm.GetVBoxManageVersion()
-	if errVBoxManageVersion != nil {
-		log.Debug(fmt.Sprintf("Could not get VBoxManage version: %v", errVBoxManageVersion))
-		return errVBoxManageVersion
+	v6_1String := "6.1.0"
+	v6_1, err := semver.Make(v6_1String)
+	if err != nil {
+		return fmt.Errorf("hard-coded version string %s could not be converted to sematic version object", v6_1String)
+	}
+
+	vBoxVersion, err := vbm.GetVBoxManageVersion()
+	if err != nil {
+		log.Debug(fmt.Sprintf("Could not get VBoxManage version: %v", err))
+		return err
 	}
 
 	if vBoxVersion.LT(v6_1) {
@@ -132,7 +137,7 @@ func CreateNewBox(boxType string, ddImagePath string, boxVersion string) error {
 
 	createCommands = append(createCommands, vbm.VBoxCommand{"snapshot", boxName, "take", boxSnapshotName})
 
-	err := vbm.RunCommands(createCommands)
+	err = vbm.RunCommands(createCommands)
 	if err != nil {
 		return err
 	}
