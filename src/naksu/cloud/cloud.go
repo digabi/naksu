@@ -1,5 +1,9 @@
 package cloud
 
+// Package "cloud" can be used to query info about box versions available
+// at the cloud (Abitti, yo?) and retrieve these box images. The images
+// can be installed using package "box".
+
 import (
 	"archive/zip"
 	"fmt"
@@ -22,7 +26,7 @@ import (
 // Suppress progress messages if there has been less than 2 seconds from a message
 const progressLastMessageTimeout = 2 * time.Second
 
-// writeCounter defines  io.Writer interface (see downloadServerImage, unZipServerImage)
+// writeCounter implements io.Writer interface (see downloadServerImage, unZipServerImage)
 type writeCounter struct {
 	Total              uint64
 	FileSize           uint64
@@ -95,11 +99,7 @@ func downloadServerImage(url string, destinationZipPath string, progressCallback
 	return nil
 }
 
-// Package "cloud" can be used to query info about box versions available
-// at the cloud (Abitti, yo?) and retrieve these box images. The images
-// can be installed using package "box".
-
-func unZipServerImage(zipPath string, destinationImagePath string, progressCallbackFn func(string)) error {
+func unZipServerImage(zipPath string, destinationImagePath string, progressCallbackFn func(string, ...interface{})) error {
 	r, err := zip.OpenReader(zipPath)
 	if err != nil {
 		return fmt.Errorf("could not open zip %s: %v", zipPath, err)
