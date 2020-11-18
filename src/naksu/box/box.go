@@ -12,7 +12,7 @@ import (
 
 	semver "github.com/blang/semver/v4"
 
-	vbm "naksu/box/vboxmanage"
+	"naksu/box/vboxmanage"
 	"naksu/config"
 	"naksu/constants"
 	"naksu/host"
@@ -72,7 +72,7 @@ func CreateNewBox(boxType string, ddImagePath string, boxVersion string) error {
 
 	log.Debug(fmt.Sprintf("Calculated new VM specs - CPUs: %d, Memory: %d", calculatedBoxCPUs, calculatedBoxMemory))
 
-	createCommands := []vbm.VBoxCommand{
+	createCommands := []vboxmanage.VBoxCommand{
 		{"convertfromraw", ddImagePath, vdiImagePath, "--format", "VDI"},
 		{"modifyhd", vdiImagePath, "--resize", fmt.Sprintf("%d", boxFinalImageSize)},
 		{"createvm", "--name", boxName, "--register"},
@@ -121,58 +121,58 @@ func CreateNewBox(boxType string, ddImagePath string, boxVersion string) error {
 		return fmt.Errorf("hard-coded version string %s could not be converted to sematic version object", v6_1String)
 	}
 
-	vBoxVersion, err := vbm.GetVBoxManageVersion()
+	vBoxVersion, err := vboxmanage.GetVBoxManageVersion()
 	if err != nil {
 		log.Debug(fmt.Sprintf("Could not get VBoxManage version: %v", err))
 		return err
 	}
 
 	if vBoxVersion.LT(v6_1) {
-		createCommands = append(createCommands, vbm.VBoxCommand{"modifyvm", boxName, "--clipboard", "bidirectional"})
+		createCommands = append(createCommands, vboxmanage.VBoxCommand{"modifyvm", boxName, "--clipboard", "bidirectional"})
 	} else {
-		createCommands = append(createCommands, vbm.VBoxCommand{"modifyvm", boxName, "--clipboard-mode", "bidirectional"})
+		createCommands = append(createCommands, vboxmanage.VBoxCommand{"modifyvm", boxName, "--clipboard-mode", "bidirectional"})
 	}
 
-	createCommands = append(createCommands, vbm.VBoxCommand{"snapshot", boxName, "take", boxSnapshotName})
+	createCommands = append(createCommands, vboxmanage.VBoxCommand{"snapshot", boxName, "take", boxSnapshotName})
 
-	err = vbm.RunCommands(createCommands)
+	err = vboxmanage.RunCommands(createCommands)
 	if err != nil {
 		return err
 	}
 
-	vbm.ResetVBoxResponseCache()
+	vboxmanage.ResetVBoxResponseCache()
 
 	return nil
 }
 
 // StartCurrentBox starts currently installed VM
 func StartCurrentBox() error {
-	startCommands := []vbm.VBoxCommand{
+	startCommands := []vboxmanage.VBoxCommand{
 		{"modifyvm", boxName, "--nic1", "bridged"},
 		{"modifyvm", boxName, "--bridgeadapter1", config.GetExtNic()},
 		{"modifyvm", boxName, "--nictype1", config.GetNic()},
 		{"startvm", boxName, "--type", "gui"},
 	}
 
-	return vbm.RunCommands(startCommands)
+	return vboxmanage.RunCommands(startCommands)
 }
 
 // RestoreSnapshot returns installed VM to fresh state (to the snapshot taken just after the install)
 func RestoreSnapshot() error {
-	restoreCommands := []vbm.VBoxCommand{
+	restoreCommands := []vboxmanage.VBoxCommand{
 		{"snapshot", boxName, "restore", boxSnapshotName},
 	}
 
-	return vbm.RunCommands(restoreCommands)
+	return vboxmanage.RunCommands(restoreCommands)
 }
 
 // RemoveCurrentBox deletes currently installed VM
 func RemoveCurrentBox() error {
-	removeCommands := []vbm.VBoxCommand{
+	removeCommands := []vboxmanage.VBoxCommand{
 		{"unregistervm", boxName, "--delete"},
 	}
 
-	return vbm.RunCommands(removeCommands)
+	return vboxmanage.RunCommands(removeCommands)
 }
 
 // WriteDiskClone creates a disk clone of the first disk of the current VM
@@ -182,7 +182,7 @@ func WriteDiskClone(clonePath string) error {
 		return fmt.Errorf("could not get disk uuid")
 	}
 
-	vBoxManageOutput, err := vbm.RunCommand(vbm.VBoxCommand{"clonemedium", diskUUID, clonePath, "--format", "VMDK"})
+	vBoxManageOutput, err := vboxmanage.RunCommand(vboxmanage.VBoxCommand{"clonemedium", diskUUID, clonePath, "--format", "VMDK"})
 
 	if err != nil {
 		return err
@@ -197,13 +197,13 @@ func WriteDiskClone(clonePath string) error {
 	}
 
 	// Detach media from VirtualBox disk management
-	_, errCloseMedium := vbm.RunCommand(vbm.VBoxCommand{"closemedium", clonePath})
+	_, errCloseMedium := vboxmanage.RunCommand(vboxmanage.VBoxCommand{"closemedium", clonePath})
 	return errCloseMedium
 }
 
 // Installed returns true if we have box installed, otherwise false
 func Installed() (bool, error) {
-	isInstalled, err := vbm.Installed(boxName)
+	isInstalled, err := vboxmanage.Installed(boxName)
 
 	if err == nil {
 		log.Debug(fmt.Sprintf("Server '%s' installed: %t", boxName, isInstalled))
@@ -215,7 +215,7 @@ func Installed() (bool, error) {
 }
 
 func Running() (bool, error) {
-	isRunning, err := vbm.Running(boxName)
+	isRunning, err := vboxmanage.Running(boxName)
 
 	if err == nil {
 		log.Debug(fmt.Sprintf("Server '%s' running: %t", boxName, isRunning))
@@ -228,7 +228,7 @@ func Running() (bool, error) {
 
 // GetType returns the box type (e.g. "digabi/ktp-qa") of the current VM
 func GetType() string {
-	return vbm.GetBoxProperty(boxName, "boxType")
+	return vboxmanage.GetBoxProperty(boxName, "boxType")
 }
 
 // GetTypeLegend returns an user-readable type legend of the current VM
@@ -262,22 +262,22 @@ func TypeIsMatriculationExam() bool {
 
 // GetVersion returns the version string (e.g. "SERVER7108X v69") of the current VM
 func GetVersion() string {
-	return vbm.GetBoxProperty(boxName, "boxVersion")
+	return vboxmanage.GetBoxProperty(boxName, "boxVersion")
 }
 
 // getDiskUUID returns the VirtualBox UUID for the image of the current VM
 func getDiskUUID() string {
-	return vbm.GetVMInfoRegexp(boxName, "\"SATA Controller-ImageUUID-0-0\"=\"(.*?)\"")
+	return vboxmanage.GetVMInfoRegexp(boxName, "\"SATA Controller-ImageUUID-0-0\"=\"(.*?)\"")
 }
 
 // GetDiskLocation returns the full path of the current VM disk image.
 func GetDiskLocation() string {
-	return vbm.GetVMInfoRegexp(boxName, "\"SATA Controller-0-0\"=\"(.*)\"")
+	return vboxmanage.GetVMInfoRegexp(boxName, "\"SATA Controller-0-0\"=\"(.*)\"")
 }
 
 // GetLogDir returns the full path of VirtualBox log directory
 func GetLogDir() string {
-	return vbm.GetVMInfoRegexp(boxName, "LogFldr=\"(.*)\"")
+	return vboxmanage.GetVMInfoRegexp(boxName, "LogFldr=\"(.*)\"")
 }
 
 // MediumSizeOnDisk returns the size of the current VM disk image on disk
@@ -287,7 +287,7 @@ func MediumSizeOnDisk(location string) (uint64, error) {
 	// as a parameter, but that doesn't seem to be the case. To be safe, we'll
 	// use the location of the disk instead.
 
-	mediumInfo, err := vbm.RunCommand([]string{"showmediuminfo", location})
+	mediumInfo, err := vboxmanage.RunCommand([]string{"showmediuminfo", location})
 
 	if err != nil {
 		log.Debug(fmt.Sprintf("Could not get medium info to calculate its size: %v", err))

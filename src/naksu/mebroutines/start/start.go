@@ -3,14 +3,14 @@ package start
 import (
 	"fmt"
 	"naksu/box"
-	vbm "naksu/box/vboxmanage"
+	"naksu/box/vboxmanage"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
 )
 
 // Server starts exam server
 func Server() {
-	vbm.CleanUpTrashVMDirectories()
+	vboxmanage.CleanUpTrashVMDirectories()
 
 	isInstalled, errInstalled := box.Installed()
 	if errInstalled != nil {
