@@ -128,10 +128,8 @@ func CreateNewBox(boxType string, ddImagePath string, boxVersion string) error {
 	}
 
 	if vBoxVersion.LT(v6_1) {
-		// Override bidirectional clipboard for VirtualBox pre-6.1
 		createCommands = append(createCommands, vbm.VBoxCommand{"modifyvm", boxName, "--clipboard", "bidirectional"})
 	} else {
-		// Set bidirectional clipboard for VirtualBox 6.1 and later
 		createCommands = append(createCommands, vbm.VBoxCommand{"modifyvm", boxName, "--clipboard-mode", "bidirectional"})
 	}
 
