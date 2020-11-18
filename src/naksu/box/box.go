@@ -59,8 +59,8 @@ func calculateBoxMemory() (uint64, error) {
 func CreateNewBox(boxType string, ddImagePath string, boxVersion string) error {
 	vdiImagePath := filepath.Join(mebroutines.GetHomeDirectory(), "ktp", "naksu_ktp_disk.vdi")
 	if mebroutines.ExistsFile(vdiImagePath) {
-		log.Debug(fmt.Sprintf("Existing VDI file %s already exists", vdiImagePath))
-		return fmt.Errorf("existing vdi file %s already exists", vdiImagePath)
+		log.Debug(fmt.Sprintf("VDI file %s already exists", vdiImagePath))
+		return fmt.Errorf("vdi file %s already exists", vdiImagePath)
 	}
 
 	calculatedBoxCPUs := calculateBoxCPUs()
