@@ -42,7 +42,7 @@ func newServer(boxType string, imageURL string, versionURL string) {
 		return
 	}
 
-	newImagePath, errNewImagePath := ensureGoodTempFilename()
+	newImagePath, errNewImagePath := getTempFilePath()
 	if errNewImagePath != nil {
 		return
 	}
@@ -144,7 +144,7 @@ func ensureNaksuDirectoriesExist() error {
 	return nil
 }
 
-func ensureGoodTempFilename() (string, error) {
+func getTempFilePath() (string, error) {
 	newImagePath, errTemp := mebroutines.GetTempFilename()
 	if errTemp != nil {
 		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to create temporary file: %v", errTemp))
