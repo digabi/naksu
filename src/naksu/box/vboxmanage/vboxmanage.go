@@ -15,10 +15,16 @@ import (
 	"naksu/mebroutines"
 )
 
+// vBoxResponseCache is initialised by init() -> ensureVBoxResponseCacheInitialised()
 var vBoxResponseCache memory_cache.Cache
 var vBoxManageStarted int64
 
 type VBoxCommand = []string
+
+// nolint:gochecknoinits
+func init() {
+	ensureVBoxResponseCacheInitialised()
+}
 
 func RunCommand(args VBoxCommand) (string, error) {
 	// There is an ongoing VBoxManage call (break free after 240 loops)
@@ -107,8 +113,6 @@ func ResetVBoxResponseCache() {
 func GetVMInfoRegexp(boxName string, vmRegexp string) string {
 	var rawVMInfo string
 
-	ensureVBoxResponseCacheInitialised()
-
 	rawVMInfoInterface, err := vBoxResponseCache.Get("showvminfo")
 	if err != nil {
 		rawVMInfo, err = RunCommand([]string{"showvminfo", "--machinereadable", boxName})
@@ -153,8 +157,6 @@ func getVBoxManageVersionSemanticPart() (string, error) {
 }
 
 func GetVBoxManageVersion() (semver.Version, error) {
-	ensureVBoxResponseCacheInitialised()
-
 	cachedVBoxManageVersion, errCache := vBoxResponseCache.Get("vboxmanageversion")
 	if errCache != nil {
 		vBoxManageVersionString, errVersionString := getVBoxManageVersionSemanticPart()
@@ -187,8 +189,6 @@ func GetVBoxManageVersion() (semver.Version, error) {
 }
 
 func GetBoxProperty(boxName string, property string) string {
-	ensureVBoxResponseCacheInitialised()
-
 	propertyValue := ""
 
 	propertyValueInterface, errCache := vBoxResponseCache.Get(property)
@@ -236,8 +236,6 @@ func checkOutputGetVMState(output string) string {
 }
 
 func getVMState(boxName string) (string, error) {
-	ensureVBoxResponseCacheInitialised()
-
 	vmState, err := vBoxResponseCache.Get("vmstate")
 	if err != nil {
 		rawVMInfo, err := RunCommand([]string{"showvminfo", "--machinereadable", boxName})
