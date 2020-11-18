@@ -156,7 +156,7 @@ func getVBoxManageVersionSemanticPart() (string, error) {
 
 	re := regexp.MustCompile(`^(\d+\.\d+\.\d+)`)
 	matches := re.FindStringSubmatch(output)
-	if len(matches) == 2 {
+	if matches != nil {
 		return matches[1], nil
 	}
 
@@ -208,7 +208,7 @@ func GetBoxProperty(boxName string, property string) string {
 
 		propRegexp := regexp.MustCompile(`Value:\s*(\w+)`)
 		propMatches := propRegexp.FindStringSubmatch(output)
-		if len(propMatches) == 2 {
+		if propMatches != nil {
 			propertyValue = propMatches[1]
 		}
 
