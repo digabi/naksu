@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -24,56 +23,57 @@ import (
 
 // newServer downloads and creates new Abitti or Exam server using the given image URL
 func newServer(boxType string, imageURL string, versionURL string) {
-	version, errVersion := cloud.GetAvailableVersion(versionURL)
-	if errVersion != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not get version string for a new server: %v", errVersion))
+	version, err := cloud.GetAvailableVersion(versionURL)
+	if err != nil {
+		mebroutines.ShowTranslatedErrorMessage("Could not get version string for a new server: %v", err)
 		return
 	}
 
-	errRI := ensureServerIsNotRunningAndDoesNotExist()
-	if errRI != nil {
+	err = ensureServerIsNotRunningAndDoesNotExist()
+	if err != nil {
 		return
 	}
 
-	errDir := ensureNaksuDirectoriesExist()
-	if errDir != nil {
-		log.Debug(fmt.Sprintf("Failed to ensure Naksu directories exist: %v", errDir))
-		mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Could not create directory: %v"), errDir))
+	err = ensureNaksuDirectoriesExist()
+	if err != nil {
+		log.Debug(fmt.Sprintf("Failed to ensure Naksu directories exist: %v", err))
+		mebroutines.ShowTranslatedErrorMessage("Could not create directory: %v", err)
 		return
 	}
 
-	newImagePath, errNewImagePath := getTempFilePath()
-	if errNewImagePath != nil {
+	err = ensureFreeDisk()
+	if err != nil {
+		log.Debug(fmt.Sprintf("Failed to ensure we have enough free disk: %v", err))
+		mebroutines.ShowTranslatedErrorMessage("Could not calculate free disk size: %v", err)
 		return
 	}
 
 	progress.TranslateAndSetMessage("Getting Image from the Cloud")
-	errGet := cloud.GetServerImage(imageURL, newImagePath, progress.TranslateAndSetMessage)
-
-	if errGet != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to get new VM image: %v", errGet))
+	err = cloud.GetServerImage(imageURL, progress.TranslateAndSetMessage)
+	if err != nil {
+		mebroutines.ShowTranslatedErrorMessage("Failed to get new VM image: %v", err)
 		return
 	}
 
 	progress.TranslateAndSetMessage("Creating New VM")
-	errCreate := box.CreateNewBox(boxType, newImagePath, version)
+	err = box.CreateNewBox(boxType, version)
 
-	if errCreate != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to create new VM: %v", errCreate))
-		errRemove := os.Remove(newImagePath)
+	if err != nil {
+		mebroutines.ShowTranslatedErrorMessage("Failed to create new VM: %v", err)
+		err := os.Remove(mebroutines.GetImagePath())
 
-		if errRemove != nil {
-			log.Debug(fmt.Sprintf("Failed to remove image file %s: %v", newImagePath, errRemove))
+		if err != nil {
+			log.Debug(fmt.Sprintf("Failed to remove image file %s: %v", mebroutines.GetImagePath(), err))
 		}
 
 		return
 	}
 
-	progress.SetMessage("Removing temporary raw image file")
-	errRemove := os.Remove(newImagePath)
+	progress.TranslateAndSetMessage("Removing temporary raw image file")
+	err = os.Remove(mebroutines.GetImagePath())
 
-	if errRemove != nil {
-		mebroutines.ShowWarningMessage(fmt.Sprintf("Failed to remove raw image file %s: %v", newImagePath, errRemove))
+	if err != nil {
+		mebroutines.ShowTranslatedWarningMessage("Failed to remove raw image file %s: %v", mebroutines.GetImagePath(), err)
 	}
 
 	progress.SetMessage("New VM was created")
@@ -144,30 +144,19 @@ func ensureNaksuDirectoriesExist() error {
 	return nil
 }
 
-func getTempFilePath() (string, error) {
-	newImagePath, errTemp := mebroutines.GetTempFilename()
-	if errTemp != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to create temporary file: %v", errTemp))
-		return "", errTemp
-	}
-
-	errRemove := os.Remove(newImagePath)
-	if errRemove != nil {
-		mebroutines.ShowWarningMessage(fmt.Sprintf("Failed to remove raw image file %s: %v", newImagePath, errRemove))
-	}
-
-	freeSize, errDiskFree := host.CheckFreeDisk(constants.LowDiskLimit, []string{filepath.Dir(newImagePath), mebroutines.GetKtpDirectory(), mebroutines.GetVirtualBoxHiddenDirectory(), mebroutines.GetVirtualBoxVMsDirectory()})
+func ensureFreeDisk() error {
+	freeSize, err := host.CheckFreeDisk(constants.LowDiskLimit, []string{mebroutines.GetKtpDirectory(), mebroutines.GetVirtualBoxHiddenDirectory(), mebroutines.GetVirtualBoxVMsDirectory()})
 
 	switch {
-	case errDiskFree != nil && strings.HasPrefix(fmt.Sprintf("%v", errDiskFree), "low:"):
+	case err != nil && strings.HasPrefix(fmt.Sprintf("%v", err), "low:"):
 		mebroutines.ShowTranslatedWarningMessage("Your free disk size is getting low (%s)", humanize.Bytes(freeSize))
 		// We just inform the user instead of returning an error
-	case errDiskFree != nil:
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Failed to query free disk space: %v", errDiskFree))
-		return "", errDiskFree
+	case err != nil:
+		mebroutines.ShowTranslatedErrorMessage("Failed to calculate free disk space: %v", err)
+		return err
 	}
 
-	return newImagePath, nil
+	return nil
 }
 
 func createKtpDir() (string, error) {

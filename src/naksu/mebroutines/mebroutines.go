@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	golog "log"
 	"os"
 	"os/exec"
@@ -181,17 +180,18 @@ func GetVirtualBoxVMsDirectory() string {
 	return filepath.Join(GetHomeDirectory(), "VirtualBox VMs")
 }
 
-// GetTempFilename creates a temporary file, closes it and returns its filename
-func GetTempFilename() (string, error) {
-	tempFile, err := ioutil.TempFile(os.TempDir(), "naksu-")
-	if err != nil {
-		log.Debug(fmt.Sprintf("Failed to create temporary file: %v", err))
-		return "", err
-	}
+// GetZipImagePath returns path of an unzipped VM image
+func GetZipImagePath() string {
+	return filepath.Join(GetKtpDirectory(), "naksu_last_image.zip")
+}
 
-	defer tempFile.Close()
+func GetVDIImagePath() string {
+	return filepath.Join(GetKtpDirectory(), "naksu_ktp_disk.vdi")
+}
 
-	return tempFile.Name(), nil
+// GetImagePath returns a path of a raw VM image
+func GetImagePath() string {
+	return filepath.Join(GetKtpDirectory(), "naksu_last_image.dd")
 }
 
 // chdir changes current working directory to the given directory

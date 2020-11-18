@@ -55,8 +55,8 @@ func GetServerImagePath() string {
 	return filepath.Join(mebroutines.GetKtpDirectory(), "naksu_last_image.zip")
 }
 
-func downloadServerImage(url string, destinationZipPath string, progressCallbackFn func(string)) error {
-	progressCallbackFn("Contacting server")
+func downloadServerImage(url string, progressCallbackFn func(string, ...interface{})) error {
+	progressCallbackFn(xlate.Get("Contacting server"))
 	log.Debug(fmt.Sprintf("Starting to download image from '%s'", url))
 	response, errHTTPGet := http.Get(url) // #nosec
 
@@ -74,10 +74,10 @@ func downloadServerImage(url string, destinationZipPath string, progressCallback
 
 	fileSize := uint64(response.ContentLength)
 
-	progressCallbackFn("Opening file")
-	zipFile, errFile := os.OpenFile(destinationZipPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	progressCallbackFn(xlate.Get("Opening file"))
+	zipFile, errFile := os.OpenFile(mebroutines.GetZipImagePath(), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if errFile != nil {
-		log.Debug(fmt.Sprintf("Could not open file '%s' for server image zip: %v", destinationZipPath, errFile))
+		log.Debug(fmt.Sprintf("Could not open file '%s' for server image zip: %v", mebroutines.GetZipImagePath(), errFile))
 		return errFile
 	}
 	defer zipFile.Close()
@@ -99,10 +99,10 @@ func downloadServerImage(url string, destinationZipPath string, progressCallback
 	return nil
 }
 
-func unZipServerImage(zipPath string, destinationImagePath string, progressCallbackFn func(string, ...interface{})) error {
-	r, err := zip.OpenReader(zipPath)
+func unZipServerImage(progressCallbackFn func(string, ...interface{})) error {
+	r, err := zip.OpenReader(mebroutines.GetZipImagePath())
 	if err != nil {
-		return fmt.Errorf("could not open zip %s: %v", zipPath, err)
+		return fmt.Errorf("could not open zip %s: %v", mebroutines.GetZipImagePath(), err)
 	}
 	defer r.Close()
 
@@ -111,16 +111,16 @@ func unZipServerImage(zipPath string, destinationImagePath string, progressCallb
 
 		if file.Name == "ytl/ktp.img" {
 
-			fImage, errImage := os.OpenFile(destinationImagePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
-			if errImage != nil {
-				return fmt.Errorf("could not create image file %s: %v", destinationImagePath, errImage)
+			fImage, err := os.OpenFile(mebroutines.GetImagePath(), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+			if err != nil {
+				return fmt.Errorf("could not create image file %s: %v", mebroutines.GetImagePath(), err)
 			}
 
 			defer fImage.Close()
 
-			fZipped, errZipped := file.Open()
-			if errZipped != nil {
-				return fmt.Errorf("could not open file inside the zip: %v", errZipped)
+			fZipped, err := file.Open()
+			if err != nil {
+				return fmt.Errorf("could not open file inside the zip: %v", err)
 			}
 
 			defer fZipped.Close()
@@ -132,9 +132,8 @@ func unZipServerImage(zipPath string, destinationImagePath string, progressCallb
 			counter.FileSize = file.UncompressedSize64
 			counter.ProgressString = "Uncompressing image: %d %%"
 
-			var errCopy error
-			if _, errCopy = io.Copy(fImage, io.TeeReader(fZipped, counter)); errCopy != nil {
-				return errCopy
+			if _, err = io.Copy(fImage, io.TeeReader(fZipped, counter)); err != nil {
+				return err
 			}
 
 			progressCallbackFn("unzip finished")
@@ -144,26 +143,20 @@ func unZipServerImage(zipPath string, destinationImagePath string, progressCallb
 	return nil
 }
 
-func getAndUnzipCloudImage(url string, destinationImagePath string, progressCallbackFn func(string)) error {
-	zipPath := GetServerImagePath()
-
-	errDownload := downloadServerImage(url, zipPath, progressCallbackFn)
-	if errDownload != nil {
-		log.Debug(fmt.Sprintf("Failed to download server image from '%s' to '%s': %v", url, destinationImagePath, errDownload))
-		return errDownload
+func GetServerImage(url string, progressCallbackFn func(string, ...interface{})) error {
+	err := downloadServerImage(url, progressCallbackFn)
+	if err != nil {
+		log.Debug(fmt.Sprintf("Failed to download server image from '%s': %v", url, err))
+		return err
 	}
 
-	errUnzip := unZipServerImage(zipPath, destinationImagePath, progressCallbackFn)
-	if errUnzip != nil {
-		log.Debug(fmt.Sprintf("Failed to unZipServerImage %s: %v", zipPath, errUnzip))
-		return errUnzip
+	err = unZipServerImage(progressCallbackFn)
+	if err != nil {
+		log.Debug(fmt.Sprintf("Failed to unZipServerImage: %v", err))
+		return err
 	}
 
 	return nil
-}
-
-func GetServerImage(zipServerImageURL string, destinationImagePath string, progressCallbackFn func(string)) error {
-	return getAndUnzipCloudImage(zipServerImageURL, destinationImagePath, progressCallbackFn)
 }
 
 func GetAvailableVersion(versionURL string) (string, error) {

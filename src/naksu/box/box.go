@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"path/filepath"
 	"regexp"
 	"strconv"
 
@@ -56,11 +55,10 @@ func calculateBoxMemory() (uint64, error) {
 }
 
 // CreateNewBox creates new VM using the given imagePath
-func CreateNewBox(boxType string, ddImagePath string, boxVersion string) error {
-	vdiImagePath := filepath.Join(mebroutines.GetHomeDirectory(), "ktp", "naksu_ktp_disk.vdi")
-	if mebroutines.ExistsFile(vdiImagePath) {
-		log.Debug(fmt.Sprintf("VDI file %s already exists", vdiImagePath))
-		return fmt.Errorf("vdi file %s already exists", vdiImagePath)
+func CreateNewBox(boxType string, boxVersion string) error {
+	if mebroutines.ExistsFile(mebroutines.GetVDIImagePath()) {
+		log.Debug(fmt.Sprintf("VDI file %s already exists", mebroutines.GetVDIImagePath()))
+		return fmt.Errorf("vdi file %s already exists", mebroutines.GetVDIImagePath())
 	}
 
 	calculatedBoxCPUs := calculateBoxCPUs()
@@ -73,8 +71,8 @@ func CreateNewBox(boxType string, ddImagePath string, boxVersion string) error {
 	log.Debug(fmt.Sprintf("Calculated new VM specs - CPUs: %d, Memory: %d", calculatedBoxCPUs, calculatedBoxMemory))
 
 	createCommands := []vboxmanage.VBoxCommand{
-		{"convertfromraw", ddImagePath, vdiImagePath, "--format", "VDI"},
-		{"modifyhd", vdiImagePath, "--resize", fmt.Sprintf("%d", boxFinalImageSize)},
+		{"convertfromraw", mebroutines.GetImagePath(), mebroutines.GetVDIImagePath(), "--format", "VDI"},
+		{"modifyhd", mebroutines.GetVDIImagePath(), "--resize", fmt.Sprintf("%d", boxFinalImageSize)},
 		{"createvm", "--name", boxName, "--register"},
 		{
 			"modifyvm", boxName,
@@ -111,7 +109,7 @@ func CreateNewBox(boxType string, ddImagePath string, boxVersion string) error {
 			"--port", "0",
 			"--device", "0",
 			"--type", "hdd",
-			"--medium", vdiImagePath,
+			"--medium", mebroutines.GetVDIImagePath(),
 		},
 	}
 

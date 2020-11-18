@@ -55,7 +55,7 @@ func InstalledVBoxManage() bool {
 }
 
 // CheckFreeDisk checks that all of the listed directories have more than
-// given limit free disk space. If a directory has lass than required disk space
+// given limit free disk space. If a directory has less than required disk space
 // the returned error has prefix "low:" followed by a failed path. The uint64 returns free disk space
 // of this location.
 func CheckFreeDisk(limit uint64, directories []string) (uint64, error) {
