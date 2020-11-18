@@ -15,6 +15,8 @@ import (
 	"naksu/mebroutines"
 )
 
+const vBoxManageOutputNoVMInstalled string = "Could not find a registered machine named"
+
 // vBoxResponseCache is initialised by init() -> ensureVBoxResponseCacheInitialised()
 var vBoxResponseCache memory_cache.Cache
 var vBoxManageStarted int64
@@ -226,11 +228,6 @@ func GetBoxProperty(boxName string, property string) string {
 	return propertyValue
 }
 
-func checkOutputIfNoVMInstalled(output string) bool {
-	re := regexp.MustCompile(`Could not find a registered machine named`)
-	return re.MatchString(output)
-}
-
 func checkOutputGetVMState(output string) string {
 	re := regexp.MustCompile(`VMState="(.+)"`)
 	result := re.FindStringSubmatch(output)
@@ -248,7 +245,7 @@ func getVMState(boxName string) (string, error) {
 		rawVMInfo, err := RunCommand([]string{"showvminfo", "--machinereadable", boxName})
 
 		// Check whether VM is installed
-		if checkOutputIfNoVMInstalled(rawVMInfo) {
+		if strings.Contains(rawVMInfo, vBoxManageOutputNoVMInstalled) {
 			log.Debug("When trying to get VM state, VM is not installed")
 			return "", nil
 		}
@@ -290,7 +287,7 @@ func Installed(boxName string) (bool, error) {
 	rawVMInfo, err := RunCommand([]string{"showvminfo", "--machinereadable", boxName})
 
 	if err != nil {
-		if checkOutputIfNoVMInstalled(rawVMInfo) {
+		if strings.Contains(rawVMInfo, vBoxManageOutputNoVMInstalled) {
 			log.Debug("box.Installed: Box is not installed")
 			return false, nil
 		}
