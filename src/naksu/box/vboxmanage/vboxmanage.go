@@ -111,6 +111,21 @@ func ResetVBoxResponseCache() {
 // GetVMInfoRegexp returns result of the given vmRegexp from the current VBoxManage showvminfo
 // output. This function gets the output either from the cache or calls getVBoxManageOutput()
 func GetVMInfoRegexp(boxName string, vmRegexp string) string {
+	rawVMInfo := getVMInfo(boxName)
+
+	// Extract server name
+	pattern := regexp.MustCompile(vmRegexp)
+	result := pattern.FindStringSubmatch(rawVMInfo)
+
+	if len(result) > 1 {
+		return result[1]
+	}
+
+	return ""
+}
+
+// Get "showvminfo" output from vBoxResponseCache (if present) or VBoxManage
+func getVMInfo(boxName string) string {
 	var rawVMInfo string
 
 	rawVMInfoInterface, err := vBoxResponseCache.Get("showvminfo")
@@ -129,15 +144,7 @@ func GetVMInfoRegexp(boxName string, vmRegexp string) string {
 		rawVMInfo = fmt.Sprintf("%v", rawVMInfoInterface)
 	}
 
-	// Extract server name
-	pattern := regexp.MustCompile(vmRegexp)
-	result := pattern.FindStringSubmatch(rawVMInfo)
-
-	if len(result) > 1 {
-		return result[1]
-	}
-
-	return ""
+	return rawVMInfo
 }
 
 func getVBoxManageVersionSemanticPart() (string, error) {
