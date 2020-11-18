@@ -228,7 +228,7 @@ func GetBoxProperty(boxName string, property string) string {
 	return propertyValue
 }
 
-func checkOutputGetVMState(output string) string {
+func getVMStateFromOutput(output string) string {
 	re := regexp.MustCompile(`VMState="(.+)"`)
 	result := re.FindStringSubmatch(output)
 
@@ -257,7 +257,7 @@ func getVMState(boxName string) (string, error) {
 		}
 
 		// Extract state string
-		vmState := checkOutputGetVMState(rawVMInfo)
+		vmState := getVMStateFromOutput(rawVMInfo)
 		if vmState == "" {
 			log.Debug("Could not find VM state from the VM info")
 			return "", errors.New("could not find vm state from the vm info")
