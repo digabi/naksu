@@ -51,7 +51,7 @@ func GetMemory() (uint64, error) {
 
 // InstalledVBoxManage returns true if we have VBoxManage installed
 func InstalledVBoxManage() bool {
-	return vboxmanage.InstalledVBoxManage()
+	return vboxmanage.IsInstalled()
 }
 
 // CheckFreeDisk checks that all of the listed directories have more than

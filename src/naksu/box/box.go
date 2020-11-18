@@ -203,7 +203,7 @@ func WriteDiskClone(clonePath string) error {
 
 // Installed returns true if we have box installed, otherwise false
 func Installed() (bool, error) {
-	isInstalled, err := vboxmanage.Installed(boxName)
+	isInstalled, err := vboxmanage.IsVMInstalled(boxName)
 
 	if err == nil {
 		log.Debug(fmt.Sprintf("Server '%s' installed: %t", boxName, isInstalled))
@@ -215,7 +215,7 @@ func Installed() (bool, error) {
 }
 
 func Running() (bool, error) {
-	isRunning, err := vboxmanage.Running(boxName)
+	isRunning, err := vboxmanage.IsVMRunning(boxName)
 
 	if err == nil {
 		log.Debug(fmt.Sprintf("Server '%s' running: %t", boxName, isRunning))
@@ -228,7 +228,7 @@ func Running() (bool, error) {
 
 // GetType returns the box type (e.g. "digabi/ktp-qa") of the current VM
 func GetType() string {
-	return vboxmanage.GetBoxProperty(boxName, "boxType")
+	return vboxmanage.GetVMProperty(boxName, "boxType")
 }
 
 // GetTypeLegend returns an user-readable type legend of the current VM
@@ -262,7 +262,7 @@ func TypeIsMatriculationExam() bool {
 
 // GetVersion returns the version string (e.g. "SERVER7108X v69") of the current VM
 func GetVersion() string {
-	return vboxmanage.GetBoxProperty(boxName, "boxVersion")
+	return vboxmanage.GetVMProperty(boxName, "boxVersion")
 }
 
 // getDiskUUID returns the VirtualBox UUID for the image of the current VM

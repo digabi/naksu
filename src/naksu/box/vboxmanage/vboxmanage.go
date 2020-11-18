@@ -112,8 +112,8 @@ func ResetVBoxResponseCache() {
 
 // GetVMInfoByRegexp returns result of the given vmRegexp from the current VBoxManage showvminfo
 // output. This function gets the output either from the cache or calls getVBoxManageOutput()
-func GetVMInfoByRegexp(boxName string, vmRegexp string) string {
-	rawVMInfo := getVMInfo(boxName)
+func GetVMInfoByRegexp(vmName string, vmRegexp string) string {
+	rawVMInfo := getVMInfo(vmName)
 
 	// Extract server name
 	pattern := regexp.MustCompile(vmRegexp)
@@ -127,12 +127,12 @@ func GetVMInfoByRegexp(boxName string, vmRegexp string) string {
 }
 
 // Get "showvminfo" output from vBoxResponseCache (if present) or VBoxManage
-func getVMInfo(boxName string) string {
+func getVMInfo(vmName string) string {
 	var rawVMInfo string
 
 	rawVMInfoInterface, err := vBoxResponseCache.Get("showvminfo")
 	if err != nil {
-		rawVMInfo, err = RunCommand([]string{"showvminfo", "--machinereadable", boxName})
+		rawVMInfo, err = RunCommand([]string{"showvminfo", "--machinereadable", vmName})
 		if err != nil {
 			log.Debug(fmt.Sprintf("Could not get VM info: %v", err))
 			rawVMInfo = ""
@@ -197,12 +197,12 @@ func GetVBoxManageVersion() (semver.Version, error) {
 	return cachedVBoxManageVersionSemVer, nil
 }
 
-func GetBoxProperty(boxName string, property string) string {
+func GetVMProperty(vmName string, property string) string {
 	propertyValue := ""
 
 	propertyValueInterface, errCache := vBoxResponseCache.Get(property)
 	if errCache != nil {
-		output, errVBoxManage := RunCommand([]string{"guestproperty", "get", boxName, property})
+		output, errVBoxManage := RunCommand([]string{"guestproperty", "get", vmName, property})
 		if errVBoxManage != nil {
 			log.Debug(fmt.Sprintf("Could not get VM guest property '%s': %v", property, errVBoxManage))
 			output = ""
@@ -239,10 +239,10 @@ func getVMStateFromOutput(output string) string {
 	return ""
 }
 
-func getVMState(boxName string) (string, error) {
+func getVMState(vmName string) (string, error) {
 	vmState, err := vBoxResponseCache.Get("vmstate")
 	if err != nil {
-		rawVMInfo, err := RunCommand([]string{"showvminfo", "--machinereadable", boxName})
+		rawVMInfo, err := RunCommand([]string{"showvminfo", "--machinereadable", vmName})
 
 		// Check whether VM is installed
 		if strings.Contains(rawVMInfo, vBoxManageOutputNoVMInstalled) {
@@ -272,10 +272,11 @@ func getVMState(boxName string) (string, error) {
 	return fmt.Sprintf("%v", vmState), nil
 }
 
-func Running(boxName string) (bool, error) {
-	vmState, err := getVMState(boxName)
+// IsVMRunning returns true if given VM is currently running
+func IsVMRunning(vmName string) (bool, error) {
+	vmState, err := getVMState(vmName)
 
-	log.Debug(fmt.Sprintf("vboxmanage.Running() got following state string: '%s'", vmState))
+	log.Debug(fmt.Sprintf("vboxmanage.IsVMRunning() got following state string: '%s'", vmState))
 	if vmState == "running" {
 		return true, err
 	}
@@ -283,12 +284,13 @@ func Running(boxName string) (bool, error) {
 	return false, err
 }
 
-func Installed(boxName string) (bool, error) {
-	rawVMInfo, err := RunCommand([]string{"showvminfo", "--machinereadable", boxName})
+// IsVMInstalled returns true if given VM has been installed
+func IsVMInstalled(vmName string) (bool, error) {
+	rawVMInfo, err := RunCommand([]string{"showvminfo", "--machinereadable", vmName})
 
 	if err != nil {
 		if strings.Contains(rawVMInfo, vBoxManageOutputNoVMInstalled) {
-			log.Debug("box.Installed: Box is not installed")
+			log.Debug("vboxmanage.IsVMInstalled: Box is not installed")
 			return false, nil
 		}
 
@@ -300,8 +302,8 @@ func Installed(boxName string) (bool, error) {
 	return true, nil
 }
 
-// InstalledVBoxManage returns true if VBoxManage has been installed
-func InstalledVBoxManage() bool {
+// IsIstalled returns true if VBoxManage has been installed
+func IsInstalled() bool {
 	var vboxmanagepath = getVBoxManagePath()
 
 	if vboxmanagepath == "" {
