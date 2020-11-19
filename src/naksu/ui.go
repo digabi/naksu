@@ -489,13 +489,15 @@ func checkAbittiUpdate() (bool, string) {
 
 	currentBoxVersion := box.GetVersion()
 
-	boxInstalled, boxInstalledErr := box.Installed()
+	boxInstalled, err := box.Installed()
 
-	if (boxInstalledErr == nil && !boxInstalled) || box.TypeIsAbitti() {
-		var errAvail error
+	if err != nil {
+		log.Debug(fmt.Sprintf("Could not detect whether VM is installed: %v", err))
+	}
 
-		availAbittiVersion, errAvail = cloud.GetAvailableVersion(constants.AbittiVersionURL)
-		if errAvail == nil && currentBoxVersion != availAbittiVersion {
+	if (err == nil && !boxInstalled) || box.TypeIsAbitti() {
+		availAbittiVersion, err = cloud.GetAvailableVersion(constants.AbittiVersionURL)
+		if err == nil && currentBoxVersion != availAbittiVersion {
 			return true, availAbittiVersion
 		}
 	}
