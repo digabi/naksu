@@ -520,13 +520,12 @@ func updateStartButtonLabel() {
 	}()
 }
 
-// updateBoxAvailLabel updates UI "update available" label if the currently
+// updateBoxAvailabilityLabel updates UI "update available" label if the currently
 // installed box is Abitti and there is new version available
-func updateBoxAvailLabel() {
+func updateBoxAvailabilityLabel() {
 	go func() {
-		abittiUpdate, _ := checkAbittiUpdate()
+		abittiUpdate, availAbittiVersion := checkAbittiUpdate()
 		if abittiUpdate {
-			availAbittiVersion, _ := cloud.GetAvailableVersion(constants.AbittiVersionURL)
 			ui.QueueMain(func() {
 				labelBoxAvailable.SetText(fmt.Sprintf(xlate.Get("Update available: %s"), availAbittiVersion))
 				// Select "advanced features" checkbox
@@ -579,7 +578,7 @@ func translateUILabels() {
 		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), box.GetVersion()))
 
 		// Show available box version if we have a Abitti box
-		updateBoxAvailLabel()
+		updateBoxAvailabilityLabel()
 
 		// Suggest VM install if none installed
 		emptyVersionProgressMessage := "Start by installing a server: Show management features"
