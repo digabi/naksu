@@ -34,7 +34,7 @@ const mainUIStatusDisabled mainUIStatusType = "disable"
 
 var window *ui.Window
 
-var buttonSelfupdateOn *ui.Button
+var buttonSelfUpdateOn *ui.Button
 var buttonStartServer *ui.Button
 var buttonInstallAbittiServer *ui.Button
 var buttonInstallExamServer *ui.Button
@@ -125,7 +125,7 @@ var extInterfaces []constants.AvailableSelection
 
 func createMainWindowElements() {
 	// Define main window
-	buttonSelfupdateOn = ui.NewButton("Turn Naksu self updates back on")
+	buttonSelfUpdateOn = ui.NewButton("Turn Naksu self updates back on")
 	buttonStartServer = ui.NewButton("Start Exam Server")
 	buttonInstallAbittiServer = ui.NewButton("Abitti Exam")
 	buttonInstallExamServer = ui.NewButton("Matriculation Exam")
@@ -184,7 +184,7 @@ func createMainWindowElements() {
 	boxBasic.SetPadded(true)
 	boxBasic.Append(boxBasicUpper, false)
 	boxBasic.Append(labelStatus, true)
-	boxBasic.Append(buttonSelfupdateOn, false)
+	boxBasic.Append(buttonSelfUpdateOn, false)
 	boxBasic.Append(buttonStartServer, false)
 	boxBasic.Append(buttonMebShare, false)
 	boxBasic.Append(labelExtNic, false)
@@ -419,7 +419,7 @@ func mainUIStatusHandler(currentMainUIStatus mainUIStatusType) { //nolint:gocycl
 		element *ui.Button
 		enable  bool
 	}{
-		{buttonSelfupdateOn, config.IsSelfUpdateDisabled()},
+		{buttonSelfUpdateOn, config.IsSelfUpdateDisabled()},
 		{buttonStartServer, mainUIEnabled && boxInstalled && !boxRunning},
 		{buttonMebShare, true},
 		{buttonMakeBackup, mainUIEnabled && boxInstalled && !boxRunning},
@@ -680,12 +680,12 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 	// Define actions for main window
 
 	if config.IsSelfUpdateDisabled() {
-		buttonSelfupdateOn.Show()
+		buttonSelfUpdateOn.Show()
 	} else {
-		buttonSelfupdateOn.Hide()
+		buttonSelfUpdateOn.Hide()
 	}
 
-	buttonSelfupdateOn.OnClicked(func(*ui.Button) {
+	buttonSelfUpdateOn.OnClicked(func(*ui.Button) {
 		config.SetSelfUpdateDisabled(false)
 	})
 
