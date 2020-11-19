@@ -482,7 +482,7 @@ func getStatusForMainUIStatusHandler() (bool, bool, bool) {
 }
 
 // checkAbittiUpdate checks
-// 1) if currently installed box is Abitti
+// 1) if currently installed box is Abitti or if no box is installed
 // 2) and there is a new version available
 func checkAbittiUpdate() (bool, string) {
 	availAbittiVersion := ""
