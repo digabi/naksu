@@ -49,7 +49,7 @@ func newServer(boxType string, imageURL string, versionURL string) {
 	}
 
 	progress.TranslateAndSetMessage("Getting Image from the Cloud")
-	err = cloud.GetServerImage(imageURL, progress.TranslateAndSetMessage)
+	err = cloud.GetServerImage(imageURL, progress.SetMessage)
 	if err != nil {
 		mebroutines.ShowTranslatedErrorMessage("Failed to get new VM image: %v", err)
 		return

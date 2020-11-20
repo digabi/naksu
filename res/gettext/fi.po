@@ -1,0 +1,678 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-11-20 08:40+0200\n"
+"PO-Revision-Date: 2020-11-20 08:41+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.3\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/naksu/ui.go:268 src/naksu/ui.go:600
+msgid "Filename for Abitti support:"
+msgstr "Tiedostonimi Abitti-tuelle:"
+
+#: src/naksu/ui.go:269 src/naksu/ui.go:816
+msgid "Wait..."
+msgstr "Odota..."
+
+#: src/naksu/ui.go:270 src/naksu/ui.go:601
+msgid "Copy to clipboard"
+msgstr "Kopioi leikepöydälle"
+
+#: src/naksu/ui.go:271 src/naksu/ui.go:817
+#, c-format
+msgid "0 %% (this can take a while...)"
+msgstr "0 %% (tässä voi mennä hetki...)"
+
+#: src/naksu/ui.go:271 src/naksu/ui.go:817 src/naksu/ui.go:861
+#, c-format
+msgid "Copying logs: %s"
+msgstr "Lokitietoja kopioidaan: %s"
+
+#: src/naksu/ui.go:272 src/naksu/ui.go:602
+msgid "Close"
+msgstr "Sulje"
+
+#: src/naksu/ui.go:302
+msgid "Enter install passphrase for the exam server:"
+msgstr "Syötä asennuskoodi Yo-palvelimen asentamiseksi:"
+
+#: src/naksu/ui.go:304 src/naksu/ui.go:597 src/naksu/ui.go:607
+#: src/naksu/ui.go:616 src/naksu/ui.go:625
+msgid "Cancel"
+msgstr "Peruuta"
+
+#: src/naksu/ui.go:305 src/naksu/ui.go:606
+msgid "Install"
+msgstr "Asenna"
+
+#: src/naksu/ui.go:515
+msgid "Start Exam Server"
+msgstr "Käynnistä Yo-palvelin"
+
+#: src/naksu/ui.go:517
+#, c-format
+msgid "Start %s"
+msgstr "Käynnistä %s"
+
+#: src/naksu/ui.go:530
+#, c-format
+msgid "Update available: %s"
+msgstr "Päivitys saatavilla: %s"
+
+#: src/naksu/ui.go:549 src/naksu/ui.go:560
+msgid "Abitti Exam"
+msgstr "Abitti-koe"
+
+#: src/naksu/ui.go:556
+#, c-format
+msgid "Abitti Exam (%s)"
+msgstr "Abitti-koe (%s)"
+
+#: src/naksu/ui.go:570
+msgid "Matriculation Exam"
+msgstr "Yo-koe"
+
+#: src/naksu/ui.go:571
+msgid "Remove Exams"
+msgstr "Poista kokeet"
+
+#: src/naksu/ui.go:572
+msgid "Remove Server"
+msgstr "Poista palvelin"
+
+#: src/naksu/ui.go:573
+msgid "Make Exam Server Backup"
+msgstr "Tee palvelimesta varmuuskopio"
+
+#: src/naksu/ui.go:574
+msgid "Send logs to Abitti support"
+msgstr "Lähetä lokitiedot Abitti-tukeen"
+
+#: src/naksu/ui.go:575
+msgid "Open virtual USB stick (ktp-jako)"
+msgstr "Avaa virtuaalinen siirtotikku (ktp-jako)"
+
+#: src/naksu/ui.go:576
+msgid "Network device:"
+msgstr "Verkkolaite:"
+
+#: src/naksu/ui.go:578
+#, c-format
+msgid "Current version: %s"
+msgstr "Asennettu versio: %s"
+
+#: src/naksu/ui.go:589
+msgid "Show management features"
+msgstr "Näytä hallintaominaisuudet"
+
+#: src/naksu/ui.go:590
+msgid "Server networking hardware:"
+msgstr "Palvelimen verkkolaite:"
+
+#: src/naksu/ui.go:591
+msgid "Install/update server for:"
+msgstr "Asenna tai päivitä palvelin:"
+
+#: src/naksu/ui.go:592
+msgid "DANGER! Annihilate your server:"
+msgstr "VAARA! Palvelimen tuhoaminen:"
+
+#: src/naksu/ui.go:594
+msgid "naksu: SaveTo"
+msgstr "naksu: Tallennuspaikka"
+
+#: src/naksu/ui.go:595
+msgid "Please select target path"
+msgstr "Valitse tallennuspaikka"
+
+#: src/naksu/ui.go:596
+msgid "Save"
+msgstr "Tallenna"
+
+#: src/naksu/ui.go:599
+msgid "naksu: Send Logs"
+msgstr "naksu: Lähetä lokitiedot"
+
+#: src/naksu/ui.go:604
+msgid "naksu: Install Exam Server"
+msgstr "naksu: Asenna Yo-palvelin"
+
+#: src/naksu/ui.go:605
+msgid "Enter Exam Server install passphrase:"
+msgstr "Syötä Yo-palvelimen asennuskoodi:"
+
+#: src/naksu/ui.go:609
+msgid "naksu: Remove Exams"
+msgstr "naksu: Poista kokeet"
+
+#: src/naksu/ui.go:610
+msgid "Remove Exams restores server to its initial status."
+msgstr "Remove Exams restores server to its initial status."
+
+#: src/naksu/ui.go:611 src/naksu/ui.go:620
+msgid "Exams, responses and logs in the server will be irreversibly deleted."
+msgstr "Kokeet, suoritukset ja lokitiedot poistetaan peruuttamattomasti."
+
+#: src/naksu/ui.go:612
+msgid "It is recommended to back up your server before removing exams."
+msgstr ""
+"On suositeltavaa ottaa palvelimesta varmuuskopio ennen kokeiden poistamista."
+
+#: src/naksu/ui.go:614
+msgid "Do you wish to remove all exams?"
+msgstr "Haluatko poistaa kaikki kokeet?"
+
+#: src/naksu/ui.go:615 src/naksu/ui.go:624
+msgid "Yes, Remove"
+msgstr "Kyllä, poista"
+
+#: src/naksu/ui.go:618
+msgid "naksu: Remove Server"
+msgstr "naksu: Poista palvelin"
+
+#: src/naksu/ui.go:619
+msgid "Removing server destroys it and all downloaded disk images."
+msgstr "Palvelimen poistaminen tuhoaa sen ja kaikki ladatut levynkuvat."
+
+#: src/naksu/ui.go:621
+msgid "It is recommended to back up your server before removing server."
+msgstr "On suositeltavaa ottaa palvelimesta varmuuskopio ennen poistamista."
+
+#: src/naksu/ui.go:623
+msgid "Do you wish to remove the server?"
+msgstr "Halutko poistaa palvelimen?"
+
+#: src/naksu/ui.go:697
+msgid ""
+"Please select the network device which is connected to your exam network."
+msgstr "Valitse verkkolaite, joka on kytketty koeverkkoon."
+
+#: src/naksu/ui.go:702
+#, c-format
+msgid "You have selected network device '%s' which is not available."
+msgstr "Olet valinnut verkkolaitteen '%s', jota ei löydy."
+
+#: src/naksu/ui.go:709
+msgid ""
+"You are starting Matriculation Examination server with an Internet "
+"connection."
+msgstr ""
+"Olet käynnistämässä yo-palvelinta, vaikka palvelimella on internet-yhteys."
+
+#: src/naksu/ui.go:761
+msgid "Please enter install passphrase to install the exam server"
+msgstr "Ole hyvä ja syötä asennuskoodi asentaaksesi Yo-palvelimen"
+
+#: src/naksu/ui.go:835
+msgid "Sending logs"
+msgstr "Lokitietoja lähetetään"
+
+#: src/naksu/ui.go:837
+#, c-format
+msgid "Sending logs: %d %%"
+msgstr "Lokitietoja lähetetään: %d %%"
+
+#: src/naksu/ui.go:840
+#, c-format
+msgid "Error sending logs: %s"
+msgstr "Virhe lokitietojen lähetyksessä: %s"
+
+#: src/naksu/ui.go:842
+msgid "Logs sent!"
+msgstr "Lokitiedot lähetetty!"
+
+#: src/naksu/ui.go:845
+msgid ""
+"Cannot send logs because there is no Internet connection. Logs are in a zip "
+"archive in the ktp-jako folder."
+msgstr ""
+"Lokitietoja ei voi lähettää, koska yhteys Internetiin ei toimi. Lokitiedot "
+"löytyvät zip-pakettina ktp-jako -kansiosta."
+
+#: src/naksu/ui.go:856
+msgid "Done copying"
+msgstr "Lokitiedot kopioitu"
+
+#: src/naksu/ui.go:872
+#, c-format
+msgid "Zipping logs: %d %%"
+msgstr "Lokitietoja pakataan: %d %%"
+
+#: src/naksu/ui.go:874
+msgid "Done zipping"
+msgstr "Lokitiedot pakattu"
+
+#: src/naksu/ui.go:878
+#, c-format
+msgid "Error zipping logs: %s"
+msgstr "Virhe lokitietojen pakkaamisessa: %s"
+
+#: src/naksu/ui.go:901 src/naksu/ui.go:902
+msgid "Backup failed: %v"
+msgstr "Varmuuskopiointi epäonnistui: %v"
+
+#: src/naksu/ui.go:904
+#, c-format
+msgid "Backup done: %s"
+msgstr "Varmuuskopio valmis: %s"
+
+#: src/naksu/ui.go:959 src/naksu/ui.go:960
+msgid "Failed to remove exams: %v"
+msgstr "Kokeiden poistaminen epäonnistui: %v"
+
+#: src/naksu/ui.go:962
+msgid "Exams were removed successfully."
+msgstr "Kokeet poistettiin onnistuneesti."
+
+#: src/naksu/ui.go:999 src/naksu/ui.go:1000
+msgid "Error while removing server: %v"
+msgstr "Palvelimen poistaminen epäonnistui: %v"
+
+#: src/naksu/ui.go:1002
+msgid "Server was removed successfully."
+msgstr "Palvelin poistettiin onnistuneesti."
+
+#: src/naksu/ui.go:1102
+msgid ""
+"Could not execute VBoxManage. Are you sure you have installed Oracle "
+"VirtualBox?"
+msgstr ""
+"Ohjelman VBoxManage käynnistys epäonnistui. Oletko varma, että koneeseen on "
+"asennettu Oracle VirtualBox?"
+
+#: src/naksu/ui.go:1116
+msgid "Please turn Windows Hypervisor off as it may cause problems."
+msgstr ""
+"Ole hyvä ja kytke Windows Hypervisor pois päältä, koska se voi aiheuttaa "
+"ongelmia."
+
+#: src/naksu/ui.go:1120
+msgid ""
+"It appears your CPU does not support hardware virtualisation (VT-x or AMD-V)."
+msgstr ""
+"Näyttää siltä, että prosessorisi ei tue laitetason virtualisointia (VT-x tai "
+"AMD-V)."
+
+#: src/naksu/ui.go:1125
+msgid ""
+"Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before "
+"continuing."
+msgstr ""
+"Laitetason virtualisointi (VT-x tai AMD-V) on kytketty pois päältä. Kytke se "
+"päälle koneen asetuksista."
+
+#: src/naksu/ui/networkstatus/networkstatus.go:67
+msgid "Wireless connection"
+msgstr "Langaton yhteys"
+
+#: src/naksu/ui/networkstatus/networkstatus.go:73
+msgid "No network connection"
+msgstr "Ei verkkoyhteyttä"
+
+#: src/naksu/ui/networkstatus/networkstatus.go:75
+#, c-format
+msgid "Network speed is too low (%d Mbit/s)"
+msgstr "Verkon nopeus ei riitä (%d Mbit/s)"
+
+#: src/naksu/ui/networkstatus/networkstatus.go:78
+msgid "OK"
+msgstr "OK"
+
+#: src/naksu/ui/networkstatus/networkstatus.go:87
+msgid "Network status: "
+msgstr "Verkon tila: "
+
+#: src/naksu/mebroutines/destroy/destroy.go:34
+msgid "Removing exams. This takes a while."
+msgstr "Poistetaan kokeita. Tämä vie hetken."
+
+#: src/naksu/mebroutines/openmebshare_windows.go:16
+#: src/naksu/mebroutines/openmebshare_darwin.go:16
+#: src/naksu/mebroutines/openmebshare_linux.go:16
+msgid "Cannot open MEB share directory since it does not exist"
+msgstr "Hakemiston ktp-jako avaaminen epäonnistui, koska sitä ei ole olemassa"
+
+#: src/naksu/mebroutines/openmebshare_windows.go:29
+#: src/naksu/mebroutines/openmebshare_darwin.go:25
+#: src/naksu/mebroutines/openmebshare_linux.go:36
+msgid "Could not open MEB share directory"
+msgstr "Hakemiston ktp-jako avaaminen epäonnistui"
+
+#: src/naksu/mebroutines/backup/backup.go:31
+#, c-format
+msgid ""
+"Your free disk size is getting low (%s). If backup process fails please "
+"consider freeing some disk space."
+msgstr ""
+"Levytilasi on käymässä vähiin (%s). Jos varmuuskopio epäonnistui, sinun "
+"kannattaa vapauttaa levytilaa."
+
+#: src/naksu/mebroutines/backup/backup.go:34
+msgid "Checking existing file..."
+msgstr "Tutkitaan tiedostoa..."
+
+#: src/naksu/mebroutines/backup/backup.go:36
+#, c-format
+msgid "File %s already exists"
+msgstr "Tiedosto %s on jo olemassa"
+
+#: src/naksu/mebroutines/backup/backup.go:41
+msgid "Checking backup path..."
+msgstr "Tutkitaan varmuuskopiohakemistoa..."
+
+#: src/naksu/mebroutines/backup/backup.go:44
+#, c-format
+msgid "Could not write test backup file %s. Try another location."
+msgstr ""
+"Varmuuskopion kirjoittaminen tiedostoon %s epäonnistui. Kokeile toista "
+"tallennuspaikkaa."
+
+#: src/naksu/mebroutines/backup/backup.go:54
+msgid "Getting disk location..."
+msgstr "Etsitään levyn sijaintia..."
+
+#: src/naksu/mebroutines/backup/backup.go:61
+msgid "Checking for FAT32 filesystem..."
+msgstr "Etsitään FAT32-tiedostojärjestelmää..."
+
+#: src/naksu/mebroutines/backup/backup.go:64
+msgid ""
+"The backup file is too large for a FAT32 filesystem. Please reformat the "
+"backup disk as exFAT."
+msgstr ""
+"Varmuuskopio on liian suuri talletettavaksi FAT32-tiedostojärjestelmäään. "
+"Alusta varmuuskopiolevy uudelleen exFAT-tiedostojärjestelmällä."
+
+#: src/naksu/mebroutines/backup/backup.go:69
+msgid "Please wait, writing backup..."
+msgstr "Hetkinen, varmuuskopioidaan..."
+
+#: src/naksu/mebroutines/backup/getmediapath_windows.go:21
+#: src/naksu/mebroutines/backup/getmediapath_linux.go:32
+#: src/naksu/mebroutines/backup/getmediapath_darwin.go:31
+msgid "Temporary files"
+msgstr "Tilapäishakemisto"
+
+#: src/naksu/mebroutines/backup/getmediapath_windows.go:24
+msgid "Profile directory"
+msgstr "Profiilihakemisto"
+
+#: src/naksu/mebroutines/backup/getmediapath_windows.go:28
+#: src/naksu/mebroutines/backup/getmediapath_linux.go:22
+#: src/naksu/mebroutines/backup/getmediapath_linux.go:28
+#: src/naksu/mebroutines/backup/getmediapath_darwin.go:21
+#: src/naksu/mebroutines/backup/getmediapath_darwin.go:27
+msgid "Desktop"
+msgstr "Työpöytä"
+
+#: src/naksu/mebroutines/backup/getmediapath_linux.go:17
+#: src/naksu/mebroutines/backup/getmediapath_darwin.go:16
+msgid "Home directory"
+msgstr "Kotihakemisto"
+
+#: src/naksu/mebroutines/start/start.go:16
+msgid ""
+"Could not start server as we could not detect whether existing VM is "
+"installed: %v"
+msgstr ""
+"Palvelinta ei voi käynnistää, koska olemassa olevan palvelimen tutkinta ei "
+"onnistu: %v"
+
+#: src/naksu/mebroutines/start/start.go:21
+msgid "No server has been installed."
+msgstr "Palvelinta ei ole asennettu."
+
+#: src/naksu/mebroutines/start/start.go:27
+msgid ""
+"Could not start server as we could not detect whether existing VM is "
+"running: %v"
+msgstr ""
+"Palvelinta ei voitu käynnistää, koska olemassa olevan palvelin käynnissäoloa "
+"ei saatu selville: %v"
+
+#: src/naksu/mebroutines/start/start.go:32
+msgid "The server is already running."
+msgstr "Palvelin on jo käynnissä."
+
+#: src/naksu/mebroutines/start/start.go:38
+msgid "Could not start VM: %v"
+msgstr "Virtuaalikoneen käynnistys epäonnistu: %v"
+
+#: src/naksu/mebroutines/start/start.go:42
+msgid "Virtual machine was started"
+msgstr "Virtuaalikone on käynnistetty"
+
+#: src/naksu/mebroutines/remove/remove.go:17
+msgid ""
+"We could not detect whether existing VM is running: %v, but continued "
+"removing the server as you requested."
+msgstr ""
+"Nykyisen virtuaalipalvelimen käynnissäoloa ei saatu selville (%v), mutta "
+"palvelimen poistamista jatketaan."
+
+#: src/naksu/mebroutines/remove/remove.go:19
+msgid ""
+"There is a server appears to be running but we remove it as you requested."
+msgstr "Palvelin on käynnissä, mutta se poistetaan silti."
+
+#: src/naksu/mebroutines/remove/remove.go:26
+msgid "Changing current directory to home"
+msgstr "Siirryn kotihakemistoon"
+
+#: src/naksu/mebroutines/remove/remove.go:31
+msgid "Deleting ~/.VirtualBox"
+msgstr "Poistetaan ~/.VirtualBox"
+
+#: src/naksu/mebroutines/remove/remove.go:38
+msgid "Deleting ~/VirtualBox VMs"
+msgstr "Poistetaan ~/VirtualBox VMs"
+
+#: src/naksu/mebroutines/remove/remove.go:50
+msgid "Failed to remove directory %s: %v"
+msgstr "Hakemiston %s poistaminen epäonnistui: %v"
+
+#: src/naksu/mebroutines/install/install.go:27
+msgid "Could not get version string for a new server: %v"
+msgstr "Uuden palvelin versiotiedon haku epäonnistui: %v"
+
+#: src/naksu/mebroutines/install/install.go:39
+msgid "Could not create directory: %v"
+msgstr "Hakemiston luominen epäonnistui: %v"
+
+#: src/naksu/mebroutines/install/install.go:46
+msgid "Could not calculate free disk size: %v"
+msgstr "Vapaan levytilan määrän laskenta epäonnistui: %v"
+
+#: src/naksu/mebroutines/install/install.go:50
+msgid "Getting Image from the Cloud"
+msgstr "Lataan levynkuvaa"
+
+#: src/naksu/mebroutines/install/install.go:53
+msgid "Failed to get new VM image: %v"
+msgstr "Levynkuvan lataaminen epäonnistui: %v"
+
+#: src/naksu/mebroutines/install/install.go:57
+msgid "Creating New VM"
+msgstr "Uutta virtuaalikonetta luodaan"
+
+#: src/naksu/mebroutines/install/install.go:61
+msgid "Failed to create new VM: %v"
+msgstr "Uuden virtuaalikoneen luominen epäonnistui: %v"
+
+#: src/naksu/mebroutines/install/install.go:71
+msgid "Removing temporary raw image file"
+msgstr "Väliaikaista levynkuvaa poistetaan"
+
+#: src/naksu/mebroutines/install/install.go:75
+msgid "Failed to remove raw image file %s: %v"
+msgstr "Levynkuvatiedoston %s poistaminen epäonnistui: %v"
+
+#: src/naksu/mebroutines/install/install.go:78
+msgid "New VM was created"
+msgstr "Uusi virtuaalikone on luotu"
+
+#: src/naksu/mebroutines/install/install.go:97
+msgid ""
+"Could not install server as we could not detect whether existing VM is "
+"running: %v"
+msgstr ""
+"Palvelimen asennus epäonnistui, koska olemassaolevan palvelimen päälläoloa "
+"ei saatu tutkittua: %v"
+
+#: src/naksu/mebroutines/install/install.go:102
+msgid "Please stop the current server before installing a new one"
+msgstr ""
+"Ole hyvä ja sammuta olemassaoleva palvelin ennen uuden palvelimen asennusta"
+
+#: src/naksu/mebroutines/install/install.go:108
+msgid ""
+"Could not install server as we could not detect whether existing VM is "
+"installed: %v"
+msgstr ""
+"Palvelimen asennus epäonnistui, koska olemassaolevan palvelinasennuksen "
+"tutkiminen epäonnistui: %v"
+
+#: src/naksu/mebroutines/install/install.go:115
+msgid "Could not remove current VM before installing new one: %v"
+msgstr ""
+"Olemassaolevan palvelimen poistaminen uuden palvelimen alta epäonnistui: %v"
+
+#: src/naksu/mebroutines/install/install.go:124
+msgid "Creating ~/ktp"
+msgstr "Luodaan ~/ktp"
+
+#: src/naksu/mebroutines/install/install.go:134
+msgid "Creating ~/ktp-jako"
+msgstr "Luodaan ~/ktp-jako"
+
+#: src/naksu/mebroutines/install/install.go:151
+#, c-format
+msgid "Your free disk size is getting low (%s)"
+msgstr "Vapaan levytilasi määrä on alhainen (%s)"
+
+#: src/naksu/mebroutines/install/install.go:154
+msgid "Failed to calculate free disk space: %v"
+msgstr "Vapaan levytilan määrän laskenta epäonnistui: %v"
+
+#: src/naksu/mebroutines/mebroutines.go:227
+msgid "Error"
+msgstr "Virhe"
+
+#: src/naksu/mebroutines/mebroutines.go:245
+msgid "Warning"
+msgstr "Varoitus"
+
+#: src/naksu/mebroutines/mebroutines.go:265
+msgid "Info"
+msgstr "Tiedoksi"
+
+#: src/naksu/cloud/cloud.go:61
+msgid "Contacting server"
+msgstr "Avataan yhteyttä palvelimelle"
+
+#: src/naksu/cloud/cloud.go:79
+msgid "Opening file"
+msgstr "Avataan tiedostoa"
+
+#: src/naksu/cloud/cloud.go:87
+msgid "Downloading server image"
+msgstr "Ladataan palvelimen levynkuvaa"
+
+#: src/naksu/cloud/cloud.go:92
+#, c-format
+msgid "Downloading image: %d %%"
+msgstr "Levynkuvaa ladataan: %d %%"
+
+#: src/naksu/cloud/cloud.go:99
+msgid "Server image downloaded"
+msgstr "Palvelimen levynkuva on ladattu"
+
+#: src/naksu/cloud/cloud.go:130
+msgid "Starting to uncompress raw image"
+msgstr "Aloitetaan pakatun levynkuvan purkamista"
+
+#: src/naksu/cloud/cloud.go:135
+#, c-format
+msgid "Uncompressing image: %d %%"
+msgstr "Pakattua levynkuvaa puretaan: %d %%"
+
+#: src/naksu/cloud/cloud.go:141
+msgid "Uncompressing finished"
+msgstr "Purkaminen on valmis"
+
+#: src/naksu/box/vboxmanage/vboxmanage.go:133
+msgid "showvminfo"
+msgstr ""
+
+#: src/naksu/box/vboxmanage/vboxmanage.go:169
+msgid "vboxmanageversion"
+msgstr ""
+
+#: src/naksu/box/vboxmanage/vboxmanage.go:243
+msgid "vmstate"
+msgstr ""
+
+#: src/naksu/box/vboxmanage/vbox_dup_hdd_fix.go:110
+#, c-format
+msgid ""
+"Naksu encountered an error while trying to fix a problem with VirtualBox. "
+"VirtualBox configuration file %s has been moved to %s. Manually rename it to "
+"%s to fix this."
+msgstr ""
+"VirtualBox-ongelman korjaaminen epäonnistui. VirtualBoxin asetustiedosto %s "
+"on nimetty uudelleen (%s). Uudelleen nimeä asetustiedosto käsin nimelle %s "
+"korjataksesi ongelman."
+
+#: src/naksu/box/box.go:235
+msgid "Abitti server"
+msgstr "Abitti-palvelin"
+
+#: src/naksu/box/box.go:239
+msgid "Matric Exam server"
+msgstr "Yo-palvelin"
+
+#: src/naksu/selfupdate.go:25
+msgid "Naksu has been automatically updated. Please restart Naksu."
+msgstr ""
+"Naksu on päivitetty automaattisesti. Ole hyvä ja käynnistä Naksu uudelleen."
+
+#: src/naksu/selfupdate.go:29
+msgid ""
+"Naksu has update available, but your version of Naksu has updates disabled. "
+"Please update or ask your administrator to update Naksu."
+msgstr ""
+"Naksulle on päivitys tarjossa, mutta voimassa oleva asetus estää päivitysten "
+"lataamisen. Päivitä tai pyydä koneen ylläpitäjää päivittämään Naksu."
+
+#: src/naksu/selfupdate.go:42
+msgid "Naksu could not check for updates as there is no network connection."
+msgstr "Naksu ei voinut etsiä uusia versioita, koska verkkoyhteys puuttuu."
+
+#: src/naksu/selfupdate.go:61
+#, c-format
+msgid ""
+"Naksu update failed. Maybe you don't have network connection?\n"
+"\n"
+"Error: %s"
+msgstr ""
+"Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n"
+"\n"
+"Virhe: %s"
+
+#~ msgid "Failed to create temporary file: %v"
+#~ msgstr "Väliaikaistiedoston luominen epäonnistui: %v"
+
+#~ msgid "command failed: %s (%v)"
+#~ msgstr "komento epäonnistui: %s (%v)"

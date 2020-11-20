@@ -55,7 +55,7 @@ func GetServerImagePath() string {
 	return filepath.Join(mebroutines.GetKtpDirectory(), "naksu_last_image.zip")
 }
 
-func downloadServerImage(url string, progressCallbackFn func(string, ...interface{})) error {
+func downloadServerImage(url string, progressCallbackFn func(string)) error {
 	progressCallbackFn(xlate.Get("Contacting server"))
 	log.Debug(fmt.Sprintf("Starting to download image from '%s'", url))
 	response, errHTTPGet := http.Get(url) // #nosec
@@ -87,7 +87,7 @@ func downloadServerImage(url string, progressCallbackFn func(string, ...interfac
 	counter := &writeCounter{}
 	counter.ProgressCallbackFn = progressCallbackFn
 	counter.FileSize = fileSize
-	counter.ProgressString = "Downloading image: %d %%"
+	counter.ProgressString = xlate.Get("Downloading image: %d %%")
 
 	var errCopy error
 	if _, errCopy = io.Copy(zipFile, io.TeeReader(response.Body, counter)); errCopy != nil {
@@ -99,7 +99,7 @@ func downloadServerImage(url string, progressCallbackFn func(string, ...interfac
 	return nil
 }
 
-func unZipServerImage(progressCallbackFn func(string, ...interface{})) error {
+func unZipServerImage(progressCallbackFn func(string)) error {
 	r, err := zip.OpenReader(mebroutines.GetZipImagePath())
 	if err != nil {
 		return fmt.Errorf("could not open zip %s: %v", mebroutines.GetZipImagePath(), err)
@@ -130,7 +130,7 @@ func unZipServerImage(progressCallbackFn func(string, ...interface{})) error {
 			counter := &writeCounter{}
 			counter.ProgressCallbackFn = progressCallbackFn
 			counter.FileSize = file.UncompressedSize64
-			counter.ProgressString = "Uncompressing image: %d %%"
+			counter.ProgressString = xlate.Get("Uncompressing image: %d %%")
 
 			if _, err = io.Copy(fImage, io.TeeReader(fZipped, counter)); err != nil {
 				return err
@@ -143,7 +143,7 @@ func unZipServerImage(progressCallbackFn func(string, ...interface{})) error {
 	return nil
 }
 
-func GetServerImage(url string, progressCallbackFn func(string, ...interface{})) error {
+func GetServerImage(url string, progressCallbackFn func(string)) error {
 	err := downloadServerImage(url, progressCallbackFn)
 	if err != nil {
 		log.Debug(fmt.Sprintf("Failed to download server image from '%s': %v", url, err))

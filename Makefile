@@ -8,7 +8,7 @@ TESTS=naksu/mebroutines/backup naksu naksu/network
 
 update-pot:
 	find src/ -name "*.go" >xgettext-sourcefiles
-	xgettext -k --keyword="Get:1" --keyword="AddToTranslation:1" --keyword="TranslateAndSetMessage:1" \
+	xgettext -k --keyword="Get:1" --keyword="TranslateAndSetMessage:1" \
 		--keyword="ShowTranslatedInfoMessage:1" \
 		--keyword="ShowTranslatedErrorMessage:1" \
 		--keyword="ShowTranslatedWarningMessage:1" \

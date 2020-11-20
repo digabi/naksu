@@ -314,11 +314,5 @@ func Get(key string) string {
 		return key
 	}
 
-	newString := xlateStrings[key]
-
-	if newString == "" {
-		return key
-	}
-
-	return newString
+	return fmt.Sprintf(str, vars...)
 }
