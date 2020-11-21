@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"naksu/box"
@@ -26,10 +25,13 @@ func MakeBackup(backupPath string) error {
 		return errBox
 	}
 
-	freeSize, errDiskFree := host.CheckFreeDisk(constants.LowDiskLimit, []string{filepath.Dir(backupPath)})
-
-	if errDiskFree != nil && strings.HasPrefix(fmt.Sprintf("%v", errDiskFree), "low:") {
-		mebroutines.ShowWarningMessage(fmt.Sprintf("Your free disk size is getting low (%s). If backup process fails please consider freeing some disk space.", humanize.Bytes(freeSize)))
+	err := host.CheckFreeDisk(constants.LowDiskLimit, []string{filepath.Dir(backupPath)})
+	if err != nil {
+		if err, ok := err.(*host.LowDiskSizeError); ok {
+			mebroutines.ShowTranslatedWarningMessage("Your free disk size is getting low (%s). If backup process fails please consider freeing some disk space.", humanize.Bytes(err.LowSize))
+		} else {
+			mebroutines.ShowTranslatedErrorMessage("Failed to calculate free disk size: %v", err)
+		}
 	}
 
 	progress.TranslateAndSetMessage("Checking existing file...")

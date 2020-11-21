@@ -16,6 +16,17 @@ import (
 
 // host can be used to get information of the host machine
 
+// LowDiskSizeError is an error returned by CheckFreeDisk()
+type LowDiskSizeError struct {
+	Err     string
+	LowPath string
+	LowSize uint64
+}
+
+func (e *LowDiskSizeError) Error() string {
+	return fmt.Sprintf("path %s has low disk size: %d (%s)", e.LowPath, e.LowSize, humanize.Bytes(e.LowSize))
+}
+
 // IsHWVirtualisationCPU returns true if CPU supports hardware virtualisation
 // This does not detect whether the support is turned in BIOS
 // See IsHWVirtualisation()
@@ -58,7 +69,7 @@ func InstalledVBoxManage() bool {
 // given limit free disk space. If a directory has less than required disk space
 // the returned error has prefix "low:" followed by a failed path. The uint64 returns free disk space
 // of this location.
-func CheckFreeDisk(limit uint64, directories []string) (uint64, error) {
+func CheckFreeDisk(limit uint64, directories []string) error {
 	log.Debug(fmt.Sprintf("CheckFreeDisk: %v", directories))
 
 	for _, thisDirectory := range directories {
@@ -70,10 +81,10 @@ func CheckFreeDisk(limit uint64, directories []string) (uint64, error) {
 			log.Debug(fmt.Sprintf("CheckFreeDisk: %s (%d bytes, %s)", thisDirectory, freeDisk, humanize.Bytes(freeDisk)))
 
 			if freeDisk < limit {
-				return freeDisk, fmt.Errorf("low:%s", thisDirectory)
+				return &LowDiskSizeError{"disk size is too low", thisDirectory, freeDisk}
 			}
 		}
 	}
 
-	return 0, nil
+	return nil
 }

@@ -7,7 +7,6 @@ import (
 	"io"
 	"os"
 	"regexp"
-	"strings"
 
 	"naksu/box"
 	"naksu/cloud"
@@ -145,15 +144,16 @@ func ensureNaksuDirectoriesExist() error {
 }
 
 func ensureFreeDisk() error {
-	freeSize, err := host.CheckFreeDisk(constants.LowDiskLimit, []string{mebroutines.GetKtpDirectory(), mebroutines.GetVirtualBoxHiddenDirectory(), mebroutines.GetVirtualBoxVMsDirectory()})
+	err := host.CheckFreeDisk(constants.LowDiskLimit, []string{mebroutines.GetKtpDirectory(), mebroutines.GetVirtualBoxHiddenDirectory(), mebroutines.GetVirtualBoxVMsDirectory()})
 
-	switch {
-	case err != nil && strings.HasPrefix(fmt.Sprintf("%v", err), "low:"):
-		mebroutines.ShowTranslatedWarningMessage("Your free disk size is getting low (%s)", humanize.Bytes(freeSize))
-		// We just inform the user instead of returning an error
-	case err != nil:
-		mebroutines.ShowTranslatedErrorMessage("Failed to calculate free disk space: %v", err)
-		return err
+	if err != nil {
+		if err, ok := err.(*host.LowDiskSizeError); ok {
+			// We just inform the user instead of returning an error
+			mebroutines.ShowTranslatedWarningMessage("Your free disk size is getting low (%s)", humanize.Bytes(err.LowSize))
+		} else {
+			mebroutines.ShowTranslatedErrorMessage("Failed to calculate free disk space: %v", err)
+			return err
+		}
 	}
 
 	return nil
