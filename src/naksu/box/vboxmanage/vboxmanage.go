@@ -72,21 +72,18 @@ func runVBoxManage(args []string) (string, error) {
 		logError(vBoxManageOutput, err)
 
 		fixed, fixErr := detectAndFixDuplicateHardDiskProblem(vBoxManageOutput)
-		if fixErr != nil {
+		if !fixed && fixErr != nil {
 			log.Debug(fmt.Sprintf("Failed to fix duplicate hard disk problem with command %s: (%v)", command, fixErr))
 			return "", fmt.Errorf("failed to execute %s: %v", command, err)
 		}
 
+		// We need to re-run the command only if problem was fixed
 		if fixed {
-			log.Debug("Duplicate hard disk problem was fixed")
-		} else {
-			log.Debug("Duplicate hard disk problem was not fixed")
-		}
-
-		log.Debug(fmt.Sprintf("Retrying '%s' after fixing problem", command))
-		vBoxManageOutput, err = mebroutines.RunAndGetOutput(runArgs)
-		if err != nil {
-			logError(vBoxManageOutput, err)
+			log.Debug(fmt.Sprintf("Retrying '%s' after fixing problem", command))
+			vBoxManageOutput, err = mebroutines.RunAndGetOutput(runArgs)
+			if err != nil {
+				logError(vBoxManageOutput, err)
+			}
 		}
 	}
 
