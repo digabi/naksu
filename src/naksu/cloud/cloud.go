@@ -87,7 +87,7 @@ func downloadServerImage(url string, progressCallbackFn func(string)) error {
 	counter := &writeCounter{}
 	counter.ProgressCallbackFn = progressCallbackFn
 	counter.FileSize = fileSize
-	counter.ProgressString = xlate.Get("Downloading image: %d %%")
+	counter.ProgressString = xlate.GetRaw("Downloading image: %d %%")
 
 	var errCopy error
 	if _, errCopy = io.Copy(zipFile, io.TeeReader(response.Body, counter)); errCopy != nil {
@@ -130,7 +130,7 @@ func unZipServerImage(progressCallbackFn func(string)) error {
 			counter := &writeCounter{}
 			counter.ProgressCallbackFn = progressCallbackFn
 			counter.FileSize = file.UncompressedSize64
-			counter.ProgressString = xlate.Get("Uncompressing image: %d %%")
+			counter.ProgressString = xlate.GetRaw("Uncompressing image: %d %%")
 
 			if _, err = io.Copy(fImage, io.TeeReader(fZipped, counter)); err != nil {
 				return err

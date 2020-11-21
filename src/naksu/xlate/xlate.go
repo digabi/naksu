@@ -308,11 +308,20 @@ func SetLanguage(newLanguage string) {
 	}
 }
 
-// Get returns translated string for given key
-func Get(key string) string {
-	if xlateStrings == nil {
-		return key
+// Get returns translated string for given key with sprintf-like syntax
+func Get(str string, vars ...interface{}) string {
+	if currentPoIsSet {
+		return currentPo.Get(str, vars...)
 	}
 
 	return fmt.Sprintf(str, vars...)
+}
+
+// GetRaw returns translated string for given key without processing sprintf-like syntax
+func GetRaw(str string) string {
+	if currentPoIsSet {
+		return currentPo.Get(str)
+	}
+
+	return str
 }
