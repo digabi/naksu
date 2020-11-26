@@ -29,6 +29,14 @@ func init() {
 }
 
 func RunCommand(args VBoxCommand) (string, error) {
+	return runCommand(args, true)
+}
+
+func RunCommandWithoutLogging(args VBoxCommand) (string, error) {
+	return runCommand(args, false)
+}
+
+func runCommand(args VBoxCommand, logOutput bool) (string, error) {
 	// There is an ongoing VBoxManage call (break free after 240 loops)
 	// This locking avoids executing multiple instances of VBoxManage at the same time. Calling
 	// VBoxManage simulaneously tends to cause E_ACCESSDENIED errors from VBoxManage.
@@ -40,7 +48,7 @@ func RunCommand(args VBoxCommand) (string, error) {
 	}
 
 	vBoxManageStarted = time.Now().Unix()
-	vBoxManageOutput, err := runVBoxManage(args)
+	vBoxManageOutput, err := runVBoxManage(args, logOutput)
 	vBoxManageStarted = 0
 
 	return vBoxManageOutput, err
@@ -58,10 +66,10 @@ func RunCommands(commands []VBoxCommand) error {
 }
 
 // runVBoxManage runs vboxmanage command with given arguments
-func runVBoxManage(args []string) (string, error) {
+func runVBoxManage(args []string, logOutput bool) (string, error) {
 	vboxmanagepathArr := []string{getVBoxManagePath()}
 	runArgs := append(vboxmanagepathArr, args...)
-	vBoxManageOutput, err := mebroutines.RunAndGetOutput(runArgs)
+	vBoxManageOutput, err := mebroutines.RunAndGetOutput(runArgs, logOutput)
 	if err != nil {
 		command := strings.Join(runArgs, " ")
 		logError := func(output string, err error) {
@@ -80,7 +88,7 @@ func runVBoxManage(args []string) (string, error) {
 		// We need to re-run the command only if problem was fixed
 		if fixed {
 			log.Debug(fmt.Sprintf("Retrying '%s' after fixing problem", command))
-			vBoxManageOutput, err = mebroutines.RunAndGetOutput(runArgs)
+			vBoxManageOutput, err = mebroutines.RunAndGetOutput(runArgs, logOutput)
 			if err != nil {
 				logError(vBoxManageOutput, err)
 			}
@@ -129,7 +137,7 @@ func getVMInfo(vmName string) string {
 
 	rawVMInfoInterface, err := vBoxResponseCache.Get("showvminfo")
 	if err != nil {
-		rawVMInfo, err = RunCommand([]string{"showvminfo", "--machinereadable", vmName})
+		rawVMInfo, err = RunCommandWithoutLogging([]string{"showvminfo", "--machinereadable", vmName})
 		if err != nil {
 			log.Debug(fmt.Sprintf("Could not get VM info: %v", err))
 			rawVMInfo = ""
@@ -239,7 +247,7 @@ func getVMStateFromOutput(output string) string {
 func getVMState(vmName string) (string, error) {
 	vmState, err := vBoxResponseCache.Get("vmstate")
 	if err != nil {
-		rawVMInfo, err := RunCommand([]string{"showvminfo", "--machinereadable", vmName})
+		rawVMInfo, err := RunCommandWithoutLogging([]string{"showvminfo", "--machinereadable", vmName})
 
 		// Check whether VM is installed
 		if strings.Contains(rawVMInfo, vBoxManageOutputNoVMInstalled) {
@@ -284,7 +292,7 @@ func IsVMRunning(vmName string) (bool, error) {
 
 // IsVMInstalled returns true if given VM has been installed
 func IsVMInstalled(vmName string) (bool, error) {
-	rawVMInfo, err := RunCommand([]string{"showvminfo", "--machinereadable", vmName})
+	rawVMInfo, err := RunCommandWithoutLogging([]string{"showvminfo", "--machinereadable", vmName})
 
 	if err != nil {
 		if strings.Contains(rawVMInfo, vBoxManageOutputNoVMInstalled) {

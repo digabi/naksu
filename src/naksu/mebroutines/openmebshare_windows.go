@@ -20,7 +20,7 @@ func OpenMebShare() {
 	runParams := []string{"explorer", mebSharePath}
 
 	// For some not-obvious reason Run_get_output() results err
-	output, err := RunAndGetOutput(runParams)
+	output, err := RunAndGetOutput(runParams, true)
 
 	if err != nil {
 		errStr := fmt.Sprintf("%v", err)
