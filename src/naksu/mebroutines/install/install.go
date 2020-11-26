@@ -9,7 +9,7 @@ import (
 	"regexp"
 
 	"naksu/box"
-	"naksu/cloud"
+	"naksu/box/download"
 	"naksu/constants"
 	"naksu/host"
 	"naksu/log"
@@ -22,7 +22,7 @@ import (
 
 // newServer downloads and creates new Abitti or Exam server using the given image URL
 func newServer(boxType string, imageURL string, versionURL string) {
-	version, err := cloud.GetAvailableVersion(versionURL)
+	version, err := download.GetAvailableVersion(versionURL)
 	if err != nil {
 		mebroutines.ShowTranslatedErrorMessage("Could not get version string for a new server: %v", err)
 		return
@@ -48,7 +48,7 @@ func newServer(boxType string, imageURL string, versionURL string) {
 	}
 
 	progress.TranslateAndSetMessage("Getting Image from the Cloud")
-	err = cloud.GetServerImage(imageURL, progress.SetMessage)
+	err = download.GetServerImage(imageURL, progress.SetMessage)
 	if err != nil {
 		mebroutines.ShowTranslatedErrorMessage("Failed to get new VM image: %v", err)
 		return

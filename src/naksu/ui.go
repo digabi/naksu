@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"naksu/box"
+	"naksu/box/download"
 	"naksu/box/vboxmanage"
-	"naksu/cloud"
 	"naksu/config"
 	"naksu/constants"
 	"naksu/host"
@@ -497,7 +497,7 @@ func checkAbittiUpdate() (bool, string) {
 	}
 
 	if (err == nil && !boxInstalled) || box.TypeIsAbitti() {
-		availAbittiVersion, err = cloud.GetAvailableVersion(constants.AbittiVersionURL)
+		availAbittiVersion, err = download.GetAvailableVersion(constants.AbittiVersionURL)
 		if err == nil && currentBoxVersion != availAbittiVersion {
 			return true, availAbittiVersion
 		}

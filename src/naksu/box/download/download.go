@@ -1,6 +1,6 @@
-package cloud
+package download
 
-// Package "cloud" can be used to query info about box versions available
+// Package "download" can be used to query info about box versions available
 // at the cloud (Abitti, yo?) and retrieve these box images. The images
 // can be installed using package "box".
 
