@@ -5,25 +5,26 @@ GO=go
 # Path to your rsrc executable (see README.md)
 RSRC=$(HOME)/go/bin/rsrc
 TESTS=naksu/mebroutines/backup naksu naksu/network
+SOURCES=$(wildcard src/**/*.go)
 
-update-pot:
+res/gettext/naksu.pot: $(SOURCES)
 	find src/ -name "*.go" >xgettext-sourcefiles
 	xgettext -k --keyword="Get:1" --keyword="TranslateAndSetMessage:1" \
 		--keyword="ShowTranslatedInfoMessage:1" \
 		--keyword="ShowTranslatedErrorMessage:1" \
 		--keyword="ShowTranslatedWarningMessage:1" \
-		-C --output=res/gettext/naksu.pot --files-from=xgettext-sourcefiles
+		-C --no-location --output=res/gettext/naksu.pot --files-from=xgettext-sourcefiles
 	rm xgettext-sourcefiles
 
-xlate: src/naksu/xlate/xlate_fi.go src/naksu/xlate/xlate_sv.go
+xlate: res/gettext/naksu.pot src/naksu/xlate/xlate_fi.go src/naksu/xlate/xlate_sv.go
 
-src/naksu/xlate/xlate_fi.go: res/gettext/naksu.pot
+src/naksu/xlate/xlate_fi.go: res/gettext/fi.po
 	bash -c 'echo -e "package xlate\n\nfunc getPoStrFi() string {\n //nolint:misspell\n return \`" >src/naksu/xlate/xlate_fi.go'
 	cat res/gettext/fi.po >>src/naksu/xlate/xlate_fi.go
 	bash -c 'echo -e "\`\n}" >>src/naksu/xlate/xlate_fi.go'
 	gofmt -s -w src/naksu/xlate/xlate_fi.go
 
-src/naksu/xlate/xlate_sv.go: res/gettext/naksu.pot
+src/naksu/xlate/xlate_sv.go: res/gettext/sv.po
 	bash -c 'echo -e "package xlate\n\nfunc getPoStrSv() string {\n //nolint:misspell\n return \`" >src/naksu/xlate/xlate_sv.go'
 	cat res/gettext/sv.po >>src/naksu/xlate/xlate_sv.go
 	bash -c 'echo -e "\`\n}" >>src/naksu/xlate/xlate_sv.go'
