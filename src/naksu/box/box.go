@@ -24,6 +24,7 @@ const (
 	boxName           = "NaksuAbittiKTP"
 	boxOSType         = "Debian"
 	boxFinalImageSize = 55 * 1024 // VDI disk size in megs
+	boxVRamSize       = 24        // Video RAM size in megs
 	boxSnapshotName   = "Installed"
 )
 
@@ -79,6 +80,7 @@ func CreateNewBox(boxType string, boxVersion string) error {
 			"--pae", "on",
 			"--cpus", fmt.Sprintf("%d", calculatedBoxCPUs),
 			"--memory", fmt.Sprintf("%d", calculatedBoxMemory),
+			"--vram", fmt.Sprintf("%d", boxVRamSize),
 			"--acpi", "on",
 			"--ioapic", "on",
 			"--ostype", boxOSType,
