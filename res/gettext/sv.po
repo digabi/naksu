@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-11-21 08:03+0200\n"
-"PO-Revision-Date: 2020-11-21 08:09+0200\n"
+"PO-Revision-Date: 2020-11-26 08:22+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.3\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: src/naksu/mebroutines/openmebshare_windows.go:16
@@ -185,8 +185,6 @@ msgstr ""
 "frigöra mera utrymme."
 
 #: src/naksu/mebroutines/backup/backup.go:32
-#, fuzzy
-#| msgid "Failed to calculate free disk space: %v"
 msgid "Failed to calculate free disk size: %v"
 msgstr "Beräkning av ledigt skivutrymme misslyckades: %v"
 
@@ -345,16 +343,10 @@ msgid "Uncompressing finished"
 msgstr "Uppackningen klar"
 
 #: src/naksu/selfupdate.go:25
-#, fuzzy
-#| msgid "naksu has been automatically updated. Please restart naksu."
 msgid "Naksu has been automatically updated. Please restart Naksu."
 msgstr "Naksu har uppdaterats automatiskt. Var god starta Naksu på nytt."
 
 #: src/naksu/selfupdate.go:29
-#, fuzzy
-#| msgid ""
-#| "naksu has update available, but your version of naksu has updates "
-#| "disabled. please update or ask your administrator to update naksu"
 msgid ""
 "Naksu has update available, but your version of Naksu has updates disabled. "
 "Please update or ask your administrator to update Naksu."

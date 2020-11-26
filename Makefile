@@ -9,7 +9,7 @@ SOURCES=$(wildcard src/**/*.go)
 
 res/gettext/naksu.pot: $(SOURCES)
 	find src/ -name "*.go" >xgettext-sourcefiles
-	xgettext -k --keyword="Get:1" --keyword="TranslateAndSetMessage:1" \
+	xgettext -k --keyword="Get:1" --keyword="GetRaw:1" --keyword="TranslateAndSetMessage:1" \
 		--keyword="ShowTranslatedInfoMessage:1" \
 		--keyword="ShowTranslatedErrorMessage:1" \
 		--keyword="ShowTranslatedWarningMessage:1" \
