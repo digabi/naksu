@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"runtime"
 
-	"naksu/box/vboxmanage"
 	"naksu/log"
 	"naksu/mebroutines"
 
@@ -58,11 +57,6 @@ func GetMemory() (uint64, error) {
 	}
 
 	return memory.Total / (1024 * 1024), nil
-}
-
-// InstalledVBoxManage returns true if we have VBoxManage installed
-func InstalledVBoxManage() bool {
-	return vboxmanage.IsInstalled()
 }
 
 // CheckFreeDisk checks that all of the listed directories have more than

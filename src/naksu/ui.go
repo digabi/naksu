@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"naksu/box"
+	"naksu/box/vboxmanage"
 	"naksu/cloud"
 	"naksu/config"
 	"naksu/constants"
@@ -1098,8 +1099,8 @@ func RunUI() error {
 		backupWindow.Hide()
 
 		// Make sure we have VBoxManage
-		if !host.InstalledVBoxManage() {
-			mebroutines.ShowErrorMessage(xlate.Get("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?"))
+		if !vboxmanage.IsInstalled() {
+			mebroutines.ShowTranslatedErrorMessage("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?")
 			log.Debug("VBoxManage is missing, disabling UI")
 			disableUI(mainUIStatus)
 		}
