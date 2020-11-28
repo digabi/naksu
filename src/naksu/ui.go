@@ -568,6 +568,7 @@ func translateUILabels() {
 	ui.QueueMain(func() {
 		updateStartButtonLabel()
 		updateGetServerButtonLabel()
+		buttonSelfUpdateOn.SetText(xlate.Get("Turn Naksu self updates back on"))
 		buttonInstallExamServer.SetText(xlate.Get("Matriculation Exam"))
 		buttonDestroyServer.SetText(xlate.Get("Remove Exams"))
 		buttonRemoveServer.SetText(xlate.Get("Remove Server"))
