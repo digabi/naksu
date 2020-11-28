@@ -7,16 +7,294 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-26 08:21+0200\n"
-"PO-Revision-Date: 2020-11-26 08:21+0200\n"
+"POT-Creation-Date: 2020-11-28 16:42+0200\n"
+"PO-Revision-Date: 2020-11-28 16:43+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.0.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Cannot open MEB share directory since it does not exist"
+msgstr "Hakemiston ktp-jako avaaminen epäonnistui, koska sitä ei ole olemassa"
+
+msgid "Could not open MEB share directory"
+msgstr "Hakemiston ktp-jako avaaminen epäonnistui"
+
+msgid ""
+"Could not start server as we could not detect whether existing VM is "
+"installed: %v"
+msgstr ""
+"Palvelinta ei voi käynnistää, koska olemassa olevan palvelimen tutkinta ei "
+"onnistu: %v"
+
+msgid "No server has been installed."
+msgstr "Palvelinta ei ole asennettu."
+
+msgid ""
+"Could not start server as we could not detect whether existing VM is "
+"running: %v"
+msgstr ""
+"Palvelinta ei voitu käynnistää, koska olemassa olevan palvelin käynnissäoloa "
+"ei saatu selville: %v"
+
+msgid "The server is already running."
+msgstr "Palvelin on jo käynnissä."
+
+msgid "Could not start VM: %v"
+msgstr "Virtuaalikoneen käynnistys epäonnistu: %v"
+
+msgid "Virtual machine was started"
+msgstr "Virtuaalikone on käynnistetty"
+
+msgid "Could not get version string for a new server: %v"
+msgstr "Uuden palvelin versiotiedon haku epäonnistui: %v"
+
+msgid "Could not create directory: %v"
+msgstr "Hakemiston luominen epäonnistui: %v"
+
+msgid "Could not calculate free disk size: %v"
+msgstr "Vapaan levytilan määrän laskenta epäonnistui: %v"
+
+msgid "Getting Image from the Cloud"
+msgstr "Lataan levynkuvaa"
+
+msgid "Failed to get new VM image: %v"
+msgstr "Levynkuvan lataaminen epäonnistui: %v"
+
+msgid "Creating New VM"
+msgstr "Uutta virtuaalikonetta luodaan"
+
+msgid "Failed to create new VM: %v"
+msgstr "Uuden virtuaalikoneen luominen epäonnistui: %v"
+
+msgid "Removing temporary raw image file"
+msgstr "Väliaikaista levynkuvaa poistetaan"
+
+msgid "Failed to remove raw image file %s: %v"
+msgstr "Levynkuvatiedoston %s poistaminen epäonnistui: %v"
+
+msgid "New VM was created"
+msgstr "Uusi virtuaalikone on luotu"
+
+msgid ""
+"Could not install server as we could not detect whether existing VM is "
+"running: %v"
+msgstr ""
+"Palvelimen asennus epäonnistui, koska olemassaolevan palvelimen päälläoloa "
+"ei saatu tutkittua: %v"
+
+msgid "Please stop the current server before installing a new one"
+msgstr ""
+"Ole hyvä ja sammuta olemassaoleva palvelin ennen uuden palvelimen asennusta"
+
+msgid ""
+"Could not install server as we could not detect whether existing VM is "
+"installed: %v"
+msgstr ""
+"Palvelimen asennus epäonnistui, koska olemassaolevan palvelinasennuksen "
+"tutkiminen epäonnistui: %v"
+
+msgid "Could not remove current VM before installing new one: %v"
+msgstr ""
+"Olemassaolevan palvelimen poistaminen uuden palvelimen alta epäonnistui: %v"
+
+msgid "Creating ~/ktp"
+msgstr "Luodaan ~/ktp"
+
+msgid "Creating ~/ktp-jako"
+msgstr "Luodaan ~/ktp-jako"
+
+#, c-format
+msgid "Your free disk size is getting low (%s)"
+msgstr "Vapaan levytilasi määrä on alhainen (%s)"
+
+msgid "Failed to calculate free disk space: %v"
+msgstr "Vapaan levytilan määrän laskenta epäonnistui: %v"
+
+msgid "Error"
+msgstr "Virhe"
+
+msgid "Warning"
+msgstr "Varoitus"
+
+msgid "Info"
+msgstr "Tiedoksi"
+
+msgid "Temporary files"
+msgstr "Tilapäishakemisto"
+
+msgid "Profile directory"
+msgstr "Profiilihakemisto"
+
+msgid "Desktop"
+msgstr "Työpöytä"
+
+#, c-format
+msgid ""
+"Your free disk size is getting low (%s). If backup process fails please "
+"consider freeing some disk space."
+msgstr ""
+"Levytilasi on käymässä vähiin (%s). Jos varmuuskopio epäonnistui, sinun "
+"kannattaa vapauttaa levytilaa."
+
+msgid "Failed to calculate free disk size: %v"
+msgstr "Vapaan levytilan määrän laskenta epäonnistui: %v"
+
+msgid "Checking existing file..."
+msgstr "Tutkitaan tiedostoa..."
+
+#, c-format
+msgid "File %s already exists"
+msgstr "Tiedosto %s on jo olemassa"
+
+msgid "Checking backup path..."
+msgstr "Tutkitaan varmuuskopiohakemistoa..."
+
+#, c-format
+msgid "Could not write test backup file %s. Try another location."
+msgstr ""
+"Varmuuskopion kirjoittaminen tiedostoon %s epäonnistui. Kokeile toista "
+"tallennuspaikkaa."
+
+msgid "Getting disk location..."
+msgstr "Etsitään levyn sijaintia..."
+
+msgid "Checking for FAT32 filesystem..."
+msgstr "Etsitään FAT32-tiedostojärjestelmää..."
+
+msgid ""
+"The backup file is too large for a FAT32 filesystem. Please reformat the "
+"backup disk as exFAT."
+msgstr ""
+"Varmuuskopio on liian suuri talletettavaksi FAT32-tiedostojärjestelmäään. "
+"Alusta varmuuskopiolevy uudelleen exFAT-tiedostojärjestelmällä."
+
+msgid "Please wait, writing backup..."
+msgstr "Hetkinen, varmuuskopioidaan..."
+
+msgid "Home directory"
+msgstr "Kotihakemisto"
+
+msgid "Removing exams. This takes a while."
+msgstr "Poistetaan kokeita. Tämä vie hetken."
+
+msgid ""
+"We could not detect whether existing VM is running: %v, but continued "
+"removing the server as you requested."
+msgstr ""
+"Nykyisen virtuaalipalvelimen käynnissäoloa ei saatu selville (%v), mutta "
+"palvelimen poistamista jatketaan."
+
+msgid ""
+"There is a server appears to be running but we remove it as you requested."
+msgstr "Palvelin on käynnissä, mutta se poistetaan silti."
+
+msgid "Changing current directory to home"
+msgstr "Siirryn kotihakemistoon"
+
+msgid "Deleting ~/.VirtualBox"
+msgstr "Poistetaan ~/.VirtualBox"
+
+msgid "Deleting ~/VirtualBox VMs"
+msgstr "Poistetaan ~/VirtualBox VMs"
+
+msgid "Failed to remove directory %s: %v"
+msgstr "Hakemiston %s poistaminen epäonnistui: %v"
+
+msgid "Wireless connection"
+msgstr "Langaton yhteys"
+
+msgid "No network connection"
+msgstr "Ei verkkoyhteyttä"
+
+#, c-format
+msgid "Network speed is too low (%d Mbit/s)"
+msgstr "Verkon nopeus ei riitä (%d Mbit/s)"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Network status: "
+msgstr "Verkon tila: "
+
+msgid "Contacting server"
+msgstr "Avataan yhteyttä palvelimelle"
+
+msgid "Opening file"
+msgstr "Avataan tiedostoa"
+
+msgid "Downloading server image"
+msgstr "Ladataan palvelimen levynkuvaa"
+
+#, c-format
+msgid "Downloading image: %d %%"
+msgstr "Levynkuvaa ladataan: %d %%"
+
+msgid "Server image downloaded"
+msgstr "Palvelimen levynkuva on ladattu"
+
+msgid "Starting to uncompress raw image"
+msgstr "Aloitetaan pakatun levynkuvan purkamista"
+
+#, c-format
+msgid "Uncompressing image: %d %%"
+msgstr "Pakattua levynkuvaa puretaan: %d %%"
+
+msgid "Uncompressing finished"
+msgstr "Purkaminen on valmis"
+
+msgid "Abitti server"
+msgstr "Abitti-palvelin"
+
+msgid "Matric Exam server"
+msgstr "Yo-palvelin"
+
+#, c-format
+msgid ""
+"Naksu encountered an error while trying to fix a problem with VirtualBox. "
+"VirtualBox configuration file %s has been moved to %s. Manually rename it to "
+"%s to fix this."
+msgstr ""
+"VirtualBox-ongelman korjaaminen epäonnistui. VirtualBoxin asetustiedosto %s "
+"on nimetty uudelleen (%s). Uudelleen nimeä asetustiedosto käsin nimelle %s "
+"korjataksesi ongelman."
+
+msgid "showvminfo"
+msgstr ""
+
+msgid "vboxmanageversion"
+msgstr ""
+
+msgid "vmstate"
+msgstr ""
+
+msgid "Naksu has been automatically updated. Please restart Naksu."
+msgstr ""
+"Naksu on päivitetty automaattisesti. Ole hyvä ja käynnistä Naksu uudelleen."
+
+msgid ""
+"Naksu has update available, but your version of Naksu has updates disabled. "
+"Please update or ask your administrator to update Naksu."
+msgstr ""
+"Naksulle on päivitys tarjossa, mutta voimassa oleva asetus estää päivitysten "
+"lataamisen. Päivitä tai pyydä koneen ylläpitäjää päivittämään Naksu."
+
+msgid "Naksu could not check for updates as there is no network connection."
+msgstr "Naksu ei voinut etsiä uusia versioita, koska verkkoyhteys puuttuu."
+
+#, c-format
+msgid ""
+"Naksu update failed. Maybe you don't have network connection?\n"
+"\n"
+"Error: %s"
+msgstr ""
+"Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n"
+"\n"
+"Virhe: %s"
 
 msgid "Filename for Abitti support:"
 msgstr "Tiedostonimi Abitti-tuelle:"
@@ -89,6 +367,9 @@ msgstr "Verkkolaite:"
 #, c-format
 msgid "Current version: %s"
 msgstr "Asennettu versio: %s"
+
+msgid "Start by installing a server: Show management features"
+msgstr "Aloita asentamalla palvelin: Näytä hallintaominaisuudet"
 
 msgid "Show management features"
 msgstr "Näytä hallintaominaisuudet"
@@ -246,284 +527,6 @@ msgid ""
 msgstr ""
 "Laitetason virtualisointi (VT-x tai AMD-V) on kytketty pois päältä. Kytke se "
 "päälle koneen asetuksista."
-
-msgid "Wireless connection"
-msgstr "Langaton yhteys"
-
-msgid "No network connection"
-msgstr "Ei verkkoyhteyttä"
-
-#, c-format
-msgid "Network speed is too low (%d Mbit/s)"
-msgstr "Verkon nopeus ei riitä (%d Mbit/s)"
-
-msgid "OK"
-msgstr "OK"
-
-msgid "Network status: "
-msgstr "Verkon tila: "
-
-msgid "Removing exams. This takes a while."
-msgstr "Poistetaan kokeita. Tämä vie hetken."
-
-msgid "Cannot open MEB share directory since it does not exist"
-msgstr "Hakemiston ktp-jako avaaminen epäonnistui, koska sitä ei ole olemassa"
-
-msgid "Could not open MEB share directory"
-msgstr "Hakemiston ktp-jako avaaminen epäonnistui"
-
-#, c-format
-msgid ""
-"Your free disk size is getting low (%s). If backup process fails please "
-"consider freeing some disk space."
-msgstr ""
-"Levytilasi on käymässä vähiin (%s). Jos varmuuskopio epäonnistui, sinun "
-"kannattaa vapauttaa levytilaa."
-
-msgid "Failed to calculate free disk size: %v"
-msgstr "Vapaan levytilan määrän laskenta epäonnistui: %v"
-
-msgid "Checking existing file..."
-msgstr "Tutkitaan tiedostoa..."
-
-#, c-format
-msgid "File %s already exists"
-msgstr "Tiedosto %s on jo olemassa"
-
-msgid "Checking backup path..."
-msgstr "Tutkitaan varmuuskopiohakemistoa..."
-
-#, c-format
-msgid "Could not write test backup file %s. Try another location."
-msgstr ""
-"Varmuuskopion kirjoittaminen tiedostoon %s epäonnistui. Kokeile toista "
-"tallennuspaikkaa."
-
-msgid "Getting disk location..."
-msgstr "Etsitään levyn sijaintia..."
-
-msgid "Checking for FAT32 filesystem..."
-msgstr "Etsitään FAT32-tiedostojärjestelmää..."
-
-msgid ""
-"The backup file is too large for a FAT32 filesystem. Please reformat the "
-"backup disk as exFAT."
-msgstr ""
-"Varmuuskopio on liian suuri talletettavaksi FAT32-tiedostojärjestelmäään. "
-"Alusta varmuuskopiolevy uudelleen exFAT-tiedostojärjestelmällä."
-
-msgid "Please wait, writing backup..."
-msgstr "Hetkinen, varmuuskopioidaan..."
-
-msgid "Temporary files"
-msgstr "Tilapäishakemisto"
-
-msgid "Profile directory"
-msgstr "Profiilihakemisto"
-
-msgid "Desktop"
-msgstr "Työpöytä"
-
-msgid "Home directory"
-msgstr "Kotihakemisto"
-
-msgid ""
-"Could not start server as we could not detect whether existing VM is "
-"installed: %v"
-msgstr ""
-"Palvelinta ei voi käynnistää, koska olemassa olevan palvelimen tutkinta ei "
-"onnistu: %v"
-
-msgid "No server has been installed."
-msgstr "Palvelinta ei ole asennettu."
-
-msgid ""
-"Could not start server as we could not detect whether existing VM is "
-"running: %v"
-msgstr ""
-"Palvelinta ei voitu käynnistää, koska olemassa olevan palvelin käynnissäoloa "
-"ei saatu selville: %v"
-
-msgid "The server is already running."
-msgstr "Palvelin on jo käynnissä."
-
-msgid "Could not start VM: %v"
-msgstr "Virtuaalikoneen käynnistys epäonnistu: %v"
-
-msgid "Virtual machine was started"
-msgstr "Virtuaalikone on käynnistetty"
-
-msgid ""
-"We could not detect whether existing VM is running: %v, but continued "
-"removing the server as you requested."
-msgstr ""
-"Nykyisen virtuaalipalvelimen käynnissäoloa ei saatu selville (%v), mutta "
-"palvelimen poistamista jatketaan."
-
-msgid ""
-"There is a server appears to be running but we remove it as you requested."
-msgstr "Palvelin on käynnissä, mutta se poistetaan silti."
-
-msgid "Changing current directory to home"
-msgstr "Siirryn kotihakemistoon"
-
-msgid "Deleting ~/.VirtualBox"
-msgstr "Poistetaan ~/.VirtualBox"
-
-msgid "Deleting ~/VirtualBox VMs"
-msgstr "Poistetaan ~/VirtualBox VMs"
-
-msgid "Failed to remove directory %s: %v"
-msgstr "Hakemiston %s poistaminen epäonnistui: %v"
-
-msgid "Could not get version string for a new server: %v"
-msgstr "Uuden palvelin versiotiedon haku epäonnistui: %v"
-
-msgid "Could not create directory: %v"
-msgstr "Hakemiston luominen epäonnistui: %v"
-
-msgid "Could not calculate free disk size: %v"
-msgstr "Vapaan levytilan määrän laskenta epäonnistui: %v"
-
-msgid "Getting Image from the Cloud"
-msgstr "Lataan levynkuvaa"
-
-msgid "Failed to get new VM image: %v"
-msgstr "Levynkuvan lataaminen epäonnistui: %v"
-
-msgid "Creating New VM"
-msgstr "Uutta virtuaalikonetta luodaan"
-
-msgid "Failed to create new VM: %v"
-msgstr "Uuden virtuaalikoneen luominen epäonnistui: %v"
-
-msgid "Removing temporary raw image file"
-msgstr "Väliaikaista levynkuvaa poistetaan"
-
-msgid "Failed to remove raw image file %s: %v"
-msgstr "Levynkuvatiedoston %s poistaminen epäonnistui: %v"
-
-msgid "New VM was created"
-msgstr "Uusi virtuaalikone on luotu"
-
-msgid ""
-"Could not install server as we could not detect whether existing VM is "
-"running: %v"
-msgstr ""
-"Palvelimen asennus epäonnistui, koska olemassaolevan palvelimen päälläoloa "
-"ei saatu tutkittua: %v"
-
-msgid "Please stop the current server before installing a new one"
-msgstr ""
-"Ole hyvä ja sammuta olemassaoleva palvelin ennen uuden palvelimen asennusta"
-
-msgid ""
-"Could not install server as we could not detect whether existing VM is "
-"installed: %v"
-msgstr ""
-"Palvelimen asennus epäonnistui, koska olemassaolevan palvelinasennuksen "
-"tutkiminen epäonnistui: %v"
-
-msgid "Could not remove current VM before installing new one: %v"
-msgstr ""
-"Olemassaolevan palvelimen poistaminen uuden palvelimen alta epäonnistui: %v"
-
-msgid "Creating ~/ktp"
-msgstr "Luodaan ~/ktp"
-
-msgid "Creating ~/ktp-jako"
-msgstr "Luodaan ~/ktp-jako"
-
-#, c-format
-msgid "Your free disk size is getting low (%s)"
-msgstr "Vapaan levytilasi määrä on alhainen (%s)"
-
-msgid "Failed to calculate free disk space: %v"
-msgstr "Vapaan levytilan määrän laskenta epäonnistui: %v"
-
-msgid "Error"
-msgstr "Virhe"
-
-msgid "Warning"
-msgstr "Varoitus"
-
-msgid "Info"
-msgstr "Tiedoksi"
-
-msgid "Contacting server"
-msgstr "Avataan yhteyttä palvelimelle"
-
-msgid "Opening file"
-msgstr "Avataan tiedostoa"
-
-msgid "Downloading server image"
-msgstr "Ladataan palvelimen levynkuvaa"
-
-#, c-format
-msgid "Downloading image: %d %%"
-msgstr "Levynkuvaa ladataan: %d %%"
-
-msgid "Server image downloaded"
-msgstr "Palvelimen levynkuva on ladattu"
-
-msgid "Starting to uncompress raw image"
-msgstr "Aloitetaan pakatun levynkuvan purkamista"
-
-#, c-format
-msgid "Uncompressing image: %d %%"
-msgstr "Pakattua levynkuvaa puretaan: %d %%"
-
-msgid "Uncompressing finished"
-msgstr "Purkaminen on valmis"
-
-msgid "showvminfo"
-msgstr ""
-
-msgid "vboxmanageversion"
-msgstr ""
-
-msgid "vmstate"
-msgstr ""
-
-#, c-format
-msgid ""
-"Naksu encountered an error while trying to fix a problem with VirtualBox. "
-"VirtualBox configuration file %s has been moved to %s. Manually rename it to "
-"%s to fix this."
-msgstr ""
-"VirtualBox-ongelman korjaaminen epäonnistui. VirtualBoxin asetustiedosto %s "
-"on nimetty uudelleen (%s). Uudelleen nimeä asetustiedosto käsin nimelle %s "
-"korjataksesi ongelman."
-
-msgid "Abitti server"
-msgstr "Abitti-palvelin"
-
-msgid "Matric Exam server"
-msgstr "Yo-palvelin"
-
-msgid "Naksu has been automatically updated. Please restart Naksu."
-msgstr ""
-"Naksu on päivitetty automaattisesti. Ole hyvä ja käynnistä Naksu uudelleen."
-
-msgid ""
-"Naksu has update available, but your version of Naksu has updates disabled. "
-"Please update or ask your administrator to update Naksu."
-msgstr ""
-"Naksulle on päivitys tarjossa, mutta voimassa oleva asetus estää päivitysten "
-"lataamisen. Päivitä tai pyydä koneen ylläpitäjää päivittämään Naksu."
-
-msgid "Naksu could not check for updates as there is no network connection."
-msgstr "Naksu ei voinut etsiä uusia versioita, koska verkkoyhteys puuttuu."
-
-#, c-format
-msgid ""
-"Naksu update failed. Maybe you don't have network connection?\n"
-"\n"
-"Error: %s"
-msgstr ""
-"Naksun päivitys epäonnistui. Ehkä sinulla ei ole juuri nyt verkkoyhteyttä?\n"
-"\n"
-"Virhe: %s"
 
 #~ msgid "Failed to create temporary file: %v"
 #~ msgstr "Väliaikaistiedoston luominen epäonnistui: %v"

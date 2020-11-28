@@ -582,9 +582,8 @@ func translateUILabels() {
 		updateBoxAvailabilityLabel()
 
 		// Suggest VM install if none installed
-		emptyVersionProgressMessage := "Start by installing a server: Show management features"
-		if (progress.GetLastMessage() == "" || progress.GetLastMessage() == emptyVersionProgressMessage) && box.GetVersion() == "" {
-			progress.TranslateAndSetMessage(emptyVersionProgressMessage)
+		if progress.GetLastMessage() == "" && box.GetVersion() == "" {
+			progress.TranslateAndSetMessage("Start by installing a server: Show management features")
 		}
 
 		checkboxAdvanced.SetText(xlate.Get("Show management features"))
@@ -643,6 +642,7 @@ func bindLanguageSwitching() {
 		config.SetLanguage(constants.AvailableLangs[comboboxLang.Selected()].ConfigValue)
 
 		xlate.SetLanguage(config.GetLanguage())
+		progress.SetMessage("")
 		translateUILabels()
 	})
 }
