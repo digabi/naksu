@@ -269,7 +269,7 @@ func createLogDeliveryElements() {
 	logDeliveryFilenameLabelLabel = ui.NewLabel(xlate.Get("Filename for Abitti support:"))
 	logDeliveryFilenameLabel = ui.NewLabel(xlate.Get("Wait..."))
 	logDeliveryFilenameCopyButton = ui.NewButton(xlate.Get("Copy to clipboard"))
-	logDeliveryStatusLabel = ui.NewLabel(fmt.Sprintf(xlate.Get("Copying logs: %s"), xlate.Get("0 % (this can take a while...)")))
+	logDeliveryStatusLabel = ui.NewLabel(xlate.Get("Copying logs: %s", xlate.Get("0 %% (this can take a while...)")))
 	logDeliveryButtonClose = ui.NewButton(xlate.Get("Close"))
 
 	logDeliveryBox = ui.NewVerticalBox()
@@ -300,7 +300,7 @@ func createLogDeliveryElements() {
 
 func createExamInstallElements() {
 	// Define exam install passhrase dialog window
-	examInstallPassphraseLabel = ui.NewLabel(xlate.Get("Give passphrase for exam server:"))
+	examInstallPassphraseLabel = ui.NewLabel(xlate.Get("Enter install passphrase for the exam server:"))
 	examInstallPassphraseEntry = ui.NewEntry()
 	examInstallButtonCancel = ui.NewButton(xlate.Get("Cancel"))
 	examInstallButtonInstall = ui.NewButton(xlate.Get("Install"))
@@ -515,7 +515,7 @@ func updateStartButtonLabel() {
 			if boxTypeString == "-" {
 				buttonStartServer.SetText(xlate.Get("Start Exam Server"))
 			} else {
-				buttonStartServer.SetText(fmt.Sprintf(xlate.Get("Start %s"), boxTypeString))
+				buttonStartServer.SetText(xlate.Get("Start %s", boxTypeString))
 			}
 		})
 	}()
@@ -528,7 +528,7 @@ func updateBoxAvailabilityLabel() {
 		abittiUpdate, availAbittiVersion := checkAbittiUpdate()
 		if abittiUpdate {
 			ui.QueueMain(func() {
-				labelBoxAvailable.SetText(fmt.Sprintf(xlate.Get("Update available: %s"), availAbittiVersion))
+				labelBoxAvailable.SetText(xlate.Get("Update available: %s", availAbittiVersion))
 				// Select "advanced features" checkbox
 				checkboxAdvanced.SetChecked(true)
 				boxAdvanced.Show()
@@ -554,7 +554,7 @@ func updateGetServerButtonLabel() {
 		abittiUpdate, availAbittiVersion := checkAbittiUpdate()
 		if abittiUpdate {
 			ui.QueueMain(func() {
-				buttonInstallAbittiServer.SetText(fmt.Sprintf(xlate.Get("Abitti Exam (%s)"), availAbittiVersion))
+				buttonInstallAbittiServer.SetText(xlate.Get("Abitti Exam (%s)", availAbittiVersion))
 			})
 		} else {
 			ui.QueueMain(func() {
@@ -577,7 +577,7 @@ func translateUILabels() {
 		buttonMebShare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
 		labelExtNic.SetText(xlate.Get("Network device:"))
 
-		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), box.GetVersion()))
+		labelBox.SetText(xlate.Get("Current version: %s", box.GetVersion()))
 
 		// Show available box version if we have a Abitti box
 		updateBoxAvailabilityLabel()
@@ -603,7 +603,7 @@ func translateUILabels() {
 		logDeliveryButtonClose.SetText(xlate.Get("Close"))
 
 		examInstallWindow.SetTitle(xlate.Get("naksu: Install Exam Server"))
-		examInstallPassphraseLabel.SetText(xlate.Get("Enter Exam Server passphrase:"))
+		examInstallPassphraseLabel.SetText(xlate.Get("Enter Exam Server install passphrase:"))
 		examInstallButtonInstall.SetText(xlate.Get("Install"))
 		examInstallButtonCancel.SetText(xlate.Get("Cancel"))
 
@@ -611,7 +611,7 @@ func translateUILabels() {
 		destroyInfoLabel[0].SetText(xlate.Get("Remove Exams restores server to its initial status."))
 		destroyInfoLabel[1].SetText(xlate.Get("Exams, responses and logs in the server will be irreversibly deleted."))
 		destroyInfoLabel[2].SetText(xlate.Get("It is recommended to back up your server before removing exams."))
-		destroyInfoLabel[3].SetText(xlate.Get(""))
+		destroyInfoLabel[3].SetText("")
 		destroyInfoLabel[4].SetText(xlate.Get("Do you wish to remove all exams?"))
 		destroyButtonDestroy.SetText(xlate.Get("Yes, Remove"))
 		destroyButtonCancel.SetText(xlate.Get("Cancel"))
@@ -620,7 +620,7 @@ func translateUILabels() {
 		removeInfoLabel[0].SetText(xlate.Get("Removing server destroys it and all downloaded disk images."))
 		removeInfoLabel[1].SetText(xlate.Get("Exams, responses and logs in the server will be irreversibly deleted."))
 		removeInfoLabel[2].SetText(xlate.Get("It is recommended to back up your server before removing server."))
-		removeInfoLabel[3].SetText(xlate.Get(""))
+		removeInfoLabel[3].SetText("")
 		removeInfoLabel[4].SetText(xlate.Get("Do you wish to remove the server?"))
 		removeButtonRemove.SetText(xlate.Get("Yes, Remove"))
 		removeButtonCancel.SetText(xlate.Get("Cancel"))
@@ -696,19 +696,19 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 			// Give warnings if there is problems with configured external network device
 			// and there are more than one available
 			if config.GetExtNic() == "" {
-				mebroutines.ShowErrorMessage(xlate.Get("Please select the network device which is connected to your exam network."))
+				mebroutines.ShowTranslatedErrorMessage("Please select the network device which is connected to your exam network.")
 				return
 			}
 
 			if !network.IsExtInterface(config.GetExtNic()) {
-				mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("You have selected network device '%s' which is not available."), config.GetExtNic()))
+				mebroutines.ShowTranslatedErrorMessage("You have selected network device '%s' which is not available.", config.GetExtNic())
 				return
 			}
 
 			// Get defails of the current installed box and warn if we're having Matric Exam box & internet connection
 			if box.TypeIsMatriculationExam() {
 				if network.CheckIfNetworkAvailable() {
-					mebroutines.ShowWarningMessage(xlate.Get("You are starting Matriculation Examination server with an Internet connection."))
+					mebroutines.ShowTranslatedWarningMessage("You are starting Matriculation Examination server with an Internet connection.")
 				} else {
 					log.Debug("Starting Matric Exam server without an internet connection - All is good!")
 				}
@@ -760,7 +760,7 @@ func bindOnInstallExamServer(mainUIStatus chan string) {
 				translateUILabels()
 				log.Debug(fmt.Sprintf("Finished Exam box update, version is: %s", box.GetVersion()))
 			} else {
-				mebroutines.ShowWarningMessage(xlate.Get("Please enter passphrase to install the exam server"))
+				mebroutines.ShowTranslatedErrorMessage("Please enter install passphrase to install the exam server")
 			}
 			enableUI(mainUIStatus)
 		}()
@@ -816,7 +816,7 @@ func bindOnDeliverLogs(mainUIStatus chan string) {
 		buttonDeliverLogs.Disable()
 
 		logDeliveryFilenameLabel.SetText(xlate.Get("Wait..."))
-		logDeliveryStatusLabel.SetText(fmt.Sprintf(xlate.Get("Copying logs: %s"), xlate.Get("0 % (this can take a while...)")))
+		logDeliveryStatusLabel.SetText(xlate.Get("Copying logs: %s", xlate.Get("0 %% (this can take a while...)")))
 		logDeliveryWindow.Show()
 
 		go func() {
@@ -836,10 +836,10 @@ func bindOnDeliverLogs(mainUIStatus chan string) {
 			if network.CheckIfNetworkAvailable() {
 				setLogDeliveryLabelTextInGoroutine(xlate.Get("Sending logs"))
 				err := logdelivery.SendLogs(logFilename, func(progress uint8) {
-					setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Sending logs: %d %%"), progress))
+					setLogDeliveryLabelTextInGoroutine(xlate.Get("Sending logs: %d %%", progress))
 				})
 				if err != nil {
-					setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Error sending logs: %s"), err))
+					setLogDeliveryLabelTextInGoroutine(xlate.Get("Error sending logs: %s", err))
 				} else {
 					setLogDeliveryLabelTextInGoroutine(xlate.Get("Logs sent!"))
 				}
@@ -860,7 +860,7 @@ func followLogCopyProgress(copyDoneChannel chan bool, copyProgressChannel chan s
 			}
 		case copyProgress := <-copyProgressChannel:
 			if copyProgress != "0 %" {
-				setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Copying logs: %s"), copyProgress))
+				setLogDeliveryLabelTextInGoroutine(xlate.Get("Copying logs: %s", copyProgress))
 			}
 		}
 	}
@@ -871,13 +871,13 @@ func followLogDeliveryZippingProgress(zipProgressChannel chan uint8, zipErrorCha
 		select {
 		case zipProgress := <-zipProgressChannel:
 			if zipProgress <= 100 {
-				setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Zipping logs: %d %%"), zipProgress))
+				setLogDeliveryLabelTextInGoroutine(xlate.Get("Zipping logs: %d %%", zipProgress))
 			} else {
 				setLogDeliveryLabelTextInGoroutine(xlate.Get("Done zipping"))
 				return nil
 			}
 		case zipError := <-zipErrorChannel:
-			setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Error zipping logs: %s"), zipError))
+			setLogDeliveryLabelTextInGoroutine(xlate.Get("Error zipping logs: %s", zipError))
 			return zipError
 		}
 	}
@@ -900,10 +900,10 @@ func bindOnBackup(mainUIStatus chan string) {
 			backupWindow.Hide()
 			err := backup.MakeBackup(pathBackup)
 			if err != nil {
-				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Backup failed: %v"), err))
-				progress.SetMessage(fmt.Sprintf(xlate.Get("Backup failed: %v"), err))
+				mebroutines.ShowTranslatedErrorMessage("Backup failed: %v", err)
+				progress.TranslateAndSetMessage("Backup failed: %v", err)
 			} else {
-				progress.SetMessage(fmt.Sprintf(xlate.Get("Backup done: %s"), pathBackup))
+				progress.TranslateAndSetMessage("Backup done: %s", pathBackup)
 			}
 
 			enableUI(mainUIStatus)
@@ -958,8 +958,8 @@ func bindOnDestroy(mainUIStatus chan string) {
 			destroyWindow.Hide()
 			err := destroy.Server()
 			if err != nil {
-				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Failed to remove exams: %v"), err))
-				progress.SetMessage(fmt.Sprintf(xlate.Get("Failed to remove exams: %v"), err))
+				mebroutines.ShowTranslatedErrorMessage("Failed to remove exams: %v", err)
+				progress.TranslateAndSetMessage("Failed to remove exams: %v", err)
 			} else {
 				progress.TranslateAndSetMessage("Exams were removed successfully.")
 			}
@@ -998,8 +998,8 @@ func bindOnRemove(mainUIStatus chan string) {
 
 			err := remove.Server()
 			if err != nil {
-				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Error while removing server: %v"), err))
-				progress.SetMessage(fmt.Sprintf(xlate.Get("Error while removing server: %v"), err))
+				mebroutines.ShowTranslatedErrorMessage("Error while removing server: %v", err)
+				progress.TranslateAndSetMessage("Error while removing server: %v", err)
 			} else {
 				progress.TranslateAndSetMessage("Server was removed successfully.")
 			}
@@ -1115,16 +1115,16 @@ func RunUI() error {
 		}()
 
 		if <-isHyperV {
-			mebroutines.ShowWarningMessage(xlate.Get("Please turn Windows Hypervisor and Windows Virtualization Platform off as those may cause problems."))
+			mebroutines.ShowTranslatedWarningMessage("Please turn Windows Hypervisor off as it may cause problems.")
 		} else {
 			// Does CPU support hardware virtualisation?
 			if !host.IsHWVirtualisationCPU() {
-				mebroutines.ShowWarningMessage(xlate.Get("It appears your CPU does not support hardware virtualisation (VT-x or AMD-V)."))
+				mebroutines.ShowTranslatedWarningMessage("It appears your CPU does not support hardware virtualisation (VT-x or AMD-V).")
 			}
 
 			// Make sure the hardware virtualisation is present
 			if !host.IsHWVirtualisation() {
-				mebroutines.ShowWarningMessage(xlate.Get("Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before continuing."))
+				mebroutines.ShowTranslatedWarningMessage("Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before continuing.")
 			}
 		}
 

@@ -21,6 +21,7 @@ import (
 	"naksu/constants"
 	"naksu/log"
 	"naksu/mebroutines"
+	"naksu/xlate"
 )
 
 // Suppress progress messages if there has been less than 2 seconds from a message
@@ -82,7 +83,7 @@ func downloadServerImage(url string, progressCallbackFn func(string)) error {
 	}
 	defer zipFile.Close()
 
-	progressCallbackFn("Downloading server image")
+	progressCallbackFn(xlate.Get("Downloading server image"))
 
 	counter := &writeCounter{}
 	counter.ProgressCallbackFn = progressCallbackFn
@@ -94,7 +95,7 @@ func downloadServerImage(url string, progressCallbackFn func(string)) error {
 		return errCopy
 	}
 
-	progressCallbackFn("Server image downloaded")
+	progressCallbackFn(xlate.Get("Server image downloaded"))
 
 	return nil
 }
@@ -136,7 +137,7 @@ func unZipServerImage(progressCallbackFn func(string)) error {
 				return err
 			}
 
-			progressCallbackFn("unzip finished")
+			progressCallbackFn(xlate.Get("Uncompressing finished"))
 		}
 	}
 

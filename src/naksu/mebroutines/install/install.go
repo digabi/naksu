@@ -15,7 +15,6 @@ import (
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
-	"naksu/xlate"
 
 	humanize "github.com/dustin/go-humanize"
 )
@@ -75,7 +74,7 @@ func newServer(boxType string, imageURL string, versionURL string) {
 		mebroutines.ShowTranslatedWarningMessage("Failed to remove raw image file %s: %v", mebroutines.GetImagePath(), err)
 	}
 
-	progress.SetMessage("New VM was created")
+	progress.TranslateAndSetMessage("New VM was created")
 }
 
 // NewAbittiServer downloads and installs a new Abitti server
@@ -94,25 +93,25 @@ func NewExamServer(passphrase string) {
 func ensureServerIsNotRunningAndDoesNotExist() error {
 	isRunning, errRunning := box.Running()
 	if errRunning != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not install server as we could not detect whether existing VM is running: %v", errRunning))
+		mebroutines.ShowTranslatedErrorMessage("Could not install server as we could not detect whether existing VM is running: %v", errRunning)
 		return errRunning
 	}
 
 	if isRunning {
-		mebroutines.ShowErrorMessage("Please stop the current server before installing a new one")
+		mebroutines.ShowTranslatedErrorMessage("Please stop the current server before installing a new one")
 		return errors.New("please stop the current server before installing a new one")
 	}
 
 	isInstalled, errInstalled := box.Installed()
 	if errInstalled != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not install server as we could not detect whether existing VM is installed: %v", errInstalled))
+		mebroutines.ShowTranslatedErrorMessage("Could not install server as we could not detect whether existing VM is installed: %v", errInstalled)
 		return errInstalled
 	}
 
 	if isInstalled {
 		errRemove := box.RemoveCurrentBox()
 		if errRemove != nil {
-			mebroutines.ShowWarningMessage(fmt.Sprintf("Could not remove current VM before installing new one: %v", errRemove))
+			mebroutines.ShowTranslatedWarningMessage("Could not remove current VM before installing new one: %v", errRemove)
 		}
 	}
 

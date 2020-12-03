@@ -13,7 +13,6 @@ import (
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
-	"naksu/xlate"
 
 	humanize "github.com/dustin/go-humanize"
 )
@@ -36,7 +35,7 @@ func MakeBackup(backupPath string) error {
 
 	progress.TranslateAndSetMessage("Checking existing file...")
 	if mebroutines.ExistsFile(backupPath) {
-		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("File %s already exists"), backupPath))
+		mebroutines.ShowTranslatedErrorMessage("File %s already exists", backupPath)
 		return errors.New("backup file already exists")
 	}
 
@@ -44,7 +43,7 @@ func MakeBackup(backupPath string) error {
 	progress.TranslateAndSetMessage("Checking backup path...")
 	wrErr := mebroutines.CreateFile(backupPath)
 	if wrErr != nil {
-		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not write test backup file %s. Try another location."), backupPath))
+		mebroutines.ShowTranslatedErrorMessage("Could not write test backup file %s. Try another location.", backupPath)
 		return fmt.Errorf("could not write test backup file: %v", wrErr)
 	}
 
@@ -64,7 +63,7 @@ func MakeBackup(backupPath string) error {
 	progress.TranslateAndSetMessage("Checking for FAT32 filesystem...")
 	errFAT := checkForFATFilesystem(backupPath, diskLocation)
 	if errFAT != nil {
-		mebroutines.ShowWarningMessage(xlate.Get("The backup file is too large for a FAT32 filesystem. Please reformat the backup disk as exFAT."))
+		mebroutines.ShowTranslatedErrorMessage("The backup file is too large for a FAT32 filesystem. Please reformat the backup disk as exFAT.")
 		return fmt.Errorf("backup file too large for fat32 filesystem")
 	}
 

@@ -37,7 +37,7 @@ func RunAndGetOutput(commandArgs []string, logOutput bool) (string, error) {
 	out, err := cmd.CombinedOutput()
 
 	if err != nil {
-		log.Debug(fmt.Sprintf(xlate.Get("command failed: %s (%v)"), strings.Join(commandArgs, " "), err))
+		log.Debug(fmt.Sprintf("command failed: %s (%v)", strings.Join(commandArgs, " "), err))
 	}
 
 	if out != nil {
@@ -231,8 +231,13 @@ func ShowErrorMessage(message string) {
 	}
 }
 
+// ShowTranslatedErrorMessage translates given error message and shows it with ShowErrorMessage()
+func ShowTranslatedErrorMessage(str string, vars ...interface{}) {
+	ShowErrorMessage(xlate.Get(str, vars...))
+}
+
 // ShowWarningMessage shows warning message popup to user
-func ShowWarningMessage(message string) {
+func ShowWarningMessage(message string, vars ...interface{}) {
 	fmt.Printf("WARNING: %s\n", message)
 	log.Debug(fmt.Sprintf("WARNING: %s", message))
 
@@ -244,15 +249,27 @@ func ShowWarningMessage(message string) {
 	}
 }
 
+// ShowTranslatedWarningMessage translates given warning message and shows it with ShowWarningMessage()
+func ShowTranslatedWarningMessage(str string, vars ...interface{}) {
+	ShowWarningMessage(xlate.Get(str, vars...))
+}
+
 // ShowInfoMessage shows warning message popup to user
-func ShowInfoMessage(message string) {
-	fmt.Printf("INFO: %s\n", message)
-	log.Debug(fmt.Sprintf("INFO: %s", message))
+func ShowInfoMessage(str string, vars ...interface{}) {
+	translated := xlate.Get(str, vars...)
+
+	fmt.Printf("INFO: %s\n", translated)
+	log.Debug(fmt.Sprintf("INFO: %s", translated))
 
 	// Show libui box if main window has been set with Set_main_window
 	if mainWindow != nil {
 		ui.QueueMain(func() {
-			ui.MsgBox(mainWindow, xlate.Get("Info"), message)
+			ui.MsgBox(mainWindow, xlate.Get("Info"), translated)
 		})
 	}
+}
+
+// ShowTranslatedInfoMessage translates given info message and shows it with ShowInfoMessage()
+func ShowTranslatedInfoMessage(str string, vars ...interface{}) {
+	ShowInfoMessage(xlate.Get(str, vars...))
 }

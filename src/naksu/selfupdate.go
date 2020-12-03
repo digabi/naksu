@@ -11,7 +11,6 @@ import (
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/network"
-	"naksu/xlate"
 
 	"github.com/blang/semver"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
@@ -23,11 +22,11 @@ var isOutOfDate bool
 func RunSelfUpdate() {
 	// Run auto-update
 	if doReleaseSelfUpdate() {
-		mebroutines.ShowWarningMessage("naksu has been automatically updated. Please restart naksu.")
+		mebroutines.ShowTranslatedInfoMessage("Naksu has been automatically updated. Please restart Naksu.")
 		os.Exit(0)
 	}
 	if WarnUserAboutStaleVersionIfUpdateDisabled() {
-		mebroutines.ShowWarningMessage("naksu has update available, but your version of naksu has updates disabled. please update or ask your administrator to update naksu")
+		mebroutines.ShowTranslatedInfoMessage("Naksu has update available, but your version of Naksu has updates disabled. Please update or ask your administrator to update Naksu.")
 	}
 }
 
@@ -40,7 +39,7 @@ func doReleaseSelfUpdate() bool {
 
 	// Test network connection here with a timeout
 	if !network.CheckIfNetworkAvailable() {
-		mebroutines.ShowWarningMessage(xlate.Get("Naksu could not check for updates as there is no network connection."))
+		mebroutines.ShowTranslatedWarningMessage("Naksu could not check for updates as there is no network connection.")
 		return false
 	}
 
@@ -59,7 +58,7 @@ func doReleaseSelfUpdate() bool {
 
 	latest, err := selfupdate.UpdateSelf(v, "digabi/naksu")
 	if err != nil {
-		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Naksu update failed. Maybe you don't have network connection?\n\nError: %s"), err))
+		mebroutines.ShowTranslatedWarningMessage("Naksu update failed. Maybe you don't have network connection?\n\nError: %s", err)
 		return false
 	}
 	if latest.Version.Equals(v) {
