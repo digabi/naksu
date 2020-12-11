@@ -136,6 +136,18 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 2.0.0 (11-DEC-2020)
+
+- Install VM directly to VirtualBox without Vagrant
+- Retrieve images within a zip file prepared for Balena Etcher
+- Get Abitti version string and image zip from a static URL
+- Get Matriculation exam image zip from an URL dependent of an install passphrase
+- gettext-style localisation
+- Suppress some repeating log messages
+- Turn automatic updates back on from UI if disabled
+- Improve error message when detected Windows Hypervisor
+- Improve log messages on VBoxManage errors
+
 ### 1.12.2 (21-AUG-2020)
 
 - Fix failing WMI queries (Windows)
