@@ -45,7 +45,7 @@ func getDiskFreeDarwin(path string) (uint64, error) {
 	// GetDiskFree should return number of free disk in BYTES
 	runParams := []string{"df", path}
 
-	output, err := RunAndGetOutput(runParams)
+	output, err := RunAndGetOutput(runParams, true)
 
 	if err != nil {
 		return 0, err
@@ -79,7 +79,7 @@ func ExtractDiskFreeDarwin(dfOutput string) (uint64, error) {
 func getDiskFreeLinux(path string) (uint64, error) {
 	runParams := []string{"df", "--output=avail", path}
 
-	output, err := RunAndGetOutput(runParams)
+	output, err := RunAndGetOutput(runParams, true)
 
 	if err != nil {
 		return 0, err

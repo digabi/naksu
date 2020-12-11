@@ -3,48 +3,26 @@
 `naksu` is collection of helper scripts for MEB stickless Abitti/matriculation exam servers.
 In real life Naksu is Onerva's (the [Abitti model teacher](https://www.abitti.fi/fi/tutustu/)) cat.
 
-The need for some kind of helper scripts appeared to be evident as we followed support requests
-and feedback from school IT staff and teachers.
+Naksu is currently the suggested method for operating a stickess, virtualised Abitti exam server.
+The zipped executables can be downloaded from [GitHub](https://github.com/digabi/naksu/releases/latest).
+Download either Windows or Linux version and execute the file in the OS-related zip.
 
-Naksu is currently in production. The executables can be downloaded from [GitHub](https://github.com/digabi/naksu/releases/latest). Download either Windows or Linux version and execute the file in the OS-related zip. After this naksu updates itself when executed.
+## History
 
-## Overview of executed operations
+In the first version of so-called stickless exam server the schools downloaded a
+VM definition file `Vagrantfile` which was read by HashiCorp Vagrant. It created a VirtualBox VM
+based on the shipped disk image. However, entering `vagrant up` to create the VM was too
+technical for the teachers arranging course exams. A need for some kind of helper scripts appeared
+to be evident as we followed support requests and feedback from school IT staff and teachers.
 
-### Fresh Install / Update
+Later the features of Vagrant (downloading the image and creating a VirtualBox VM) were coded
+into Naksu. Currently, Vagrant is not used at all and can be uninstalled from the host machine.
 
-1.  Make sure you have `vagrant` executable
-1.  Make sure Oracle VirtualBox is installed
-1.  Create `~/ktp` if it does not exist
-1.  Create `~/ktp-jako` if it does not exist
-1.  If `~/ktp/Vagrantfile` exists execute `vagrant destroy -f` (we expect that there is existing installation)
-1.  Delete `~/ktp/Vagrantfile.bak`
-1.  Rename `~/ktp/Vagrantfile` to `~/ktp/Vagrantfile.bak`
-1.  Retrieve `http://static.abitti.fi/usbimg/qa/vagrant/Vagrantfile` to `~/ktp/Vagrantfile`
-1.  Execute `vagrant box update`
-1.  Execute `vagrant box prune`
+## Updates
 
-### Switch Between Abitti and Matriculation Examination Server
-
-Same as install/update procedure but the user is able to select `Vagrantfile`. The
-file must be downloaded beforehand by the school principal.
-
-### Start Virtual Server
-
-1.  Make sure you have `vagrant` executable
-1.  Make sure Oracle VirtualBox is installed
-1.  Execute `vagrant up`
-
-### Make Backup of Server Hard Drive
-
-1. Make sure you have `vagrant` executable
-1. Make sure you have `VBoxManage` executable
-1. Get VirtualBox VM id of the vagrant default machine from `~/ktp/.vagrant/machines/default/virtualbox/id`
-1. `VBoxManage showvminfo -machinereadable {Machine UUID}` -> Get `Disk UUID` from `SATA Controller-ImageUUID-0-0`
-1. `VBoxManage clonemedium {Disk UUID} {destination path} --format VMDK`
-1. `VBoxManage closemedium {destination path}`
-
-Since the cloned disks can be quite large the user might want to select the media for the save.
-Unfortunately, libui SaveFile dialog [does not support folders](https://github.com/andlabs/libui/issues/314).
+Naksu checks for updates when executed. If updates are found it updates itself and the user has to
+restart it. This behaviour can be prevented with command line switch `--self-update`. This sets the
+flag in the `~/naksu.ini` which permanently disables the self-update feature.
 
 ## Compiling
 
@@ -92,13 +70,10 @@ and build a Mac OS X binary with
 
 Mac OS X test version can be started with command `./bin/naksu-darwin`
 
-## Compilation details
+## Compilation details (without Docker)
 
-Preferred way to compile `naksu` is using Docker.
-
-`naksu` can be used in Linux and Windows environments. The compiling is supported
-only on Linux. You need at least Go 1.7 to build naksu. In
-Debian/Ubuntu environment install `golang-1.9` or `golang-1.10`.
+Preferred way to compile `naksu` is using Docker. However, you can build
+without it, too. You need at least Go 1.13 to build `naksu`.
 
 Make sure `go` points to your compiler or set `GO` to point your go binary (in `Makefile`).
 
@@ -125,11 +100,7 @@ make -j4
 make install
 ```
 
-1. By default the `Makefile` expects mingw-w64 at `$HOME/mingw-w64/current`.
-   This can be changed by editing `CGO_LDFLAGS="-L$(HOME)/mingw-w64/current/lib"`
-   in the `naksu.exe` rule. The path should point to `lib` under your mingw-w64 install path.
-
-After installing mingw-w64:
+Finally:
 
 `make windows`
 
@@ -140,10 +111,9 @@ Windows version is built with icon file. Building `src\naksu.syso` is done with
 
 ## Troubleshooting
 
-In case of trouble execute naksu with `-debug` switch. If naksu can't find your `vagrant`/`VBoxManage` executable(s) you can use `VAGRANTPATH` and `VBOXMANAGEPATH` environment variables to set these by hand:
+In case of trouble execute naksu with `-debug` switch. If naksu can't find your `VBoxManage` `VBOXMANAGEPATH` environment variable:
 
 ```
-VAGRANTPATH=/opt/vagrant/latest/bin/vagrant naksu
 VBOXMANAGEPATH=D:\Oracle\VirtualBox\VBoxManage.exe naksu
 ```
 

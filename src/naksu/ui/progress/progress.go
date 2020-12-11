@@ -32,7 +32,9 @@ func SetMessage(message string) {
 }
 
 // TranslateAndSetMessage translates and sets progress label text
-func TranslateAndSetMessage(message string) {
+func TranslateAndSetMessage(str string, vars ...interface{}) {
+	message := xlate.Get(str, vars...)
+
 	lastMessage = message
 	setMessage(xlate.Get(message))
 }

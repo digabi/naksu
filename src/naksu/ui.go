@@ -6,7 +6,8 @@ import (
 	"time"
 
 	"naksu/box"
-	"naksu/boxversion"
+	"naksu/box/download"
+	"naksu/box/vboxmanage"
 	"naksu/config"
 	"naksu/constants"
 	"naksu/host"
@@ -25,14 +26,19 @@ import (
 
 	"github.com/andlabs/ui"
 	"github.com/atotto/clipboard"
-	humanize "github.com/dustin/go-humanize"
 )
+
+type mainUIStatusType = string
+
+const mainUIStatusEnabled mainUIStatusType = ""
+const mainUIStatusDisabled mainUIStatusType = "disable"
 
 var window *ui.Window
 
+var buttonSelfUpdateOn *ui.Button
 var buttonStartServer *ui.Button
-var buttonGetServer *ui.Button
-var buttonSwitchServer *ui.Button
+var buttonInstallAbittiServer *ui.Button
+var buttonInstallExamServer *ui.Button
 var buttonDestroyServer *ui.Button
 var buttonRemoveServer *ui.Button
 var buttonMakeBackup *ui.Button
@@ -46,7 +52,7 @@ var comboboxNic *ui.Combobox
 var labelBox *ui.Label
 var labelBoxAvailable *ui.Label
 var labelStatus *ui.Label
-var labelAdvancedExtNic *ui.Label
+var labelExtNic *ui.Label
 var labelAdvancedNic *ui.Label
 var labelAdvancedUpdate *ui.Label
 var labelAdvancedAnnihilate *ui.Label
@@ -87,6 +93,15 @@ var logDeliveryFilenameCopyButton *ui.Button
 var logDeliveryStatusLabel *ui.Label
 var logDeliveryButtonClose *ui.Button
 
+// Exam Install Window
+var examInstallWindow *ui.Window
+
+var examInstallBox *ui.Box
+var examInstallPassphraseLabel *ui.Label
+var examInstallPassphraseEntry *ui.Entry
+var examInstallButtonInstall *ui.Button
+var examInstallButtonCancel *ui.Button
+
 // Destroy Confirmation Window
 var destroyWindow *ui.Window
 
@@ -111,9 +126,10 @@ var extInterfaces []constants.AvailableSelection
 
 func createMainWindowElements() {
 	// Define main window
+	buttonSelfUpdateOn = ui.NewButton("Turn Naksu self updates back on")
 	buttonStartServer = ui.NewButton("Start Exam Server")
-	buttonGetServer = ui.NewButton("Abitti Exam")
-	buttonSwitchServer = ui.NewButton("Matriculation Exam")
+	buttonInstallAbittiServer = ui.NewButton("Abitti Exam")
+	buttonInstallExamServer = ui.NewButton("Matriculation Exam")
 	buttonDestroyServer = ui.NewButton("Remove Exams")
 	buttonRemoveServer = ui.NewButton("Remove Server")
 	buttonMakeBackup = ui.NewButton("Make Exam Server Backup")
@@ -144,7 +160,7 @@ func createMainWindowElements() {
 	labelBox = ui.NewLabel("")
 	labelBoxAvailable = ui.NewLabel("")
 	labelStatus = ui.NewLabel("")
-	labelAdvancedExtNic = ui.NewLabel("")
+	labelExtNic = ui.NewLabel("")
 	labelAdvancedNic = ui.NewLabel("")
 	labelAdvancedUpdate = ui.NewLabel("")
 	labelAdvancedAnnihilate = ui.NewLabel("")
@@ -169,14 +185,17 @@ func createMainWindowElements() {
 	boxBasic.SetPadded(true)
 	boxBasic.Append(boxBasicUpper, false)
 	boxBasic.Append(labelStatus, true)
+	boxBasic.Append(buttonSelfUpdateOn, false)
 	boxBasic.Append(buttonStartServer, false)
 	boxBasic.Append(buttonMebShare, false)
+	boxBasic.Append(labelExtNic, false)
+	boxBasic.Append(comboboxExtNic, false)
 	boxBasic.Append(checkboxAdvanced, true)
 
 	boxAdvancedUpdate = ui.NewHorizontalBox()
 	boxAdvancedUpdate.SetPadded(true)
-	boxAdvancedUpdate.Append(buttonGetServer, true)
-	boxAdvancedUpdate.Append(buttonSwitchServer, true)
+	boxAdvancedUpdate.Append(buttonInstallAbittiServer, true)
+	boxAdvancedUpdate.Append(buttonInstallExamServer, true)
 
 	boxAdvancedAnnihilate = ui.NewHorizontalBox()
 	boxAdvancedAnnihilate.SetPadded(true)
@@ -186,8 +205,6 @@ func createMainWindowElements() {
 	boxAdvanced = ui.NewVerticalBox()
 	boxAdvanced.SetPadded(true)
 	boxAdvanced.Append(ui.NewHorizontalSeparator(), false)
-	boxAdvanced.Append(labelAdvancedExtNic, false)
-	boxAdvanced.Append(comboboxExtNic, false)
 	boxAdvanced.Append(labelAdvancedNic, false)
 	boxAdvanced.Append(comboboxNic, false)
 	boxAdvanced.Append(ui.NewHorizontalSeparator(), false)
@@ -252,7 +269,7 @@ func createLogDeliveryElements() {
 	logDeliveryFilenameLabelLabel = ui.NewLabel(xlate.Get("Filename for Abitti support:"))
 	logDeliveryFilenameLabel = ui.NewLabel(xlate.Get("Wait..."))
 	logDeliveryFilenameCopyButton = ui.NewButton(xlate.Get("Copy to clipboard"))
-	logDeliveryStatusLabel = ui.NewLabel(fmt.Sprintf(xlate.Get("Copying logs: %s"), xlate.Get("0 % (this can take a while...)")))
+	logDeliveryStatusLabel = ui.NewLabel(xlate.Get("Copying logs: %s", xlate.Get("0 %% (this can take a while...)")))
 	logDeliveryButtonClose = ui.NewButton(xlate.Get("Close"))
 
 	logDeliveryBox = ui.NewVerticalBox()
@@ -279,6 +296,26 @@ func createLogDeliveryElements() {
 	logDeliveryWindow = ui.NewWindow("", 400, 1, false)
 	logDeliveryWindow.SetMargined(true)
 	logDeliveryWindow.SetChild(logDeliveryBox)
+}
+
+func createExamInstallElements() {
+	// Define exam install passhrase dialog window
+	examInstallPassphraseLabel = ui.NewLabel(xlate.Get("Enter install passphrase for the exam server:"))
+	examInstallPassphraseEntry = ui.NewEntry()
+	examInstallButtonCancel = ui.NewButton(xlate.Get("Cancel"))
+	examInstallButtonInstall = ui.NewButton(xlate.Get("Install"))
+
+	examInstallBox = ui.NewVerticalBox()
+	examInstallBox.SetPadded(true)
+
+	examInstallBox.Append(examInstallPassphraseLabel, false)
+	examInstallBox.Append(examInstallPassphraseEntry, false)
+	examInstallBox.Append(examInstallButtonInstall, false)
+	examInstallBox.Append(examInstallButtonCancel, false)
+
+	examInstallWindow = ui.NewWindow("", 400, 1, false)
+	examInstallWindow.SetMargined(true)
+	examInstallWindow.SetChild(examInstallBox)
 }
 
 func createDestroyElements() {
@@ -342,133 +379,156 @@ func populateBackupCombobox(backupMedia map[string]string, combobox *ui.Combobox
 	return mediaPath
 }
 
-func setupMainLoop(mainUIStatus chan string, mainUINetupdate *time.Ticker) {
+func setupMainLoop(mainUIStatus chan string, mainUIUpdate *time.Ticker) {
 	go func() {
-		lastStatus := ""
+
+		// Start with all functions disabled
+		currentMainUIStatus := mainUIStatusDisabled
+
 		for {
 			select {
-			case <-mainUINetupdate.C:
-				networkstatus.Update()
-
-				if lastStatus == "enable" {
-					// Require network connection for install/update
-
-					ui.QueueMain(func() {
-						if network.CheckIfNetworkAvailable() {
-							buttonGetServer.Enable()
-							buttonSwitchServer.Enable()
-						} else {
-							buttonGetServer.Disable()
-							buttonSwitchServer.Disable()
-						}
-					})
-				}
+			case <-mainUIUpdate.C:
+				mainUIStatusHandler(currentMainUIStatus)
 			case newStatus := <-mainUIStatus:
-				log.Debug(fmt.Sprintf("main_ui_status: %s", newStatus))
-				// Got new status
-				if newStatus == "enable" {
-					log.Debug("enable ui")
-
-					ui.QueueMain(func() {
-						comboboxLang.Enable()
-						comboboxNic.Enable()
-						comboboxExtNic.Enable()
-
-						// Require installed version to start server
-						if box.GetVersion() == "" {
-							buttonStartServer.Disable()
-						} else {
-							updateStartButtonLabel()
-							buttonStartServer.Enable()
-						}
-
-						buttonMebShare.Enable()
-
-						// Require network connection for install/update
-						if network.CheckIfNetworkAvailable() {
-							buttonGetServer.Enable()
-							buttonSwitchServer.Enable()
-						} else {
-							buttonGetServer.Disable()
-							buttonSwitchServer.Disable()
-						}
-						buttonMakeBackup.Enable()
-						buttonDestroyServer.Enable()
-						buttonRemoveServer.Enable()
-					})
-
-					lastStatus = newStatus
-				}
-				if newStatus == "disable" {
-					log.Debug("disable ui")
-
-					ui.QueueMain(func() {
-						comboboxLang.Disable()
-						comboboxNic.Disable()
-						comboboxExtNic.Disable()
-
-						buttonStartServer.Disable()
-						buttonMebShare.Enable()
-
-						buttonGetServer.Disable()
-						buttonSwitchServer.Disable()
-						buttonMakeBackup.Disable()
-						buttonDestroyServer.Disable()
-						buttonRemoveServer.Disable()
-					})
-
-					lastStatus = newStatus
-				}
+				currentMainUIStatus = newStatus
+				mainUIStatusHandler(currentMainUIStatus)
 			}
 		}
 	}()
 }
 
+// Define UI button status handler
+func mainUIStatusHandler(currentMainUIStatus mainUIStatusType) { //nolint:gocyclo
+	// The cyclomatic complexity calculated by gocyclo is 20
+
+	networkstatus.Update()
+
+	// Check general UI status
+	mainUIEnabled := (currentMainUIStatus == mainUIStatusEnabled)
+
+	boxInstalled := false
+	boxRunning := false
+	netAvailable := false
+
+	// Make these checks only if main UI is enable to save time when disabling the UI
+	if mainUIEnabled {
+		boxInstalled, boxRunning, netAvailable = getStatusForMainUIStatusHandler()
+	}
+
+	// Create rule for "enabled" for each button
+	buttonRules := []struct {
+		element *ui.Button
+		enable  bool
+	}{
+		{buttonSelfUpdateOn, config.IsSelfUpdateDisabled()},
+		{buttonStartServer, mainUIEnabled && boxInstalled && !boxRunning},
+		{buttonMebShare, true},
+		{buttonMakeBackup, mainUIEnabled && boxInstalled && !boxRunning},
+		{buttonDeliverLogs, mainUIEnabled && true},
+		{buttonInstallAbittiServer, mainUIEnabled && !boxRunning && netAvailable},
+		{buttonInstallExamServer, mainUIEnabled && !boxRunning && netAvailable},
+		{buttonDestroyServer, mainUIEnabled && boxInstalled && !boxRunning},
+		{buttonRemoveServer, true},
+	}
+
+	comboboxRules := []struct {
+		element *ui.Combobox
+		enable  bool
+	}{
+		{comboboxLang, mainUIEnabled && !boxRunning},
+		{comboboxNic, mainUIEnabled && !boxRunning},
+		{comboboxExtNic, mainUIEnabled && !boxRunning},
+	}
+
+	ui.QueueMain(func() {
+		for _, buttonRule := range buttonRules {
+			if buttonRule.enable {
+				buttonRule.element.Enable()
+			} else {
+				buttonRule.element.Disable()
+			}
+		}
+
+		for _, comboboxRule := range comboboxRules {
+			if comboboxRule.enable {
+				comboboxRule.element.Enable()
+			} else {
+				comboboxRule.element.Disable()
+			}
+		}
+	})
+}
+
+func getStatusForMainUIStatusHandler() (bool, bool, bool) {
+	// Query box installation status
+	boxInstalled, boxInstalledErr := box.Installed()
+	if boxInstalledErr != nil {
+		log.Debug(fmt.Sprintf("Could not query whether VM is installed: %v", boxInstalledErr))
+	}
+
+	boxInstalled = (boxInstalledErr == nil) && boxInstalled
+
+	// Query box running status
+	boxRunning, boxRunningErr := box.Running()
+	if boxRunningErr != nil {
+		log.Debug(fmt.Sprintf("Could not query whether VM is running: %v", boxRunningErr))
+	}
+
+	boxRunning = (boxRunningErr == nil) && boxRunning
+
+	// Query network (internet) connection status
+	netAvailable := network.CheckIfNetworkAvailable()
+
+	return boxInstalled, boxRunning, netAvailable
+}
+
 // checkAbittiUpdate checks
-// 1) if currently installed box is Abitti
+// 1) if currently installed box is Abitti or if no box is installed
 // 2) and there is a new version available
 func checkAbittiUpdate() (bool, string) {
-	abittiUpdate := false
 	availAbittiVersion := ""
 
-	currentBoxType := box.GetType()
 	currentBoxVersion := box.GetVersion()
 
-	if boxversion.GetVagrantBoxTypeIsAbitti(currentBoxType) {
-		_, availBoxVersion, errAvail := boxversion.GetVagrantBoxAvailVersionDetails()
-		if errAvail == nil && currentBoxVersion != availBoxVersion {
-			abittiUpdate = true
-			availAbittiVersion = availBoxVersion
+	boxInstalled, err := box.Installed()
+
+	if err != nil {
+		log.Debug(fmt.Sprintf("Could not detect whether VM is installed: %v", err))
+	}
+
+	if (err == nil && !boxInstalled) || box.TypeIsAbitti() {
+		availAbittiVersion, err = download.GetAvailableVersion(constants.AbittiVersionURL)
+		if err == nil && currentBoxVersion != availAbittiVersion {
+			return true, availAbittiVersion
 		}
 	}
 
-	return abittiUpdate, availAbittiVersion
+	return false, availAbittiVersion
 }
 
 // updateStartButtonLabel updates label for start button depending on the
 // installed VM style. If there is no box installed the default label is set.
 func updateStartButtonLabel() {
 	go func() {
-		boxTypeString := boxversion.GetVagrantBoxType(box.GetType())
+		boxTypeString := box.GetTypeLegend()
 		ui.QueueMain(func() {
 			if boxTypeString == "-" {
 				buttonStartServer.SetText(xlate.Get("Start Exam Server"))
 			} else {
-				buttonStartServer.SetText(fmt.Sprintf(xlate.Get("Start %s"), boxTypeString))
+				buttonStartServer.SetText(xlate.Get("Start %s", boxTypeString))
 			}
 		})
 	}()
 }
 
-// updateVagrantBoxAvailLabel updates UI "update available" label if the currently
+// updateBoxAvailabilityLabel updates UI "update available" label if the currently
 // installed box is Abitti and there is new version available
-func updateVagrantBoxAvailLabel() {
+func updateBoxAvailabilityLabel() {
 	go func() {
-		abittiUpdate, _ := checkAbittiUpdate()
+		abittiUpdate, availAbittiVersion := checkAbittiUpdate()
 		if abittiUpdate {
-			vagrantBoxAvailVersion := boxversion.GetVagrantBoxAvailVersion()
 			ui.QueueMain(func() {
-				labelBoxAvailable.SetText(fmt.Sprintf(xlate.Get("Update available: %s"), vagrantBoxAvailVersion))
+				labelBoxAvailable.SetText(xlate.Get("Update available: %s", availAbittiVersion))
 				// Select "advanced features" checkbox
 				checkboxAdvanced.SetChecked(true)
 				boxAdvanced.Show()
@@ -486,19 +546,19 @@ func updateVagrantBoxAvailLabel() {
 // Make sure you call this inside ui.Queuemain() only
 func updateGetServerButtonLabel() {
 	// Set default text for an empty button before doing time-consuming Abitti update check
-	if buttonGetServer.Text() == "" {
-		buttonGetServer.SetText(xlate.Get("Abitti Exam"))
+	if buttonInstallAbittiServer.Text() == "" {
+		buttonInstallAbittiServer.SetText(xlate.Get("Abitti Exam"))
 	}
 
 	go func() {
 		abittiUpdate, availAbittiVersion := checkAbittiUpdate()
 		if abittiUpdate {
 			ui.QueueMain(func() {
-				buttonGetServer.SetText(fmt.Sprintf(xlate.Get("Abitti Exam (%s)"), availAbittiVersion))
+				buttonInstallAbittiServer.SetText(xlate.Get("Abitti Exam (%s)", availAbittiVersion))
 			})
 		} else {
 			ui.QueueMain(func() {
-				buttonGetServer.SetText(xlate.Get("Abitti Exam"))
+				buttonInstallAbittiServer.SetText(xlate.Get("Abitti Exam"))
 			})
 		}
 	}()
@@ -508,26 +568,26 @@ func translateUILabels() {
 	ui.QueueMain(func() {
 		updateStartButtonLabel()
 		updateGetServerButtonLabel()
-		buttonSwitchServer.SetText(xlate.Get("Matriculation Exam"))
+		buttonSelfUpdateOn.SetText(xlate.Get("Turn Naksu self updates back on"))
+		buttonInstallExamServer.SetText(xlate.Get("Matriculation Exam"))
 		buttonDestroyServer.SetText(xlate.Get("Remove Exams"))
 		buttonRemoveServer.SetText(xlate.Get("Remove Server"))
 		buttonMakeBackup.SetText(xlate.Get("Make Exam Server Backup"))
 		buttonDeliverLogs.SetText(xlate.Get("Send logs to Abitti support"))
 		buttonMebShare.SetText(xlate.Get("Open virtual USB stick (ktp-jako)"))
+		labelExtNic.SetText(xlate.Get("Network device:"))
 
-		labelBox.SetText(fmt.Sprintf(xlate.Get("Current version: %s"), box.GetVersion()))
+		labelBox.SetText(xlate.Get("Current version: %s", box.GetVersion()))
 
 		// Show available box version if we have a Abitti box
-		updateVagrantBoxAvailLabel()
+		updateBoxAvailabilityLabel()
 
 		// Suggest VM install if none installed
-		emptyVersionProgressMessage := "Start by installing a server: Show management features"
-		if (progress.GetLastMessage() == "" || progress.GetLastMessage() == emptyVersionProgressMessage) && box.GetVersion() == "" {
-			progress.TranslateAndSetMessage(emptyVersionProgressMessage)
+		if progress.GetLastMessage() == "" && box.GetVersion() == "" {
+			progress.TranslateAndSetMessage("Start by installing a server: Show management features")
 		}
 
 		checkboxAdvanced.SetText(xlate.Get("Show management features"))
-		labelAdvancedExtNic.SetText(xlate.Get("Network device:"))
 		labelAdvancedNic.SetText(xlate.Get("Server networking hardware:"))
 		labelAdvancedUpdate.SetText(xlate.Get("Install/update server for:"))
 		labelAdvancedAnnihilate.SetText(xlate.Get("DANGER! Annihilate your server:"))
@@ -542,11 +602,16 @@ func translateUILabels() {
 		logDeliveryFilenameCopyButton.SetText(xlate.Get("Copy to clipboard"))
 		logDeliveryButtonClose.SetText(xlate.Get("Close"))
 
+		examInstallWindow.SetTitle(xlate.Get("naksu: Install Exam Server"))
+		examInstallPassphraseLabel.SetText(xlate.Get("Enter Exam Server install passphrase:"))
+		examInstallButtonInstall.SetText(xlate.Get("Install"))
+		examInstallButtonCancel.SetText(xlate.Get("Cancel"))
+
 		destroyWindow.SetTitle(xlate.Get("naksu: Remove Exams"))
 		destroyInfoLabel[0].SetText(xlate.Get("Remove Exams restores server to its initial status."))
 		destroyInfoLabel[1].SetText(xlate.Get("Exams, responses and logs in the server will be irreversibly deleted."))
 		destroyInfoLabel[2].SetText(xlate.Get("It is recommended to back up your server before removing exams."))
-		destroyInfoLabel[3].SetText(xlate.Get(""))
+		destroyInfoLabel[3].SetText("")
 		destroyInfoLabel[4].SetText(xlate.Get("Do you wish to remove all exams?"))
 		destroyButtonDestroy.SetText(xlate.Get("Yes, Remove"))
 		destroyButtonCancel.SetText(xlate.Get("Cancel"))
@@ -555,7 +620,7 @@ func translateUILabels() {
 		removeInfoLabel[0].SetText(xlate.Get("Removing server destroys it and all downloaded disk images."))
 		removeInfoLabel[1].SetText(xlate.Get("Exams, responses and logs in the server will be irreversibly deleted."))
 		removeInfoLabel[2].SetText(xlate.Get("It is recommended to back up your server before removing server."))
-		removeInfoLabel[3].SetText(xlate.Get(""))
+		removeInfoLabel[3].SetText("")
 		removeInfoLabel[4].SetText(xlate.Get("Do you wish to remove the server?"))
 		removeButtonRemove.SetText(xlate.Get("Yes, Remove"))
 		removeButtonCancel.SetText(xlate.Get("Cancel"))
@@ -563,12 +628,13 @@ func translateUILabels() {
 	networkstatus.Update()
 }
 
+// disableUI sends
 func disableUI(mainUIStatus chan string) {
-	mainUIStatus <- "disable"
+	mainUIStatus <- mainUIStatusDisabled
 }
 
 func enableUI(mainUIStatus chan string) {
-	mainUIStatus <- "enable"
+	mainUIStatus <- mainUIStatusEnabled
 }
 
 func bindLanguageSwitching() {
@@ -577,6 +643,7 @@ func bindLanguageSwitching() {
 		config.SetLanguage(constants.AvailableLangs[comboboxLang.Selected()].ConfigValue)
 
 		xlate.SetLanguage(config.GetLanguage())
+		progress.SetMessage("")
 		translateUILabels()
 	})
 }
@@ -613,152 +680,104 @@ func bindAdvancedNicSwitching() {
 
 func bindUIDisableOnStart(mainUIStatus chan string) {
 	// Define actions for main window
+
+	if config.IsSelfUpdateDisabled() {
+		buttonSelfUpdateOn.Show()
+	} else {
+		buttonSelfUpdateOn.Hide()
+	}
+
+	buttonSelfUpdateOn.OnClicked(func(*ui.Button) {
+		config.SetSelfUpdateDisabled(false)
+	})
+
 	buttonStartServer.OnClicked(func(*ui.Button) {
 		go func() {
 			// Give warnings if there is problems with configured external network device
 			// and there are more than one available
 			if config.GetExtNic() == "" {
-				if len(extInterfaces) > 2 {
-					mebroutines.ShowWarningMessage(xlate.Get("You have not set network device. Follow terminal for device selection menu."))
-				}
-			} else if !network.IsExtInterface(config.GetExtNic()) {
-				if len(extInterfaces) > 2 {
-					mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("You have selected network device '%s' which is not available. Follow terminal for device selection menu."), config.GetExtNic()))
-				}
+				mebroutines.ShowTranslatedErrorMessage("Please select the network device which is connected to your exam network.")
+				return
+			}
+
+			if !network.IsExtInterface(config.GetExtNic()) {
+				mebroutines.ShowTranslatedErrorMessage("You have selected network device '%s' which is not available.", config.GetExtNic())
+				return
 			}
 
 			// Get defails of the current installed box and warn if we're having Matric Exam box & internet connection
-			currentBoxType := box.GetType()
-			if boxversion.GetVagrantBoxTypeIsMatriculationExam(currentBoxType) {
+			if box.TypeIsMatriculationExam() {
 				if network.CheckIfNetworkAvailable() {
-					mebroutines.ShowWarningMessage(xlate.Get("You are starting Matriculation Examination server with an Internet connection."))
+					mebroutines.ShowTranslatedWarningMessage("You are starting Matriculation Examination server with an Internet connection.")
 				} else {
 					log.Debug("Starting Matric Exam server without an internet connection - All is good!")
 				}
 			}
 
+			// Disable UI to prevent multiple simultaneous server starts
 			disableUI(mainUIStatus)
 			start.Server()
+			// Wait over one UI loop
+			time.Sleep(5000)
 			enableUI(mainUIStatus)
+
 			progress.SetMessage("")
 		}()
 	})
 
 }
 
-func checkFreeDisk(chFreeDisk chan uint64) {
-	// Check free disk
-	// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
-	go func() {
-		var freeDisk uint64
-		var err error
-		if mebroutines.ExistsDir(mebroutines.GetVagrantDirectory()) {
-			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetVagrantDirectory())
-			if err != nil {
-				log.Debug("Getting free disk space from Vagrant directory failed")
-				mebroutines.ShowWarningMessage("Failed to calculate free disk space of the Vagrant directory")
-			}
-		} else {
-			freeDisk, err = mebroutines.GetDiskFree(mebroutines.GetHomeDirectory())
-			if err != nil {
-				log.Debug("Getting free disk space from home directory failed")
-				mebroutines.ShowWarningMessage("Failed to calculate free disk space of the home directory")
-			}
-		}
-		chFreeDisk <- freeDisk
-	}()
+func bindOnInstallAbittiServer(mainUIStatus chan string) {
+	buttonInstallAbittiServer.OnClicked(func(*ui.Button) {
+		go func() {
+			log.Debug("Starting Abitti box update")
+
+			disableUI(mainUIStatus)
+			install.NewAbittiServer()
+			translateUILabels()
+			enableUI(mainUIStatus)
+			progress.SetMessage("")
+
+			log.Debug(fmt.Sprintf("Finished Abitti box update, version is: %s", box.GetVersion()))
+		}()
+	})
 }
 
-func bindOnGetServer(mainUIStatus chan string) {
-	buttonGetServer.OnClicked(func(*ui.Button) {
-		log.Debug("Starting Abitti box update")
+func bindOnInstallExamServer(mainUIStatus chan string) {
+	buttonInstallExamServer.OnClicked(func(*ui.Button) {
+		disableUI(mainUIStatus)
+		examInstallWindow.Show()
+	})
 
-		chFreeDisk := make(chan uint64)
-		chDiskLowPopup := make(chan bool)
-
-		checkFreeDisk(chFreeDisk)
-
+	examInstallButtonInstall.OnClicked(func(*ui.Button) {
 		go func() {
-			freeDisk := <-chFreeDisk
-			if freeDisk < constants.LowDiskLimit {
-				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(freeDisk)))
-			}
-
-			chDiskLowPopup <- true
-		}()
-
-		go func() {
-			// Wait until disk low popup has been processed
-			<-chDiskLowPopup
-
-			go func() {
-				disableUI(mainUIStatus)
-				install.GetServer("")
+			passphrase := examInstallPassphraseEntry.Text()
+			examInstallPassphraseEntry.SetText("")
+			disableUI(mainUIStatus)
+			if passphrase != "" {
+				examInstallWindow.Hide()
+				install.NewExamServer(passphrase)
 				translateUILabels()
-				enableUI(mainUIStatus)
-				progress.SetMessage("")
-
-				log.Debug(fmt.Sprintf("Finished Abitti box update, version is: %s", box.GetVersion()))
-			}()
-		}()
-	})
-}
-
-func bindOnSwitchServer(mainUIStatus chan string) {
-	buttonSwitchServer.OnClicked(func(*ui.Button) {
-		log.Debug("Starting Matriculation Examination box update")
-
-		chFreeDisk := make(chan uint64)
-		chDiskLowPopup := make(chan bool)
-		chPathNewVagrantfile := make(chan string)
-
-		checkFreeDisk(chFreeDisk)
-
-		go func() {
-			freeDisk := <-chFreeDisk
-			if freeDisk < constants.LowDiskLimit {
-				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your free disk size is getting low (%s)."), humanize.Bytes(freeDisk)))
+				log.Debug(fmt.Sprintf("Finished Exam box update, version is: %s", box.GetVersion()))
+			} else {
+				mebroutines.ShowTranslatedErrorMessage("Please enter install passphrase to install the exam server")
 			}
-
-			chDiskLowPopup <- true
-		}()
-
-		go func() {
-			// Wait until free disk check has been carried out
-			<-chDiskLowPopup
-
-			ui.QueueMain(func() {
-				pathNewVagrantfile := ui.OpenFile(window)
-				chPathNewVagrantfile <- pathNewVagrantfile
-			})
-		}()
-
-		go func() {
-			// Wait until you have path_new_vagrantfile
-			pathNewVagrantfile := <-chPathNewVagrantfile
-
-			// Path to ~/ktp/Vagrantfile
-			pathOldVagrantfile := filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile")
-
-			switch pathNewVagrantfile {
-			case "":
-				mebroutines.ShowWarningMessage(xlate.Get("Did not get a path for a new Vagrantfile"))
-			case pathOldVagrantfile:
-				mebroutines.ShowWarningMessage(xlate.Get("Please place the new Exam Vagrantfile to another location (e.g. desktop or home directory)"))
-			default:
-				go func() {
-					disableUI(mainUIStatus)
-					install.GetServer(pathNewVagrantfile)
-					translateUILabels()
-					enableUI(mainUIStatus)
-					progress.SetMessage("")
-
-					log.Debug(fmt.Sprintf("Finished Matriculation Examination box update, new version is: %s", box.GetVersion()))
-				}()
-			}
+			enableUI(mainUIStatus)
 		}()
 	})
 
+	examInstallButtonCancel.OnClicked(func(*ui.Button) {
+		examInstallWindow.Hide()
+		examInstallPassphraseEntry.SetText("")
+		enableUI(mainUIStatus)
+	})
+
+	examInstallWindow.OnClosing(func(*ui.Window) bool {
+		examInstallWindow.Hide()
+		enableUI(mainUIStatus)
+		examInstallPassphraseEntry.SetText("")
+		return false
+	})
 }
 
 func bindOnDestroyServer(mainUIStatus chan string) {
@@ -797,7 +816,7 @@ func bindOnDeliverLogs(mainUIStatus chan string) {
 		buttonDeliverLogs.Disable()
 
 		logDeliveryFilenameLabel.SetText(xlate.Get("Wait..."))
-		logDeliveryStatusLabel.SetText(fmt.Sprintf(xlate.Get("Copying logs: %s"), xlate.Get("0 % (this can take a while...)")))
+		logDeliveryStatusLabel.SetText(xlate.Get("Copying logs: %s", xlate.Get("0 %% (this can take a while...)")))
 		logDeliveryWindow.Show()
 
 		go func() {
@@ -817,10 +836,10 @@ func bindOnDeliverLogs(mainUIStatus chan string) {
 			if network.CheckIfNetworkAvailable() {
 				setLogDeliveryLabelTextInGoroutine(xlate.Get("Sending logs"))
 				err := logdelivery.SendLogs(logFilename, func(progress uint8) {
-					setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Sending logs: %d %%"), progress))
+					setLogDeliveryLabelTextInGoroutine(xlate.Get("Sending logs: %d %%", progress))
 				})
 				if err != nil {
-					setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Error sending logs: %s"), err))
+					setLogDeliveryLabelTextInGoroutine(xlate.Get("Error sending logs: %s", err))
 				} else {
 					setLogDeliveryLabelTextInGoroutine(xlate.Get("Logs sent!"))
 				}
@@ -841,7 +860,7 @@ func followLogCopyProgress(copyDoneChannel chan bool, copyProgressChannel chan s
 			}
 		case copyProgress := <-copyProgressChannel:
 			if copyProgress != "0 %" {
-				setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Copying logs: %s"), copyProgress))
+				setLogDeliveryLabelTextInGoroutine(xlate.Get("Copying logs: %s", copyProgress))
 			}
 		}
 	}
@@ -852,13 +871,13 @@ func followLogDeliveryZippingProgress(zipProgressChannel chan uint8, zipErrorCha
 		select {
 		case zipProgress := <-zipProgressChannel:
 			if zipProgress <= 100 {
-				setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Zipping logs: %d %%"), zipProgress))
+				setLogDeliveryLabelTextInGoroutine(xlate.Get("Zipping logs: %d %%", zipProgress))
 			} else {
 				setLogDeliveryLabelTextInGoroutine(xlate.Get("Done zipping"))
 				return nil
 			}
 		case zipError := <-zipErrorChannel:
-			setLogDeliveryLabelTextInGoroutine(fmt.Sprintf(xlate.Get("Error zipping logs: %s"), zipError))
+			setLogDeliveryLabelTextInGoroutine(xlate.Get("Error zipping logs: %s", zipError))
 			return zipError
 		}
 	}
@@ -874,39 +893,22 @@ func bindOnMebShare() {
 func bindOnBackup(mainUIStatus chan string) {
 	// Define actions for SaveAs window/dialog
 	backupButtonSave.OnClicked(func(*ui.Button) {
-		pathBackup := filepath.Join(backupMediaPath[backupCombobox.Selected()], backup.GetBackupFilename(time.Now()))
-		log.Debug(fmt.Sprintf("Starting backup to: %s", pathBackup))
-
-		chFreeDisk := make(chan uint64)
-		chDiskLowPopup := make(chan bool)
-
-		checkFreeDisk(chFreeDisk)
-
 		go func() {
-			freeDisk := <-chFreeDisk
-			if freeDisk < constants.LowDiskLimit {
-				mebroutines.ShowWarningMessage("Your free disk size is getting low. If backup process fails please consider freeing some disk space.")
+			pathBackup := filepath.Join(backupMediaPath[backupCombobox.Selected()], backup.GetBackupFilename(time.Now()))
+			log.Debug(fmt.Sprintf("Starting backup to: %s", pathBackup))
+
+			backupWindow.Hide()
+			err := backup.MakeBackup(pathBackup)
+			if err != nil {
+				mebroutines.ShowTranslatedErrorMessage("Backup failed: %v", err)
+				progress.TranslateAndSetMessage("Backup failed: %v", err)
+			} else {
+				progress.TranslateAndSetMessage("Backup done: %s", pathBackup)
 			}
-			chDiskLowPopup <- true
-		}()
 
-		go func() {
-			<-chDiskLowPopup
+			enableUI(mainUIStatus)
 
-			go func() {
-				backupWindow.Hide()
-				err := backup.MakeBackup(pathBackup)
-				if err != nil {
-					mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Backup failed: %v"), err))
-					progress.SetMessage(fmt.Sprintf(xlate.Get("Backup failed: %v"), err))
-				} else {
-					progress.SetMessage(fmt.Sprintf(xlate.Get("Backup done: %s"), pathBackup))
-				}
-
-				enableUI(mainUIStatus)
-
-				log.Debug("Finished creating backup")
-			}()
+			log.Debug("Finished creating backup")
 		}()
 	})
 
@@ -956,8 +958,8 @@ func bindOnDestroy(mainUIStatus chan string) {
 			destroyWindow.Hide()
 			err := destroy.Server()
 			if err != nil {
-				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Failed to remove exams: %v"), err))
-				progress.SetMessage(fmt.Sprintf(xlate.Get("Failed to remove exams: %v"), err))
+				mebroutines.ShowTranslatedErrorMessage("Failed to remove exams: %v", err)
+				progress.TranslateAndSetMessage("Failed to remove exams: %v", err)
 			} else {
 				progress.TranslateAndSetMessage("Exams were removed successfully.")
 			}
@@ -996,8 +998,8 @@ func bindOnRemove(mainUIStatus chan string) {
 
 			err := remove.Server()
 			if err != nil {
-				mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Error while removing server: %v"), err))
-				progress.SetMessage(fmt.Sprintf(xlate.Get("Error while removing server: %v"), err))
+				mebroutines.ShowTranslatedErrorMessage("Error while removing server: %v", err)
+				progress.TranslateAndSetMessage("Error while removing server: %v", err)
 			} else {
 				progress.TranslateAndSetMessage("Server was removed successfully.")
 			}
@@ -1040,6 +1042,7 @@ func RunUI() error {
 
 		createBackupElements(backupMedia)
 		createLogDeliveryElements()
+		createExamInstallElements()
 		createDestroyElements()
 		createRemoveElements()
 
@@ -1048,11 +1051,11 @@ func RunUI() error {
 
 		// Define command channel & goroutine for disabling/enabling main UI buttons
 		mainUIStatus := make(chan string)
-		mainUINetupdate := time.NewTicker(5 * time.Second)
+		mainUIUpdate := time.NewTicker(5 * time.Second)
 
 		networkstatus.Update()
 
-		setupMainLoop(mainUIStatus, mainUINetupdate)
+		setupMainLoop(mainUIStatus, mainUIUpdate)
 
 		enableUI(mainUIStatus)
 
@@ -1073,8 +1076,8 @@ func RunUI() error {
 		bindUIDisableOnStart(mainUIStatus)
 
 		// Bind buttons
-		bindOnGetServer(mainUIStatus)
-		bindOnSwitchServer(mainUIStatus)
+		bindOnInstallAbittiServer(mainUIStatus)
+		bindOnInstallExamServer(mainUIStatus)
 		bindOnMakeBackup(mainUIStatus)
 		bindOnDeliverLogs(mainUIStatus)
 		bindOnDestroyServer(mainUIStatus)
@@ -1093,19 +1096,12 @@ func RunUI() error {
 		})
 
 		window.Show()
-		mainUIStatus <- "enable"
+		enableUI(mainUIStatus)
 		backupWindow.Hide()
 
-		// Make sure we have vagrant
-		if !mebroutines.IfFoundVagrant() {
-			mebroutines.ShowErrorMessage(xlate.Get("Could not execute vagrant. Are you sure you have installed HashiCorp Vagrant?"))
-			log.Debug("Vagrant is missing, disabling UI")
-			disableUI(mainUIStatus)
-		}
-
 		// Make sure we have VBoxManage
-		if !mebroutines.IfFoundVBoxManage() {
-			mebroutines.ShowErrorMessage(xlate.Get("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?"))
+		if !vboxmanage.IsInstalled() {
+			mebroutines.ShowTranslatedErrorMessage("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?")
 			log.Debug("VBoxManage is missing, disabling UI")
 			disableUI(mainUIStatus)
 		}
@@ -1119,22 +1115,17 @@ func RunUI() error {
 		}()
 
 		if <-isHyperV {
-			mebroutines.ShowWarningMessage(xlate.Get("Please turn Windows Hypervisor and Windows Virtualization Platform off as those may cause problems."))
+			mebroutines.ShowTranslatedWarningMessage("Please turn Windows Hypervisor off as it may cause problems.")
 		} else {
 			// Does CPU support hardware virtualisation?
 			if !host.IsHWVirtualisationCPU() {
-				mebroutines.ShowWarningMessage(xlate.Get("It appears your CPU does not support hardware virtualisation (VT-x or AMD-V)."))
+				mebroutines.ShowTranslatedWarningMessage("It appears your CPU does not support hardware virtualisation (VT-x or AMD-V).")
 			}
 
 			// Make sure the hardware virtualisation is present
 			if !host.IsHWVirtualisation() {
-				mebroutines.ShowWarningMessage(xlate.Get("Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before continuing."))
+				mebroutines.ShowTranslatedWarningMessage("Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before continuing.")
 			}
-		}
-
-		// Check if home directory contains non-american characters which may cause problems to vagrant
-		if mebroutines.IfIntlCharsInPath(mebroutines.GetHomeDirectory()) {
-			mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Your home directory path (%s) contains characters which may cause problems to Vagrant."), mebroutines.GetHomeDirectory()))
 		}
 
 		log.Debug(fmt.Sprintf("Currently installed box: %s %s", box.GetVersion(), box.GetType()))

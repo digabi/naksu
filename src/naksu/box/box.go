@@ -1,192 +1,283 @@
 package box
 
-// box gets information about the Vagrant box "default" directly from VirtualBox
-// This package gives most up-to-date information about the server box
+// box gets information about the currently installed VM
 
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
+	"math"
 	"regexp"
 	"strconv"
-	"time"
 
-	"naksu/boxversion"
+	semver "github.com/blang/semver/v4"
+
+	"naksu/box/vboxmanage"
+	"naksu/config"
 	"naksu/constants"
+	"naksu/host"
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/xlate"
 )
 
-// cache for VBoxMange showvminfo --machinereadable
-// See getVMInfoRegexp
-type cacheShowVMInfoType struct {
-	output          string
-	outputTimestamp int64
-	updateStarted   int64
-}
+const (
+	boxName           = "NaksuAbittiKTP"
+	boxOSType         = "Debian"
+	boxFinalImageSize = 55 * 1024 // VDI disk size in megs
+	boxVRamSize       = 24        // Video RAM size in megs
+	boxSnapshotName   = "Installed"
+)
 
-var cacheShowVMInfo cacheShowVMInfoType
+func calculateBoxCPUs() int {
+	calculatedCores := host.GetCPUCoreCount() - 1
 
-func getVagrantBoxID() string {
-	vagrantPath := mebroutines.GetVagrantDirectory()
-
-	pathID := filepath.Join(vagrantPath, ".vagrant", "machines", "default", "virtualbox", "id")
-
-	if !mebroutines.ExistsFile(pathID) {
-		return ""
+	if calculatedCores <= 2 {
+		return 2
 	}
 
-	/* #nosec */
-	fileContent, err := ioutil.ReadFile(pathID)
-	if err != nil {
-		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not get vagrantbox ID: %d"), err))
-		return ""
-	}
-
-	return string(fileContent)
+	return calculatedCores
 }
 
-// SetCacheShowVMInfo sets cacheShowVMInfo content
-// It is exported for unit tests
-func SetCacheShowVMInfo(newShowVMInfo string) {
-	cacheShowVMInfo.output = newShowVMInfo
-	cacheShowVMInfo.outputTimestamp = time.Now().Unix()
-}
-
-func getVMInfo() (string, error) {
-	boxID := getVagrantBoxID()
-	if boxID == "" {
-		return "", errors.New("could not get box id")
-	}
-
-	cacheShowVMInfo.updateStarted = time.Now().Unix()
-
-	vboxManageOutput, err := mebroutines.RunVBoxManage([]string{"showvminfo", "--machinereadable", boxID})
+func calculateBoxMemory() (uint64, error) {
+	hostMemory, err := host.GetMemory()
 
 	if err != nil {
-		log.Debug(fmt.Sprintf("getVMInfo() failed to get VM info: %v", err))
+		return 0, fmt.Errorf("could not read system memory: %v", err)
 	}
 
-	cacheShowVMInfo.updateStarted = 0
+	freeVMMemory := uint64(math.Round(float64(hostMemory) * 0.74))
+	lowVMMemoryLimit := uint64(math.Round((8192 - 1024) * 0.74))
 
-	return vboxManageOutput, err
+	if freeVMMemory < lowVMMemoryLimit {
+		return 0, fmt.Errorf("allocated vm memory %d is less than required minimum memory limit %d", freeVMMemory, lowVMMemoryLimit)
+	}
+
+	return freeVMMemory, nil
 }
 
-// getVMInfoRegexp returns result of the given vmRegexp from the current VBoxManage showvminfo
-// output. This function gets the output either from the cache or calls getVBoxManageOutput()
-func getVMInfoRegexp(vmRegexp string) string {
-	var rawVMInfo string
-
-	// There is a avail version fetch going on (break free after 240 loops)
-	// This locking avoids executing multiple instances of VBoxManage at the same time. Calling
-	// VBoxManage simulaneously tends to cause E_ACCESSDENIED errors from VBoxManage.
-	tryCounter := 0
-	for (cacheShowVMInfo.updateStarted != 0) && (tryCounter < 240) {
-		time.Sleep(500 * time.Millisecond)
-		tryCounter++
-		log.Debug(fmt.Sprintf("getVMIInfoRegexp is waiting 'VBoxManage showvminfo' to exit (race condition lock count %d)", tryCounter))
+// CreateNewBox creates new VM using the given imagePath
+func CreateNewBox(boxType string, boxVersion string) error {
+	if mebroutines.ExistsFile(mebroutines.GetVDIImagePath()) {
+		log.Debug(fmt.Sprintf("VDI file %s already exists", mebroutines.GetVDIImagePath()))
+		return fmt.Errorf("vdi file %s already exists", mebroutines.GetVDIImagePath())
 	}
 
-	if cacheShowVMInfo.outputTimestamp < (time.Now().Unix() - constants.VBoxManageCacheTimeout) {
-		// Cache is too old or not set
+	calculatedBoxCPUs := calculateBoxCPUs()
 
-		var err error
-		rawVMInfo, err = getVMInfo()
+	calculatedBoxMemory, errMemory := calculateBoxMemory()
+	if errMemory != nil {
+		return errMemory
+	}
 
-		if err != nil {
-			log.Debug(fmt.Sprintf("Could not update raw info of virtual machine: %v", err))
-		} else {
-			SetCacheShowVMInfo(rawVMInfo)
-			log.Debug("Raw info of virtual machine was updated successfully")
-		}
+	log.Debug(fmt.Sprintf("Calculated new VM specs - CPUs: %d, Memory: %d", calculatedBoxCPUs, calculatedBoxMemory))
+
+	createCommands := []vboxmanage.VBoxCommand{
+		{"convertfromraw", mebroutines.GetImagePath(), mebroutines.GetVDIImagePath(), "--format", "VDI"},
+		{"modifyhd", mebroutines.GetVDIImagePath(), "--resize", fmt.Sprintf("%d", boxFinalImageSize)},
+		{"createvm", "--name", boxName, "--register"},
+		{
+			"modifyvm", boxName,
+			"--pae", "on",
+			"--cpus", fmt.Sprintf("%d", calculatedBoxCPUs),
+			"--memory", fmt.Sprintf("%d", calculatedBoxMemory),
+			"--vram", fmt.Sprintf("%d", boxVRamSize),
+			"--acpi", "on",
+			"--ioapic", "on",
+			"--ostype", boxOSType,
+			"--firmware", "efi",
+			"--audio", "none",
+		},
+		{
+			"guestproperty", "set", boxName,
+			"boxType", boxType,
+		},
+		{
+			"guestproperty", "set", boxName,
+			"boxVersion", boxVersion,
+		},
+		{
+			"sharedfolder", "add", boxName,
+			"--name", "media_usb1",
+			"--hostpath", mebroutines.GetMebshareDirectory(),
+		},
+		{
+			"storagectl", boxName,
+			"--add", "sata",
+			"--name", "SATA Controller",
+		},
+		{
+			"storageattach", boxName,
+			"--storagectl", "SATA Controller",
+			"--port", "0",
+			"--device", "0",
+			"--type", "hdd",
+			"--medium", mebroutines.GetVDIImagePath(),
+		},
+	}
+
+	v6_1String := "6.1.0"
+	v6_1, err := semver.Make(v6_1String)
+	if err != nil {
+		return fmt.Errorf("hard-coded version string %s could not be converted to sematic version object", v6_1String)
+	}
+
+	vBoxVersion, err := vboxmanage.GetVBoxManageVersion()
+	if err != nil {
+		log.Debug(fmt.Sprintf("Could not get VBoxManage version: %v", err))
+		return err
+	}
+
+	if vBoxVersion.LT(v6_1) {
+		createCommands = append(createCommands, vboxmanage.VBoxCommand{"modifyvm", boxName, "--clipboard", "bidirectional"})
 	} else {
-		rawVMInfo = cacheShowVMInfo.output
-		log.Debug("getVMIInfoRegexp got 'VBoxManage showvminfo' output from the cache")
+		createCommands = append(createCommands, vboxmanage.VBoxCommand{"modifyvm", boxName, "--clipboard-mode", "bidirectional"})
 	}
 
-	// Extract server name
-	pattern := regexp.MustCompile(vmRegexp)
-	result := pattern.FindStringSubmatch(rawVMInfo)
+	createCommands = append(createCommands, vboxmanage.VBoxCommand{"snapshot", boxName, "take", boxSnapshotName})
 
-	if len(result) > 1 {
-		return result[1]
+	err = vboxmanage.RunCommands(createCommands)
+	if err != nil {
+		return err
 	}
 
-	return ""
+	vboxmanage.ResetVBoxResponseCache()
+
+	return nil
 }
 
-func getVagrantfileData() (string, string) {
-	pathVagrantfile := filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile")
-
-	if !mebroutines.ExistsFile(pathVagrantfile) {
-		log.Debug(fmt.Sprintf("There is no Vagrantfile '%s' so no box type/version can't be identified", pathVagrantfile))
-		return "", ""
+// StartCurrentBox starts currently installed VM
+func StartCurrentBox() error {
+	startCommands := []vboxmanage.VBoxCommand{
+		{"modifyvm", boxName, "--nic1", "bridged"},
+		{"modifyvm", boxName, "--bridgeadapter1", config.GetExtNic()},
+		{"modifyvm", boxName, "--nictype1", config.GetNic()},
+		{"startvm", boxName, "--type", "gui"},
 	}
 
-	/* #nosec */
-	fileContent, err := ioutil.ReadFile(pathVagrantfile)
+	return vboxmanage.RunCommands(startCommands)
+}
+
+// RestoreSnapshot returns installed VM to fresh state (to the snapshot taken just after the install)
+func RestoreSnapshot() error {
+	restoreCommands := []vboxmanage.VBoxCommand{
+		{"snapshot", boxName, "restore", boxSnapshotName},
+	}
+
+	return vboxmanage.RunCommands(restoreCommands)
+}
+
+// RemoveCurrentBox deletes currently installed VM
+func RemoveCurrentBox() error {
+	removeCommands := []vboxmanage.VBoxCommand{
+		{"unregistervm", boxName, "--delete"},
+	}
+
+	return vboxmanage.RunCommands(removeCommands)
+}
+
+// WriteDiskClone creates a disk clone of the first disk of the current VM
+func WriteDiskClone(clonePath string) error {
+	diskUUID := getDiskUUID()
+	if diskUUID == "" {
+		return fmt.Errorf("could not get disk uuid")
+	}
+
+	vBoxManageOutput, err := vboxmanage.RunCommand(vboxmanage.VBoxCommand{"clonemedium", diskUUID, clonePath, "--format", "VMDK"})
+
 	if err != nil {
-		log.Debug(fmt.Sprintf("Could not read Vagrantfile from '%s': %v", pathVagrantfile, err))
-		return "", ""
+		return err
 	}
 
-	fileContentString := string(fileContent)
-
-	boxType, boxVersion, err := boxversion.GetVagrantVersionDetails(fileContentString)
-	if err != nil {
-		return "", ""
+	// Check whether clone was successful or not
+	matched, errRe := regexp.MatchString("Clone medium created in format 'VMDK'", vBoxManageOutput)
+	if errRe != nil || !matched {
+		// Failure
+		log.Debug("VBoxManage output does not report successful clone in format 'VMDK'")
+		return errors.New("could not get correct response from vboxmanage")
 	}
 
-	return boxType, boxVersion
+	// Detach media from VirtualBox disk management
+	_, errCloseMedium := vboxmanage.RunCommand(vboxmanage.VBoxCommand{"closemedium", clonePath})
+	return errCloseMedium
+}
+
+// Installed returns true if we have box installed, otherwise false
+func Installed() (bool, error) {
+	isInstalled, err := vboxmanage.IsVMInstalled(boxName)
+
+	if err == nil {
+		log.Debug(fmt.Sprintf("Server '%s' installed: %t", boxName, isInstalled))
+	} else {
+		log.Debug(fmt.Sprintf("box.Installed() could not detect whether VM is installed: %v", err))
+	}
+
+	return isInstalled, err
+}
+
+func Running() (bool, error) {
+	isRunning, err := vboxmanage.IsVMRunning(boxName)
+
+	if err == nil {
+		log.Debug(fmt.Sprintf("Server '%s' running: %t", boxName, isRunning))
+	} else {
+		log.Debug(fmt.Sprintf("box.Running() could not detect whether VM is running: %v", err))
+	}
+
+	return isRunning, err
 }
 
 // GetType returns the box type (e.g. "digabi/ktp-qa") of the current VM
-// If there is no current VM installed, get the value from ~/ktp/Vagrantfile
 func GetType() string {
-	result := getVMInfoRegexp("description=\"(.*?)\"")
+	return vboxmanage.GetVMProperty(boxName, "boxType")
+}
 
-	if result == "" {
-		boxType, _ := getVagrantfileData()
-		if boxType != "" {
-			log.Debug(fmt.Sprintf("Got box type '%s' from Vagrantfile as VM did not give any value", boxType))
-			result = boxType
-		}
+// GetTypeLegend returns an user-readable type legend of the current VM
+func GetTypeLegend() string {
+	if TypeIsAbitti() {
+		return xlate.Get("Abitti server")
 	}
 
-	return result
+	if TypeIsMatriculationExam() {
+		return xlate.Get("Matric Exam server")
+	}
+
+	// Unknown box type
+	log.Debug(fmt.Sprintf("Warning: We have a type string '%s' which does not resolve to Abitti/Matriculation box type (GetTypeLegend)", GetType()))
+	return "-"
+}
+
+// TypeIsAbitti returns true if currently installed box is Abitti box
+func TypeIsAbitti() bool {
+	boxType := GetType()
+
+	return (boxType == constants.AbittiBoxType)
+}
+
+// TypeIsMatriculationExam returns true if currently installed box is Matriculation Exam box
+func TypeIsMatriculationExam() bool {
+	boxType := GetType()
+
+	return (boxType == constants.MatriculationExamBoxType)
 }
 
 // GetVersion returns the version string (e.g. "SERVER7108X v69") of the current VM
-// If there is no current VM installed, get the value from ~/ktp/Vagrantfile
 func GetVersion() string {
-	result := getVMInfoRegexp("name=\"(.*?)\"")
-
-	if result == "" {
-		_, boxVersion := getVagrantfileData()
-		if boxVersion != "" {
-			log.Debug(fmt.Sprintf("Got box version '%s' from Vagrantfile as VM did not give any value", boxVersion))
-			result = boxVersion
-		}
-	}
-
-	return result
+	return vboxmanage.GetVMProperty(boxName, "boxVersion")
 }
 
-// GetDiskUUID returns the VirtualBox UUID for the image of the current VM
-func GetDiskUUID() string {
-	return getVMInfoRegexp("\"SATA Controller-ImageUUID-0-0\"=\"(.*?)\"")
+// getDiskUUID returns the VirtualBox UUID for the image of the current VM
+func getDiskUUID() string {
+	return vboxmanage.GetVMInfoByRegexp(boxName, "\"SATA Controller-ImageUUID-0-0\"=\"(.*?)\"")
 }
 
 // GetDiskLocation returns the full path of the current VM disk image.
 func GetDiskLocation() string {
-	return getVMInfoRegexp("\"SATA Controller-0-0\"=\"(.*)\"")
+	return vboxmanage.GetVMInfoByRegexp(boxName, "\"SATA Controller-0-0\"=\"(.*)\"")
 }
 
 // GetLogDir returns the full path of VirtualBox log directory
 func GetLogDir() string {
-	return getVMInfoRegexp("LogFldr=\"(.*)\"")
+	return vboxmanage.GetVMInfoByRegexp(boxName, "LogFldr=\"(.*)\"")
 }
 
 // MediumSizeOnDisk returns the size of the current VM disk image on disk
@@ -196,7 +287,7 @@ func MediumSizeOnDisk(location string) (uint64, error) {
 	// as a parameter, but that doesn't seem to be the case. To be safe, we'll
 	// use the location of the disk instead.
 
-	mediumInfo, err := mebroutines.RunVBoxManage([]string{"showmediuminfo", location})
+	mediumInfo, err := vboxmanage.RunCommand([]string{"showmediuminfo", location})
 
 	if err != nil {
 		log.Debug(fmt.Sprintf("Could not get medium info to calculate its size: %v", err))

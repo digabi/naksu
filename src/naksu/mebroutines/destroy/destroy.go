@@ -3,44 +3,42 @@ package destroy
 import (
 	"errors"
 	"fmt"
-	"regexp"
 
+	"naksu/box"
 	"naksu/log"
-	"naksu/mebroutines"
 	"naksu/ui/progress"
 )
 
-// Server destroys existing exam server. The errors are reported upstream.
+// Server destroys existing exam server by restoring the fresh snapshot. The errors are reported upstream.
 func Server() error {
-	// chdir ~/ktp
-	if !mebroutines.ChdirVagrantDirectory() {
-		log.Debug("Could not change to vagrant directory ~/ktp")
-		return errors.New("could not chmod ~/ktp")
+	isInstalled, errInstalled := box.Installed()
+	if errInstalled != nil {
+		log.Debug(fmt.Sprintf("Could not start destroying server as we could not detect whether existing VM is installed: %v", errInstalled))
+		return errors.New("could not detect whether there is an existing vm installed")
 	}
 
-	// Start VM
+	if !isInstalled {
+		return errors.New("there is no vm installed")
+	}
+
+	isRunning, errRunning := box.Running()
+	if errRunning != nil {
+		log.Debug(fmt.Sprintf("Could not start destroying server as we could not detect whether existing VM is running: %v", errRunning))
+		return errors.New("could not detect whether there is existing vm running")
+	}
+
+	if isRunning {
+		return errors.New("the vm is running, please stop it first")
+	}
+
 	progress.TranslateAndSetMessage("Removing exams. This takes a while.")
-	destroyRunParams := []string{mebroutines.GetVagrantPath(), "destroy", "-f"}
-	destroyOutput, err := mebroutines.RunAndGetOutput(destroyRunParams)
 
-	if err == nil {
-		reBoxExists, errBoxExists := regexp.MatchString("Destroying VM and associated drives", destroyOutput)
-		reBoxNotCreated, errBoxNotCreated := regexp.MatchString("VM not created", destroyOutput)
-
-		if errBoxExists == nil && reBoxExists {
-			log.Debug("Destroy complete. There was an existing box which has been destroyed.")
-			return nil
-		}
-
-		if errBoxNotCreated == nil && reBoxNotCreated {
-			log.Debug("Destroy completed. There was no existing box but the destroy process finished without errors.")
-			return nil
-		}
-
-		err = errors.New("destroy was executed but success was not confirmed")
+	err := box.RestoreSnapshot()
+	if err != nil {
+		log.Debug(fmt.Sprintf("Could not destroy VM / restore initial snapshot: %v", err))
 	}
 
-	log.Debug(fmt.Sprintf("Could not remove exams (%v). vagrant destroy says:\n%s", err, destroyOutput))
+	progress.SetMessage("")
 
 	return err
 }

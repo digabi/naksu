@@ -4,27 +4,29 @@ import (
 	"errors"
 	"fmt"
 
-	"naksu/log"
+	"naksu/box"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
 )
 
-// Server removes all directories related to Vagrant and VirtualBox
+// Server removes all directories related to VirtualBox
 func Server() error {
+	isRunning, errRunning := box.Running()
+
+	switch {
+	case errRunning != nil:
+		mebroutines.ShowWarningMessage(fmt.Sprintf("We could not detect whether existing VM is running: %v, but continued removing the server as you requested.", errRunning))
+	case isRunning:
+		mebroutines.ShowWarningMessage("There is a server appears to be running but we remove it as you requested.")
+	}
+
 	var err error
 
 	// Chdir to home directory to avoid problems with Windows where deleting
-	// a directory where a
+	// a directory where the process is running
 	progress.TranslateAndSetMessage("Chdir ~")
 	if !mebroutines.ChdirHomeDirectory() {
 		return errors.New("could not chdir to home directory")
-	}
-
-	progress.TranslateAndSetMessage("Deleting ~/.vagrant.d")
-	err = mebroutines.RemoveDir(mebroutines.GetVagrantdDirectory())
-	if err != nil {
-		deleteFailed(mebroutines.GetVagrantdDirectory(), err)
-		return err
 	}
 
 	progress.TranslateAndSetMessage("Deleting ~/.VirtualBox")
@@ -33,19 +35,6 @@ func Server() error {
 		deleteFailed(mebroutines.GetVirtualBoxHiddenDirectory(), err)
 		return err
 	}
-
-	// Close current debug file in case it is located in ~/ktp
-	log.SetDebugFilename("-")
-
-	progress.TranslateAndSetMessage("Deleting ~/ktp")
-	err = mebroutines.RemoveDir(mebroutines.GetVagrantDirectory())
-	if err != nil {
-		deleteFailed(mebroutines.GetVagrantDirectory(), err)
-		return err
-	}
-
-	// Set new filename for debug log (we probably just deleted previous one above)
-	log.SetDebugFilename(log.GetNewDebugFilename())
 
 	progress.TranslateAndSetMessage("Deleting ~/VirtualBox VMs")
 	err = mebroutines.RemoveDir(mebroutines.GetVirtualBoxVMsDirectory())

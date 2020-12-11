@@ -6,8 +6,15 @@ const (
 	// LowDiskLimit sets the warning level of low disk (in bytes)
 	LowDiskLimit uint64 = 50 * 1024 * 1024 * 1024 // 50 Gb
 
-	// AbittiVagrantURL is the URL for the Abittti Vagrantfile
-	AbittiVagrantURL = "http://static.abitti.fi/usbimg/qa/vagrant/Vagrantfile"
+	// AbittiEtcherURL is the URL for the latest Abitti Etcher zip
+	AbittiEtcherURL  = "http://static.abitti.fi/etcher-usb/ktp-etcher.zip"
+	AbittiVersionURL = "http://static.abitti.fi/etcher-usb/ktp-etcher.ver"
+	AbittiBoxType    = "abitti"
+
+	// MatriculationExamEtcherURL is the URL for an Exam Etcher zip
+	MatriculationExamEtcherURL  = "http://static.abitti.fi/etcher-usb/releases/###PASSPHRASEHASH###/ktp-etcher.zip"
+	MatriculationExamVersionURL = "http://static.abitti.fi/etcher-usb/releases/###PASSPHRASEHASH###/ktp-etcher.ver"
+	MatriculationExamBoxType    = "exam"
 
 	// URLTest is a testing URL for network connectivity (network.CheckIfNetworkAvailable).
 	// Point this to something ultra-stable
@@ -16,14 +23,17 @@ const (
 	// URLTestTimeout is the timeout in seconds for the test above
 	URLTestTimeout = 4
 
-	// VagrantBoxAvailVersionDetailsCacheTimeout is a timeout for vagrant box version
-	// cache. See naksu/boxversion GetVagrantBoxAvailVersionDetails() for more
-	// In seconds (5 minutes)
-	VagrantBoxAvailVersionDetailsCacheTimeout int64 = 5 * 60
+	// VBoxManageCacheTimeout is a timeout for VBoxManage cache
+	// See naksu/box
+	VBoxManageCacheTimeout = 30 * time.Second
 
-	// VBoxManageCacheTimeout is a timeout for executing VBoxManage showvminfo
-	// See naksu/box getVMInfoRegexp()
-	VBoxManageCacheTimeout int64 = 15
+	// VBoxRunningCacheTimeout is a timeout for VM state cache
+	// See Running() at naksu/box
+	VBoxRunningCacheTimeout = 2 * time.Second
+
+	// CloudStatusTimeout is a timeout for cloud status cache
+	// See naksu/cloud
+	CloudStatusTimeout = 10 * time.Minute
 
 	// LogCopyRequestFilename is for requesting logs from ktp
 	LogCopyRequestFilename = "_log_copy_requested"
@@ -92,7 +102,7 @@ var AvailableNics = []AvailableSelection{
 var DefaultExtNicArray = []AvailableSelection{
 	{
 		ConfigValue: "",
-		Legend:      "Select in terminal",
+		Legend:      "Select network device",
 	},
 }
 

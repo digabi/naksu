@@ -1,8 +1,9 @@
-package mebroutines
+package vboxmanage
 
 import (
-	"github.com/mitchellh/go-homedir"
 	"path/filepath"
+
+	"github.com/mitchellh/go-homedir"
 )
 
 func getVirtualBoxConfigPath() string {
@@ -10,5 +11,5 @@ func getVirtualBoxConfigPath() string {
 	if errHome != nil {
 		panic("Could not get home directory")
 	}
-	return filepath.Join(homeDir, "Library", "VirtualBox", "VirtualBox.xml")
+	return filepath.Join(homeDir, ".config", "VirtualBox", "VirtualBox.xml")
 }

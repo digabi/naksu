@@ -1,12 +1,14 @@
-package mebroutines
+package vboxmanage
 
 import (
 	"bufio"
 	"fmt"
-	"naksu/log"
 	"os"
 	"regexp"
 	"time"
+
+	"naksu/log"
+	"naksu/mebroutines"
 )
 
 var duplicateHardDiskRegexp = regexp.MustCompile("because a hard disk '[^']*' with UUID {([0-9a-fA-F-]+)} already exists")
@@ -105,7 +107,7 @@ func replaceVirtualBoxConfigWithFixedOne(fixedVirtualBoxConfigPath string, virtu
 		log.Debug(fmt.Sprintf("Failed to move %s to %s, trying to restore %s from %s", fixedVirtualBoxConfigPath, getVirtualBoxConfigPath(), getVirtualBoxConfigPath(), virtualBoxConfigBackupPath))
 
 		if recoveryErr := os.Rename(virtualBoxConfigBackupPath, getVirtualBoxConfigPath()); recoveryErr != nil {
-			ShowErrorMessage(fmt.Sprintf("Naksu encountered an error while trying to fix a problem with VirtualBox. VirtualBox configuration file %s has been moved to %s. Manually rename it to %s to fix this.", getVirtualBoxConfigPath(), virtualBoxConfigBackupPath, getVirtualBoxConfigPath()))
+			mebroutines.ShowErrorMessage(fmt.Sprintf("Naksu encountered an error while trying to fix a problem with VirtualBox. VirtualBox configuration file %s has been moved to %s. Manually rename it to %s to fix this.", getVirtualBoxConfigPath(), virtualBoxConfigBackupPath, getVirtualBoxConfigPath()))
 		}
 
 		return err

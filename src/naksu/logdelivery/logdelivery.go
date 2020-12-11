@@ -200,7 +200,7 @@ func CollectLogsToZip() (string, chan uint8, chan error) {
 			return
 		}
 
-		var logFiles = []string{filepath.Join(mebroutines.GetVagrantDirectory(), "Vagrantfile")}
+		var logFiles = []string{}
 
 		logFiles, err = appendKtpLogs(logFiles)
 		if err != nil {
@@ -269,15 +269,15 @@ func appendVirtualBoxLogs(logFiles []string) ([]string, error) {
 }
 
 func appendNaksuLastlogs(logFiles []string) ([]string, error) {
-	vagrantDirectoryFileInfos, err := getDirectoryFileInfos(mebroutines.GetVagrantDirectory())
+	ktpDirectoryFileInfos, err := getDirectoryFileInfos(mebroutines.GetKtpDirectory())
 	if err != nil {
 		return logFiles, err
 	}
 	naksuLastlogRegexp := regexp.MustCompile(`^naksu_lastlog.*\.txt$`)
-	for _, fileInfo := range vagrantDirectoryFileInfos {
+	for _, fileInfo := range ktpDirectoryFileInfos {
 		matched := naksuLastlogRegexp.MatchString(fileInfo.Name())
 		if matched {
-			logFilepath := filepath.Join(mebroutines.GetVagrantDirectory(), fileInfo.Name())
+			logFilepath := filepath.Join(mebroutines.GetKtpDirectory(), fileInfo.Name())
 			log.Debug(fmt.Sprintf("Appending naksu log file %s", logFilepath))
 			logFiles = append(logFiles, logFilepath)
 		}

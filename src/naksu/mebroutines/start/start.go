@@ -1,90 +1,44 @@
 package start
 
 import (
-	"errors"
 	"fmt"
-	"io/ioutil"
-	"naksu/log"
+	"naksu/box"
+	"naksu/box/vboxmanage"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
-	"naksu/xlate"
-	"os"
-	"path"
-	"regexp"
-	"strings"
 )
 
-// Server starts exam server by running vagrant
+// Server starts exam server
 func Server() {
-	cleanUpTrashVMDirectories()
+	vboxmanage.CleanUpTrashVMDirectories()
 
-	// chdir ~/ktp
-	if !mebroutines.ChdirVagrantDirectory() {
-		mebroutines.ShowErrorMessage("Could not change to vagrant directory ~/ktp")
+	isInstalled, errInstalled := box.Installed()
+	if errInstalled != nil {
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not start server as we could not detect whether existing VM is installed: %v", errInstalled))
 		return
 	}
 
-	// Start VM
-	progress.TranslateAndSetMessage("Starting Exam server. This takes a while.")
-	upRunParams := []string{"up"}
-	err := mebroutines.RunVagrant(upRunParams)
-
-	if err != nil {
-		if err.Error() == "macaddress/rtgetopt" {
-			mebroutines.ShowInfoMessage(xlate.Get("Server failed to start. This is typical in Windows after an update. Please try again to start the server."))
-		} else {
-			mebroutines.ShowErrorMessage(fmt.Sprintf(xlate.Get("Failed to execute %s: %v"), "vagrant up", err))
-			return
-		}
-	}
-}
-
-// cleanUpTrashVMDirectories tries to find and delete leftover VM directories that only contain one .vbox file and nothing else
-func cleanUpTrashVMDirectories() {
-	defaultVMDirectory, err := virtualBoxDefaultVMDirectory()
-	if err != nil {
-		log.Debug(fmt.Sprintf("Error searching for trash VM directories (get default vm dir): %v", err))
+	if !isInstalled {
+		mebroutines.ShowErrorMessage("No server has been installed.")
 		return
 	}
 
-	entriesInDefaultVMDir, err := ioutil.ReadDir(defaultVMDirectory)
-	if err != nil {
-		log.Debug(fmt.Sprintf("Error searching for trash VM directories (list default vm dir %s): %v", defaultVMDirectory, err))
+	isRunning, errRunning := box.Running()
+	if errRunning != nil {
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not start server as we could not detect whether existing VM is running: %v", errRunning))
 		return
 	}
 
-	for _, entryInDefaultVMDirRoot := range entriesInDefaultVMDir {
-		if !entryInDefaultVMDirRoot.IsDir() {
-			continue
-		}
-
-		fullPathToPotentialTrashVMDir := path.Join(defaultVMDirectory, entryInDefaultVMDirRoot.Name())
-		entriesInSubDir, err := ioutil.ReadDir(fullPathToPotentialTrashVMDir)
-		if err != nil {
-			log.Debug(fmt.Sprintf("Error searching for trash VM directories (listing '%s'): %v", fullPathToPotentialTrashVMDir, err))
-			return
-		}
-		if len(entriesInSubDir) == 1 && !entriesInSubDir[0].IsDir() && strings.HasSuffix(entriesInSubDir[0].Name(), ".vbox") {
-			log.Debug(fmt.Sprintf("Removing trash VM dir %s", fullPathToPotentialTrashVMDir))
-			err := os.RemoveAll(fullPathToPotentialTrashVMDir)
-			if err != nil {
-				log.Debug(fmt.Sprintf("Error removing trash VM dir %s", fullPathToPotentialTrashVMDir))
-			}
-		}
+	if isRunning {
+		mebroutines.ShowErrorMessage("The server is already running.")
+		return
 	}
-}
 
-func virtualBoxDefaultVMDirectory() (string, error) {
-	systemProperties, err := mebroutines.RunVBoxManage([]string{"list", "systemproperties"})
-
+	err := box.StartCurrentBox()
 	if err != nil {
-		log.Debug("Failing to list system properties is not a fatal error, continuing normally")
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not start VM: %v", err))
+		return
 	}
 
-	defaultVMDirectoryRE := regexp.MustCompile(`Default machine folder:\s+(\S.*)`)
-	result := defaultVMDirectoryRE.FindStringSubmatch(systemProperties)
-	if len(result) > 1 {
-		return strings.TrimSpace(result[1]), nil
-	}
-	return "", errors.New("failed to get defaultVMDirectory: no regex matches")
+	progress.SetMessage("Virtual machine was started")
 }

@@ -4,21 +4,38 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"regexp"
+	"path/filepath"
 	"time"
 
 	"naksu/box"
+	"naksu/constants"
+	"naksu/host"
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
-	"naksu/xlate"
+
+	humanize "github.com/dustin/go-humanize"
 )
 
 // MakeBackup creates virtual machine backup to path
 func MakeBackup(backupPath string) error {
+	errBox := ensureBoxInstalledAndNotRunning()
+	if errBox != nil {
+		return errBox
+	}
+
+	err := host.CheckFreeDisk(constants.LowDiskLimit, []string{filepath.Dir(backupPath)})
+	if err != nil {
+		if err, ok := err.(*host.LowDiskSizeError); ok {
+			mebroutines.ShowTranslatedWarningMessage("Your free disk size is getting low (%s). If backup process fails please consider freeing some disk space.", humanize.Bytes(err.LowSize))
+		} else {
+			mebroutines.ShowTranslatedErrorMessage("Failed to calculate free disk size: %v", err)
+		}
+	}
+
 	progress.TranslateAndSetMessage("Checking existing file...")
 	if mebroutines.ExistsFile(backupPath) {
-		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("File %s already exists"), backupPath))
+		mebroutines.ShowTranslatedErrorMessage("File %s already exists", backupPath)
 		return errors.New("backup file already exists")
 	}
 
@@ -26,7 +43,7 @@ func MakeBackup(backupPath string) error {
 	progress.TranslateAndSetMessage("Checking backup path...")
 	wrErr := mebroutines.CreateFile(backupPath)
 	if wrErr != nil {
-		mebroutines.ShowWarningMessage(fmt.Sprintf(xlate.Get("Could not write test backup file %s. Try another location."), backupPath))
+		mebroutines.ShowTranslatedErrorMessage("Could not write test backup file %s. Try another location.", backupPath)
 		return fmt.Errorf("could not write test backup file: %v", wrErr)
 	}
 
@@ -35,35 +52,48 @@ func MakeBackup(backupPath string) error {
 		return fmt.Errorf("removing test backup file returned error code: %v", remErr)
 	}
 
-	// Get disk UUID
-	progress.TranslateAndSetMessage("Getting disk UUID...")
-	diskUUID := box.GetDiskUUID()
+	// Get disk location
+	progress.TranslateAndSetMessage("Getting disk location...")
 	diskLocation := box.GetDiskLocation()
-	log.Debug(fmt.Sprintf("Disk UUID: %s", diskUUID))
 	log.Debug(fmt.Sprintf("Disk location: %s", diskLocation))
-	if diskUUID == "" || diskLocation == "" {
-		return errors.New("could not get disk uuid or location")
+	if diskLocation == "" {
+		return errors.New("could not get disk location")
 	}
 
 	progress.TranslateAndSetMessage("Checking for FAT32 filesystem...")
 	errFAT := checkForFATFilesystem(backupPath, diskLocation)
 	if errFAT != nil {
-		mebroutines.ShowWarningMessage(xlate.Get("The backup file is too large for a FAT32 filesystem. Please reformat the backup disk as exFAT."))
+		mebroutines.ShowTranslatedErrorMessage("The backup file is too large for a FAT32 filesystem. Please reformat the backup disk as exFAT.")
 		return fmt.Errorf("backup file too large for fat32 filesystem")
 	}
 
 	// Make clone to path_backup
 	progress.TranslateAndSetMessage("Please wait, writing backup...")
-	cloneErr := makeClone(diskUUID, backupPath)
+	cloneErr := box.WriteDiskClone(backupPath)
 	if cloneErr != nil {
 		return fmt.Errorf("failed to make clone: %v", cloneErr)
 	}
 
-	// Close backup media (detach it from VirtualBox disk management)
-	progress.TranslateAndSetMessage("Detaching backup disk image...")
-	deleteErr := deleteClone(backupPath)
-	if deleteErr != nil {
-		return fmt.Errorf("failed to detach disk image")
+	return nil
+}
+
+func ensureBoxInstalledAndNotRunning() error {
+	isInstalled, err := box.Installed()
+	if err != nil {
+		return fmt.Errorf("could not back up server as we could not detect whether vm is installed: %v", err)
+	}
+
+	if !isInstalled {
+		return errors.New("no server has been installed")
+	}
+
+	isRunning, err := box.Running()
+	if err != nil {
+		return fmt.Errorf("could not back up server as we could not detect whether vm is running: %v", err)
+	}
+
+	if isRunning {
+		return errors.New("could not back up server as the server is running")
 	}
 
 	return nil
@@ -98,29 +128,6 @@ func checkForFATFilesystem(backupPath string, vmDiskLocation string) error {
 	}
 
 	return nil
-}
-
-func makeClone(diskUUID string, backupPath string) error {
-	vBoxManageOutput, err := mebroutines.RunVBoxManage([]string{"clonemedium", diskUUID, backupPath})
-
-	if err != nil {
-		return err
-	}
-
-	// Check whether clone was successful or not
-	matched, errRe := regexp.MatchString("Clone medium created in format 'VMDK'", vBoxManageOutput)
-	if errRe != nil || !matched {
-		// Failure
-		log.Debug("VBoxManage output does not report successful clone in format 'VMDK'")
-		return errors.New("backup failed: could not get correct response from vboxmanage")
-	}
-
-	return nil
-}
-
-func deleteClone(backupPath string) error {
-	_, err := mebroutines.RunVBoxManage([]string{"closemedium", backupPath})
-	return err
 }
 
 // GetBackupFilename returns generated filename

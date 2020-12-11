@@ -1,0 +1,539 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-11-28 17:22+0200\n"
+"PO-Revision-Date: 2020-11-28 17:25+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.6\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Cannot open MEB share directory since it does not exist"
+msgstr "Katalogen ktp-jako kunde inte öppnas eftersom den inte existerar"
+
+msgid "Could not open MEB share directory"
+msgstr "Katalogen ktp-jako Kunde inte öppnas"
+
+msgid ""
+"Could not start server as we could not detect whether existing VM is "
+"installed: %v"
+msgstr ""
+"Servern kunde inte startas eftersom den befintliga servern inte Kunde "
+"kontrolleras: %v"
+
+msgid "No server has been installed."
+msgstr "Ingen server installerad."
+
+msgid ""
+"Could not start server as we could not detect whether existing VM is "
+"running: %v"
+msgstr ""
+"Servern kunde inte startas eftersom det inte var möjligt att kontrollera "
+"ifall befintlig server är på: %v"
+
+msgid "The server is already running."
+msgstr "Servern har redan startats."
+
+msgid "Could not start VM: %v"
+msgstr "Kunde inte starta den virtuella maskinen: %v"
+
+msgid "Virtual machine was started"
+msgstr "Den virtuella maskinen har startats"
+
+msgid "Could not get version string for a new server: %v"
+msgstr "Kunde inte erhålla versionsuppgifterna för ny server: %v"
+
+msgid "Could not create directory: %v"
+msgstr "Det gick inte att skapa katalogen: %v"
+
+msgid "Could not calculate free disk size: %v"
+msgstr "Beräkning av ledigt skivutrymme misslyckades: %v"
+
+msgid "Getting Image from the Cloud"
+msgstr "Laddar skivavbild"
+
+msgid "Failed to get new VM image: %v"
+msgstr "Laddning av skivavbild misslyckades: %v"
+
+msgid "Creating New VM"
+msgstr "Skapar en ny virtuell maskin"
+
+msgid "Failed to create new VM: %v"
+msgstr "Misslyckades med att skapa en ny virtuell maskin: %v"
+
+msgid "Removing temporary raw image file"
+msgstr "Raderar temporär skivavbild"
+
+msgid "Failed to remove raw image file %s: %v"
+msgstr "Radering av skivavbilden %s misslyckades: %v"
+
+msgid "New VM was created"
+msgstr "En ny virtuell maskin har skapats"
+
+msgid ""
+"Could not install server as we could not detect whether existing VM is "
+"running: %v"
+msgstr ""
+"Servern kunde inte installeras eftersom det inte gick att kontrollera ifall "
+"den befintliga servern är på: %v"
+
+msgid "Please stop the current server before installing a new one"
+msgstr "Var god stäng av den befintliga servern innan en ny server installeras"
+
+msgid ""
+"Could not install server as we could not detect whether existing VM is "
+"installed: %v"
+msgstr ""
+"Kunde inte installera servern eftersom befintlig server inte kunde "
+"bekräftas: %v"
+
+msgid "Could not remove current VM before installing new one: %v"
+msgstr ""
+"Avlägsnande av befintlig server fore installation av ny server misslyckades: "
+"%v"
+
+msgid "Creating ~/ktp"
+msgstr "Skapar ~/ktp"
+
+msgid "Creating ~/ktp-jako"
+msgstr "Skapar ~/ktp-jako"
+
+#, c-format
+msgid "Your free disk size is getting low (%s)"
+msgstr "Det är ont om ledigt skivutrymme (%s)"
+
+msgid "Failed to calculate free disk space: %v"
+msgstr "Beräkning av ledigt skivutrymme misslyckades: %v"
+
+msgid "Error"
+msgstr "Fel"
+
+msgid "Warning"
+msgstr "Varning"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Temporary files"
+msgstr "Tillfällig katalog"
+
+msgid "Profile directory"
+msgstr "Profilkatalog"
+
+msgid "Desktop"
+msgstr "Skrivbord"
+
+#, c-format
+msgid ""
+"Your free disk size is getting low (%s). If backup process fails please "
+"consider freeing some disk space."
+msgstr ""
+"Skivutrymmet börjar ta slut (%s). Om säkerhetskopieringen misslyckas bör du "
+"frigöra mera utrymme."
+
+msgid "Failed to calculate free disk size: %v"
+msgstr "Beräkning av ledigt skivutrymme misslyckades: %v"
+
+msgid "Checking existing file..."
+msgstr "Kontrollerar befintlig fil..."
+
+#, c-format
+msgid "File %s already exists"
+msgstr "Filen %s existerar redan"
+
+msgid "Checking backup path..."
+msgstr "Kontrollerar katalogen för säkerhetskopia..."
+
+#, c-format
+msgid "Could not write test backup file %s. Try another location."
+msgstr ""
+"Det gick inte att säkerhetskopiera till filen %s. Pröva att spara filen på "
+"ett annat ställe."
+
+msgid "Getting disk location..."
+msgstr "Söker efter skivan..."
+
+msgid "Checking for FAT32 filesystem..."
+msgstr "Söker FAT32-filsystem..."
+
+msgid ""
+"The backup file is too large for a FAT32 filesystem. Please reformat the "
+"backup disk as exFAT."
+msgstr ""
+"Säkerhetskopian är för stor för ett FAT32-filsystem. Vänligen formatera "
+"minnespinnen eller skivan som exFAT."
+
+msgid "Please wait, writing backup..."
+msgstr "Var god vänta, säkerhetskopia skrivs..."
+
+msgid "Home directory"
+msgstr "Hemkatalog"
+
+msgid "Removing exams. This takes a while."
+msgstr "Avlägsnar prov. Detta ta en stund."
+
+msgid ""
+"We could not detect whether existing VM is running: %v, but continued "
+"removing the server as you requested."
+msgstr ""
+"Kunde inte bekräfta ifall den befintliga virtuella servern är på: %v men "
+"fortsätter avlägsnandet av servern."
+
+msgid ""
+"There is a server appears to be running but we remove it as you requested."
+msgstr "Servern är på men avlägsnas trots det."
+
+msgid "Changing current directory to home"
+msgstr "Går till hemkatalogen"
+
+msgid "Deleting ~/.VirtualBox"
+msgstr "Raderar ~/.VirtualBox"
+
+msgid "Deleting ~/VirtualBox VMs"
+msgstr "Raderar ~/VirtualBox VMs"
+
+msgid "Failed to remove directory %s: %v"
+msgstr "Radering av katalogen %s misslyckades: %v"
+
+msgid "Wireless connection"
+msgstr "Trådlös anslutning"
+
+msgid "No network connection"
+msgstr "Inget nätverk"
+
+#, c-format
+msgid "Network speed is too low (%d Mbit/s)"
+msgstr "Näthastigheten är för låg (%d Mbit/s)"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Network status: "
+msgstr "Nätverksstatus: "
+
+msgid "Contacting server"
+msgstr "Kontaktar servern"
+
+msgid "Opening file"
+msgstr "Öppnar fil"
+
+msgid "Downloading server image"
+msgstr "Laddar skivavbild för servern"
+
+#, c-format
+msgid "Downloading image: %d %%"
+msgstr "Laddar ned skivavbild: %d %%"
+
+msgid "Server image downloaded"
+msgstr "Skivavbild för servern nedladdad"
+
+msgid "Starting to uncompress raw image"
+msgstr "Påbörjar uppackning av den packade skivavbilden"
+
+#, c-format
+msgid "Uncompressing image: %d %%"
+msgstr "Packar upp skivavbild: %d %%"
+
+msgid "Uncompressing finished"
+msgstr "Uppackningen klar"
+
+msgid "Abitti server"
+msgstr "Abitti-server"
+
+msgid "Matric Exam server"
+msgstr "Examensserver"
+
+#, c-format
+msgid ""
+"Naksu encountered an error while trying to fix a problem with VirtualBox. "
+"VirtualBox configuration file %s has been moved to %s. Manually rename it to "
+"%s to fix this."
+msgstr ""
+"Reparation av problemet i VirtualBox misslyckades. Namnet på "
+"inställningsfilen %s för VirtualBox har ändrats till %s. Ändra namnet till "
+"%s manuellt för att åtgärda problemet."
+
+msgid "showvminfo"
+msgstr ""
+
+msgid "vboxmanageversion"
+msgstr ""
+
+msgid "vmstate"
+msgstr ""
+
+msgid "Naksu has been automatically updated. Please restart Naksu."
+msgstr "Naksu har uppdaterats automatiskt. Var god starta Naksu på nytt."
+
+msgid ""
+"Naksu has update available, but your version of Naksu has updates disabled. "
+"Please update or ask your administrator to update Naksu."
+msgstr ""
+"En uppdatering av Naksu finns tillgänglig, men inställningarna tillåter inte "
+"uppdatering. Var god uppdatera Naksu eller be administratorn för din dator "
+"göra det."
+
+msgid "Naksu could not check for updates as there is no network connection."
+msgstr ""
+"Naksu kunde inte söka nya uppdateringar för att nätförbindelse saknades."
+
+#, c-format
+msgid ""
+"Naksu update failed. Maybe you don't have network connection?\n"
+"\n"
+"Error: %s"
+msgstr ""
+"Uppdateringen av Naksu misslyckades. Du saknar möjligtvis nätförbindelse för "
+"tillfället?\n"
+"\n"
+"Fel: %s"
+
+msgid "Filename for Abitti support:"
+msgstr "Filnamn för Abitti-stödet:"
+
+msgid "Wait..."
+msgstr "Vänta..."
+
+msgid "Copy to clipboard"
+msgstr "Kopiera till urklipp"
+
+#, c-format
+msgid "0 %% (this can take a while...)"
+msgstr "0 %% (kan ta ett tag...)"
+
+#, c-format
+msgid "Copying logs: %s"
+msgstr "Kopierar logguppgifter: %s"
+
+msgid "Close"
+msgstr "Stäng"
+
+msgid "Enter install passphrase for the exam server:"
+msgstr "Ange installationskoden för att installera examensservern:"
+
+msgid "Cancel"
+msgstr "Avbryt"
+
+msgid "Install"
+msgstr "Installera"
+
+msgid "Start Exam Server"
+msgstr "Starta provlokalens server"
+
+#, c-format
+msgid "Start %s"
+msgstr "Starta %s"
+
+#, c-format
+msgid "Update available: %s"
+msgstr "Uppdatering tillgänglig: %s"
+
+msgid "Abitti Exam"
+msgstr "Abitti-prov"
+
+#, c-format
+msgid "Abitti Exam (%s)"
+msgstr "Abitti-prov (%s)"
+
+msgid "Turn Naksu self updates back on"
+msgstr "Aktivera Naksu självuppdateringar"
+
+msgid "Matriculation Exam"
+msgstr "Studentprovet"
+
+msgid "Remove Exams"
+msgstr "Avlägsna proven"
+
+msgid "Remove Server"
+msgstr "Avlägsna servern"
+
+msgid "Make Exam Server Backup"
+msgstr "Säkerhetskopiera servern"
+
+msgid "Send logs to Abitti support"
+msgstr "Skicka logguppgifterna till Abitti-stödet"
+
+msgid "Open virtual USB stick (ktp-jako)"
+msgstr "Öppna den virtuella överföringspinnen (ktp-jako)"
+
+msgid "Network device:"
+msgstr "Nätverksenhet:"
+
+#, c-format
+msgid "Current version: %s"
+msgstr "Installerad version: %s"
+
+msgid "Start by installing a server: Show management features"
+msgstr "Börja med att installera en server: Visa hanteringsegenskaper"
+
+msgid "Show management features"
+msgstr "Visa hanteringsegenskaper"
+
+msgid "Server networking hardware:"
+msgstr "Servernätverkshårdvara:"
+
+msgid "Install/update server for:"
+msgstr "Installera eller uppdatera server för:"
+
+msgid "DANGER! Annihilate your server:"
+msgstr "FARA! Utradera servern:"
+
+msgid "naksu: SaveTo"
+msgstr "naksu: Spara till"
+
+msgid "Please select target path"
+msgstr "Välj sökväg"
+
+msgid "Save"
+msgstr "Spara"
+
+msgid "naksu: Send Logs"
+msgstr "naksu: Skicka logguppgifterna"
+
+msgid "naksu: Install Exam Server"
+msgstr "naksu: Installera studentexamensserver"
+
+msgid "Enter Exam Server install passphrase:"
+msgstr "Ange installationskoden för examensservern:"
+
+msgid "naksu: Remove Exams"
+msgstr "naksu: Avlägsna proven"
+
+msgid "Remove Exams restores server to its initial status."
+msgstr "Avlägsnande av proven återställer servern till sitt ursprungsläge."
+
+msgid "Exams, responses and logs in the server will be irreversibly deleted."
+msgstr "Alla prov, loggfiler och svar på servern avlägsnas oåterkalleligt."
+
+msgid "It is recommended to back up your server before removing exams."
+msgstr ""
+"Det är rekommenderat att ta en säkerhetskopia av servern före proven "
+"avlägsnas."
+
+msgid "Do you wish to remove all exams?"
+msgstr "Vill du avlägsna alla prov?"
+
+msgid "Yes, Remove"
+msgstr "Ja, avlägsna"
+
+msgid "naksu: Remove Server"
+msgstr "naksu: Avlägsna servern"
+
+msgid "Removing server destroys it and all downloaded disk images."
+msgstr ""
+"Avlägsnandet av servern utraderar den och alla nedladdade skivavbilder."
+
+msgid "It is recommended to back up your server before removing server."
+msgstr ""
+"Det är rekommenderat att ta en säkerhetskopia av servern före den avlägsnas."
+
+msgid "Do you wish to remove the server?"
+msgstr "Vill du avlägsna servern?"
+
+msgid ""
+"Please select the network device which is connected to your exam network."
+msgstr "Välj den nätverksenhet som är kopplad till examensnätet."
+
+#, c-format
+msgid "You have selected network device '%s' which is not available."
+msgstr "Du har valt nätverksenheten '%s' men den är inte tillgänglig."
+
+msgid ""
+"You are starting Matriculation Examination server with an Internet "
+"connection."
+msgstr ""
+"Du håller på att starta provlokalsservern för studentexamen, fast servern "
+"har internetförbindelse."
+
+msgid "Please enter install passphrase to install the exam server"
+msgstr "Var god ange installationskoden för att installera examensservern"
+
+msgid "Sending logs"
+msgstr "Skickar logguppgifter"
+
+#, c-format
+msgid "Sending logs: %d %%"
+msgstr "Skickar logguppgifter: %d %%"
+
+#, c-format
+msgid "Error sending logs: %s"
+msgstr "Fel i skickande av logguppgifter: %s"
+
+msgid "Logs sent!"
+msgstr "Logguppgifterna har skickats!"
+
+msgid ""
+"Cannot send logs because there is no Internet connection. Logs are in a zip "
+"archive in the ktp-jako folder."
+msgstr ""
+"Logguppgifterna kan inte skickas, eftersom anslutningen till Internet inte "
+"fungerar. Logguppgifterna finns sparade som en zip-fil i ktp-jako-mappen."
+
+msgid "Done copying"
+msgstr "Logguppgifterna är kopierade"
+
+#, c-format
+msgid "Zipping logs: %d %%"
+msgstr "Komprimerar logguppgifter: %d %%"
+
+msgid "Done zipping"
+msgstr "Logguppgifterna är komprimerade"
+
+#, c-format
+msgid "Error zipping logs: %s"
+msgstr "Fel i komprimering av logguppgifter: %s"
+
+msgid "Backup failed: %v"
+msgstr "Säkerhetskopieringen misslyckades: %v"
+
+#, c-format
+msgid "Backup done: %s"
+msgstr "Säkerhetskopian färdig: %s"
+
+msgid "Failed to remove exams: %v"
+msgstr "Avlägsnande av proven misslyckades: %v"
+
+msgid "Exams were removed successfully."
+msgstr "Avlägsnande av proven lyckades."
+
+msgid "Error while removing server: %v"
+msgstr "Avlägsnande av servern misslyckades: %v"
+
+msgid "Server was removed successfully."
+msgstr "Avlägsnande av server lyckades."
+
+msgid ""
+"Could not execute VBoxManage. Are you sure you have installed Oracle "
+"VirtualBox?"
+msgstr ""
+"Programmet VBoxManage Kunde inte köras. Är du säker, att Oracle VirtualBox "
+"har installerats på datorn?"
+
+msgid "Please turn Windows Hypervisor off as it may cause problems."
+msgstr "Vänligen stäng av Windows Hypervisor eftersom den kan orsaka problem."
+
+msgid ""
+"It appears your CPU does not support hardware virtualisation (VT-x or AMD-V)."
+msgstr ""
+"Det verkar som om din processor inte stöder virtualisering av hårdvara (VT-x "
+"eller AMD-V)."
+
+msgid ""
+"Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before "
+"continuing."
+msgstr ""
+"Virtualiseringen av hårdvaran (VT-x eller AMD-V) är avstängd. Vänligen "
+"aktivera den innan du fortsätter."
+
+#~ msgid "Failed to create temporary file: %v"
+#~ msgstr "Temporär fil kunde inte skapas: %v"

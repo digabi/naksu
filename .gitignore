@@ -14,3 +14,8 @@ checkstyle-windows.xml
 tests.xml
 *.code-workspace
 *naksu.ini
+# Makefile builds these from res/gettext/fi|sv.po
+src/naksu/xlate/xlate_fi.go
+src/naksu/xlate/xlate_sv.go
+# These are created by PoEdit and not used
+res/gettext/*.mo

@@ -2,7 +2,6 @@
 package mebroutines
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -10,10 +9,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 
-	"naksu/config"
 	"naksu/log"
 	"naksu/xlate"
 
@@ -31,189 +28,28 @@ func Close(c io.Closer) {
 	}
 }
 
-// getRunEnvironment returns array of strings containing environment strings
-func getRunEnvironment() []string {
-	runEnv := os.Environ()
-
-	config.Load()
-
-	envs := []struct {
-		envName  string
-		envValue string
-	}{
-		{"NIC", config.GetNic()},
-		{"EXTNIC", config.GetExtNic()},
-	}
-
-	for _, thisEnv := range envs {
-		if thisEnv.envValue != "" {
-			runEnv = append(runEnv, fmt.Sprintf("%s=%s", thisEnv.envName, thisEnv.envValue))
-			log.Debug(fmt.Sprintf("Adding environment value %s=%s", thisEnv.envName, thisEnv.envValue))
-		}
-	}
-
-	return runEnv
-}
-
 // RunAndGetOutput runs command with arguments and returns output as a string
-func RunAndGetOutput(commandArgs []string) (string, error) {
+func RunAndGetOutput(commandArgs []string, logOutput bool) (string, error) {
 	log.Debug(fmt.Sprintf("RunAndGetOutput: %s", strings.Join(commandArgs, " ")))
 	/* #nosec */
 	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
-	cmd.Env = getRunEnvironment()
 
 	out, err := cmd.CombinedOutput()
 
 	if err != nil {
-		log.Debug(fmt.Sprintf(xlate.Get("command failed: %s (%v)"), strings.Join(commandArgs, " "), err))
+		log.Debug(fmt.Sprintf("command failed: %s (%v)", strings.Join(commandArgs, " "), err))
 	}
 
 	if out != nil {
-		log.Debug("RunAndGetOutput returns combined STDOUT and STDERR:")
-		log.Debug(string(out))
+		if logOutput {
+			log.Debug("RunAndGetOutput returns combined STDOUT and STDERR:")
+			log.Debug(string(out))
+		}
 	} else {
 		log.Debug("RunAndGetOutput returned NIL as combined STDOUT and STDERR")
 	}
 
 	return string(out), err
-}
-
-// RunAndGetError runs command with arguments and returns error code
-func RunAndGetError(commandArgs []string) (string, error) {
-	log.Debug(fmt.Sprintf("RunAndGetError: %s", strings.Join(commandArgs, " ")))
-
-	var stderr bytes.Buffer
-
-	/* #nosec */
-	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
-	cmd.Stdout = os.Stdout
-	cmd.Stdin = os.Stdin
-	cmd.Stderr = &stderr
-	cmd.Env = getRunEnvironment()
-
-	err := cmd.Run()
-
-	log.Debug("RunAndGetError returns STDERR:")
-	log.Debug(stderr.String())
-
-	return stderr.String(), err
-}
-
-// GetVagrantPath returns path for Vagrant binary
-func GetVagrantPath() string {
-	var path = "vagrant"
-	if os.Getenv("VAGRANTPATH") != "" {
-		path = os.Getenv("VAGRANTPATH")
-	}
-
-	return path
-}
-
-// RunVagrant executes Vagrant with given arguments
-func RunVagrant(args []string) error {
-	runVagrant := []string{GetVagrantPath()}
-	runArgs := append(runVagrant, args...)
-	vagrantOutput, err := RunAndGetError(runArgs)
-	if err != nil {
-		matchedTimeout, errTimeout := regexp.MatchString("Timed out while waiting for the machine to boot", vagrantOutput)
-		if errTimeout == nil && matchedTimeout {
-			// We've obviously started the VM
-			log.Debug("Running vagrant gives me timeout - things are probably ok. User was not notified. Complete output:")
-			log.Debug(vagrantOutput)
-			// This case should not be considered as an error
-			return nil
-		}
-
-		matchedMacAddress, errMacAddress := regexp.MatchString("error: --macaddress: RTGetOpt: Command line option needs argument", vagrantOutput)
-		if errMacAddress == nil && matchedMacAddress {
-			// Vagrant in Windows host give this error message - just restart vagrant and you're good
-			log.Debug("Running vagrant gives me a known --macaddress/RTGetOpt error (generated every time by vagrant after a new box in Windows). Complete output:")
-			log.Debug(vagrantOutput)
-			return errors.New("macaddress/rtgetopt")
-		}
-
-		matchedConnectionRefused, errConnectionRefused := regexp.MatchString("The guest machine entered an invalid state", vagrantOutput)
-		if errConnectionRefused == nil && matchedConnectionRefused {
-			log.Debug("Vagrant entered invalid state while booting. We expect this to occur because user has closed the VM window. User was not notified. Complete output:")
-			log.Debug(vagrantOutput)
-			// This case should not be considered as an error
-			return nil
-		}
-
-		log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", strings.Join(runArgs, " "), err))
-		log.Debug(vagrantOutput)
-	}
-
-	return err
-}
-
-// RunVBoxManage runs vboxmanage command with given arguments
-func RunVBoxManage(args []string) (string, error) {
-	vboxmanagepathArr := []string{getVBoxManagePath()}
-	runArgs := append(vboxmanagepathArr, args...)
-	vBoxManageOutput, err := RunAndGetOutput(runArgs)
-	if err != nil {
-		command := strings.Join(runArgs, " ")
-		logError := func(output string, err error) {
-			log.Debug(fmt.Sprintf("Failed to execute %s (%v), complete output:", command, err))
-			log.Debug(output)
-		}
-
-		logError(vBoxManageOutput, err)
-
-		fixed, fixErr := detectAndFixDuplicateHardDiskProblem(vBoxManageOutput)
-		if !fixed || fixErr != nil {
-			log.Debug(fmt.Sprintf("Failed to fix problem with command %s (%v)", command, fixErr))
-			return "", fmt.Errorf(xlate.Get("Failed to execute %s: %v"), command, err)
-		}
-
-		log.Debug(fmt.Sprintf("Retrying '%s' after fixing problem", command))
-		vBoxManageOutput, err = RunAndGetOutput(runArgs)
-		if err != nil {
-			logError(vBoxManageOutput, err)
-		}
-	}
-
-	return vBoxManageOutput, err
-}
-
-// IfFoundVagrant returns true if Vagrant can be found in path
-func IfFoundVagrant() bool {
-	var vagrantpath = GetVagrantPath()
-
-	runParams := []string{vagrantpath, "--version"}
-
-	vagrantVersion, err := RunAndGetOutput(runParams)
-	if err != nil {
-		// No vagrant was found
-		return false
-	}
-
-	log.Debug(fmt.Sprintf("vagrant says: %s", vagrantVersion))
-
-	return true
-}
-
-// IfFoundVBoxManage returns true if vboxmanage can be found in path
-func IfFoundVBoxManage() bool {
-	var vboxmanagepath = getVBoxManagePath()
-
-	if vboxmanagepath == "" {
-		log.Debug("Could not get VBoxManage path")
-		return false
-	}
-
-	runParams := []string{vboxmanagepath, "--version"}
-
-	vBoxManageVersion, err := RunAndGetOutput(runParams)
-	if err != nil {
-		// No VBoxManage was found
-		return false
-	}
-
-	log.Debug(fmt.Sprintf("VBoxManage says: %s", vBoxManageVersion))
-
-	return true
 }
 
 func getFileMode(path string) (os.FileMode, error) {
@@ -315,16 +151,6 @@ func CopyFile(src, dst string) (err error) {
 	return nil
 }
 
-// IfIntlCharsInPath returns true if path contains non-ASCII characters
-func IfIntlCharsInPath(path string) bool {
-	matched, err := regexp.MatchString(`[^a-zA-Z0-9_\-\/\:\\ \.]`, path)
-	if err == nil && matched {
-		return true
-	}
-
-	return false
-}
-
 // GetHomeDirectory returns home directory path
 func GetHomeDirectory() string {
 	homeDir, err := homedir.Dir()
@@ -336,14 +162,9 @@ func GetHomeDirectory() string {
 	return homeDir
 }
 
-// GetVagrantDirectory returns ktp-directory path from under home directory
-func GetVagrantDirectory() string {
+// GetKtpDirectory returns ktp-directory path from under home directory
+func GetKtpDirectory() string {
 	return filepath.Join(GetHomeDirectory(), "ktp")
-}
-
-// GetVagrantdDirectory returns .vagrantd-directory path from under home directory
-func GetVagrantdDirectory() string {
-	return filepath.Join(GetHomeDirectory(), ".vagrant.d")
 }
 
 // GetMebshareDirectory returns ktp-jako path from under home directory
@@ -361,6 +182,20 @@ func GetVirtualBoxVMsDirectory() string {
 	return filepath.Join(GetHomeDirectory(), "VirtualBox VMs")
 }
 
+// GetZipImagePath returns path of an unzipped VM image
+func GetZipImagePath() string {
+	return filepath.Join(GetKtpDirectory(), "naksu_last_image.zip")
+}
+
+func GetVDIImagePath() string {
+	return filepath.Join(GetKtpDirectory(), "naksu_ktp_disk.vdi")
+}
+
+// GetImagePath returns a path of a raw VM image
+func GetImagePath() string {
+	return filepath.Join(GetKtpDirectory(), "naksu_last_image.dd")
+}
+
 // chdir changes current working directory to the given directory
 func chdir(chdirTo string) bool {
 	log.Debug(fmt.Sprintf("chdir %s", chdirTo))
@@ -371,11 +206,6 @@ func chdir(chdirTo string) bool {
 	}
 
 	return true
-}
-
-// ChdirVagrantDirectory changes current working directory to vagrant path (ktp)
-func ChdirVagrantDirectory() bool {
-	return chdir(GetVagrantDirectory())
 }
 
 // ChdirHomeDirectory changes current working directory to home directory
@@ -401,8 +231,13 @@ func ShowErrorMessage(message string) {
 	}
 }
 
+// ShowTranslatedErrorMessage translates given error message and shows it with ShowErrorMessage()
+func ShowTranslatedErrorMessage(str string, vars ...interface{}) {
+	ShowErrorMessage(xlate.Get(str, vars...))
+}
+
 // ShowWarningMessage shows warning message popup to user
-func ShowWarningMessage(message string) {
+func ShowWarningMessage(message string, vars ...interface{}) {
 	fmt.Printf("WARNING: %s\n", message)
 	log.Debug(fmt.Sprintf("WARNING: %s", message))
 
@@ -414,15 +249,27 @@ func ShowWarningMessage(message string) {
 	}
 }
 
+// ShowTranslatedWarningMessage translates given warning message and shows it with ShowWarningMessage()
+func ShowTranslatedWarningMessage(str string, vars ...interface{}) {
+	ShowWarningMessage(xlate.Get(str, vars...))
+}
+
 // ShowInfoMessage shows warning message popup to user
-func ShowInfoMessage(message string) {
-	fmt.Printf("INFO: %s\n", message)
-	log.Debug(fmt.Sprintf("INFO: %s", message))
+func ShowInfoMessage(str string, vars ...interface{}) {
+	translated := xlate.Get(str, vars...)
+
+	fmt.Printf("INFO: %s\n", translated)
+	log.Debug(fmt.Sprintf("INFO: %s", translated))
 
 	// Show libui box if main window has been set with Set_main_window
 	if mainWindow != nil {
 		ui.QueueMain(func() {
-			ui.MsgBox(mainWindow, xlate.Get("Info"), message)
+			ui.MsgBox(mainWindow, xlate.Get("Info"), translated)
 		})
 	}
+}
+
+// ShowTranslatedInfoMessage translates given info message and shows it with ShowInfoMessage()
+func ShowTranslatedInfoMessage(str string, vars ...interface{}) {
+	ShowInfoMessage(xlate.Get(str, vars...))
 }

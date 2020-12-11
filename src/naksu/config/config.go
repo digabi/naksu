@@ -145,12 +145,12 @@ func SetSelfUpdateDisabled(isSelfUpdateDisabled bool) {
 	setValue("selfupdate", "disabled", strconv.FormatBool(isSelfUpdateDisabled))
 }
 
-// GetNic returns vagrant NIC value. Defaults to "virtio"
+// GetNic returns current VM network device value. Defaults to "virtio"
 func GetNic() string {
 	return validateStringChoice("environment", "nic", constants.AvailableNics)
 }
 
-// SetNic sets the state of vagrant NIC value
+// SetNic sets the state of VM network device value
 func SetNic(nic string) {
 	if constants.GetAvailableSelectionID(nic, constants.AvailableNics, -1) < 0 {
 		setValue("environment", "nic", getDefault("environment", "nic"))
@@ -159,14 +159,13 @@ func SetNic(nic string) {
 	}
 }
 
-// GetExtNic returns vagrant EXTNIC value. If empty no external network connection
-// should be passed to Vagrant via EXTNIC environment variable.
+// GetExtNic returns current host network device value
 func GetExtNic() string {
 	// Since there are no pre-set selection of variables we dont use validateStringChoice() here
 	return getString("environment", "extnic")
 }
 
-// SetExtNic sets the state of vagrant EXTNIC value
+// SetExtNic sets the state of host network device value
 func SetExtNic(nic string) {
 	setValue("environment", "extnic", nic)
 }
