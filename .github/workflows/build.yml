@@ -1,5 +1,4 @@
 name: "Build"
-description: "Build Naksu Packages"
 on: push
 jobs:
   build:
