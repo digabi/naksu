@@ -1,0 +1,6 @@
+name: "Build"
+description: "Build Naksu Packages"
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile.build'
