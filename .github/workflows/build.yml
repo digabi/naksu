@@ -8,3 +8,42 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build Naksu
       run: make docker
+  publish_draft:
+    name: "Publish Packages As Draft"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: "Create Draft Release"
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: NaksuDraft
+        release_name: NaksuDraft
+        draft: true
+        prerelease: false
+
+    - uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./naksu_windows_amd64.zip
+        asset_name: naksu_windows_amd64.zip
+        asset_content_type: application/zip
+
+    - uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./naksu_linux_amd64.zip
+        asset_name: naksu_linux_amd64.zip
+        asset_content_type: application/zip
+
+    - uses: eregon/publish-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_id: ${{ steps.create_release.outputs.id }}
