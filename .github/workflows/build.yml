@@ -1,6 +1,11 @@
 name: "Build"
 description: "Build Naksu Packages"
 on: push
-runs:
-  using: 'docker'
-  image: 'Dockerfile.build'
+jobs:
+  build:
+    name: "Build Naksu Packages"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build Naksu
+      run: make docker
