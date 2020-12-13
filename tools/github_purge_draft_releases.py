@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
-# This script is used by Travis CI to clean up the existing
-# unnamed draft releases without
+# This script is used by a CI to clean up the existing
+# unnamed draft releases
 
 import sys
 import requests
@@ -34,3 +34,5 @@ for this_release in releases:
             print "Deleted"
         else:
             print "Failed, HTTP status code: "+str(del_req.status_code)
+    else:
+        print "Skipping release #%d (%s)" % (this_release['id'], this_release['name'])
