@@ -22,7 +22,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ""
+        tag_name: "NaksuDraft"
         release_name: ""
         draft: true
         prerelease: false
