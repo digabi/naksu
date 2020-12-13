@@ -14,8 +14,7 @@ jobs:
       run: sudo apt-get -y install python-requests
 
     - name: "Delete Existing Draft Releases"
-      run: 
-        python tools/github_purge_draft_releases.py $GITHUB_REPOSITORY ${{ secrets.GITHUB_TOKEN }}
+      run: python tools/github_purge_draft_releases.py $GITHUB_REPOSITORY ${{ secrets.GITHUB_TOKEN }}
 
     - name: "Create Draft Release"
       id: create_release
@@ -23,8 +22,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: NaksuDraft
-        release_name: NaksuDraft
+        tag_name: ""
+        release_name: ""
         draft: true
         prerelease: false
 
