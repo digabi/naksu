@@ -27,7 +27,7 @@ if (len(releases) == 0):
     print "There are no draft releases in the given GitHub repo"
 
 for this_release in releases:
-    if (this_release['draft'] and this_release['name'] is None):
+    if (this_release['draft']):
         print "Deleting draft release: "+str(this_release['id'])
         del_req = requests.delete('https://api.github.com/repos/'+param_github_slug+'/releases/'+str(this_release['id']), headers=auth)
         if (del_req.status_code == 204):
