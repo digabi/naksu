@@ -29,7 +29,7 @@ flag in the `~/naksu.ini` which permanently disables the self-update feature.
 Compilation is usually done in Docker container. This means that you can compile Naksu in almost any environment
 that supports Docker and make.
 
-You can also build Naksu with [Travis CI](https://travis-ci.org). See [`TRAVIS-CI.md`](TRAVIS-CI.md) for more.
+You can also build Naksu with GitHub Actions (see `.github/workflows/build.yml`).
 
 ### Requirements
 
@@ -123,7 +123,7 @@ However, please report these problems since we would like to make naksu as easy 
 
  1. Invent new version number. Naksu uses [semantic versioning](https://semver.org/)
  1. Update Changelog (below) and set version number in `src/naksu/naksu.go` (`const version = "X.Y.Z"`)
- 1. Push changes, and wait for [Travis CI](https://travis-ci.org/digabi/naksu) to finish build
+ 1. Push changes, and wait for GitHub Action "Build and Publish" to finish
  1. Go to [releases](https://github.com/digabi/naksu/releases). There should be a new draft release with zipped Linux and Windows binaries attached. Press the Edit button.
  1. Enter the new version number to "Tag version" field (e.g. "v1.6.0" - note the "v")
  1. Fill "Release title" Field
