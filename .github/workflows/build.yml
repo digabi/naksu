@@ -1,0 +1,48 @@
+name: "Build And Publish"
+on: push
+jobs:
+  build_and_publish:
+    name: "Build And Publish Naksu Packages"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: "Build Naksu"
+      run: make docker
+
+    - name: "Install python-requests"
+      run: sudo apt-get -y install python-requests
+
+    - name: "Delete Existing Draft Releases"
+      run: python tools/github_purge_draft_releases.py $GITHUB_REPOSITORY ${{ secrets.GITHUB_TOKEN }}
+
+    - name: "Create Draft Release"
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: "NaksuDraft"
+        release_name: ""
+        draft: true
+        prerelease: false
+
+    - name: "Upload Windows build to Draft"
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./naksu_windows_amd64.zip
+        asset_name: naksu_windows_amd64.zip
+        asset_content_type: application/zip
+
+    - name: "Upload Linux build to Draft"
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./naksu_linux_amd64.zip
+        asset_name: naksu_linux_amd64.zip
+        asset_content_type: application/zip
