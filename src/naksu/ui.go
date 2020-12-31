@@ -30,10 +30,18 @@ import (
 
 type mainUIStatusType = string
 
+type EnvironmentStatusType struct {
+	boxInstalled bool
+	boxRunning bool
+	netAvailable bool
+}
+
 const mainUIStatusEnabled mainUIStatusType = ""
 const mainUIStatusDisabled mainUIStatusType = "disable"
 
 var window *ui.Window
+
+var environmentStatus EnvironmentStatusType
 
 var buttonSelfUpdateOn *ui.Button
 var buttonStartServer *ui.Button
@@ -406,14 +414,9 @@ func mainUIStatusHandler(currentMainUIStatus mainUIStatusType) { //nolint:gocycl
 	// Check general UI status
 	mainUIEnabled := (currentMainUIStatus == mainUIStatusEnabled)
 
-	boxInstalled := false
-	boxRunning := false
-	netAvailable := false
-
-	// Make these checks only if main UI is enable to save time when disabling the UI
-	if mainUIEnabled {
-		boxInstalled, boxRunning, netAvailable = getStatusForMainUIStatusHandler()
-	}
+	boxInstalled := environmentStatus.boxInstalled
+	boxRunning := environmentStatus.boxRunning
+	netAvailable := environmentStatus.netAvailable
 
 	// Create rule for "enabled" for each button
 	buttonRules := []struct {
@@ -459,27 +462,53 @@ func mainUIStatusHandler(currentMainUIStatus mainUIStatusType) { //nolint:gocycl
 	})
 }
 
-func getStatusForMainUIStatusHandler() (bool, bool, bool) {
-	// Query box installation status
-	boxInstalled, boxInstalledErr := box.Installed()
-	if boxInstalledErr != nil {
-		log.Debug(fmt.Sprintf("Could not query whether VM is installed: %v", boxInstalledErr))
-	}
+func initialiseEnvironmentStatus() {
+	environmentStatus.boxInstalled = false
+	environmentStatus.boxRunning = false
+	environmentStatus.netAvailable = false
+}
 
-	boxInstalled = (boxInstalledErr == nil) && boxInstalled
+func updateEnvironmentStatusBoxInstalled(ticker *time.Ticker) {
+	go func() {
+		for {
+			_ = <-ticker.C
+			log.Debug("updateEnvironmentStatusBoxInstalled()")
 
-	// Query box running status
-	boxRunning, boxRunningErr := box.Running()
-	if boxRunningErr != nil {
-		log.Debug(fmt.Sprintf("Could not query whether VM is running: %v", boxRunningErr))
-	}
+			boxInstalled, boxInstalledErr := box.Installed()
+			if boxInstalledErr != nil {
+				log.Debug(fmt.Sprintf("Could not query whether VM is installed: %v", boxInstalledErr))
+			}
 
-	boxRunning = (boxRunningErr == nil) && boxRunning
+			environmentStatus.boxInstalled = (boxInstalledErr == nil) && boxInstalled
+		}
+	}()
+}
 
-	// Query network (internet) connection status
-	netAvailable := network.CheckIfNetworkAvailable()
+func updateEnvironmentStatusBoxRunning(ticker *time.Ticker) {
+	go func() {
+		for {
+			_ = <-ticker.C
+			log.Debug("updateEnvironmentStatusBoxRunning()")
 
-	return boxInstalled, boxRunning, netAvailable
+			boxRunning, boxRunningErr := box.Running()
+			if boxRunningErr != nil {
+				log.Debug(fmt.Sprintf("Could not query whether VM is running: %v", boxRunningErr))
+			}
+
+			environmentStatus.boxRunning = (boxRunningErr == nil) && boxRunning
+		}
+	}()
+}
+
+func updateEnvironmentStatusNetAvailable(ticker *time.Ticker) {
+	go func() {
+		for {
+			_ = <-ticker.C
+			log.Debug("updateEnvironmentStatusNetAvailable()")
+
+			environmentStatus.netAvailable = network.CheckIfNetworkAvailable()
+		}
+	}()
 }
 
 // checkAbittiUpdate checks
@@ -1049,6 +1078,9 @@ func RunUI() error {
 		mebroutines.SetMainWindow(window)
 		progress.SetProgressLabel(labelStatus)
 
+		// Initialise environment status variables before starting tickers
+		initialiseEnvironmentStatus()
+
 		// Define command channel & goroutine for disabling/enabling main UI buttons
 		mainUIStatus := make(chan string)
 		mainUIUpdate := time.NewTicker(5 * time.Second)
@@ -1056,6 +1088,15 @@ func RunUI() error {
 		networkstatus.Update()
 
 		setupMainLoop(mainUIStatus, mainUIUpdate)
+
+		environmentStatusBoxInstalledUpdate := time.NewTicker(3 * time.Second)
+		updateEnvironmentStatusBoxInstalled(environmentStatusBoxInstalledUpdate)
+
+		environmentStatusBoxRunningUpdate := time.NewTicker(3 * time.Second)
+		updateEnvironmentStatusBoxRunning(environmentStatusBoxRunningUpdate)
+
+		environmentStatusNetAvailableUpdate := time.NewTicker(10 * time.Second)
+		updateEnvironmentStatusNetAvailable(environmentStatusNetAvailableUpdate)
 
 		enableUI(mainUIStatus)
 
