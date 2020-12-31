@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-11-28 17:22+0200\n"
-"PO-Revision-Date: 2020-11-28 17:24+0200\n"
+"PO-Revision-Date: 2020-12-31 16:50+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.3\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "Cannot open MEB share directory since it does not exist"
@@ -285,6 +285,12 @@ msgstr ""
 
 msgid "Naksu could not check for updates as there is no network connection."
 msgstr "Naksu ei voinut etsiä uusia versioita, koska verkkoyhteys puuttuu."
+
+msgid "Checking for new versions of Naksu..."
+msgstr "Tarkistetaan Naksu-päivityksiä..."
+
+msgid "Naksu self-update needs network connection"
+msgstr "Naksun päivitys tarvitsee verkkoyhteyden"
 
 #, c-format
 msgid ""
