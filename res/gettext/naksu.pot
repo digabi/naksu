@@ -261,6 +261,12 @@ msgstr ""
 msgid "Naksu could not check for updates as there is no network connection."
 msgstr ""
 
+msgid "Checking for new versions of Naksu..."
+msgstr ""
+
+msgid "Naksu self-update needs network connection"
+msgstr ""
+
 #, c-format
 msgid ""
 "Naksu update failed. Maybe you don't have network connection?\n"
