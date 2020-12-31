@@ -23,6 +23,10 @@ const (
 	// URLTestTimeout is the timeout in seconds for the test above
 	URLTestTimeout = 4
 
+	// Duration for tickers collecting data of the system environment for the UI
+	// Make sure the duration is longer than URLTestTimeout
+	EnvironmentStatusUpdateDuration = 5 * time.Second
+
 	// VBoxManageCacheTimeout is a timeout for VBoxManage cache
 	// See naksu/box
 	VBoxManageCacheTimeout = 30 * time.Second
@@ -116,4 +120,11 @@ func GetAvailableSelectionID(configValue string, choices []AvailableSelection, v
 	}
 
 	return valueIfNotFound
+}
+
+// EnvironmentStatusType is used by the UI to store the status of the system environment
+type EnvironmentStatusType struct {
+	BoxInstalled bool
+	BoxRunning   bool
+	NetAvailable bool
 }

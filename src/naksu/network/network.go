@@ -41,6 +41,19 @@ func testHTTPGet(url string, timeout int) bool {
 	return true
 }
 
+// StartEnvironmentStatusUpdate starts periodically updating given
+// environmentStatus.NetAvailable value
+func StartEnvironmentStatusUpdate(environmentStatus *constants.EnvironmentStatusType, tickerDuration time.Duration) {
+	ticker := time.NewTicker(tickerDuration)
+
+	go func() {
+		for {
+			<-ticker.C
+			environmentStatus.NetAvailable = CheckIfNetworkAvailable()
+		}
+	}()
+}
+
 // DownloadFile downloads a file from the given URL and stores it to the given destFile.
 // Returns error
 func DownloadFile(url string, destFile string) error {

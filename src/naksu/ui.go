@@ -30,18 +30,12 @@ import (
 
 type mainUIStatusType = string
 
-type EnvironmentStatusType struct {
-	boxInstalled bool
-	boxRunning bool
-	netAvailable bool
-}
-
 const mainUIStatusEnabled mainUIStatusType = ""
 const mainUIStatusDisabled mainUIStatusType = "disable"
 
 var window *ui.Window
 
-var environmentStatus EnvironmentStatusType
+var environmentStatus constants.EnvironmentStatusType
 
 var buttonSelfUpdateOn *ui.Button
 var buttonStartServer *ui.Button
@@ -414,9 +408,9 @@ func mainUIStatusHandler(currentMainUIStatus mainUIStatusType) { //nolint:gocycl
 	// Check general UI status
 	mainUIEnabled := (currentMainUIStatus == mainUIStatusEnabled)
 
-	boxInstalled := environmentStatus.boxInstalled
-	boxRunning := environmentStatus.boxRunning
-	netAvailable := environmentStatus.netAvailable
+	boxInstalled := environmentStatus.BoxInstalled
+	boxRunning := environmentStatus.BoxRunning
+	netAvailable := environmentStatus.NetAvailable
 
 	// Create rule for "enabled" for each button
 	buttonRules := []struct {
@@ -460,55 +454,6 @@ func mainUIStatusHandler(currentMainUIStatus mainUIStatusType) { //nolint:gocycl
 			}
 		}
 	})
-}
-
-func initialiseEnvironmentStatus() {
-	environmentStatus.boxInstalled = false
-	environmentStatus.boxRunning = false
-	environmentStatus.netAvailable = false
-}
-
-func updateEnvironmentStatusBoxInstalled(ticker *time.Ticker) {
-	go func() {
-		for {
-			_ = <-ticker.C
-			log.Debug("updateEnvironmentStatusBoxInstalled()")
-
-			boxInstalled, boxInstalledErr := box.Installed()
-			if boxInstalledErr != nil {
-				log.Debug(fmt.Sprintf("Could not query whether VM is installed: %v", boxInstalledErr))
-			}
-
-			environmentStatus.boxInstalled = (boxInstalledErr == nil) && boxInstalled
-		}
-	}()
-}
-
-func updateEnvironmentStatusBoxRunning(ticker *time.Ticker) {
-	go func() {
-		for {
-			_ = <-ticker.C
-			log.Debug("updateEnvironmentStatusBoxRunning()")
-
-			boxRunning, boxRunningErr := box.Running()
-			if boxRunningErr != nil {
-				log.Debug(fmt.Sprintf("Could not query whether VM is running: %v", boxRunningErr))
-			}
-
-			environmentStatus.boxRunning = (boxRunningErr == nil) && boxRunning
-		}
-	}()
-}
-
-func updateEnvironmentStatusNetAvailable(ticker *time.Ticker) {
-	go func() {
-		for {
-			_ = <-ticker.C
-			log.Debug("updateEnvironmentStatusNetAvailable()")
-
-			environmentStatus.netAvailable = network.CheckIfNetworkAvailable()
-		}
-	}()
 }
 
 // checkAbittiUpdate checks
@@ -1079,24 +1024,21 @@ func RunUI() error {
 		progress.SetProgressLabel(labelStatus)
 
 		// Initialise environment status variables before starting tickers
-		initialiseEnvironmentStatus()
+		environmentStatus = constants.EnvironmentStatusType{BoxInstalled: false, BoxRunning: false, NetAvailable: false}
 
 		// Define command channel & goroutine for disabling/enabling main UI buttons
 		mainUIStatus := make(chan string)
-		mainUIUpdate := time.NewTicker(5 * time.Second)
+		mainUIUpdate := time.NewTicker(1 * time.Second)
 
 		networkstatus.Update()
 
 		setupMainLoop(mainUIStatus, mainUIUpdate)
 
-		environmentStatusBoxInstalledUpdate := time.NewTicker(3 * time.Second)
-		updateEnvironmentStatusBoxInstalled(environmentStatusBoxInstalledUpdate)
+		// Start updating network status
+		network.StartEnvironmentStatusUpdate(&environmentStatus, constants.EnvironmentStatusUpdateDuration)
 
-		environmentStatusBoxRunningUpdate := time.NewTicker(3 * time.Second)
-		updateEnvironmentStatusBoxRunning(environmentStatusBoxRunningUpdate)
-
-		environmentStatusNetAvailableUpdate := time.NewTicker(10 * time.Second)
-		updateEnvironmentStatusNetAvailable(environmentStatusNetAvailableUpdate)
+		// Start updating box status
+		box.StartEnvironmentStatusUpdate(&environmentStatus, constants.EnvironmentStatusUpdateDuration)
 
 		enableUI(mainUIStatus)
 
