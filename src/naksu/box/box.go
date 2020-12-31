@@ -8,6 +8,7 @@ import (
 	"math"
 	"regexp"
 	"strconv"
+	"time"
 
 	semver "github.com/blang/semver/v4"
 
@@ -199,6 +200,30 @@ func WriteDiskClone(clonePath string) error {
 	// Detach media from VirtualBox disk management
 	_, errCloseMedium := vboxmanage.RunCommand(vboxmanage.VBoxCommand{"closemedium", clonePath})
 	return errCloseMedium
+}
+
+// StartEnvironmentStatusUpdate starts periodically updating given
+// environmentStatus.BoxInstalled and .BoxRunning values
+func StartEnvironmentStatusUpdate(environmentStatus *constants.EnvironmentStatusType, tickerDuration time.Duration) {
+	ticker := time.NewTicker(tickerDuration)
+
+	go func() {
+		for {
+			<-ticker.C
+
+			boxInstalled, boxInstalledErr := Installed()
+			if boxInstalledErr != nil {
+				log.Debug(fmt.Sprintf("Could not query whether VM is installed: %v", boxInstalledErr))
+			}
+			environmentStatus.BoxInstalled = (boxInstalledErr == nil) && boxInstalled
+
+			boxRunning, boxRunningErr := Running()
+			if boxRunningErr != nil {
+				log.Debug(fmt.Sprintf("Could not query whether VM is running: %v", boxRunningErr))
+			}
+			environmentStatus.BoxRunning = (boxRunningErr == nil) && boxRunning
+		}
+	}()
 }
 
 // Installed returns true if we have box installed, otherwise false
