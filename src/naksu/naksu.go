@@ -94,8 +94,6 @@ func main() {
 		}
 	})
 
-	RunSelfUpdate()
-
 	log.SetDebug(isDebug)
 
 	// Determine/set path for debug log

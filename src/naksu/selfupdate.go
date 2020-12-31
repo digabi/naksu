@@ -5,12 +5,12 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"naksu/config"
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/network"
+	"naksu/ui/progress"
 
 	"github.com/blang/semver"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
@@ -23,7 +23,6 @@ func RunSelfUpdate() {
 	// Run auto-update
 	if doReleaseSelfUpdate() {
 		mebroutines.ShowTranslatedInfoMessage("Naksu has been automatically updated. Please restart Naksu.")
-		os.Exit(0)
 	}
 	if WarnUserAboutStaleVersionIfUpdateDisabled() {
 		mebroutines.ShowTranslatedInfoMessage("Naksu has update available, but your version of Naksu has updates disabled. Please update or ask your administrator to update Naksu.")
@@ -31,6 +30,8 @@ func RunSelfUpdate() {
 }
 
 func doReleaseSelfUpdate() bool {
+	progress.TranslateAndSetMessage("Checking for new versions of Naksu...")
+
 	v := semver.MustParse(version)
 
 	if log.IsDebug() {
@@ -39,7 +40,7 @@ func doReleaseSelfUpdate() bool {
 
 	// Test network connection here with a timeout
 	if !network.CheckIfNetworkAvailable() {
-		mebroutines.ShowTranslatedWarningMessage("Naksu could not check for updates as there is no network connection.")
+		progress.TranslateAndSetMessage("Naksu self-update needs network connection")
 		return false
 	}
 
@@ -57,6 +58,7 @@ func doReleaseSelfUpdate() bool {
 	}
 
 	latest, err := selfupdate.UpdateSelf(v, "digabi/naksu")
+	progress.SetMessage("")
 	if err != nil {
 		mebroutines.ShowTranslatedWarningMessage("Naksu update failed. Maybe you don't have network connection?\n\nError: %s", err)
 		return false
