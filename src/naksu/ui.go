@@ -1082,6 +1082,11 @@ func RunUI() error {
 		enableUI(mainUIStatus)
 		backupWindow.Hide()
 
+		// Do self-update
+		go func() {
+			RunSelfUpdate()
+		}()
+
 		// Make sure we have VBoxManage
 		if !vboxmanage.IsInstalled() {
 			mebroutines.ShowTranslatedErrorMessage("Could not execute VBoxManage. Are you sure you have installed Oracle VirtualBox?")
@@ -1114,5 +1119,7 @@ func RunUI() error {
 		log.Debug(fmt.Sprintf("Currently installed box: %s %s", box.GetVersion(), box.GetType()))
 
 		logdelivery.DeleteLogCopyFiles()
+
+		log.Debug("UI has been initialised")
 	})
 }
