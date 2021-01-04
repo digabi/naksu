@@ -20,10 +20,10 @@ func OpenMebShare() {
 	// Try to open MEB share folder with any of these utils
 	// Hopefully we have at least one of them installed!
 	// We do the opening in a goroutine to avoid any lags to the UI
-	
+
 	openers := [3]string{"xdg-open", "gnome-open", "nautilus"}
 
-	go func (){
+	go func() {
 		for _, thisOpener := range openers {
 			runParams := []string{thisOpener, mebSharePath}
 			output, err := RunAndGetOutput(runParams, true)
