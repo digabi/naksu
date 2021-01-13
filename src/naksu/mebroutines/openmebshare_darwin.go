@@ -19,7 +19,7 @@ func OpenMebShare() {
 
 	runParams := []string{"open", mebSharePath}
 
-	output, err := RunAndGetOutput(runParams)
+	output, err := RunAndGetOutput(runParams, true)
 
 	if err != nil {
 		ShowWarningMessage("Could not open MEB share directory")
