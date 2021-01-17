@@ -57,6 +57,13 @@ func GetServerImagePath() string {
 }
 
 func downloadServerImage(url string, progressCallbackFn func(string)) error {
+	if (mebroutines.ExistsFile(mebroutines.GetZipImagePath())) {
+		err := os.Remove(mebroutines.GetZipImagePath())
+		if err != nil {
+			return fmt.Errorf("Could not remove old image file: %v", err)
+		}
+	}
+
 	progressCallbackFn(xlate.Get("Contacting server"))
 	log.Debug(fmt.Sprintf("Starting to download image from '%s'", url))
 	response, errHTTPGet := http.Get(url) // #nosec
