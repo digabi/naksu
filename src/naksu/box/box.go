@@ -209,9 +209,7 @@ func WriteDiskClone(clonePath string) error {
 func Installed() (bool, error) {
 	isInstalled, err := vboxmanage.IsVMInstalled(boxName)
 
-	if err == nil {
-		log.Debug(fmt.Sprintf("Server '%s' installed: %t", boxName, isInstalled))
-	} else {
+	if err != nil {
 		log.Debug(fmt.Sprintf("box.Installed() could not detect whether VM is installed: %v", err))
 	}
 
@@ -221,9 +219,7 @@ func Installed() (bool, error) {
 func Running() (bool, error) {
 	isRunning, err := vboxmanage.IsVMRunning(boxName)
 
-	if err == nil {
-		log.Debug(fmt.Sprintf("Server '%s' running: %t", boxName, isRunning))
-	} else {
+	if err != nil {
 		log.Debug(fmt.Sprintf("box.Running() could not detect whether VM is running: %v", err))
 	}
 
