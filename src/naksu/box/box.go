@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"os"
 	"regexp"
 	"strconv"
 
@@ -58,8 +59,11 @@ func calculateBoxMemory() (uint64, error) {
 // CreateNewBox creates new VM using the given imagePath
 func CreateNewBox(boxType string, boxVersion string) error {
 	if mebroutines.ExistsFile(mebroutines.GetVDIImagePath()) {
-		log.Debug(fmt.Sprintf("VDI file %s already exists", mebroutines.GetVDIImagePath()))
-		return fmt.Errorf("vdi file %s already exists", mebroutines.GetVDIImagePath())
+		err := os.Remove(mebroutines.GetVDIImagePath())
+		if err != nil {
+			return fmt.Errorf("could not remove old vdi file %s: %v", mebroutines.GetVDIImagePath(), err)
+		}
+		log.Debug("Removed existing VDI file %s", mebroutines.GetVDIImagePath())
 	}
 
 	calculatedBoxCPUs := calculateBoxCPUs()

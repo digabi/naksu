@@ -57,10 +57,10 @@ func GetServerImagePath() string {
 }
 
 func downloadServerImage(url string, progressCallbackFn func(string)) error {
-	if (mebroutines.ExistsFile(mebroutines.GetZipImagePath())) {
+	if mebroutines.ExistsFile(mebroutines.GetZipImagePath()) {
 		err := os.Remove(mebroutines.GetZipImagePath())
 		if err != nil {
-			return fmt.Errorf("Could not remove old image file: %v", err)
+			return fmt.Errorf("could not remove old image file: %v", err)
 		}
 	}
 
