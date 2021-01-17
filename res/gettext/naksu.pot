@@ -490,3 +490,13 @@ msgid ""
 "Hardware virtualisation (VT-x or AMD-V) is disabled. Please enable it before "
 "continuing."
 msgstr ""
+
+msgid ""
+"Your VirtualBox version is old. Consider upgrading to %s or newer to avoid "
+"problems."
+msgstr ""
+
+msgid ""
+"Your VirtualBox version is too new. Consider downgrading to %s to avoid "
+"problems."
+msgstr ""

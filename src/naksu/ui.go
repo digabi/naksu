@@ -1106,6 +1106,16 @@ func RunUI() error {
 			disableUI(mainUIStatus)
 		}
 
+		// Check VBoxManage version
+		go func() {
+			translatedMessage, err := host.IsVirtualBoxVersionOK()
+			if err != nil {
+				log.Debug("Could not detect whetner VirtualBox is too old or too new: %v. User was not notified.", err)
+			} else if translatedMessage != "" {
+				mebroutines.ShowWarningMessage(translatedMessage)
+			}
+		}()
+
 		// Make sure Hyper-V is not running
 		// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
 		isHyperV := make(chan bool)
