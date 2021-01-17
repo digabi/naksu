@@ -56,7 +56,7 @@ func SetDebugFilename(newFilename string) {
 	} else {
 		lumberLog := lumberjack.Logger{
 			Filename:   debugFilename,
-			MaxSize:    1, // megabytes
+			MaxSize:    3, // megabytes
 			MaxBackups: 3,
 		}
 
