@@ -101,7 +101,7 @@ func main() {
 	// Determine/set path for debug log
 	log.SetDebugFilename(log.GetNewDebugFilename())
 
-	log.Debug(fmt.Sprintf("This is Naksu %s. Hello world!", version))
+	log.Debug("This is Naksu %s. Hello world!", version)
 
 	logDirectoryPaths()
 
