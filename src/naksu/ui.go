@@ -385,10 +385,16 @@ func setupMainLoop(mainUIStatus chan string) {
 	go func() {
 		var currentMainUIStatus string
 
+		updateUITicker := time.NewTicker(time.Second * 1)
+
 		for {
-			newStatus := <-mainUIStatus
-			currentMainUIStatus = newStatus
-			mainUIStatusHandler(currentMainUIStatus)
+			select {
+			case <-updateUITicker.C:
+				mainUIStatusHandler(currentMainUIStatus)
+			case newStatus := <-mainUIStatus:
+				currentMainUIStatus = newStatus
+				mainUIStatusHandler(currentMainUIStatus)
+			}
 		}
 	}()
 }
