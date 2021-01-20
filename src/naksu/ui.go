@@ -35,7 +35,7 @@ const mainUIStatusDisabled mainUIStatusType = "disable"
 
 var window *ui.Window
 
-var environmentStatus constants.EnvironmentStatusType
+var environmentStatus constants.EnvironmentStatus
 
 var buttonSelfUpdateOn *ui.Button
 var buttonStartServer *ui.Button
@@ -381,20 +381,14 @@ func populateBackupCombobox(backupMedia map[string]string, combobox *ui.Combobox
 	return mediaPath
 }
 
-func setupMainLoop(mainUIStatus chan string, mainUIUpdate *time.Ticker) {
+func setupMainLoop(mainUIStatus chan string) {
 	go func() {
-
-		// Start with all functions disabled
-		currentMainUIStatus := mainUIStatusDisabled
+		var currentMainUIStatus string
 
 		for {
-			select {
-			case <-mainUIUpdate.C:
-				mainUIStatusHandler(currentMainUIStatus)
-			case newStatus := <-mainUIStatus:
-				currentMainUIStatus = newStatus
-				mainUIStatusHandler(currentMainUIStatus)
-			}
+			newStatus := <-mainUIStatus
+			currentMainUIStatus = newStatus
+			mainUIStatusHandler(currentMainUIStatus)
 		}
 	}()
 }
@@ -1024,15 +1018,14 @@ func RunUI() error {
 		progress.SetProgressLabel(labelStatus)
 
 		// Initialise environment status variables before starting tickers
-		environmentStatus = constants.EnvironmentStatusType{BoxInstalled: false, BoxRunning: false, NetAvailable: false}
+		environmentStatus = constants.EnvironmentStatus{BoxInstalled: false, BoxRunning: false, NetAvailable: false}
 
 		// Define command channel & goroutine for disabling/enabling main UI buttons
 		mainUIStatus := make(chan string)
-		mainUIUpdate := time.NewTicker(1 * time.Second)
 
 		networkstatus.Update()
 
-		setupMainLoop(mainUIStatus, mainUIUpdate)
+		setupMainLoop(mainUIStatus)
 
 		// Start updating network status
 		network.StartEnvironmentStatusUpdate(&environmentStatus, constants.EnvironmentStatusUpdateDuration)

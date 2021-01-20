@@ -43,7 +43,7 @@ func testHTTPGet(url string, timeout int) bool {
 
 // StartEnvironmentStatusUpdate starts periodically updating given
 // environmentStatus.NetAvailable value
-func StartEnvironmentStatusUpdate(environmentStatus *constants.EnvironmentStatusType, tickerDuration time.Duration) {
+func StartEnvironmentStatusUpdate(environmentStatus *constants.EnvironmentStatus, tickerDuration time.Duration) {
 	ticker := time.NewTicker(tickerDuration)
 
 	go func() {
