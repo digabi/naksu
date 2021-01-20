@@ -204,7 +204,7 @@ func WriteDiskClone(clonePath string) error {
 
 // StartEnvironmentStatusUpdate starts periodically updating given
 // environmentStatus.BoxInstalled and .BoxRunning values
-func StartEnvironmentStatusUpdate(environmentStatus *constants.EnvironmentStatusType, tickerDuration time.Duration) {
+func StartEnvironmentStatusUpdate(environmentStatus *constants.EnvironmentStatus, tickerDuration time.Duration) {
 	ticker := time.NewTicker(tickerDuration)
 
 	go func() {
@@ -214,14 +214,16 @@ func StartEnvironmentStatusUpdate(environmentStatus *constants.EnvironmentStatus
 			boxInstalled, boxInstalledErr := Installed()
 			if boxInstalledErr != nil {
 				log.Debug(fmt.Sprintf("Could not query whether VM is installed: %v", boxInstalledErr))
+			} else {
+				environmentStatus.BoxInstalled = (boxInstalledErr == nil) && boxInstalled
 			}
-			environmentStatus.BoxInstalled = (boxInstalledErr == nil) && boxInstalled
 
 			boxRunning, boxRunningErr := Running()
 			if boxRunningErr != nil {
 				log.Debug(fmt.Sprintf("Could not query whether VM is running: %v", boxRunningErr))
+			} else {
+				environmentStatus.BoxRunning = (boxRunningErr == nil) && boxRunning
 			}
-			environmentStatus.BoxRunning = (boxRunningErr == nil) && boxRunning
 		}
 	}()
 }

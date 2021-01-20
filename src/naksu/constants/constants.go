@@ -122,8 +122,8 @@ func GetAvailableSelectionID(configValue string, choices []AvailableSelection, v
 	return valueIfNotFound
 }
 
-// EnvironmentStatusType is used by the UI to store the status of the system environment
-type EnvironmentStatusType struct {
+// EnvironmentStatus is used by the UI to store the status of the system environment
+type EnvironmentStatus struct {
 	BoxInstalled bool
 	BoxRunning   bool
 	NetAvailable bool
