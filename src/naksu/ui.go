@@ -1110,7 +1110,7 @@ func RunUI() error {
 		go func() {
 			translatedMessage, err := host.IsVirtualBoxVersionOK()
 			if err != nil {
-				log.Debug("Could not detect whetner VirtualBox is too old or too new: %v. User was not notified.", err)
+				log.Debug("Could not detect whether VirtualBox is too old or too new: %v. User was not notified.", err)
 			} else if translatedMessage != "" {
 				mebroutines.ShowWarningMessage(translatedMessage)
 			}
