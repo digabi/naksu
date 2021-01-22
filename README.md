@@ -136,6 +136,15 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 2.0.1 (22-JAN-2021)
+
+- Remove image files before installing a new server
+- Communicate Naksu updates via graphical UI instead of standard output only
+- Check VirtualBox version and suggest upgrade (or downgrade) if required
+- Make more UI-related checks in parallel to avoid lags in the UI
+- Avoid losing important log entries by reducing log spam and adjusting rotation
+  settings
+
 ### 2.0.0 (11-DEC-2020)
 
 - Install VM directly to VirtualBox without Vagrant
