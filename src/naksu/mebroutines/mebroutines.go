@@ -29,8 +29,11 @@ func Close(c io.Closer) {
 }
 
 // RunAndGetOutput runs command with arguments and returns output as a string
-func RunAndGetOutput(commandArgs []string, logOutput bool) (string, error) {
-	log.Debug(fmt.Sprintf("RunAndGetOutput: %s", strings.Join(commandArgs, " ")))
+func RunAndGetOutput(commandArgs []string, logAction bool) (string, error) {
+	if logAction {
+		log.Debug(fmt.Sprintf("RunAndGetOutput: %s", strings.Join(commandArgs, " ")))
+	}
+
 	/* #nosec */
 	cmd := exec.Command(commandArgs[0], commandArgs[1:]...)
 
@@ -41,7 +44,7 @@ func RunAndGetOutput(commandArgs []string, logOutput bool) (string, error) {
 	}
 
 	if out != nil {
-		if logOutput {
+		if logAction {
 			log.Debug("RunAndGetOutput returns combined STDOUT and STDERR:")
 			log.Debug(string(out))
 		}

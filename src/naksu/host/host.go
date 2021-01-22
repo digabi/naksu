@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"runtime"
 
+	"naksu/box/vboxmanage"
+	"naksu/constants"
 	"naksu/log"
 	"naksu/mebroutines"
+	"naksu/xlate"
 
 	"github.com/intel-go/cpuid"
 	"github.com/mackerelio/go-osstat/memory"
 
+	semver "github.com/blang/semver/v4"
 	humanize "github.com/dustin/go-humanize"
 )
 
@@ -81,4 +85,38 @@ func CheckFreeDisk(limit uint64, directories []string) error {
 	}
 
 	return nil
+}
+
+// IsVirtualBoxVersionOK returns an user-formatted non-empty string if VirtualBox version
+// is too low or too high (constants.VBoxMinVersion, constants.VBoxMaxVersion, respectively)
+func IsVirtualBoxVersionOK() (string, error) {
+	vBoxVersion, err := vboxmanage.GetVBoxManageVersion()
+	if err != nil {
+		log.Debug("Could not get VBoxManage version: %v", err)
+		return "", fmt.Errorf("could not get vboxmanage version: %v", err)
+	}
+
+	if constants.VBoxMinVersion != "" {
+		versionMin, err := semver.Parse(constants.VBoxMinVersion)
+		if err != nil {
+			return "", fmt.Errorf("could not parse minimum required version %s", constants.VBoxMinVersion)
+		}
+
+		if vBoxVersion.LT(versionMin) {
+			return xlate.Get("Your VirtualBox version is old. Consider upgrading to %s or newer to avoid problems.", constants.VBoxMinVersion), nil
+		}
+	}
+
+	if constants.VBoxMaxVersion != "" {
+		versionMax, err := semver.Parse(constants.VBoxMaxVersion)
+		if err != nil {
+			return "", fmt.Errorf("could not parse maximum required version %s", constants.VBoxMaxVersion)
+		}
+
+		if vBoxVersion.GT(versionMax) {
+			return xlate.Get("Your VirtualBox version is too new. Consider downgrading to %s to avoid problems.", constants.VBoxMaxVersion), nil
+		}
+	}
+
+	return "", nil
 }

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"os"
 	"regexp"
 	"strconv"
 	"time"
@@ -59,8 +60,11 @@ func calculateBoxMemory() (uint64, error) {
 // CreateNewBox creates new VM using the given imagePath
 func CreateNewBox(boxType string, boxVersion string) error {
 	if mebroutines.ExistsFile(mebroutines.GetVDIImagePath()) {
-		log.Debug(fmt.Sprintf("VDI file %s already exists", mebroutines.GetVDIImagePath()))
-		return fmt.Errorf("vdi file %s already exists", mebroutines.GetVDIImagePath())
+		err := os.Remove(mebroutines.GetVDIImagePath())
+		if err != nil {
+			return fmt.Errorf("could not remove old vdi file %s: %v", mebroutines.GetVDIImagePath(), err)
+		}
+		log.Debug("Removed existing VDI file %s", mebroutines.GetVDIImagePath())
 	}
 
 	calculatedBoxCPUs := calculateBoxCPUs()
@@ -232,9 +236,7 @@ func StartEnvironmentStatusUpdate(environmentStatus *constants.EnvironmentStatus
 func Installed() (bool, error) {
 	isInstalled, err := vboxmanage.IsVMInstalled(boxName)
 
-	if err == nil {
-		log.Debug(fmt.Sprintf("Server '%s' installed: %t", boxName, isInstalled))
-	} else {
+	if err != nil {
 		log.Debug(fmt.Sprintf("box.Installed() could not detect whether VM is installed: %v", err))
 	}
 
@@ -244,9 +246,7 @@ func Installed() (bool, error) {
 func Running() (bool, error) {
 	isRunning, err := vboxmanage.IsVMRunning(boxName)
 
-	if err == nil {
-		log.Debug(fmt.Sprintf("Server '%s' running: %t", boxName, isRunning))
-	} else {
+	if err != nil {
 		log.Debug(fmt.Sprintf("box.Running() could not detect whether VM is running: %v", err))
 	}
 

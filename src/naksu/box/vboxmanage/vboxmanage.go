@@ -281,7 +281,10 @@ func getVMState(vmName string) (string, error) {
 func IsVMRunning(vmName string) (bool, error) {
 	vmState, err := getVMState(vmName)
 
-	log.Debug(fmt.Sprintf("vboxmanage.IsVMRunning() got following state string: '%s'", vmState))
+	if vmState != "<nil>" {
+		// Log only messages with content to avoid log spam
+		log.Debug(fmt.Sprintf("vboxmanage.IsVMRunning() got following state string: '%s'", vmState))
+	}
 
 	if err != nil {
 		return false, err

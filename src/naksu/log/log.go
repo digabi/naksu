@@ -56,7 +56,7 @@ func SetDebugFilename(newFilename string) {
 	} else {
 		lumberLog := lumberjack.Logger{
 			Filename:   debugFilename,
-			MaxSize:    1, // megabytes
+			MaxSize:    3, // megabytes
 			MaxBackups: 3,
 		}
 
@@ -91,10 +91,11 @@ func IsDebug() bool {
 }
 
 // Debug logs debug information to log file
-func Debug(message string) {
+func Debug(message string, vars ...interface{}) {
+	formattedMessage := fmt.Sprintf(message, vars...)
 	if IsDebug() {
-		fmt.Printf("DEBUG: %s\n", message)
+		fmt.Printf("DEBUG: %s\n", formattedMessage)
 	}
 
-	appendLogFile(fmt.Sprintf("DEBUG: %s", message))
+	appendLogFile(fmt.Sprintf("DEBUG: %s", formattedMessage))
 }
