@@ -47,6 +47,7 @@ func doReleaseSelfUpdate() bool {
 	// If self-update is disabled, do a version check nevertheless and store information for user warning
 	if config.IsSelfUpdateDisabled() {
 		latest, found, err := selfupdate.DetectLatest("digabi/naksu")
+		progress.SetMessage("")
 		if err != nil {
 			log.Debug(fmt.Sprintf("Version check failed: %s", err))
 			return false
