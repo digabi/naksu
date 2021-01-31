@@ -20,8 +20,6 @@ func Server() error {
 		mebroutines.ShowWarningMessage("There is a server appears to be running but we remove it as you requested.")
 	}
 
-	var err error
-
 	// Chdir to home directory to avoid problems with Windows where deleting
 	// a directory where the process is running
 	progress.TranslateAndSetMessage("Chdir ~")
@@ -30,23 +28,14 @@ func Server() error {
 	}
 
 	progress.TranslateAndSetMessage("Deleting ~/.VirtualBox")
-	err = mebroutines.RemoveDir(mebroutines.GetVirtualBoxHiddenDirectory())
-	if err != nil {
-		deleteFailed(mebroutines.GetVirtualBoxHiddenDirectory(), err)
-		return err
-	}
+	mebroutines.RemoveDirAndLogErrors(mebroutines.GetVirtualBoxHiddenDirectory())
 
 	progress.TranslateAndSetMessage("Deleting ~/VirtualBox VMs")
-	err = mebroutines.RemoveDir(mebroutines.GetVirtualBoxVMsDirectory())
+	err := mebroutines.RemoveDir(mebroutines.GetVirtualBoxVMsDirectory())
 	if err != nil {
-		deleteFailed(mebroutines.GetVirtualBoxVMsDirectory(), err)
+		mebroutines.ShowWarningMessage(fmt.Sprintf("Failed to remove directory %s: %v", mebroutines.GetVirtualBoxVMsDirectory(), err))
 		return err
 	}
 
 	return nil
-}
-
-// deleteFailed gives user an error message
-func deleteFailed(failedPath string, err error) {
-	mebroutines.ShowWarningMessage(fmt.Sprintf("Failed to remove directory %s: %v", failedPath, err))
 }
