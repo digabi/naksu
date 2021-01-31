@@ -108,10 +108,41 @@ func CreateFile(path string) error {
 	return err
 }
 
-// RemoveDir removes directory and all its contents
+// RemoveDir removes directory and all its contents. It returns an err in
+// case of errors. See also RemoveDirAndLogErrors()
 func RemoveDir(path string) error {
 	err := os.RemoveAll(path)
 	return err
+}
+
+// RemoveDirAndLogErrors tries to remove directory and all its contents
+// Instead of returning errors on failed removals it logs files and directories
+// which could not be removed. This is useful for avoid unnecessary error messages
+// when deleting VirtualBox log files which are locked by the VirtualBox process.
+// See also RemoveDir()
+func RemoveDirAndLogErrors(topPath string) {
+	paths := []string{}
+
+	err := filepath.Walk(topPath,
+		func(newPath string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			paths = append(paths, newPath)
+			return nil
+		})
+
+	if err != nil {
+		log.Debug("RemoveDirAndLogErrors could not remove directory %s: %v", topPath, err)
+		return
+	}
+
+	for n := len(paths) - 1; n >= 0; n-- {
+		err := os.Remove(paths[n])
+		if err != nil {
+			log.Debug("Could not remove %s: %v", paths[n], err)
+		}
+	}
 }
 
 // CopyFile copies existing file
