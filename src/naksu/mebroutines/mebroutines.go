@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"naksu/log"
@@ -206,8 +207,20 @@ func GetMebshareDirectory() string {
 	return filepath.Join(GetHomeDirectory(), "ktp-jako")
 }
 
-// GetVirtualBoxHiddenDirectory returns ".VirtualBox" path from under home directory
+// GetVirtualBoxHiddenDirectory returns path to global VirtualBox settings
+// https://docs.oracle.com/en/virtualization/virtualbox/6.0/admin/vboxconfigdata.html
 func GetVirtualBoxHiddenDirectory() string {
+	switch runtime.GOOS {
+	case "darwin":
+		return filepath.Join(GetHomeDirectory(), "Library", "VirtualBox")
+	case "linux":
+		return filepath.Join(GetHomeDirectory(), ".config", "VirtualBox")
+	case "windows":
+		return filepath.Join(GetHomeDirectory(), ".VirtualBox")
+	default:
+		log.Debug("GetVirtualBoxHiddenDirectory() could not detect execution environment")
+	}
+
 	return filepath.Join(GetHomeDirectory(), ".VirtualBox")
 }
 
