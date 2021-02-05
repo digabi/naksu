@@ -99,7 +99,7 @@ func main() {
 	// Determine/set path for debug log
 	log.SetDebugFilename(log.GetNewDebugFilename())
 
-	log.Debug("This is Naksu %s. Hello world!", version)
+	log.Action("This is Naksu %s. Hello world!", version)
 
 	logDirectoryPaths()
 
@@ -111,5 +111,5 @@ func main() {
 		panic(err)
 	}
 
-	log.Debug("Exiting GUI loop")
+	log.Action("Exiting GUI loop")
 }
