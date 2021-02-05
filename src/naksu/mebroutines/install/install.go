@@ -22,7 +22,12 @@ import (
 // newServer downloads and creates new Abitti or Exam server using the given image URL
 func newServer(boxType string, imageURL string, versionURL string) {
 	version, err := download.GetAvailableVersion(versionURL)
-	if err != nil {
+	switch fmt.Sprintf("%v", err) {
+	case "<nil>":
+	case "404":
+		mebroutines.ShowTranslatedErrorMessage("Please check the install passphrase")
+		return
+	default:
 		mebroutines.ShowTranslatedErrorMessage("Could not get version string for a new server: %v", err)
 		return
 	}
