@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-11-28 17:22+0200\n"
-"PO-Revision-Date: 2021-01-17 16:39+0200\n"
+"PO-Revision-Date: 2021-02-05 21:06+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: sv\n"
@@ -52,6 +52,9 @@ msgstr "Den virtuella maskinen har startats"
 
 msgid "Could not get version string for a new server: %v"
 msgstr "Kunde inte erhålla versionsuppgifterna för ny server: %v"
+
+msgid "Please check the install passphrase"
+msgstr "Kontrollera installationskoden för examensservern"
 
 msgid "Could not create directory: %v"
 msgstr "Det gick inte att skapa katalogen: %v"

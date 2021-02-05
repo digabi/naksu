@@ -48,6 +48,9 @@ msgstr ""
 msgid "Could not get version string for a new server: %v"
 msgstr ""
 
+msgid "Please check the install passphrase"
+msgstr ""
+
 msgid "Could not create directory: %v"
 msgstr ""
 
