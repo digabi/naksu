@@ -614,7 +614,9 @@ func enableUI(mainUIStatus chan string) {
 func bindLanguageSwitching() {
 	// Define language selection action main window
 	comboboxLang.OnSelected(func(*ui.Combobox) {
-		config.SetLanguage(constants.AvailableLangs[comboboxLang.Selected()].ConfigValue)
+		newValue := constants.AvailableLangs[comboboxLang.Selected()].ConfigValue
+		log.Action("Changing language to %s", newValue)
+		config.SetLanguage(newValue)
 
 		xlate.SetLanguage(config.GetLanguage())
 		progress.SetMessage("")
@@ -628,10 +630,12 @@ func bindAdvancedToggle() {
 		switch checkboxAdvanced.Checked() {
 		case true:
 			{
+				log.Action("Opening advanced features")
 				boxAdvanced.Show()
 			}
 		case false:
 			{
+				log.Action("Closing advances features")
 				boxAdvanced.Hide()
 			}
 		}
@@ -641,14 +645,18 @@ func bindAdvancedToggle() {
 func bindAdvancedExtNicSwitching() {
 	// Define EXTNIC selection action main window (advanced view)
 	comboboxExtNic.OnSelected(func(*ui.Combobox) {
-		config.SetExtNic(extInterfaces[comboboxExtNic.Selected()].ConfigValue)
+		newValue := extInterfaces[comboboxExtNic.Selected()].ConfigValue
+		log.Action("Changing external network to %s", newValue)
+		config.SetExtNic(newValue)
 	})
 }
 
 func bindAdvancedNicSwitching() {
 	// Define NIC selection action main window (advanced view)
 	comboboxNic.OnSelected(func(*ui.Combobox) {
-		config.SetNic(constants.AvailableNics[comboboxNic.Selected()].ConfigValue)
+		newValue := constants.AvailableNics[comboboxNic.Selected()].ConfigValue
+		log.Action("Changing server networking hardware to %s", newValue)
+		config.SetNic(newValue)
 	})
 }
 
@@ -662,11 +670,14 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 	}
 
 	buttonSelfUpdateOn.OnClicked(func(*ui.Button) {
+		log.Action("Enabling self-update")
 		config.SetSelfUpdateDisabled(false)
 	})
 
 	buttonStartServer.OnClicked(func(*ui.Button) {
 		go func() {
+			log.Action("Starting server")
+
 			// Give warnings if there is problems with configured external network device
 			// and there are more than one available
 			if config.GetExtNic() == "" {
@@ -704,7 +715,7 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 func bindOnInstallAbittiServer(mainUIStatus chan string) {
 	buttonInstallAbittiServer.OnClicked(func(*ui.Button) {
 		go func() {
-			log.Debug("Starting Abitti box update")
+			log.Action("Starting Abitti box update")
 
 			disableUI(mainUIStatus)
 			install.NewAbittiServer()
@@ -719,6 +730,7 @@ func bindOnInstallAbittiServer(mainUIStatus chan string) {
 
 func bindOnInstallExamServer(mainUIStatus chan string) {
 	buttonInstallExamServer.OnClicked(func(*ui.Button) {
+		log.Action("Opening InstallExamServer dialog")
 		disableUI(mainUIStatus)
 		examInstallWindow.Show()
 	})
@@ -729,6 +741,7 @@ func bindOnInstallExamServer(mainUIStatus chan string) {
 			examInstallPassphraseEntry.SetText("")
 			disableUI(mainUIStatus)
 			if passphrase != "" {
+				log.Action("InstallExamServer passhrase entered - Starting Exam box update")
 				examInstallWindow.Hide()
 				install.NewExamServer(passphrase)
 				translateUILabels()
@@ -741,12 +754,14 @@ func bindOnInstallExamServer(mainUIStatus chan string) {
 	})
 
 	examInstallButtonCancel.OnClicked(func(*ui.Button) {
+		log.Action("Cancelling InstallExamServer dialog")
 		examInstallWindow.Hide()
 		examInstallPassphraseEntry.SetText("")
 		enableUI(mainUIStatus)
 	})
 
 	examInstallWindow.OnClosing(func(*ui.Window) bool {
+		log.Action("Closing InstallExamServer dialog")
 		examInstallWindow.Hide()
 		enableUI(mainUIStatus)
 		examInstallPassphraseEntry.SetText("")
@@ -757,6 +772,7 @@ func bindOnInstallExamServer(mainUIStatus chan string) {
 func bindOnDestroyServer(mainUIStatus chan string) {
 	// Define actions for Destroy popup/window
 	buttonDestroyServer.OnClicked(func(*ui.Button) {
+		log.Action("Opening DestroyServer dialog")
 		disableUI(mainUIStatus)
 		destroyWindow.Show()
 	})
@@ -765,6 +781,7 @@ func bindOnDestroyServer(mainUIStatus chan string) {
 func bindOnRemoveServer(mainUIStatus chan string) {
 	// Define actions for Remove popup/window
 	buttonRemoveServer.OnClicked(func(*ui.Button) {
+		log.Action("Opening RemoveServer dialog")
 		disableUI(mainUIStatus)
 		removeWindow.Show()
 	})
@@ -772,6 +789,7 @@ func bindOnRemoveServer(mainUIStatus chan string) {
 
 func bindOnMakeBackup(mainUIStatus chan string) {
 	buttonMakeBackup.OnClicked(func(*ui.Button) {
+		log.Action("Opening Backup dialog")
 		disableUI(mainUIStatus)
 		backupWindow.Show()
 	})
@@ -786,6 +804,7 @@ func setLogDeliveryLabelTextInGoroutine(text string) {
 
 func bindOnDeliverLogs(mainUIStatus chan string) {
 	buttonDeliverLogs.OnClicked(func(*ui.Button) {
+		log.Action("Starting log delivery")
 		disableUI(mainUIStatus)
 		buttonDeliverLogs.Disable()
 
@@ -859,7 +878,7 @@ func followLogDeliveryZippingProgress(zipProgressChannel chan uint8, zipErrorCha
 
 func bindOnMebShare() {
 	buttonMebShare.OnClicked(func(*ui.Button) {
-		log.Debug("Opening MEB share (~/ktp-jako)")
+		log.Action("Opening MEB share (~/ktp-jako)")
 		mebroutines.OpenMebShare()
 	})
 }
@@ -869,7 +888,7 @@ func bindOnBackup(mainUIStatus chan string) {
 	backupButtonSave.OnClicked(func(*ui.Button) {
 		go func() {
 			pathBackup := filepath.Join(backupMediaPath[backupCombobox.Selected()], backup.GetBackupFilename(time.Now()))
-			log.Debug(fmt.Sprintf("Starting backup to: %s", pathBackup))
+			log.Action(fmt.Sprintf("Starting backup to: %s", pathBackup))
 
 			backupWindow.Hide()
 			err := backup.MakeBackup(pathBackup)
@@ -887,11 +906,13 @@ func bindOnBackup(mainUIStatus chan string) {
 	})
 
 	backupButtonCancel.OnClicked(func(*ui.Button) {
+		log.Action("Cancelling Backup dialog")
 		backupWindow.Hide()
 		enableUI(mainUIStatus)
 	})
 
 	backupWindow.OnClosing(func(*ui.Window) bool {
+		log.Action("Closing Backup dialog")
 		backupWindow.Hide()
 		enableUI(mainUIStatus)
 		return false
@@ -900,6 +921,7 @@ func bindOnBackup(mainUIStatus chan string) {
 
 func bindOnLogDelivery(mainUIStatus chan string) {
 	logDeliveryFilenameCopyButton.OnClicked(func(*ui.Button) {
+		log.Action("Copying log filename to clipboard")
 		err := clipboard.WriteAll(logDeliveryFilenameLabel.Text())
 		if err != nil {
 			log.Debug(fmt.Sprintf("Could not write to clipboard: %v", err))
@@ -907,12 +929,14 @@ func bindOnLogDelivery(mainUIStatus chan string) {
 	})
 
 	logDeliveryButtonClose.OnClicked(func(*ui.Button) {
+		log.Action("Closing LogDelivery dialog")
 		logDeliveryWindow.Hide()
 		buttonDeliverLogs.Enable()
 		enableUI(mainUIStatus)
 	})
 
 	logDeliveryWindow.OnClosing(func(*ui.Window) bool {
+		log.Action("Closing LogDelivery dialog")
 		logDeliveryWindow.Hide()
 		buttonDeliverLogs.Enable()
 		enableUI(mainUIStatus)
@@ -927,7 +951,7 @@ func bindOnDestroy(mainUIStatus chan string) {
 
 	destroyButtonDestroy.OnClicked(func(*ui.Button) {
 		go func() {
-			log.Debug("Starting server destroy")
+			log.Action("Starting server destroy")
 
 			destroyWindow.Hide()
 			err := destroy.Server()
@@ -948,11 +972,13 @@ func bindOnDestroy(mainUIStatus chan string) {
 	})
 
 	destroyButtonCancel.OnClicked(func(*ui.Button) {
+		log.Action("Cancelling Destroy dialog")
 		destroyWindow.Hide()
 		enableUI(mainUIStatus)
 	})
 
 	destroyWindow.OnClosing(func(*ui.Window) bool {
+		log.Action("Closing Destroy dialog")
 		destroyWindow.Hide()
 		enableUI(mainUIStatus)
 		return true
@@ -966,7 +992,7 @@ func bindOnRemove(mainUIStatus chan string) {
 
 	removeButtonRemove.OnClicked(func(*ui.Button) {
 		go func() {
-			log.Debug("Starting server remove")
+			log.Action("Starting server remove")
 
 			removeWindow.Hide()
 
@@ -988,11 +1014,13 @@ func bindOnRemove(mainUIStatus chan string) {
 	})
 
 	removeButtonCancel.OnClicked(func(*ui.Button) {
+		log.Action("Cancelling Remove dialog")
 		removeWindow.Hide()
 		enableUI(mainUIStatus)
 	})
 
 	removeWindow.OnClosing(func(*ui.Window) bool {
+		log.Action("Closing Remove dialog")
 		removeWindow.Hide()
 		enableUI(mainUIStatus)
 		return true
@@ -1072,7 +1100,7 @@ func RunUI() error {
 		bindOnRemove(mainUIStatus)
 
 		window.OnClosing(func(*ui.Window) bool {
-			log.Debug("User exits through window exit")
+			log.Action("User exits through window exit")
 			ui.Quit()
 			return false
 		})

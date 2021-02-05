@@ -90,12 +90,22 @@ func IsDebug() bool {
 	return isDebug
 }
 
-// Debug logs debug information to log file
-func Debug(message string, vars ...interface{}) {
+// writeLogMessage writes log entries with the specified prefix
+func writeLogMessage(prefix string, message string, vars ...interface{}) {
 	formattedMessage := fmt.Sprintf(message, vars...)
 	if IsDebug() {
-		fmt.Printf("DEBUG: %s\n", formattedMessage)
+		fmt.Printf("%s: %s\n", prefix, formattedMessage)
 	}
 
-	appendLogFile(fmt.Sprintf("DEBUG: %s", formattedMessage))
+	appendLogFile(fmt.Sprintf("%s: %s", prefix, formattedMessage))
+}
+
+// Debug logs debug information to log file
+func Debug(message string, vars ...interface{}) {
+	writeLogMessage("DEBUG", message, vars...)
+}
+
+// Action logs action information (i.e. user action) to log file
+func Action(message string, vars ...interface{}) {
+	writeLogMessage("ACTION", message, vars...)
 }
