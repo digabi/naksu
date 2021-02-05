@@ -93,7 +93,7 @@ func IsDebug() bool {
 // writeLogMessage writes log entries with the specified prefix
 func writeLogMessage(prefix string, message string, vars ...interface{}) {
 	formattedMessage := fmt.Sprintf(message, vars...)
-	if IsDebug() {
+	if (prefix == "DEBUG" && IsDebug()) || prefix != "DEBUG" {
 		fmt.Printf("%s: %s\n", prefix, formattedMessage)
 	}
 
@@ -103,6 +103,21 @@ func writeLogMessage(prefix string, message string, vars ...interface{}) {
 // Debug logs debug information to log file
 func Debug(message string, vars ...interface{}) {
 	writeLogMessage("DEBUG", message, vars...)
+}
+
+// Error logs error message to log file
+func Error(message string, vars ...interface{}) {
+	writeLogMessage("ERROR", message, vars...)
+}
+
+// Warning logs warning information to log file
+func Warning(message string, vars ...interface{}) {
+	writeLogMessage("WARNING", message, vars...)
+}
+
+// Warning logs info message to log file
+func Info(message string, vars ...interface{}) {
+	writeLogMessage("INFO", message, vars...)
 }
 
 // Action logs action information (i.e. user action) to log file

@@ -267,8 +267,7 @@ func SetMainWindow(win *ui.Window) {
 
 // ShowErrorMessage shows error message popup to user
 func ShowErrorMessage(message string) {
-	fmt.Printf("ERROR: %s\n\n", message)
-	log.Debug(fmt.Sprintf("ERROR: %s", message))
+	log.Error(message)
 
 	// Show libui box if main window has been set with Set_main_window
 	if mainWindow != nil {
@@ -284,9 +283,8 @@ func ShowTranslatedErrorMessage(str string, vars ...interface{}) {
 }
 
 // ShowWarningMessage shows warning message popup to user
-func ShowWarningMessage(message string, vars ...interface{}) {
-	fmt.Printf("WARNING: %s\n", message)
-	log.Debug(fmt.Sprintf("WARNING: %s", message))
+func ShowWarningMessage(message string) {
+	log.Warning(message)
 
 	// Show libui box if main window has been set with Set_main_window
 	if mainWindow != nil {
@@ -302,16 +300,13 @@ func ShowTranslatedWarningMessage(str string, vars ...interface{}) {
 }
 
 // ShowInfoMessage shows warning message popup to user
-func ShowInfoMessage(str string, vars ...interface{}) {
-	translated := xlate.Get(str, vars...)
-
-	fmt.Printf("INFO: %s\n", translated)
-	log.Debug(fmt.Sprintf("INFO: %s", translated))
+func ShowInfoMessage(message string) {
+	log.Info(message)
 
 	// Show libui box if main window has been set with Set_main_window
 	if mainWindow != nil {
 		ui.QueueMain(func() {
-			ui.MsgBox(mainWindow, xlate.Get("Info"), translated)
+			ui.MsgBox(mainWindow, xlate.Get("Info"), message)
 		})
 	}
 }
