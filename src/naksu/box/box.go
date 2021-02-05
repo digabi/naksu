@@ -118,6 +118,11 @@ func CreateNewBox(boxType string, boxVersion string) error {
 			"--type", "hdd",
 			"--medium", mebroutines.GetVDIImagePath(),
 		},
+		{
+			"setextradata", boxName,
+			"GUI/RestrictedCloseActions",
+			"SaveState,PowerOffRestoringSnapshot",
+		},
 	}
 
 	v6_1String := "6.1.0"
