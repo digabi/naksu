@@ -21,6 +21,11 @@ import (
 
 // newServer downloads and creates new Abitti or Exam server using the given image URL
 func newServer(boxType string, imageURL string, versionURL string) {
+	// Check prerequisites
+	if ensureServerIsNotRunningAndDoesNotExist() != nil || ensureDiskIsReady() != nil {
+		return
+	}
+
 	version, err := download.GetAvailableVersion(versionURL)
 	switch fmt.Sprintf("%v", err) {
 	case "<nil>":
@@ -29,25 +34,6 @@ func newServer(boxType string, imageURL string, versionURL string) {
 		return
 	default:
 		mebroutines.ShowTranslatedErrorMessage("Could not get version string for a new server: %v", err)
-		return
-	}
-
-	err = ensureServerIsNotRunningAndDoesNotExist()
-	if err != nil {
-		return
-	}
-
-	err = ensureNaksuDirectoriesExist()
-	if err != nil {
-		log.Debug(fmt.Sprintf("Failed to ensure Naksu directories exist: %v", err))
-		mebroutines.ShowTranslatedErrorMessage("Could not create directory: %v", err)
-		return
-	}
-
-	err = ensureFreeDisk()
-	if err != nil {
-		log.Debug(fmt.Sprintf("Failed to ensure we have enough free disk: %v", err))
-		mebroutines.ShowTranslatedErrorMessage("Could not calculate free disk size: %v", err)
 		return
 	}
 
@@ -118,6 +104,24 @@ func ensureServerIsNotRunningAndDoesNotExist() error {
 		if errRemove != nil {
 			mebroutines.ShowTranslatedWarningMessage("Could not remove current VM before installing new one: %v", errRemove)
 		}
+	}
+
+	return nil
+}
+
+func ensureDiskIsReady() error {
+	err := ensureNaksuDirectoriesExist()
+	if err != nil {
+		log.Debug(fmt.Sprintf("Failed to ensure Naksu directories exist: %v", err))
+		mebroutines.ShowTranslatedErrorMessage("Could not create directory: %v", err)
+		return err
+	}
+
+	err = ensureFreeDisk()
+	if err != nil {
+		log.Debug(fmt.Sprintf("Failed to ensure we have enough free disk: %v", err))
+		mebroutines.ShowTranslatedErrorMessage("Could not calculate free disk size: %v", err)
+		return err
 	}
 
 	return nil
