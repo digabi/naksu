@@ -2,7 +2,6 @@ package host
 
 import (
 	"fmt"
-	"runtime"
 
 	"naksu/box/vboxmanage"
 	"naksu/constants"
@@ -46,11 +45,6 @@ func IsHWVirtualisationCPU() bool {
 
 	log.Debug("Hardware virtualisation is not supported by CPU")
 	return false
-}
-
-// GetCPUCoreCount returns number of CPU cores
-func GetCPUCoreCount() int {
-	return runtime.NumCPU()
 }
 
 // GetMemory returns system RAM (in megabytes)

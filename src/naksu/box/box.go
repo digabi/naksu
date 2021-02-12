@@ -30,14 +30,19 @@ const (
 	boxSnapshotName   = "Installed"
 )
 
-func calculateBoxCPUs() int {
-	calculatedCores := host.GetCPUCoreCount() - 1
-
-	if calculatedCores <= 2 {
-		return 2
+func calculateBoxCPUs() (int, error) {
+	detectedCores, err := host.GetCPUCoreCount()
+	if err != nil {
+		return 0, err
 	}
 
-	return calculatedCores
+	calculatedCores := detectedCores - 1
+
+	if calculatedCores <= 2 {
+		return 2, nil
+	}
+
+	return calculatedCores, nil
 }
 
 func calculateBoxMemory() (uint64, error) {
@@ -67,7 +72,10 @@ func CreateNewBox(boxType string, boxVersion string) error {
 		log.Debug("Removed existing VDI file %s", mebroutines.GetVDIImagePath())
 	}
 
-	calculatedBoxCPUs := calculateBoxCPUs()
+	calculatedBoxCPUs, err := calculateBoxCPUs()
+	if err != nil {
+		return err
+	}
 
 	calculatedBoxMemory, errMemory := calculateBoxMemory()
 	if errMemory != nil {
