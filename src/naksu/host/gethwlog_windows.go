@@ -25,6 +25,7 @@ type Win32_Processor struct { //nolint
 	Manufacturer      *string
 	MaxClockSpeed     *uint32
 	Name              *string
+	NumberOfCores     *uint32
 }
 
 type Win32_ComputerSystem struct { //nolint
@@ -111,7 +112,7 @@ func getProcessorString() string {
 	for thisProcessor := range processorData {
 		processorInfo = append(processorInfo,
 			fmt.Sprintf(
-				"%s: %s, %s, %s Availability: %s, CurrentClockSpeed: %d, MaxClockSpeed: %d",
+				"%s: %s, %s, %s Availability: %s, CurrentClockSpeed: %d, MaxClockSpeed: %d, NumberOfCores: %d",
 				*processorData[thisProcessor].DeviceID,
 				*processorData[thisProcessor].Manufacturer,
 				*processorData[thisProcessor].Name,
@@ -119,6 +120,7 @@ func getProcessorString() string {
 				getWinProcessorAvailabilityLegend(*processorData[thisProcessor].Availability),
 				*processorData[thisProcessor].CurrentClockSpeed,
 				*processorData[thisProcessor].MaxClockSpeed,
+				*processorData[thisProcessor].NumberOfCores,
 			),
 		)
 	}
