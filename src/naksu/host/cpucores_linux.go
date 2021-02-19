@@ -20,7 +20,7 @@ func GetCPUCoreCount() (int, error) {
 
 	cpuinfoFileContent := string(cpuinfoFileContentBytearr)
 
-	re := regexp.MustCompile(`cpu cores\s+\: (\d+)`)
+	re := regexp.MustCompile(`cpu cores\s+: (\d+)`)
 	result := re.FindStringSubmatch(cpuinfoFileContent)
 	if result != nil {
 		coresStr := result[1]
