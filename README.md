@@ -136,6 +136,14 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 2.0.2 (22-FEB-2021)
+
+ - Show an user-friendly message instead of plain 404 when submitting wrong install passphrase
+ - Prevent closing VM by Save option
+ - Fixed VirtualBox settings path on Linux
+ - Do not fail when removing locked VirtualBox system files when removing server
+ - Calculate host machine cores instead of threads when creating a new VM
+
 ### 2.0.1 (22-JAN-2021)
 
 - Remove image files before installing a new server
