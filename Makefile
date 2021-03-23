@@ -13,7 +13,10 @@ res/gettext/naksu.pot: $(SOURCES)
 		--keyword="ShowTranslatedInfoMessage:1" \
 		--keyword="ShowTranslatedErrorMessage:1" \
 		--keyword="ShowTranslatedWarningMessage:1" \
-		-C --no-location --output=res/gettext/naksu.pot --files-from=xgettext-sourcefiles
+		-C --no-location --output=res/gettext/naksu.pot \
+		--sort-output \
+		--omit-header \
+		--files-from=xgettext-sourcefiles
 	rm xgettext-sourcefiles
 
 xlate: res/gettext/naksu.pot src/naksu/xlate/xlate_fi.go src/naksu/xlate/xlate_sv.go
