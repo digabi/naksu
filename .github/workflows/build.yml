@@ -10,11 +10,8 @@ jobs:
     - name: "Build Naksu"
       run: make docker
 
-    - name: "Install python-requests"
-      run: sudo apt-get -y install python-requests
-
     - name: "Delete Existing Draft Releases"
-      run: python tools/github_purge_draft_releases.py $GITHUB_REPOSITORY ${{ secrets.GITHUB_TOKEN }}
+      run: python3 tools/github_purge_draft_releases.py $GITHUB_REPOSITORY ${{ secrets.GITHUB_TOKEN }}
 
     - name: "Create Draft Release"
       id: create_release
