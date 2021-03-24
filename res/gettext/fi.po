@@ -323,7 +323,7 @@ msgid "Remove Exams"
 msgstr "Poista kokeet"
 
 msgid "Remove Exams restores server to its initial status."
-msgstr "Remove Exams restores server to its initial status."
+msgstr "Poista kokeet -toiminto palauttaa palvelimen alkutilaansa."
 
 msgid "Remove Server"
 msgstr "Poista palvelin"
