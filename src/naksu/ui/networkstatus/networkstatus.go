@@ -90,7 +90,7 @@ func showNetworkStatus(text string, warning bool) {
 	} else {
 		appendWithAttributes(networkStatusString, text, normalTextColor)
 	}
-	networkStatusArea.QueueRedrawAll()
+	ui.QueueMain(networkStatusArea.QueueRedrawAll)
 
 	log.Debug(fmt.Sprintf("Network status: %s", text))
 }
