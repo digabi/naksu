@@ -2,6 +2,12 @@
 msgid "0 %% (this can take a while...)"
 msgstr "0 %% (tässä voi mennä hetki...)"
 
+msgid "A new Abitti server was created"
+msgstr "Uusi Abitti-palvelin on luotu"
+
+msgid "A new exam server was created"
+msgstr "Uusi yo-palvelin on luotu"
+
 msgid "Abitti Exam"
 msgstr "Abitti-koe"
 
@@ -179,11 +185,20 @@ msgstr "Uuden virtuaalikoneen luominen epäonnistui: %v"
 msgid "Failed to get new VM image: %v"
 msgstr "Levynkuvan lataaminen epäonnistui: %v"
 
+msgid "Failed to install an Abitti server: %v"
+msgstr "Abitti-palvelimen asennus epäonnistui: %v"
+
+msgid "Failed to install an exam server: %v"
+msgstr "Yo-palvelimen asennus epäonnistui: %v"
+
 msgid "Failed to remove exams: %v"
 msgstr "Kokeiden poistaminen epäonnistui: %v"
 
 msgid "Failed to remove raw image file %s: %v"
 msgstr "Levynkuvatiedoston %s poistaminen epäonnistui: %v"
+
+msgid "Failed to start server: %v"
+msgstr "Palvelimen käynnistäminen epäonnistui: %v"
 
 #, c-format
 msgid "File %s already exists"
@@ -275,9 +290,6 @@ msgstr "Verkon nopeus ei riitä (%d Mbit/s)"
 
 msgid "Network status: "
 msgstr "Verkon tila: "
-
-msgid "New VM was created"
-msgstr "Uusi virtuaalikone on luotu"
 
 msgid "No network connection"
 msgstr "Ei verkkoyhteyttä"

@@ -2,6 +2,12 @@
 msgid "0 %% (this can take a while...)"
 msgstr "0 %% (kan ta ett tag...)"
 
+msgid "A new Abitti server was created"
+msgstr "En ny Abitti-server har skapats"
+
+msgid "A new exam server was created"
+msgstr "En ny examensserver har skapats"
+
 msgid "Abitti Exam"
 msgstr "Abitti-prov"
 
@@ -180,11 +186,20 @@ msgstr "Misslyckades med att skapa en ny virtuell maskin: %v"
 msgid "Failed to get new VM image: %v"
 msgstr "Laddning av skivavbild misslyckades: %v"
 
+msgid "Failed to install an Abitti server: %v"
+msgstr "Installationen av Abitti-server misslyckades: %v"
+
+msgid "Failed to install an exam server: %v"
+msgstr "Installationen av examensserver misslyckades: %v"
+
 msgid "Failed to remove exams: %v"
 msgstr "Avlägsnande av proven misslyckades: %v"
 
 msgid "Failed to remove raw image file %s: %v"
 msgstr "Radering av skivavbilden %s misslyckades: %v"
+
+msgid "Failed to start server: %v"
+msgstr "Uppstart av servern misslyckades: %v"
 
 #, c-format
 msgid "File %s already exists"
@@ -279,9 +294,6 @@ msgstr "Näthastigheten är för låg (%d Mbit/s)"
 
 msgid "Network status: "
 msgstr "Nätverksstatus: "
-
-msgid "New VM was created"
-msgstr "En ny virtuell maskin har skapats"
 
 msgid "No network connection"
 msgstr "Inget nätverk"
