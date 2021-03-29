@@ -2,6 +2,12 @@
 msgid "0 %% (this can take a while...)"
 msgstr ""
 
+msgid "A new Abitti server was created"
+msgstr ""
+
+msgid "A new exam server was created"
+msgstr ""
+
 msgid "Abitti Exam"
 msgstr ""
 
@@ -168,10 +174,19 @@ msgstr ""
 msgid "Failed to get new VM image: %v"
 msgstr ""
 
+msgid "Failed to install an Abitti server: %v"
+msgstr ""
+
+msgid "Failed to install an exam server: %v"
+msgstr ""
+
 msgid "Failed to remove exams: %v"
 msgstr ""
 
 msgid "Failed to remove raw image file %s: %v"
+msgstr ""
+
+msgid "Failed to start server: %v"
 msgstr ""
 
 #, c-format
@@ -252,9 +267,6 @@ msgid "Network speed is too low (%d Mbit/s)"
 msgstr ""
 
 msgid "Network status: "
-msgstr ""
-
-msgid "New VM was created"
 msgstr ""
 
 msgid "No network connection"

@@ -9,36 +9,40 @@ import (
 	"naksu/ui/progress"
 )
 
-// Server destroys existing exam server by restoring the fresh snapshot. The errors are reported upstream.
-func Server() error {
-	isInstalled, errInstalled := box.Installed()
-	if errInstalled != nil {
-		log.Debug(fmt.Sprintf("Could not start destroying server as we could not detect whether existing VM is installed: %v", errInstalled))
-		return errors.New("could not detect whether there is an existing vm installed")
+// Server destroys existing exam server by restoring the fresh snapshot.
+// Returns:
+// - bool: If true, the error has already been communicated to the user
+// - error: Error object
+func Server() (bool, error) {
+	isInstalled, err := box.Installed()
+	if err != nil {
+		log.Debug("Could not start destroying server as we could not detect whether existing VM is installed: %v", err)
+		return false, errors.New("could not detect whether there is an existing vm installed")
 	}
 
 	if !isInstalled {
-		return errors.New("there is no vm installed")
+		return false, errors.New("there is no vm installed")
 	}
 
-	isRunning, errRunning := box.Running()
-	if errRunning != nil {
-		log.Debug(fmt.Sprintf("Could not start destroying server as we could not detect whether existing VM is running: %v", errRunning))
-		return errors.New("could not detect whether there is existing vm running")
+	isRunning, err := box.Running()
+	if err != nil {
+		log.Debug("Could not start destroying server as we could not detect whether existing VM is running: %v", err)
+		return false, errors.New("could not detect whether there is existing vm running")
 	}
 
 	if isRunning {
-		return errors.New("the vm is running, please stop it first")
+		return false, errors.New("the vm is running, please stop it first")
 	}
 
 	progress.TranslateAndSetMessage("Removing exams. This takes a while.")
 
-	err := box.RestoreSnapshot()
+	err = box.RestoreSnapshot()
 	if err != nil {
-		log.Debug(fmt.Sprintf("Could not destroy VM / restore initial snapshot: %v", err))
+		log.Debug("Could not destroy VM / restore initial snapshot: %v", err)
+		return false, fmt.Errorf("could not restore snapshot: %v", err)
 	}
 
 	progress.SetMessage("")
 
-	return err
+	return false, nil
 }

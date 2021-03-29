@@ -1,44 +1,47 @@
 package start
 
 import (
+	"errors"
 	"fmt"
+
 	"naksu/box"
 	"naksu/box/vboxmanage"
 	"naksu/mebroutines"
-	"naksu/ui/progress"
 )
 
-// Server starts exam server
-func Server() {
+// Server starts the exam server
+// Returns:
+// - bool: If true, the error has already been communicated to the user
+// - error: Error object
+func Server() (bool, error) {
 	vboxmanage.CleanUpTrashVMDirectories()
 
-	isInstalled, errInstalled := box.Installed()
-	if errInstalled != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not start server as we could not detect whether existing VM is installed: %v", errInstalled))
-		return
+	isInstalled, err := box.Installed()
+	if err != nil {
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not start server as we could not detect whether existing VM is installed: %v", err))
+		return true, fmt.Errorf("could not detect whether an existing vm is installed: %v", err)
 	}
 
 	if !isInstalled {
 		mebroutines.ShowErrorMessage("No server has been installed.")
-		return
+		return true, errors.New("no server has been installed")
 	}
 
-	isRunning, errRunning := box.Running()
-	if errRunning != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not start server as we could not detect whether existing VM is running: %v", errRunning))
-		return
+	isRunning, err := box.Running()
+	if err != nil {
+		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not start server as we could not detect whether existing VM is running: %v", err))
+		return true, fmt.Errorf("could not detect whether the server is running: %v", err)
 	}
 
 	if isRunning {
 		mebroutines.ShowErrorMessage("The server is already running.")
-		return
+		return true, errors.New("the server is already running")
 	}
 
-	err := box.StartCurrentBox()
+	err = box.StartCurrentBox()
 	if err != nil {
-		mebroutines.ShowErrorMessage(fmt.Sprintf("Could not start VM: %v", err))
-		return
+		return false, err
 	}
 
-	progress.SetMessage("Virtual machine was started")
+	return false, nil
 }

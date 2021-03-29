@@ -10,7 +10,10 @@ import (
 )
 
 // Server removes all directories related to VirtualBox
-func Server() error {
+// Returns:
+// - bool: If true, the error has already been communicated to the user
+// - error: Error object
+func Server() (bool, error) {
 	isRunning, errRunning := box.Running()
 
 	switch {
@@ -24,7 +27,7 @@ func Server() error {
 	// a directory where the process is running
 	progress.TranslateAndSetMessage("Chdir ~")
 	if !mebroutines.ChdirHomeDirectory() {
-		return errors.New("could not chdir to home directory")
+		return false, errors.New("could not chdir to home directory")
 	}
 
 	progress.TranslateAndSetMessage("Deleting ~/.VirtualBox")
@@ -34,8 +37,8 @@ func Server() error {
 	err := mebroutines.RemoveDir(mebroutines.GetVirtualBoxVMsDirectory())
 	if err != nil {
 		mebroutines.ShowWarningMessage(fmt.Sprintf("Failed to remove directory %s: %v", mebroutines.GetVirtualBoxVMsDirectory(), err))
-		return err
+		return true, err
 	}
 
-	return nil
+	return false, nil
 }

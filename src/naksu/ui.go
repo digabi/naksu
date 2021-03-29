@@ -629,15 +629,11 @@ func bindAdvancedToggle() {
 	checkboxAdvanced.OnToggled(func(*ui.Checkbox) {
 		switch checkboxAdvanced.Checked() {
 		case true:
-			{
-				log.Action("Opening advanced features")
-				boxAdvanced.Show()
-			}
+			log.Action("Opening advanced features")
+			boxAdvanced.Show()
 		case false:
-			{
-				log.Action("Closing advances features")
-				boxAdvanced.Hide()
-			}
+			log.Action("Closing advances features")
+			boxAdvanced.Hide()
 		}
 	})
 }
@@ -675,41 +671,54 @@ func bindUIDisableOnStart(mainUIStatus chan string) {
 	})
 
 	buttonStartServer.OnClicked(func(*ui.Button) {
-		go func() {
-			log.Action("Starting server")
-
-			// Give warnings if there is problems with configured external network device
-			// and there are more than one available
-			if config.GetExtNic() == "" {
-				mebroutines.ShowTranslatedErrorMessage("Please select the network device which is connected to your exam network.")
-				return
-			}
-
-			if !network.IsExtInterface(config.GetExtNic()) {
-				mebroutines.ShowTranslatedErrorMessage("You have selected network device '%s' which is not available.", config.GetExtNic())
-				return
-			}
-
-			// Get defails of the current installed box and warn if we're having Matric Exam box & internet connection
-			if box.TypeIsMatriculationExam() {
-				if network.CheckIfNetworkAvailable() {
-					mebroutines.ShowTranslatedWarningMessage("You are starting Matriculation Examination server with an Internet connection.")
-				} else {
-					log.Debug("Starting Matric Exam server without an internet connection - All is good!")
-				}
-			}
-
-			// Disable UI to prevent multiple simultaneous server starts
-			disableUI(mainUIStatus)
-			start.Server()
-			// Wait over one UI loop
-			time.Sleep(5000)
-			enableUI(mainUIStatus)
-
-			progress.SetMessage("")
-		}()
+		startServerButtonClicked(mainUIStatus)
 	})
+}
 
+func startServerButtonClicked(mainUIStatus chan string) {
+	go func() {
+		log.Action("Starting server")
+
+		// Give warnings if there is problems with configured external network device
+		// and there are more than one available
+		if config.GetExtNic() == "" {
+			mebroutines.ShowTranslatedErrorMessage("Please select the network device which is connected to your exam network.")
+			return
+		}
+
+		if !network.IsExtInterface(config.GetExtNic()) {
+			mebroutines.ShowTranslatedErrorMessage("You have selected network device '%s' which is not available.", config.GetExtNic())
+			return
+		}
+
+		// Get defails of the current installed box and warn if we're having Matric Exam box & internet connection
+		if box.TypeIsMatriculationExam() {
+			if network.CheckIfNetworkAvailable() {
+				mebroutines.ShowTranslatedWarningMessage("You are starting Matriculation Examination server with an Internet connection.")
+			} else {
+				log.Debug("Starting Matric Exam server without an internet connection - All is good!")
+			}
+		}
+
+		// Disable UI to prevent multiple simultaneous server starts
+		disableUI(mainUIStatus)
+
+		errorReported, err := start.Server()
+		switch {
+		case err != nil && errorReported:
+			log.Debug("Failed to start server: %v", err)
+		case err != nil && !errorReported:
+			mebroutines.ShowTranslatedErrorMessage("Failed to start server: %v", err)
+		default:
+			progress.SetMessage("Virtual machine was started")
+		}
+
+		// Wait over one UI loop
+		time.Sleep(5000)
+		enableUI(mainUIStatus)
+
+		progress.SetMessage("")
+	}()
 }
 
 func bindOnInstallAbittiServer(mainUIStatus chan string) {
@@ -718,12 +727,22 @@ func bindOnInstallAbittiServer(mainUIStatus chan string) {
 			log.Action("Starting Abitti box update")
 
 			disableUI(mainUIStatus)
-			install.NewAbittiServer()
+
+			errorReported, err := install.NewAbittiServer()
+			switch {
+			case err != nil && errorReported:
+				log.Debug("Failed to install an Abitti server: %v", err)
+			case err != nil && !errorReported:
+				mebroutines.ShowTranslatedErrorMessage("Failed to install an Abitti server: %v", err)
+			default:
+				progress.TranslateAndSetMessage("A new Abitti server was created")
+			}
+
 			translateUILabels()
 			enableUI(mainUIStatus)
 			progress.SetMessage("")
 
-			log.Debug(fmt.Sprintf("Finished Abitti box update, version is: %s", box.GetVersion()))
+			log.Debug("Finished Abitti box update, version is: %s", box.GetVersion())
 		}()
 	})
 }
@@ -743,9 +762,19 @@ func bindOnInstallExamServer(mainUIStatus chan string) {
 			if passphrase != "" {
 				log.Action("InstallExamServer passhrase entered - Starting Exam box update")
 				examInstallWindow.Hide()
-				install.NewExamServer(passphrase)
+
+				errorReported, err := install.NewExamServer(passphrase)
+				switch {
+				case err != nil && errorReported:
+					log.Debug("Failed to install an exam server: %v", err)
+				case err != nil && !errorReported:
+					mebroutines.ShowTranslatedErrorMessage("Failed to install an exam server: %v", err)
+				default:
+					progress.TranslateAndSetMessage("A new exam server was created")
+				}
+
 				translateUILabels()
-				log.Debug(fmt.Sprintf("Finished Exam box update, version is: %s", box.GetVersion()))
+				log.Debug("Finished Exam box update, version is: %s", box.GetVersion())
 			} else {
 				mebroutines.ShowTranslatedErrorMessage("Please enter install passphrase to install the exam server")
 			}
@@ -891,11 +920,14 @@ func bindOnBackup(mainUIStatus chan string) {
 			log.Action(fmt.Sprintf("Starting backup to: %s", pathBackup))
 
 			backupWindow.Hide()
-			err := backup.MakeBackup(pathBackup)
-			if err != nil {
+			errorReported, err := backup.MakeBackup(pathBackup)
+			switch {
+			case err != nil && errorReported:
+				log.Debug("Backup failed: %v", err)
+			case err != nil && !errorReported:
 				mebroutines.ShowTranslatedErrorMessage("Backup failed: %v", err)
 				progress.TranslateAndSetMessage("Backup failed: %v", err)
-			} else {
+			default:
 				progress.TranslateAndSetMessage("Backup done: %s", pathBackup)
 			}
 
@@ -954,11 +986,15 @@ func bindOnDestroy(mainUIStatus chan string) {
 			log.Action("Starting server destroy")
 
 			destroyWindow.Hide()
-			err := destroy.Server()
-			if err != nil {
+
+			errorReported, err := destroy.Server()
+			switch {
+			case err != nil && errorReported:
+				log.Debug("Failed to remove exams: %v", err)
+			case err != nil && !errorReported:
 				mebroutines.ShowTranslatedErrorMessage("Failed to remove exams: %v", err)
 				progress.TranslateAndSetMessage("Failed to remove exams: %v", err)
-			} else {
+			default:
 				progress.TranslateAndSetMessage("Exams were removed successfully.")
 			}
 
@@ -996,11 +1032,14 @@ func bindOnRemove(mainUIStatus chan string) {
 
 			removeWindow.Hide()
 
-			err := remove.Server()
-			if err != nil {
+			errorReported, err := remove.Server()
+			switch {
+			case err != nil && errorReported:
+				log.Debug("Failed to remove server: %v", err)
+			case err != nil && !errorReported:
 				mebroutines.ShowTranslatedErrorMessage("Error while removing server: %v", err)
 				progress.TranslateAndSetMessage("Error while removing server: %v", err)
-			} else {
+			default:
 				progress.TranslateAndSetMessage("Server was removed successfully.")
 			}
 

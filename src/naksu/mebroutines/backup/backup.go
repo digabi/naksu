@@ -18,10 +18,13 @@ import (
 )
 
 // MakeBackup creates virtual machine backup to path
-func MakeBackup(backupPath string) error {
+// Returns:
+// - bool: If true, the error has already been communicated to the user
+// - error: Error object
+func MakeBackup(backupPath string) (bool, error) {
 	errBox := ensureBoxInstalledAndNotRunning()
 	if errBox != nil {
-		return errBox
+		return false, errBox
 	}
 
 	err := host.CheckFreeDisk(constants.LowDiskLimit, []string{filepath.Dir(backupPath)})
@@ -36,7 +39,7 @@ func MakeBackup(backupPath string) error {
 	progress.TranslateAndSetMessage("Checking existing file...")
 	if mebroutines.ExistsFile(backupPath) {
 		mebroutines.ShowTranslatedErrorMessage("File %s already exists", backupPath)
-		return errors.New("backup file already exists")
+		return true, errors.New("backup file already exists")
 	}
 
 	// Check if path_backup is writeable
@@ -44,12 +47,12 @@ func MakeBackup(backupPath string) error {
 	wrErr := mebroutines.CreateFile(backupPath)
 	if wrErr != nil {
 		mebroutines.ShowTranslatedErrorMessage("Could not write test backup file %s. Try another location.", backupPath)
-		return fmt.Errorf("could not write test backup file: %v", wrErr)
+		return true, fmt.Errorf("could not write test backup file: %v", wrErr)
 	}
 
 	remErr := os.Remove(backupPath)
 	if remErr != nil {
-		return fmt.Errorf("removing test backup file returned error code: %v", remErr)
+		return false, fmt.Errorf("removing test backup file returned error code: %v", remErr)
 	}
 
 	// Get disk location
@@ -57,24 +60,24 @@ func MakeBackup(backupPath string) error {
 	diskLocation := box.GetDiskLocation()
 	log.Debug(fmt.Sprintf("Disk location: %s", diskLocation))
 	if diskLocation == "" {
-		return errors.New("could not get disk location")
+		return false, errors.New("could not get disk location")
 	}
 
 	progress.TranslateAndSetMessage("Checking for FAT32 filesystem...")
 	errFAT := checkForFATFilesystem(backupPath, diskLocation)
 	if errFAT != nil {
 		mebroutines.ShowTranslatedErrorMessage("The backup file is too large for a FAT32 filesystem. Please reformat the backup disk as exFAT.")
-		return fmt.Errorf("backup file too large for fat32 filesystem")
+		return true, fmt.Errorf("backup file too large for fat32 filesystem")
 	}
 
 	// Make clone to path_backup
 	progress.TranslateAndSetMessage("Please wait, writing backup...")
 	cloneErr := box.WriteDiskClone(backupPath)
 	if cloneErr != nil {
-		return fmt.Errorf("failed to make clone: %v", cloneErr)
+		return false, fmt.Errorf("failed to make clone: %v", cloneErr)
 	}
 
-	return nil
+	return true, nil
 }
 
 func ensureBoxInstalledAndNotRunning() error {
