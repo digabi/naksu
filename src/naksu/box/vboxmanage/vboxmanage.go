@@ -262,7 +262,7 @@ func getVMState(vmName string) (string, error) {
 		}
 
 		// Extract state string
-		vmState := getVMStateFromOutput(rawVMInfo)
+		vmState = getVMStateFromOutput(rawVMInfo)
 		if vmState == "" {
 			log.Debug("Could not find VM state from the VM info")
 			return "", errors.New("could not find vm state from the vm info")
