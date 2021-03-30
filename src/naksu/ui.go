@@ -707,8 +707,10 @@ func startServerButtonClicked(mainUIStatus chan string) {
 		switch {
 		case err != nil && errorReported:
 			log.Debug("Failed to start server: %v", err)
+			progress.SetMessage("")
 		case err != nil && !errorReported:
 			mebroutines.ShowTranslatedErrorMessage("Failed to start server: %v", err)
+			progress.SetMessage("")
 		default:
 			progress.SetMessage("Virtual machine was started")
 		}
@@ -732,15 +734,16 @@ func bindOnInstallAbittiServer(mainUIStatus chan string) {
 			switch {
 			case err != nil && errorReported:
 				log.Debug("Failed to install an Abitti server: %v", err)
+				progress.SetMessage("")
 			case err != nil && !errorReported:
 				mebroutines.ShowTranslatedErrorMessage("Failed to install an Abitti server: %v", err)
+				progress.SetMessage("")
 			default:
 				progress.TranslateAndSetMessage("A new Abitti server was created")
 			}
 
 			translateUILabels()
 			enableUI(mainUIStatus)
-			progress.SetMessage("")
 
 			log.Debug("Finished Abitti box update, version is: %s", box.GetVersion())
 		}()
@@ -767,8 +770,10 @@ func bindOnInstallExamServer(mainUIStatus chan string) {
 				switch {
 				case err != nil && errorReported:
 					log.Debug("Failed to install an exam server: %v", err)
+					progress.SetMessage("")
 				case err != nil && !errorReported:
 					mebroutines.ShowTranslatedErrorMessage("Failed to install an exam server: %v", err)
+					progress.SetMessage("")
 				default:
 					progress.TranslateAndSetMessage("A new exam server was created")
 				}
@@ -836,6 +841,7 @@ func bindOnDeliverLogs(mainUIStatus chan string) {
 		log.Action("Starting log delivery")
 		disableUI(mainUIStatus)
 		buttonDeliverLogs.Disable()
+		progress.SetMessage("")
 
 		logDeliveryFilenameLabel.SetText(xlate.Get("Wait..."))
 		logDeliveryStatusLabel.SetText(xlate.Get("Copying logs: %s", xlate.Get("0 %% (this can take a while...)")))
@@ -924,9 +930,10 @@ func bindOnBackup(mainUIStatus chan string) {
 			switch {
 			case err != nil && errorReported:
 				log.Debug("Backup failed: %v", err)
+				progress.SetMessage("")
 			case err != nil && !errorReported:
 				mebroutines.ShowTranslatedErrorMessage("Backup failed: %v", err)
-				progress.TranslateAndSetMessage("Backup failed: %v", err)
+				progress.SetMessage("")
 			default:
 				progress.TranslateAndSetMessage("Backup done: %s", pathBackup)
 			}
@@ -991,9 +998,10 @@ func bindOnDestroy(mainUIStatus chan string) {
 			switch {
 			case err != nil && errorReported:
 				log.Debug("Failed to remove exams: %v", err)
+				progress.SetMessage("")
 			case err != nil && !errorReported:
 				mebroutines.ShowTranslatedErrorMessage("Failed to remove exams: %v", err)
-				progress.TranslateAndSetMessage("Failed to remove exams: %v", err)
+				progress.SetMessage("")
 			default:
 				progress.TranslateAndSetMessage("Exams were removed successfully.")
 			}
@@ -1036,9 +1044,10 @@ func bindOnRemove(mainUIStatus chan string) {
 			switch {
 			case err != nil && errorReported:
 				log.Debug("Failed to remove server: %v", err)
+				progress.SetMessage("")
 			case err != nil && !errorReported:
 				mebroutines.ShowTranslatedErrorMessage("Error while removing server: %v", err)
-				progress.TranslateAndSetMessage("Error while removing server: %v", err)
+				progress.SetMessage("")
 			default:
 				progress.TranslateAndSetMessage("Server was removed successfully.")
 			}
