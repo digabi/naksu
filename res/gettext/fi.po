@@ -1,6 +1,6 @@
 #, c-format
 msgid "0 %% (this can take a while...)"
-msgstr "0 %% (tässä voi mennä hetki...)"
+msgstr "0 % (tässä voi mennä hetki...)"
 
 msgid "A new Abitti server was created"
 msgstr "Uusi Abitti-palvelin on luotu"

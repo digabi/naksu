@@ -1,6 +1,6 @@
 #, c-format
 msgid "0 %% (this can take a while...)"
-msgstr "0 %% (kan ta ett tag...)"
+msgstr "0 % (kan ta ett tag...)"
 
 msgid "A new Abitti server was created"
 msgstr "En ny Abitti-server har skapats"
