@@ -24,11 +24,6 @@ import (
 // - bool: If true, the error has already been communicated to the user
 // - error: Error object
 func newServer(boxType string, imageURL string, versionURL string) (bool, error) {
-	// Check prerequisites
-	if ensureServerIsNotRunningAndDoesNotExist() != nil || ensureDiskIsReady() != nil {
-		return true, errors.New("server exists or disk is not ready")
-	}
-
 	version, err := download.GetAvailableVersion(versionURL)
 	switch fmt.Sprintf("%v", err) {
 	case "<nil>":
@@ -38,6 +33,11 @@ func newServer(boxType string, imageURL string, versionURL string) (bool, error)
 	default:
 		mebroutines.ShowTranslatedErrorMessage("Could not get version string for a new server: %v", err)
 		return true, fmt.Errorf("error from server: %v", err)
+	}
+
+	// Check prerequisites
+	if ensureServerIsNotRunningAndDoesNotExist() != nil || ensureDiskIsReady() != nil {
+		return true, errors.New("server exists or disk is not ready")
 	}
 
 	progress.TranslateAndSetMessage("Getting Image from the Cloud")
