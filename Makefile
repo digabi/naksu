@@ -79,7 +79,11 @@ src/naksu.syso: res/windows/*
 	$(RSRC) -arch="amd64" -ico="res/windows/naksu.ico" -o src/naksu.syso
 
 naksu.exe: src/*
-	cd src/naksu && GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ $(GO) build -o ../../bin/naksu.exe naksu
+	cd src/naksu && \
+		GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ \
+		$(GO) build \
+		-ldflags "-H=windowsgui" \
+		-o ../../bin/naksu.exe naksu
 
 naksu: src/*
 	cd src/naksu && GOOS=linux GOARCH=amd64 CGO_ENABLED=1 $(GO) build -o ../../bin/naksu naksu
