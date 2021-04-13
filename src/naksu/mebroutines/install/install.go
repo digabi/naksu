@@ -20,31 +20,28 @@ import (
 )
 
 // newServer downloads and creates new Abitti or Exam server using the given image URL
-// Returns:
-// - bool: If true, the error has already been communicated to the user
-// - error: Error object
-func newServer(boxType string, imageURL string, versionURL string) (bool, error) {
+func newServer(boxType string, imageURL string, versionURL string) error {
 	version, err := download.GetAvailableVersion(versionURL)
 	switch fmt.Sprintf("%v", err) {
 	case "<nil>":
 	case "404":
 		mebroutines.ShowTranslatedErrorMessage("Please check the install passphrase")
-		return true, errors.New("wrong passphrase entered (got 404)")
+		return errors.New("wrong passphrase entered (got 404)")
 	default:
 		mebroutines.ShowTranslatedErrorMessage("Could not get version string for a new server: %v", err)
-		return true, fmt.Errorf("error from server: %v", err)
+		return fmt.Errorf("error from server: %v", err)
 	}
 
 	// Check prerequisites
 	if ensureServerIsNotRunningAndDoesNotExist() != nil || ensureDiskIsReady() != nil {
-		return true, errors.New("server exists or disk is not ready")
+		return errors.New("server exists or disk is not ready")
 	}
 
 	progress.TranslateAndSetMessage("Getting Image from the Cloud")
 	err = download.GetServerImage(imageURL, progress.SetMessage)
 	if err != nil {
 		mebroutines.ShowTranslatedErrorMessage("Failed to get new VM image: %v", err)
-		return true, fmt.Errorf("downloading image failed: %v", err)
+		return fmt.Errorf("downloading image failed: %v", err)
 	}
 
 	progress.TranslateAndSetMessage("Creating New VM")
@@ -58,7 +55,7 @@ func newServer(boxType string, imageURL string, versionURL string) (bool, error)
 			log.Debug("Failed to remove image file %s: %v", mebroutines.GetImagePath(), removeErr)
 		}
 
-		return true, fmt.Errorf("failed to create new vm: %v", err)
+		return fmt.Errorf("failed to create new vm: %v", err)
 	}
 
 	progress.TranslateAndSetMessage("Removing temporary raw image file")
@@ -68,22 +65,16 @@ func newServer(boxType string, imageURL string, versionURL string) (bool, error)
 		mebroutines.ShowTranslatedWarningMessage("Failed to remove raw image file %s: %v", mebroutines.GetImagePath(), err)
 	}
 
-	return false, nil
+	return nil
 }
 
 // NewAbittiServer downloads and installs a new Abitti server
-// Returns:
-// - bool: If true, the error has already been communicated to the user
-// - error: Error object
-func NewAbittiServer() (bool, error) {
+func NewAbittiServer() error {
 	return newServer(constants.AbittiBoxType, constants.AbittiEtcherURL, constants.AbittiVersionURL)
 }
 
 // NewExamServer downloads and installs a new exam server
-// Returns:
-// - bool: If true, the error has already been communicated to the user
-// - error: Error object
-func NewExamServer(passphrase string) (bool, error) {
+func NewExamServer(passphrase string) error {
 	passphraseHash := getPassphraseHash(passphrase)
 	imageURL := getExamURL(constants.MatriculationExamEtcherURL, passphraseHash)
 	versionURL := getExamURL(constants.MatriculationExamVersionURL, passphraseHash)
