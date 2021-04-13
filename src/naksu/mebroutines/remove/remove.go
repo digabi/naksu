@@ -8,13 +8,13 @@ import (
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
+	"naksu/xlate"
 )
 
+var generalErrorString = xlate.GetRaw("Error while removing server: %v")
+
 // Server removes all directories related to VirtualBox
-// Returns:
-// - bool: If true, the error has already been communicated to the user
-// - error: Error object
-func Server() (bool, error) {
+func Server() error {
 	isRunning, err := box.Running()
 
 	switch {
@@ -34,7 +34,7 @@ func Server() (bool, error) {
 	// a directory where the process is running
 	progress.TranslateAndSetMessage("Chdir ~")
 	if !mebroutines.ChdirHomeDirectory() {
-		return false, errors.New("could not chdir to home directory")
+		return mebroutines.ShowTranslatedErrorMessageAndPassError(generalErrorString, errors.New("could not chdir to home directory"))
 	}
 
 	progress.TranslateAndSetMessage("Deleting ~/.VirtualBox")
@@ -44,8 +44,8 @@ func Server() (bool, error) {
 	err = mebroutines.RemoveDir(mebroutines.GetVirtualBoxVMsDirectory())
 	if err != nil {
 		mebroutines.ShowWarningMessage(fmt.Sprintf("Failed to remove directory %s: %v", mebroutines.GetVirtualBoxVMsDirectory(), err))
-		return true, err
+		return err
 	}
 
-	return false, nil
+	return nil
 }

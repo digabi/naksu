@@ -185,12 +185,6 @@ msgstr "Uuden virtuaalikoneen luominen epäonnistui: %v"
 msgid "Failed to get new VM image: %v"
 msgstr "Levynkuvan lataaminen epäonnistui: %v"
 
-msgid "Failed to install an Abitti server: %v"
-msgstr "Abitti-palvelimen asennus epäonnistui: %v"
-
-msgid "Failed to install an exam server: %v"
-msgstr "Yo-palvelimen asennus epäonnistui: %v"
-
 msgid "Failed to remove exams: %v"
 msgstr "Kokeiden poistaminen epäonnistui: %v"
 

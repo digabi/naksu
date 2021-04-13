@@ -186,12 +186,6 @@ msgstr "Misslyckades med att skapa en ny virtuell maskin: %v"
 msgid "Failed to get new VM image: %v"
 msgstr "Laddning av skivavbild misslyckades: %v"
 
-msgid "Failed to install an Abitti server: %v"
-msgstr "Installationen av Abitti-server misslyckades: %v"
-
-msgid "Failed to install an exam server: %v"
-msgstr "Installationen av examensserver misslyckades: %v"
-
 msgid "Failed to remove exams: %v"
 msgstr "Avlägsnande av proven misslyckades: %v"
 

@@ -703,15 +703,11 @@ func startServerButtonClicked(mainUIStatus chan string) {
 		// Disable UI to prevent multiple simultaneous server starts
 		disableUI(mainUIStatus)
 
-		errorReported, err := start.Server()
-		switch {
-		case err != nil && errorReported:
+		err := start.Server()
+		if err != nil {
 			log.Debug("Failed to start server: %v", err)
 			progress.SetMessage("")
-		case err != nil && !errorReported:
-			mebroutines.ShowTranslatedErrorMessage("Failed to start server: %v", err)
-			progress.SetMessage("")
-		default:
+		} else {
 			progress.SetMessage("Virtual machine was started")
 		}
 
@@ -730,15 +726,11 @@ func bindOnInstallAbittiServer(mainUIStatus chan string) {
 
 			disableUI(mainUIStatus)
 
-			errorReported, err := install.NewAbittiServer()
-			switch {
-			case err != nil && errorReported:
+			err := install.NewAbittiServer()
+			if err != nil {
 				log.Debug("Failed to install an Abitti server: %v", err)
 				progress.SetMessage("")
-			case err != nil && !errorReported:
-				mebroutines.ShowTranslatedErrorMessage("Failed to install an Abitti server: %v", err)
-				progress.SetMessage("")
-			default:
+			} else {
 				progress.TranslateAndSetMessage("A new Abitti server was created")
 			}
 
@@ -766,15 +758,11 @@ func bindOnInstallExamServer(mainUIStatus chan string) {
 				log.Action("InstallExamServer passhrase entered - Starting Exam box update")
 				examInstallWindow.Hide()
 
-				errorReported, err := install.NewExamServer(passphrase)
-				switch {
-				case err != nil && errorReported:
+				err := install.NewExamServer(passphrase)
+				if err != nil {
 					log.Debug("Failed to install an exam server: %v", err)
 					progress.SetMessage("")
-				case err != nil && !errorReported:
-					mebroutines.ShowTranslatedErrorMessage("Failed to install an exam server: %v", err)
-					progress.SetMessage("")
-				default:
+				} else {
 					progress.TranslateAndSetMessage("A new exam server was created")
 				}
 
@@ -926,15 +914,12 @@ func bindOnBackup(mainUIStatus chan string) {
 			log.Action(fmt.Sprintf("Starting backup to: %s", pathBackup))
 
 			backupWindow.Hide()
-			errorReported, err := backup.MakeBackup(pathBackup)
-			switch {
-			case err != nil && errorReported:
+			err := backup.MakeBackup(pathBackup)
+			if err != nil {
+				// Failure has been reported to the user by backup.MakeBackup()
 				log.Debug("Backup failed: %v", err)
 				progress.SetMessage("")
-			case err != nil && !errorReported:
-				mebroutines.ShowTranslatedErrorMessage("Backup failed: %v", err)
-				progress.SetMessage("")
-			default:
+			} else {
 				progress.TranslateAndSetMessage("Backup done: %s", pathBackup)
 			}
 
@@ -994,15 +979,11 @@ func bindOnDestroy(mainUIStatus chan string) {
 
 			destroyWindow.Hide()
 
-			errorReported, err := destroy.Server()
-			switch {
-			case err != nil && errorReported:
+			err := destroy.Server()
+			if err != nil {
 				log.Debug("Failed to remove exams: %v", err)
 				progress.SetMessage("")
-			case err != nil && !errorReported:
-				mebroutines.ShowTranslatedErrorMessage("Failed to remove exams: %v", err)
-				progress.SetMessage("")
-			default:
+			} else {
 				progress.TranslateAndSetMessage("Exams were removed successfully.")
 			}
 
@@ -1040,15 +1021,11 @@ func bindOnRemove(mainUIStatus chan string) {
 
 			removeWindow.Hide()
 
-			errorReported, err := remove.Server()
-			switch {
-			case err != nil && errorReported:
+			err := remove.Server()
+			if err != nil {
 				log.Debug("Failed to remove server: %v", err)
 				progress.SetMessage("")
-			case err != nil && !errorReported:
-				mebroutines.ShowTranslatedErrorMessage("Error while removing server: %v", err)
-				progress.SetMessage("")
-			default:
+			} else {
 				progress.TranslateAndSetMessage("Server was removed successfully.")
 			}
 

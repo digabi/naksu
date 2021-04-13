@@ -253,6 +253,14 @@ func ShowTranslatedErrorMessage(str string, vars ...interface{}) {
 	ShowErrorMessage(xlate.Get(str, vars...))
 }
 
+// ShowTranslatedErrorMessageAndPassError can be used to show a general error popup
+// and return the given error upstream:
+// return mebroutines.ShowTranslatedErrorMessageAndPassError("General error: %v", errors.New("Shit happened"))
+func ShowTranslatedErrorMessageAndPassError(str string, err error) error {
+	ShowTranslatedErrorMessage(str, err)
+	return err
+}
+
 // ShowWarningMessage shows warning message popup to user
 func ShowWarningMessage(message string) {
 	log.Warning(message)
