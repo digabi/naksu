@@ -10,7 +10,7 @@ import (
 	"naksu/log"
 )
 
-func escapeWindowsCommandArgs(args []string) []string {
+func quoteWindowsCommandArgs(args []string) []string {
 	escapedArgs := []string{}
 
 	for _, thisArg := range args {
@@ -29,7 +29,7 @@ func RunAndGetOutput(origCommandArgs []string, logAction bool) (string, error) {
 	}
 
 	unescapedCommandArgs := append([]string{windowsComSpec, "/c"}, origCommandArgs...)
-	escapedCommandArgs := escapeWindowsCommandArgs(unescapedCommandArgs)
+	escapedCommandArgs := quoteWindowsCommandArgs(unescapedCommandArgs)
 
 	if logAction {
 		log.Debug("RunAndGetOutput: %s", strings.Join(escapedCommandArgs, " "))
