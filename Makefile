@@ -66,6 +66,7 @@ docker: clean
 	docker cp naksu-build:/app/naksu_windows_amd64.zip .
 	docker cp naksu-build:/app/src/naksu/go.sum ./src/naksu/
 	docker cp naksu-build:/app/src/naksu/go.mod ./src/naksu/
+	docker cp naksu-build:/app/res/gettext/naksu.pot ./res/gettext/
 
 all: test windows linux
 
