@@ -136,6 +136,14 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 2.0.3 (16-APR-2021)
+
+ - Fixed broken detection of running VM
+ - Remove existing VM after correct install passphrase has been given
+ - Use https to download version numbers and images to avoid various attack types
+ - Fixed freezing UI on Linux
+ - Removed unnecessary terminal window on Windows
+
 ### 2.0.2 (22-FEB-2021)
 
  - Show an user-friendly message instead of plain 404 when submitting wrong install passphrase
