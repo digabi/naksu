@@ -31,7 +31,7 @@ const progressLastMessageTimeout = 2 * time.Second
 type writeCounter struct {
 	Total              uint64
 	FileSize           uint64
-	ProgressCallbackFn func(string)
+	ProgressCallbackFn func(string, int)
 	ProgressString     string
 }
 
@@ -44,7 +44,7 @@ func (wc *writeCounter) Write(p []byte) (int, error) {
 	wc.Total += uint64(n)
 
 	if time.Now().After(progressLastMessageTime.Add(progressLastMessageTimeout)) {
-		wc.ProgressCallbackFn(fmt.Sprintf(wc.ProgressString, (100*wc.Total)/wc.FileSize))
+		wc.ProgressCallbackFn(wc.ProgressString, int((100*wc.Total)/wc.FileSize))
 		progressLastMessageTime = time.Now()
 	}
 
@@ -56,7 +56,7 @@ func GetServerImagePath() string {
 	return filepath.Join(mebroutines.GetKtpDirectory(), "naksu_last_image.zip")
 }
 
-func downloadServerImage(url string, progressCallbackFn func(string)) error {
+func downloadServerImage(url string, progressCallbackFn func(string, int)) error {
 	if mebroutines.ExistsFile(mebroutines.GetZipImagePath()) {
 		err := os.Remove(mebroutines.GetZipImagePath())
 		if err != nil {
@@ -64,7 +64,7 @@ func downloadServerImage(url string, progressCallbackFn func(string)) error {
 		}
 	}
 
-	progressCallbackFn(xlate.Get("Contacting server"))
+	progressCallbackFn(xlate.Get("Contacting server"), 0)
 	log.Debug(fmt.Sprintf("Starting to download image from '%s'", url))
 	response, errHTTPGet := http.Get(url) // #nosec
 
@@ -82,7 +82,7 @@ func downloadServerImage(url string, progressCallbackFn func(string)) error {
 
 	fileSize := uint64(response.ContentLength)
 
-	progressCallbackFn(xlate.Get("Opening file"))
+	progressCallbackFn(xlate.Get("Opening file"), 1)
 	zipFile, errFile := os.OpenFile(mebroutines.GetZipImagePath(), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if errFile != nil {
 		log.Debug(fmt.Sprintf("Could not open file '%s' for server image zip: %v", mebroutines.GetZipImagePath(), errFile))
@@ -90,24 +90,24 @@ func downloadServerImage(url string, progressCallbackFn func(string)) error {
 	}
 	defer zipFile.Close()
 
-	progressCallbackFn(xlate.Get("Downloading server image"))
+	progressCallbackFn(xlate.Get("Downloading server image"), 2)
 
 	counter := &writeCounter{}
 	counter.ProgressCallbackFn = progressCallbackFn
 	counter.FileSize = fileSize
-	counter.ProgressString = xlate.GetRaw("Downloading image: %d %%")
+	counter.ProgressString = xlate.GetRaw("Downloading server image")
 
 	var errCopy error
 	if _, errCopy = io.Copy(zipFile, io.TeeReader(response.Body, counter)); errCopy != nil {
 		return errCopy
 	}
 
-	progressCallbackFn(xlate.Get("Server image downloaded"))
+	progressCallbackFn(xlate.Get("Server image downloaded"), 100)
 
 	return nil
 }
 
-func unZipServerImage(progressCallbackFn func(string)) error {
+func unZipServerImage(progressCallbackFn func(string, int)) error {
 	r, err := zip.OpenReader(mebroutines.GetZipImagePath())
 	if err != nil {
 		return fmt.Errorf("could not open zip %s: %v", mebroutines.GetZipImagePath(), err)
@@ -133,25 +133,25 @@ func unZipServerImage(progressCallbackFn func(string)) error {
 
 			defer fZipped.Close()
 
-			progressCallbackFn(xlate.Get("Starting to uncompress raw image"))
+			progressCallbackFn(xlate.Get("Starting to uncompress raw image"), 1)
 
 			counter := &writeCounter{}
 			counter.ProgressCallbackFn = progressCallbackFn
 			counter.FileSize = file.UncompressedSize64
-			counter.ProgressString = xlate.GetRaw("Uncompressing image: %d %%")
+			counter.ProgressString = xlate.GetRaw("Uncompressing image...")
 
 			if _, err = io.Copy(fImage, io.TeeReader(fZipped, counter)); err != nil {
 				return err
 			}
 
-			progressCallbackFn(xlate.Get("Uncompressing finished"))
+			progressCallbackFn(xlate.Get("Uncompressing finished"), 100)
 		}
 	}
 
 	return nil
 }
 
-func GetServerImage(url string, progressCallbackFn func(string)) error {
+func GetServerImage(url string, progressCallbackFn func(string, int)) error {
 	err := downloadServerImage(url, progressCallbackFn)
 	if err != nil {
 		log.Debug(fmt.Sprintf("Failed to download server image from '%s': %v", url, err))

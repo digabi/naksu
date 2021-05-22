@@ -28,6 +28,9 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
+msgid "Cannot open MEB share directory since it does not exist"
+msgstr ""
+
 msgid ""
 "Cannot send logs because there is no Internet connection. Logs are in a zip "
 "archive in the ktp-jako folder."
@@ -129,8 +132,7 @@ msgstr ""
 msgid "Done zipping"
 msgstr ""
 
-#, c-format
-msgid "Downloading image: %d %%"
+msgid "Downloading image"
 msgstr ""
 
 msgid "Downloading server image"
@@ -370,8 +372,7 @@ msgstr ""
 msgid "Uncompressing finished"
 msgstr ""
 
-#, c-format
-msgid "Uncompressing image: %d %%"
+msgid "Uncompressing image..."
 msgstr ""
 
 #, c-format

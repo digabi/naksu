@@ -403,6 +403,9 @@ msgstr "Uppackningen klar"
 msgid "Uncompressing image: %d %%"
 msgstr "Packar upp skivavbild: %d %%"
 
+msgid "Uncompressing image..."
+msgstr "Packar upp skivavbild..."
+
 #, c-format
 msgid "Update available: %s"
 msgstr "Uppdatering tillgänglig: %s"
@@ -485,6 +488,12 @@ msgstr ""
 
 msgid "vmstate"
 msgstr ""
+
+msgid "Preparing..."
+msgstr "Förberedelser..."
+
+msgid "Cannot open MEB share directory since it does not exist"
+msgstr "Det gick inte att öppna den virtuella överföringsstationen. Kontrollera att servern är installerad och/eller att katalogen finns."
 
 #~ msgid "Cannot open MEB share directory since it does not exist"
 #~ msgstr "Katalogen ktp-jako kunde inte öppnas eftersom den inte existerar"
