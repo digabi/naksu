@@ -1,9 +1,11 @@
 package progress
 
 import (
-	"github.com/andlabs/ui"
-	"naksu/xlate"
 	"strconv"
+
+	"github.com/andlabs/ui"
+
+	"naksu/xlate"
 )
 
 // ProgressDialog Instance
