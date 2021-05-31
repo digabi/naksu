@@ -399,10 +399,6 @@ msgstr "Aktivera Naksu självuppdateringar"
 msgid "Uncompressing finished"
 msgstr "Uppackningen klar"
 
-#, c-format
-msgid "Uncompressing image: %d %%"
-msgstr "Packar upp skivavbild: %d %%"
-
 msgid "Uncompressing image..."
 msgstr "Packar upp skivavbild..."
 

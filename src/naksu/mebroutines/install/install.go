@@ -38,7 +38,7 @@ func newServer(boxType string, imageURL string, versionURL string) error {
 	// Initialize dialog
 	progressDialog := progress.TranslateAndShowProgressDialog("Preparing...")
 
-	updateProg := func(message string, value int) {
+	updateProgressFunc := func(message string, value int) {
 		//fmt.Println(message)
 		progress.UpdateProgressDialog(progressDialog, value, &message)
 	}
@@ -49,15 +49,15 @@ func newServer(boxType string, imageURL string, versionURL string) error {
 		return errors.New("server exists or disk is not ready")
 	}
 
-	updateProg("Getting Image from the Cloud", 100*(1/3))
-	err = download.GetServerImage(imageURL, updateProg)
+	updateProgressFunc("Getting Image from the Cloud", 100*(1/3))
+	err = download.GetServerImage(imageURL, updateProgressFunc)
 	if err != nil {
 		progress.CloseProgressDialog(progressDialog)
 		mebroutines.ShowTranslatedErrorMessage("Failed to get new VM image: %v", err)
 		return fmt.Errorf("downloading image failed: %v", err)
 	}
 
-	updateProg("Creating New VM", 100*(2/3))
+	updateProgressFunc("Creating New VM", 100*(2/3))
 	err = box.CreateNewBox(boxType, version)
 
 	if err != nil {
@@ -71,7 +71,7 @@ func newServer(boxType string, imageURL string, versionURL string) error {
 		return fmt.Errorf("failed to create new vm: %v", err)
 	}
 
-	updateProg("Removing temporary raw image file", 100*(3/3))
+	updateProgressFunc("Removing temporary raw image file", 100)
 	err = os.Remove(mebroutines.GetImagePath())
 
 	if err != nil {
@@ -124,7 +124,7 @@ func ensureServerIsNotRunningAndDoesNotExist() error {
 	return nil
 }
 
-func ensureDiskIsReady(dialog *progress.ProgressDialog) error {
+func ensureDiskIsReady(dialog *progress.Dialog) error {
 	err := ensureNaksuDirectoriesExist(dialog)
 	if err != nil {
 		log.Debug(fmt.Sprintf("Failed to ensure Naksu directories exist: %v", err))
@@ -142,7 +142,7 @@ func ensureDiskIsReady(dialog *progress.ProgressDialog) error {
 	return nil
 }
 
-func ensureNaksuDirectoriesExist(dialog *progress.ProgressDialog) error {
+func ensureNaksuDirectoriesExist(dialog *progress.Dialog) error {
 	// Create ~/ktp if missing
 	if dialog != nil {
 		progress.TranslateAndUpdateProgressDialogWithMessage(*dialog, 1, "Creating ~/ktp")

@@ -400,9 +400,6 @@ msgstr "Kytke Naksun automattipäivitys päälle"
 msgid "Uncompressing finished"
 msgstr "Purkaminen on valmis"
 
-#, c-format
-msgid "Uncompressing image: %d %%"
-msgstr "Pakattua levynkuvaa puretaan: %d %%"
 
 msgid "Uncompressing image..."
 msgstr "Pakattua levynkuvaa puretaan..."

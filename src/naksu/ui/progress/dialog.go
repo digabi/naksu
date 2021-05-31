@@ -8,8 +8,8 @@ import (
 	"naksu/xlate"
 )
 
-// ProgressDialog Instance
-type ProgressDialog struct {
+// Dialog ProgressDialog Instance
+type Dialog struct {
 	Window        *ui.Window
 	Progress      *ui.ProgressBar
 	Message       *ui.Label
@@ -17,7 +17,7 @@ type ProgressDialog struct {
 }
 
 // ShowProgressDialog opens a progress dialog
-func ShowProgressDialog(message string) ProgressDialog {
+func ShowProgressDialog(message string) Dialog {
 	progressWindow := ui.NewWindow("", 400, 1, false)
 	//progressWindow.SetBorderless(true)
 	progressBox := ui.NewVerticalBox()
@@ -31,16 +31,16 @@ func ShowProgressDialog(message string) ProgressDialog {
 	ui.QueueMain(func() {
 		progressWindow.Show()
 	})
-	return ProgressDialog{Progress: progressBar, Message: status, Window: progressWindow, MessageString: message}
+	return Dialog{Progress: progressBar, Message: status, Window: progressWindow, MessageString: message}
 }
 
 // TranslateAndShowProgressDialog translates message and then opens the progress dialog
-func TranslateAndShowProgressDialog(message string) ProgressDialog {
+func TranslateAndShowProgressDialog(message string) Dialog {
 	return ShowProgressDialog(message)
 }
 
 // UpdateProgressDialog updates the progress bar progress
-func UpdateProgressDialog(dialog ProgressDialog, progress int, message *string) {
+func UpdateProgressDialog(dialog Dialog, progress int, message *string) {
 	if dialog.Window != nil && dialog.Window.Visible() {
 		dialog.Progress.SetValue(progress)
 		if message != nil {
@@ -53,19 +53,19 @@ func UpdateProgressDialog(dialog ProgressDialog, progress int, message *string) 
 }
 
 // TranslateAndUpdateProgressDialog translates the message, and then updates the progress bar progress
-func TranslateAndUpdateProgressDialog(dialog ProgressDialog, progress int, message *string) {
+func TranslateAndUpdateProgressDialog(dialog Dialog, progress int, message *string) {
 	translatedMessage := xlate.Get(*message)
 	UpdateProgressDialog(dialog, progress, &translatedMessage)
 }
 
 // TranslateAndUpdateProgressDialogWithMessage translates the message, and then updates the progress bar progress
-func TranslateAndUpdateProgressDialogWithMessage(dialog ProgressDialog, progress int, message string) {
+func TranslateAndUpdateProgressDialogWithMessage(dialog Dialog, progress int, message string) {
 	translatedMessage := xlate.Get(message)
 	UpdateProgressDialog(dialog, progress, &translatedMessage)
 }
 
 // CloseProgressDialog closes given progress dialog
-func CloseProgressDialog(dialog ProgressDialog) {
+func CloseProgressDialog(dialog Dialog) {
 	if dialog.Window != nil && dialog.Window.Visible() {
 		dialog.Window.ControlBase.Destroy()
 	}
