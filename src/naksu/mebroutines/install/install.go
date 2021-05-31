@@ -32,19 +32,32 @@ func newServer(boxType string, imageURL string, versionURL string) error {
 		return fmt.Errorf("error from server: %v", err)
 	}
 
+	// Clean message
+	progress.SetMessage("")
+
+	// Initialize dialog
+	progressDialog := progress.TranslateAndShowProgressDialog("Preparing...")
+
+	updateProgressFunc := func(message string, value int) {
+		//fmt.Println(message)
+		progress.UpdateProgressDialog(progressDialog, value, &message)
+	}
+
 	// Check prerequisites
-	if ensureServerIsNotRunningAndDoesNotExist() != nil || ensureDiskIsReady() != nil {
+	if ensureServerIsNotRunningAndDoesNotExist() != nil || ensureDiskIsReady(&progressDialog) != nil {
+		progress.CloseProgressDialog(progressDialog)
 		return errors.New("server exists or disk is not ready")
 	}
 
-	progress.TranslateAndSetMessage("Getting Image from the Cloud")
-	err = download.GetServerImage(imageURL, progress.SetMessage)
+	updateProgressFunc("Getting Image from the Cloud", 100*(1/3))
+	err = download.GetServerImage(imageURL, updateProgressFunc)
 	if err != nil {
+		progress.CloseProgressDialog(progressDialog)
 		mebroutines.ShowTranslatedErrorMessage("Failed to get new VM image: %v", err)
 		return fmt.Errorf("downloading image failed: %v", err)
 	}
 
-	progress.TranslateAndSetMessage("Creating New VM")
+	updateProgressFunc("Creating New VM", 100*(2/3))
 	err = box.CreateNewBox(boxType, version)
 
 	if err != nil {
@@ -54,17 +67,18 @@ func newServer(boxType string, imageURL string, versionURL string) error {
 		if removeErr != nil {
 			log.Debug("Failed to remove image file %s: %v", mebroutines.GetImagePath(), removeErr)
 		}
-
+		progress.CloseProgressDialog(progressDialog)
 		return fmt.Errorf("failed to create new vm: %v", err)
 	}
 
-	progress.TranslateAndSetMessage("Removing temporary raw image file")
+	updateProgressFunc("Removing temporary raw image file", 100)
 	err = os.Remove(mebroutines.GetImagePath())
 
 	if err != nil {
+		progress.CloseProgressDialog(progressDialog)
 		mebroutines.ShowTranslatedWarningMessage("Failed to remove raw image file %s: %v", mebroutines.GetImagePath(), err)
 	}
-
+	progress.CloseProgressDialog(progressDialog)
 	return nil
 }
 
@@ -110,8 +124,8 @@ func ensureServerIsNotRunningAndDoesNotExist() error {
 	return nil
 }
 
-func ensureDiskIsReady() error {
-	err := ensureNaksuDirectoriesExist()
+func ensureDiskIsReady(dialog *progress.Dialog) error {
+	err := ensureNaksuDirectoriesExist(dialog)
 	if err != nil {
 		log.Debug(fmt.Sprintf("Failed to ensure Naksu directories exist: %v", err))
 		mebroutines.ShowTranslatedErrorMessage("Could not create directory: %v", err)
@@ -128,9 +142,13 @@ func ensureDiskIsReady() error {
 	return nil
 }
 
-func ensureNaksuDirectoriesExist() error {
+func ensureNaksuDirectoriesExist(dialog *progress.Dialog) error {
 	// Create ~/ktp if missing
-	progress.TranslateAndSetMessage("Creating ~/ktp")
+	if dialog != nil {
+		progress.TranslateAndUpdateProgressDialogWithMessage(*dialog, 1, "Creating ~/ktp")
+	} else {
+		progress.TranslateAndSetMessage("Creating ~/ktp")
+	}
 	ktpPath, errKtpPath := createKtpDir()
 
 	if errKtpPath != nil {
@@ -140,7 +158,11 @@ func ensureNaksuDirectoriesExist() error {
 	log.Debug(fmt.Sprintf("ktpPath is %s", ktpPath))
 
 	// Create ~/ktp-jako if missing
-	progress.TranslateAndSetMessage("Creating ~/ktp-jako")
+	if dialog != nil {
+		progress.TranslateAndUpdateProgressDialogWithMessage(*dialog, 1, "Creating ~/ktp-jako")
+	} else {
+		progress.TranslateAndSetMessage("Creating ~/ktp-jako")
+	}
 	ktpJakoPath, errKtpJakoPath := createKtpJakoDir()
 
 	if errKtpJakoPath != nil {

@@ -375,6 +375,9 @@ msgstr "Käynnistä %s"
 msgid "Start Exam Server"
 msgstr "Käynnistä Yo-palvelin"
 
+msgid "Preparing..."
+msgstr "Valmistellaan..."
+
 msgid "Start by installing a server: Show management features"
 msgstr "Aloita asentamalla palvelin: Näytä hallintaominaisuudet"
 
@@ -397,9 +400,9 @@ msgstr "Kytke Naksun automattipäivitys päälle"
 msgid "Uncompressing finished"
 msgstr "Purkaminen on valmis"
 
-#, c-format
-msgid "Uncompressing image: %d %%"
-msgstr "Pakattua levynkuvaa puretaan: %d %%"
+
+msgid "Uncompressing image..."
+msgstr "Pakattua levynkuvaa puretaan..."
 
 #, c-format
 msgid "Update available: %s"
@@ -482,6 +485,9 @@ msgstr ""
 
 msgid "vmstate"
 msgstr ""
+
+msgid "Cannot open MEB share directory since it does not exist"
+msgstr "Virtuaalisen siirtotikun avaaminen epäonnistui. Tarkista, että palvelin on asennettu ja/tai hakemisto on olemassa."
 
 #~ msgid "Cannot open MEB share directory since it does not exist"
 #~ msgstr ""
