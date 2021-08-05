@@ -55,7 +55,11 @@ func testOneGetSHA256ChecksumFromFile(t *testing.T, fileContent string, expected
 		t.Errorf("Failed to close temporary file %s: %v", tempFile.Name(), err)
 	}
 
-	calculatedChecksum, err := GetSHA256ChecksumFromFile(tempFile.Name())
+	nilProgressCallbackFn := func(message string, value int) {
+		//fmt.Println(message)
+	}
+
+	calculatedChecksum, err := GetSHA256ChecksumFromFile(tempFile.Name(), nilProgressCallbackFn)
 	if err != nil {
 		t.Errorf("Error while calculating checksum from file %s: %v", tempFile.Name(), err)
 	}

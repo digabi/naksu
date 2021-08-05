@@ -27,7 +27,11 @@ import (
 // Suppress progress messages if there has been less than 2 seconds from a message
 const progressLastMessageTimeout = 2 * time.Second
 
-// writeCounter implements io.Writer interface (see downloadServerImage, unZipServerImage)
+// writeCounter implements io.Writer interface, see
+//   * downloadServerImage
+//   * unZipServerImageFile
+//   * GetSHA256ChecksumFromFile
+
 type writeCounter struct {
 	Total              uint64
 	FileSize           uint64
@@ -186,7 +190,7 @@ func unZipServerImage(progressCallbackFn func(string, int)) error {
 			log.Debug("Checking that uncompressed image meets defined checksum '%s'", definedChecksum)
 			progressCallbackFn(xlate.Get("Calculating image checksum..."), 1)
 
-			calculatedChecksum, err := GetSHA256ChecksumFromFile(mebroutines.GetImagePath())
+			calculatedChecksum, err := GetSHA256ChecksumFromFile(mebroutines.GetImagePath(), progressCallbackFn)
 			if err != nil {
 				return fmt.Errorf("could not calculate sha256: %v", err)
 			}
