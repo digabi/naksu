@@ -188,7 +188,6 @@ func unZipServerImage(progressCallbackFn func(string, int)) error {
 
 		if definedChecksum != "" {
 			log.Debug("Checking that uncompressed image meets defined checksum '%s'", definedChecksum)
-			progressCallbackFn(xlate.Get("Calculating image checksum..."), 1)
 
 			calculatedChecksum, err := GetSHA256ChecksumFromFile(mebroutines.GetImagePath(), progressCallbackFn)
 			if err != nil {

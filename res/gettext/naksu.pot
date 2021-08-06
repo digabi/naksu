@@ -42,6 +42,9 @@ msgstr ""
 msgid "Checking backup path..."
 msgstr ""
 
+msgid "Checking disk image..."
+msgstr ""
+
 msgid "Checking existing file..."
 msgstr ""
 
@@ -118,6 +121,9 @@ msgid "Deleting ~/VirtualBox VMs"
 msgstr ""
 
 msgid "Desktop"
+msgstr ""
+
+msgid "Disk image checked"
 msgstr ""
 
 msgid "Do you wish to remove all exams?"

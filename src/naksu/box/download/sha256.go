@@ -33,19 +33,19 @@ func GetSHA256ChecksumFromFile(filePath string, progressCallbackFn func(string, 
 		return "", fmt.Errorf("error while trying to get file info for '%s': %v", filePath, err)
 	}
 
-	progressCallbackFn(xlate.Get("Calculating checksum..."), 0)
+	progressCallbackFn(xlate.Get("Checking disk image..."), 0)
 
 	counter := &writeCounter{}
 	counter.ProgressCallbackFn = progressCallbackFn
 	counter.FileSize = uint64(fileStat.Size())
-	counter.ProgressString = xlate.GetRaw("Calculating checksum...")
+	counter.ProgressString = xlate.GetRaw("Checking disk image...")
 
 	checksumCalculator := sha256.New()
 	if _, err = io.Copy(checksumCalculator, io.TeeReader(f, counter)); err != nil {
 		return "", fmt.Errorf("error while reading file to calculate sha256 from '%s': %v", filePath, err)
 	}
 
-	progressCallbackFn(xlate.Get("Checksum calculated"), 100)
+	progressCallbackFn(xlate.Get("Disk image checked"), 100)
 
 	return fmt.Sprintf("%x", checksumCalculator.Sum(nil)), nil
 }
