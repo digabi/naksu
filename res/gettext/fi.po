@@ -42,7 +42,7 @@ msgid "Checking backup path..."
 msgstr "Tutkitaan varmuuskopiohakemistoa..."
 
 msgid "Checking disk image..."
-msgstr "Tarkistetaan levynkuvaa..."
+msgstr "Tarkastetaan levynkuvaa..."
 
 msgid "Checking existing file..."
 msgstr "Tutkitaan tiedostoa..."

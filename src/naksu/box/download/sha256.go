@@ -14,7 +14,7 @@ import (
 // returns the hash part (the first 64 "word" characters). If there is no valid
 // match, an empty string is returned
 func CleanSHA256ChecksumString(checksumString string) string {
-	re := regexp.MustCompile(`^\w{64}`)
+	re := regexp.MustCompile(`^[0-9a-f]{64}`)
 	return re.FindString(checksumString)
 }
 
