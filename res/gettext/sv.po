@@ -41,6 +41,9 @@ msgstr ""
 msgid "Checking backup path..."
 msgstr "Kontrollerar katalogen för säkerhetskopia..."
 
+msgid "Checking disk image..."
+msgstr "Kontrollerar skivavbild..."
+
 msgid "Checking existing file..."
 msgstr "Kontrollerar befintlig fil..."
 
@@ -128,6 +131,9 @@ msgstr "Raderar ~/VirtualBox VMs"
 
 msgid "Desktop"
 msgstr "Skrivbord"
+
+msgid "Disk image checked"
+msgstr "Skivavbilden kontrollerad"
 
 msgid "Do you wish to remove all exams?"
 msgstr "Vill du avlägsna alla prov?"

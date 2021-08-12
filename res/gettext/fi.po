@@ -41,6 +41,9 @@ msgstr ""
 msgid "Checking backup path..."
 msgstr "Tutkitaan varmuuskopiohakemistoa..."
 
+msgid "Checking disk image..."
+msgstr "Tarkastetaan levynkuvaa..."
+
 msgid "Checking existing file..."
 msgstr "Tutkitaan tiedostoa..."
 
@@ -127,6 +130,9 @@ msgstr "Poistetaan ~/VirtualBox VMs"
 
 msgid "Desktop"
 msgstr "Työpöytä"
+
+msgid "Disk image checked"
+msgstr "Levynkuva on tarkastettu"
 
 msgid "Do you wish to remove all exams?"
 msgstr "Haluatko poistaa kaikki kokeet?"

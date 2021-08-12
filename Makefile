@@ -4,7 +4,7 @@ GO=go
 # GO=/usr/lib/go-1.10/bin/go
 # Path to your rsrc executable (see README.md)
 RSRC=$(HOME)/go/bin/rsrc
-TESTS=naksu/mebroutines/backup naksu naksu/network
+TESTS=naksu/mebroutines/backup naksu naksu/network naksu/box/download
 SOURCES=$(wildcard src/**/*.go)
 
 res/gettext/naksu.pot: $(SOURCES)
