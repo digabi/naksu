@@ -236,8 +236,10 @@ func SetMainWindow(win *ui.Window) {
 	mainWindow = win
 }
 
-// ShowErrorMessage shows error message popup to user
-func ShowErrorMessage(message string) {
+// ShowTranslatedErrorMessage translates given error message and shows it with ShowErrorMessage()
+func ShowTranslatedErrorMessage(str string, vars ...interface{}) {
+	message := xlate.Get(str, vars...)
+
 	log.Error(message)
 
 	// Show libui box if main window has been set with Set_main_window
@@ -248,11 +250,6 @@ func ShowErrorMessage(message string) {
 	}
 }
 
-// ShowTranslatedErrorMessage translates given error message and shows it with ShowErrorMessage()
-func ShowTranslatedErrorMessage(str string, vars ...interface{}) {
-	ShowErrorMessage(xlate.Get(str, vars...))
-}
-
 // ShowTranslatedErrorMessageAndPassError can be used to show a general error popup
 // and return the given error upstream:
 // return mebroutines.ShowTranslatedErrorMessageAndPassError("General error: %v", errors.New("Shit happened"))
@@ -261,8 +258,10 @@ func ShowTranslatedErrorMessageAndPassError(str string, err error) error {
 	return err
 }
 
-// ShowWarningMessage shows warning message popup to user
-func ShowWarningMessage(message string) {
+// ShowTranslatedWarningMessage translates given warning message and shows it with ShowWarningMessage()
+func ShowTranslatedWarningMessage(str string, vars ...interface{}) {
+	message := xlate.Get(str, vars...)
+
 	log.Warning(message)
 
 	// Show libui box if main window has been set with Set_main_window
@@ -273,13 +272,10 @@ func ShowWarningMessage(message string) {
 	}
 }
 
-// ShowTranslatedWarningMessage translates given warning message and shows it with ShowWarningMessage()
-func ShowTranslatedWarningMessage(str string, vars ...interface{}) {
-	ShowWarningMessage(xlate.Get(str, vars...))
-}
+// ShowTranslatedInfoMessage translates given info message and shows it with ShowInfoMessage()
+func ShowTranslatedInfoMessage(str string, vars ...interface{}) {
+	message := xlate.Get(str, vars...)
 
-// ShowInfoMessage shows warning message popup to user
-func ShowInfoMessage(message string) {
 	log.Info(message)
 
 	// Show libui box if main window has been set with Set_main_window
@@ -288,9 +284,4 @@ func ShowInfoMessage(message string) {
 			ui.MsgBox(mainWindow, xlate.Get("Info"), message)
 		})
 	}
-}
-
-// ShowTranslatedInfoMessage translates given info message and shows it with ShowInfoMessage()
-func ShowTranslatedInfoMessage(str string, vars ...interface{}) {
-	ShowInfoMessage(xlate.Get(str, vars...))
 }

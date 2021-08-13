@@ -1152,7 +1152,7 @@ func RunUI() error {
 			if err != nil {
 				log.Debug("Could not detect whether VirtualBox is too old or too new: %v. User was not notified.", err)
 			} else if translatedMessage != "" {
-				mebroutines.ShowWarningMessage(translatedMessage)
+				mebroutines.ShowTranslatedWarningMessage(translatedMessage)
 			}
 		}()
 
