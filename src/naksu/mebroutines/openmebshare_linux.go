@@ -36,6 +36,6 @@ func OpenMebShare() {
 			}
 		}
 
-		ShowWarningMessage("Could not open MEB share directory")
+		ShowTranslatedWarningMessage("Could not open MEB share directory")
 	}()
 }

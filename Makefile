@@ -13,6 +13,7 @@ res/gettext/naksu.pot: $(SOURCES)
 		--keyword="ShowTranslatedInfoMessage:1" \
 		--keyword="ShowTranslatedErrorMessage:1" \
 		--keyword="ShowTranslatedWarningMessage:1" \
+		--keyword="TranslateAndShowProgressDialog:1" \
 		-C --no-location --output=res/gettext/naksu.pot \
 		--sort-output \
 		--omit-header \

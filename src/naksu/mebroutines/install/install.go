@@ -15,6 +15,7 @@ import (
 	"naksu/log"
 	"naksu/mebroutines"
 	"naksu/ui/progress"
+	"naksu/xlate"
 
 	humanize "github.com/dustin/go-humanize"
 )
@@ -49,7 +50,7 @@ func newServer(boxType string, imageURL string, versionURL string) error {
 		return errors.New("server exists or disk is not ready")
 	}
 
-	updateProgressFunc("Getting Image from the Cloud", 100*(1/3))
+	updateProgressFunc(xlate.GetRaw("Getting Image from the Cloud"), 100*(1/3))
 	err = download.GetServerImage(imageURL, updateProgressFunc)
 	if err != nil {
 		progress.CloseProgressDialog(progressDialog)
@@ -57,7 +58,7 @@ func newServer(boxType string, imageURL string, versionURL string) error {
 		return fmt.Errorf("downloading image failed: %v", err)
 	}
 
-	updateProgressFunc("Creating New VM", 100*(2/3))
+	updateProgressFunc(xlate.GetRaw("Creating New VM"), 100*(2/3))
 	err = box.CreateNewBox(boxType, version)
 
 	if err != nil {
@@ -71,7 +72,7 @@ func newServer(boxType string, imageURL string, versionURL string) error {
 		return fmt.Errorf("failed to create new vm: %v", err)
 	}
 
-	updateProgressFunc("Removing temporary raw image file", 100)
+	updateProgressFunc(xlate.GetRaw("Removing temporary raw image file"), 100)
 	err = os.Remove(mebroutines.GetImagePath())
 
 	if err != nil {

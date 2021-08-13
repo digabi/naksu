@@ -708,7 +708,7 @@ func startServerButtonClicked(mainUIStatus chan string) {
 			log.Debug("Failed to start server: %v", err)
 			progress.SetMessage("")
 		} else {
-			progress.SetMessage("Virtual machine was started")
+			progress.TranslateAndSetMessage("Virtual machine was started")
 		}
 
 		// Wait over one UI loop

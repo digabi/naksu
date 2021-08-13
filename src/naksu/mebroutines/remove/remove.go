@@ -2,7 +2,6 @@ package remove
 
 import (
 	"errors"
-	"fmt"
 
 	"naksu/box"
 	"naksu/log"
@@ -19,9 +18,9 @@ func Server() error {
 
 	switch {
 	case err != nil:
-		mebroutines.ShowWarningMessage(fmt.Sprintf("We could not detect whether existing VM is running: %v, but continued removing the server as you requested.", err))
+		mebroutines.ShowTranslatedWarningMessage("We could not detect whether existing VM is running: %v, but continued removing the server as you requested.", err)
 	case isRunning:
-		mebroutines.ShowWarningMessage("There is a server appears to be running but we remove it as you requested.")
+		mebroutines.ShowTranslatedWarningMessage("There is a server appears to be running but we remove it as you requested.")
 	}
 
 	// Remove current box to syncronise running VirtualBox GUI
@@ -43,7 +42,7 @@ func Server() error {
 	progress.TranslateAndSetMessage("Deleting ~/VirtualBox VMs")
 	err = mebroutines.RemoveDir(mebroutines.GetVirtualBoxVMsDirectory())
 	if err != nil {
-		mebroutines.ShowWarningMessage(fmt.Sprintf("Failed to remove directory %s: %v", mebroutines.GetVirtualBoxVMsDirectory(), err))
+		mebroutines.ShowTranslatedWarningMessage("Failed to remove directory %s: %v", mebroutines.GetVirtualBoxVMsDirectory(), err)
 		return err
 	}
 

@@ -107,7 +107,7 @@ func replaceVirtualBoxConfigWithFixedOne(fixedVirtualBoxConfigPath string, virtu
 		log.Debug(fmt.Sprintf("Failed to move %s to %s, trying to restore %s from %s", fixedVirtualBoxConfigPath, getVirtualBoxConfigPath(), getVirtualBoxConfigPath(), virtualBoxConfigBackupPath))
 
 		if recoveryErr := os.Rename(virtualBoxConfigBackupPath, getVirtualBoxConfigPath()); recoveryErr != nil {
-			mebroutines.ShowErrorMessage(fmt.Sprintf("Naksu encountered an error while trying to fix a problem with VirtualBox. VirtualBox configuration file %s has been moved to %s. Manually rename it to %s to fix this.", getVirtualBoxConfigPath(), virtualBoxConfigBackupPath, getVirtualBoxConfigPath()))
+			mebroutines.ShowTranslatedErrorMessage("Naksu encountered an error while trying to fix a problem with VirtualBox. VirtualBox configuration file %s has been moved to %s. Manually rename it to %s to fix this.", getVirtualBoxConfigPath(), virtualBoxConfigBackupPath, getVirtualBoxConfigPath())
 		}
 
 		return err

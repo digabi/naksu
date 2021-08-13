@@ -26,7 +26,7 @@ func OpenMebShare() {
 		errStr := fmt.Sprintf("%v", err)
 		// Opening explorer results exit code 1
 		if errStr != "exit status 1" {
-			ShowWarningMessage("Could not open MEB share directory")
+			ShowTranslatedWarningMessage("Could not open MEB share directory")
 			log.Debug(fmt.Sprintf("Could not open MEB share directory: %v", err))
 		}
 	}

@@ -22,7 +22,7 @@ func OpenMebShare() {
 	output, err := RunAndGetOutput(runParams, true)
 
 	if err != nil {
-		ShowWarningMessage("Could not open MEB share directory")
+		ShowTranslatedWarningMessage("Could not open MEB share directory")
 	}
 
 	log.Debug("MEB share directory open output:")
