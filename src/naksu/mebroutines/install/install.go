@@ -128,14 +128,14 @@ func ensureServerIsNotRunningAndDoesNotExist() error {
 func ensureDiskIsReady(dialog *progress.Dialog) error {
 	err := ensureNaksuDirectoriesExist(dialog)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Failed to ensure Naksu directories exist: %v", err))
+		log.Error("Failed to ensure Naksu directories exist: %v", err)
 		mebroutines.ShowTranslatedErrorMessage("Could not create directory: %v", err)
 		return err
 	}
 
 	err = ensureFreeDisk()
 	if err != nil {
-		log.Debug(fmt.Sprintf("Failed to ensure we have enough free disk: %v", err))
+		log.Error("Failed to ensure we have enough free disk: %v", err)
 		mebroutines.ShowTranslatedErrorMessage("Could not calculate free disk size: %v", err)
 		return err
 	}
@@ -156,7 +156,7 @@ func ensureNaksuDirectoriesExist(dialog *progress.Dialog) error {
 		return fmt.Errorf("could not create ktp (%s): %v", ktpPath, errKtpPath)
 	}
 
-	log.Debug(fmt.Sprintf("ktpPath is %s", ktpPath))
+	log.Debug("ktpPath is %s", ktpPath)
 
 	// Create ~/ktp-jako if missing
 	if dialog != nil {
@@ -170,7 +170,7 @@ func ensureNaksuDirectoriesExist(dialog *progress.Dialog) error {
 		return fmt.Errorf("could not create ktp-jako (%s): %v", ktpJakoPath, errKtpJakoPath)
 	}
 
-	log.Debug(fmt.Sprintf("ktpJakoPath is %s", ktpJakoPath))
+	log.Debug("ktpJakoPath is %s", ktpJakoPath)
 
 	return nil
 }

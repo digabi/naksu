@@ -18,9 +18,9 @@ func GetExtInterfaces() []constants.AvailableSelection {
 	if err == nil {
 		for n := range interfaces {
 			if isIgnoredExtInterfaceDarwin(interfaces[n].Name) {
-				log.Debug(fmt.Sprintf("Ingnoring external network interface '%s'", interfaces[n].Name))
+				log.Debug("Ingnoring external network interface '%s'", interfaces[n].Name)
 			} else {
-				log.Debug(fmt.Sprintf("Adding external network interface '%s' to the list of available devices", interfaces[n].Name))
+				log.Debug("Adding external network interface '%s' to the list of available devices", interfaces[n].Name)
 				var oneInterface constants.AvailableSelection
 				oneInterface.ConfigValue = interfaces[n].Name
 				// We want to change this to more user-friendly later

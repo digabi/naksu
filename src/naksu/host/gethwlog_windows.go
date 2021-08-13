@@ -56,7 +56,7 @@ func getProcessorData() []Win32_Processor {
 		query := wmi.CreateQuery(&dst, "")
 		err := wmi.Query(query, &dst)
 		if err != nil {
-			log.Debug(fmt.Sprintf("getProcessorData() could not make WMI query: %v", err))
+			log.Error("getProcessorData() could not make WMI query: %v", err)
 			result <- []Win32_Processor{}
 		} else {
 			result <- dst
@@ -75,7 +75,7 @@ func getMemoryData() []Win32_ComputerSystem {
 		query := wmi.CreateQuery(&dst, "")
 		err := wmi.Query(query, &dst)
 		if err != nil {
-			log.Debug(fmt.Sprintf("getMemoryData() could not make WMI query: %v", err))
+			log.Error("getMemoryData() could not make WMI query: %v", err)
 			result <- []Win32_ComputerSystem{}
 		} else {
 			result <- dst
@@ -94,7 +94,7 @@ func getPnpEntityData() []Win32_PnPEntity {
 		query := wmi.CreateQuery(&dst, "")
 		err := wmi.Query(query, &dst)
 		if err != nil {
-			log.Debug(fmt.Sprintf("getPnpEntityData() could not make WMI query: %v", err))
+			log.Error("getPnpEntityData() could not make WMI query: %v", err)
 			result <- []Win32_PnPEntity{}
 		} else {
 			result <- dst

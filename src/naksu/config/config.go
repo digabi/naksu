@@ -62,7 +62,7 @@ func getIniKey(section string, key string) *ini.Key {
 func getBoolean(section string, key string) bool {
 	value, err := getIniKey(section, key).Bool()
 	if err != nil {
-		log.Debug(fmt.Sprintf("Parsing key %s / %s as bool failed", section, key))
+		log.Error("Parsing key %s / %s as bool failed", section, key)
 		defaultValue := getDefault(section, key)
 		value, err = strconv.ParseBool(defaultValue)
 		if err != nil {
@@ -78,7 +78,7 @@ func getString(section string, key string) string {
 }
 
 func setValue(section string, key string, value string) {
-	log.Debug(fmt.Sprintf("Setting new configuration: section %s, key: %s, value: %s", section, key, value))
+	log.Debug("Setting new configuration: section %s, key: %s, value: %s", section, key, value)
 	cfg.Section(section).Key(key).SetValue(value)
 	save()
 }
@@ -90,7 +90,7 @@ func Load() {
 	var err error
 	cfg, err = ini.Load(naksuIniPath)
 	if err != nil {
-		log.Debug(fmt.Sprintf("%s not found, setting up empty config with defaults", naksuIniPath))
+		log.Debug("%s not found, setting up empty config with defaults", naksuIniPath)
 		cfg = ini.Empty()
 	}
 	fillDefaults()
@@ -106,7 +106,7 @@ func validateStringChoice(section string, key string, choices []constants.Availa
 		return value
 	}
 	defaultValue := getDefault(section, key)
-	log.Debug(fmt.Sprintf("Correcting malformed ini-key %v / %v to default value %v", section, key, defaultValue))
+	log.Warning("Correcting malformed ini-key %v / %v to default value %v", section, key, defaultValue)
 	setValue(section, key, defaultValue)
 	return defaultValue
 }
@@ -117,7 +117,7 @@ func save() {
 
 	err := cfg.SaveTo(naksuIniPath)
 	if err != nil {
-		log.Debug(fmt.Sprintf("%s save failed: %v", naksuIniPath, err))
+		log.Error("%s save failed: %v", naksuIniPath, err)
 	}
 }
 

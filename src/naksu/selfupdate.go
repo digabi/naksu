@@ -4,8 +4,6 @@
 package main
 
 import (
-	"fmt"
-
 	"naksu/config"
 	"naksu/log"
 	"naksu/mebroutines"
@@ -49,7 +47,7 @@ func doReleaseSelfUpdate() bool {
 		latest, found, err := selfupdate.DetectLatest("digabi/naksu")
 		progress.SetMessage("")
 		if err != nil {
-			log.Debug(fmt.Sprintf("Version check failed: %s", err))
+			log.Error("Version check failed: %s", err)
 			return false
 		}
 		if found && latest.Version.GT(v) {
@@ -66,10 +64,10 @@ func doReleaseSelfUpdate() bool {
 	}
 	if latest.Version.Equals(v) {
 		// latest version is the same as current version. It means current binary is up to date.
-		log.Debug(fmt.Sprintf("Current binary is the latest version: %s", version))
+		log.Debug("Current binary is the latest version: %s", version)
 		return false
 	}
-	log.Debug(fmt.Sprintf("Successfully updated to version: %s", latest.Version))
+	log.Debug("Successfully updated to version: %s", latest.Version)
 	return true
 	//log.Println("Release note:\n", latest.ReleaseNotes)
 }

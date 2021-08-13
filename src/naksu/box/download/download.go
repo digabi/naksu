@@ -69,16 +69,16 @@ func downloadServerImage(url string, progressCallbackFn func(string, int)) error
 	}
 
 	progressCallbackFn(xlate.Get("Contacting server"), 0)
-	log.Debug(fmt.Sprintf("Starting to download image from '%s'", url))
+	log.Debug("Starting to download image from '%s'", url)
 	response, errHTTPGet := http.Get(url) // #nosec
 
 	if errHTTPGet != nil {
-		log.Debug(fmt.Sprintf("HTTP GET from url '%s' gives an error: %v", url, errHTTPGet))
+		log.Error("HTTP GET from url '%s' gives an error: %v", url, errHTTPGet)
 		return errHTTPGet
 	}
 
 	if response.StatusCode != 200 {
-		log.Debug(fmt.Sprintf("HTTP GET from url '%s' gives a status code %d", url, response.StatusCode))
+		log.Error("HTTP GET from url '%s' gives a status code %d", url, response.StatusCode)
 		return fmt.Errorf("%d", response.StatusCode)
 	}
 
@@ -89,7 +89,7 @@ func downloadServerImage(url string, progressCallbackFn func(string, int)) error
 	progressCallbackFn(xlate.Get("Opening file"), 1)
 	zipFile, errFile := os.OpenFile(mebroutines.GetZipImagePath(), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if errFile != nil {
-		log.Debug(fmt.Sprintf("Could not open file '%s' for server image zip: %v", mebroutines.GetZipImagePath(), errFile))
+		log.Error("Could not open file '%s' for server image zip: %v", mebroutines.GetZipImagePath(), errFile)
 		return errFile
 	}
 	defer zipFile.Close()
@@ -170,7 +170,7 @@ func unZipServerImage(progressCallbackFn func(string, int)) error {
 	defer r.Close()
 
 	for _, file := range r.File {
-		log.Debug(fmt.Sprintf("Etcher zip contains file %s, size %s", file.Name, humanize.Bytes(file.UncompressedSize64)))
+		log.Debug("Etcher zip contains file %s, size %s", file.Name, humanize.Bytes(file.UncompressedSize64))
 
 		if file.Name == "ytl/ktp.img.sha256" {
 			definedChecksum, err = unZipServerImageChecksum(file)
@@ -209,13 +209,13 @@ func unZipServerImage(progressCallbackFn func(string, int)) error {
 func GetServerImage(url string, progressCallbackFn func(string, int)) error {
 	err := downloadServerImage(url, progressCallbackFn)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Failed to download server image from '%s': %v", url, err))
+		log.Error("Failed to download server image from '%s': %v", url, err)
 		return err
 	}
 
 	err = unZipServerImage(progressCallbackFn)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Failed to unZipServerImage: %v", err))
+		log.Error("Failed to unZipServerImage: %v", err)
 		return err
 	}
 
@@ -234,20 +234,20 @@ func GetAvailableVersion(versionURL string) (string, error) {
 	} else {
 		response, err := http.Get(versionURL) // #nosec
 		if err != nil {
-			log.Debug(fmt.Sprintf("Getting available version from '%s' resulted an error: %v", versionURL, err))
+			log.Error("Getting available version from '%s' resulted an error: %v", versionURL, err)
 			return "", err
 		}
 
 		defer response.Body.Close()
 
 		if response.StatusCode != 200 {
-			log.Debug(fmt.Sprintf("Getting available version from '%s' gives a status code %d", versionURL, response.StatusCode))
+			log.Error(fmt.Sprintf("Getting available version from '%s' gives a status code %d", versionURL, response.StatusCode))
 			return "", fmt.Errorf("%d", response.StatusCode)
 		}
 
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
-			log.Debug(fmt.Sprintf("Reading available version from '%s' resulted and error: %v", versionURL, err))
+			log.Error("Reading available version from '%s' resulted and error: %v", versionURL, err)
 			return "", err
 		}
 
@@ -255,10 +255,10 @@ func GetAvailableVersion(versionURL string) (string, error) {
 
 		errCacheSet := cloudStatusCache.Set(versionURL, version, constants.CloudStatusTimeout)
 		if errCacheSet != nil {
-			log.Debug(fmt.Sprintf("Could not set cloud status cache: %v", errCacheSet))
+			log.Warning("Could not set cloud status cache: %v", errCacheSet)
 		}
 
-		log.Debug(fmt.Sprintf("Box version from '%s' is '%s'", versionURL, version))
+		log.Debug("Box version from '%s' is '%s'", versionURL, version)
 	}
 
 	return version, nil
@@ -276,7 +276,7 @@ func ensureCloudStatusCacheInitialised() {
 	if cloudStatusCache == nil {
 		cloudStatusCache, err = memory_cache.New()
 		if err != nil {
-			log.Debug(fmt.Sprintf("Fatal error: Failed to initialise memory cache: %v", err))
+			log.Error("Fatal error: Failed to initialise memory cache: %v", err)
 			panic(err)
 		}
 	}

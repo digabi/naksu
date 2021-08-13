@@ -119,24 +119,24 @@ func RemoveDirAndLogErrors(topPath string) {
 
 // CopyFile copies existing file
 func CopyFile(src, dst string) (err error) {
-	log.Debug(fmt.Sprintf("Copying file %s to %s", src, dst))
+	log.Debug("Copying file %s to %s", src, dst)
 
 	if !ExistsFile(src) {
-		log.Debug("Copying failed, could not find source file")
+		log.Error("Copying failed, could not find source file '%s'", src)
 		return errors.New("could not find source file")
 	}
 
 	/* #nosec */
 	in, err := os.Open(src)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Copying failed while opening source file: %v", err))
+		log.Error("Copying failed while opening source file '%s': %v", src, err)
 		return fmt.Errorf("could not open source file: %v", err)
 	}
 	defer Close(in)
 
 	out, err := os.Create(dst)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Copying failed while opening destination file: %v", err))
+		log.Error("Copying failed while opening destination file '%s': %v", dst, err)
 		return fmt.Errorf("could not open destination file: %v", err)
 	}
 	defer func() {
@@ -150,7 +150,7 @@ func CopyFile(src, dst string) (err error) {
 	}
 	err = out.Sync()
 	if err != nil {
-		log.Debug(fmt.Sprintf("Copying failed while syncing destination file: %v", err))
+		log.Error("Copying failed while syncing destination file '%s': %v", dst, err)
 		return fmt.Errorf("error when syncing destination file: %v", err)
 	}
 
@@ -216,10 +216,10 @@ func GetImagePath() string {
 
 // chdir changes current working directory to the given directory
 func chdir(chdirTo string) bool {
-	log.Debug(fmt.Sprintf("chdir %s", chdirTo))
+	log.Debug("chdir %s", chdirTo)
 	err := os.Chdir(chdirTo)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Could not chdir to %s: %v", chdirTo, err))
+		log.Error("Could not chdir to %s: %v", chdirTo, err)
 		return false
 	}
 

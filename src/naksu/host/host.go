@@ -62,15 +62,15 @@ func GetMemory() (uint64, error) {
 // the returned error has prefix "low:" followed by a failed path. The uint64 returns free disk space
 // of this location.
 func CheckFreeDisk(limit uint64, directories []string) error {
-	log.Debug(fmt.Sprintf("CheckFreeDisk: %v", directories))
+	log.Debug("CheckFreeDisk: %v", directories)
 
 	for _, thisDirectory := range directories {
 		freeDisk, err := mebroutines.GetDiskFree(thisDirectory)
 
 		if err != nil {
-			log.Debug(fmt.Sprintf("CheckFreeDisk could not get free disk for path '%s': %v", thisDirectory, err))
+			log.Error("CheckFreeDisk could not get free disk for path '%s': %v", thisDirectory, err)
 		} else {
-			log.Debug(fmt.Sprintf("CheckFreeDisk: %s (%d bytes, %s)", thisDirectory, freeDisk, humanize.Bytes(freeDisk)))
+			log.Debug("CheckFreeDisk: %s (%d bytes, %s)", thisDirectory, freeDisk, humanize.Bytes(freeDisk))
 
 			if freeDisk < limit {
 				return &LowDiskSizeError{"disk size is too low", thisDirectory, freeDisk}

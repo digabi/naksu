@@ -49,15 +49,15 @@ func logDirectoryPaths() {
 
 	for _, thisDir := range listDirs {
 		if mebroutines.ExistsDir(thisDir.dirPath) {
-			log.Debug(fmt.Sprintf("%s: %s [Directory exists]", thisDir.dirName, thisDir.dirPath))
+			log.Debug("%s: %s [Directory exists]", thisDir.dirName, thisDir.dirPath)
 		} else {
-			log.Debug(fmt.Sprintf("%s: %s [Directory does not exist]", thisDir.dirName, thisDir.dirPath))
+			log.Debug("%s: %s [Directory does not exist]", thisDir.dirName, thisDir.dirPath)
 		}
 	}
 }
 
 func logHardwareDetails() {
-	log.Debug(fmt.Sprintf("---Hardware data dump (start)\n%s\n---Hardware data dump (end)", host.GetHwLog()))
+	log.Debug("---Hardware data dump (start)\n%s\n---Hardware data dump (end)", host.GetHwLog())
 }
 
 func main() {
@@ -86,7 +86,7 @@ func main() {
 	})
 
 	handleOptionalArgument("self-update", parser, func(opt *flags.Option) {
-		log.Debug(fmt.Sprintf("Self-update: %v", opt.Value()))
+		log.Debug("Self-update: %v", opt.Value())
 		if opt.Value() == "disabled" {
 			config.SetSelfUpdateDisabled(true)
 		} else {

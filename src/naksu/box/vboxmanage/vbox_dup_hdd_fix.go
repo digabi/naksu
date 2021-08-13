@@ -19,7 +19,7 @@ func detectAndFixDuplicateHardDiskProblem(vBoxManageOutput string) (wasFixed boo
 	duplicateHardDiskRegexpMatch := duplicateHardDiskRegexp.FindStringSubmatch(vBoxManageOutput)
 	if len(duplicateHardDiskRegexpMatch) != 0 {
 		orphanedHardDiskUUID := duplicateHardDiskRegexpMatch[1]
-		log.Debug(fmt.Sprintf("Detected duplicate VirtualBox disk %s, fixing...", orphanedHardDiskUUID))
+		log.Debug("Detected duplicate VirtualBox disk %s, fixing...", orphanedHardDiskUUID)
 
 		fixedVirtualBoxConfigPath, err := writeFixedVirtualBoxConfig(orphanedHardDiskUUID)
 		if err != nil {
@@ -44,7 +44,7 @@ func detectAndFixDuplicateHardDiskProblem(vBoxManageOutput string) (wasFixed boo
 func writeFixedVirtualBoxConfig(orphanedHardDiskUUID string) (string, error) {
 	virtualBoxConfigFile, err := os.Open(getVirtualBoxConfigPath())
 	if err != nil {
-		log.Debug(fmt.Sprintf("Failed to open virtualbox configuration file %s", getVirtualBoxConfigPath()))
+		log.Error("Failed to open virtualbox configuration file %s", getVirtualBoxConfigPath())
 		return "", err
 	}
 	defer func() {
@@ -54,7 +54,7 @@ func writeFixedVirtualBoxConfig(orphanedHardDiskUUID string) (string, error) {
 	fixedVirtualBoxConfigPath := getVirtualBoxConfigPath() + ".new"
 	fixedVirtualBoxConfigFile, err := os.OpenFile(fixedVirtualBoxConfigPath, os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Failed to open replacement virtual box configuration file %s", fixedVirtualBoxConfigPath))
+		log.Error("Failed to open replacement virtual box configuration file %s", fixedVirtualBoxConfigPath)
 		return "", err
 	}
 	defer func() {
@@ -68,25 +68,25 @@ func writeFixedVirtualBoxConfig(orphanedHardDiskUUID string) (string, error) {
 		isDuplicateHardDiskLine, err := regexp.MatchString("<HardDisk uuid=\"{"+orphanedHardDiskUUID+"}\"", line)
 
 		if err != nil {
-			log.Debug(fmt.Sprintf("Error trying to regexp, UUID=%s", orphanedHardDiskUUID))
+			log.Error("Error trying to regexp, UUID=%s", orphanedHardDiskUUID)
 			return "", err
 		}
 
 		if !isDuplicateHardDiskLine {
 			_, err = fixedVirtualBoxConfigWriter.WriteString(line + "\r\n")
 			if err != nil {
-				log.Debug(fmt.Sprintf("Failed to write to %s", fixedVirtualBoxConfigPath))
+				log.Error("Failed to write to %s", fixedVirtualBoxConfigPath)
 				return "", err
 			}
 		}
 	}
 
 	if err := fixedVirtualBoxConfigWriter.Flush(); err != nil {
-		log.Debug(fmt.Sprintf("Failed to flush writer of %s", fixedVirtualBoxConfigPath))
+		log.Error("Failed to flush writer of %s", fixedVirtualBoxConfigPath)
 		return "", err
 	}
 	if err := fixedVirtualBoxConfigFile.Close(); err != nil {
-		log.Debug(fmt.Sprintf("Failed to close %s", fixedVirtualBoxConfigPath))
+		log.Error("Failed to close %s", fixedVirtualBoxConfigPath)
 		return "", err
 	}
 
@@ -96,7 +96,7 @@ func writeFixedVirtualBoxConfig(orphanedHardDiskUUID string) (string, error) {
 func backupVirtualBoxConfig() (string, error) {
 	virtualBoxConfigBackupPath := getVirtualBoxConfigPath() + ".naksubackup"
 	if err := os.Rename(getVirtualBoxConfigPath(), virtualBoxConfigBackupPath); err != nil {
-		log.Debug(fmt.Sprintf("Failed to backup %s to %s", getVirtualBoxConfigPath(), virtualBoxConfigBackupPath))
+		log.Error("Failed to backup %s to %s", getVirtualBoxConfigPath(), virtualBoxConfigBackupPath)
 		return "", err
 	}
 	return virtualBoxConfigBackupPath, nil
@@ -104,7 +104,7 @@ func backupVirtualBoxConfig() (string, error) {
 
 func replaceVirtualBoxConfigWithFixedOne(fixedVirtualBoxConfigPath string, virtualBoxConfigBackupPath string) error {
 	if err := os.Rename(fixedVirtualBoxConfigPath, getVirtualBoxConfigPath()); err != nil {
-		log.Debug(fmt.Sprintf("Failed to move %s to %s, trying to restore %s from %s", fixedVirtualBoxConfigPath, getVirtualBoxConfigPath(), getVirtualBoxConfigPath(), virtualBoxConfigBackupPath))
+		log.Error("Failed to move %s to %s, trying to restore %s from %s", fixedVirtualBoxConfigPath, getVirtualBoxConfigPath(), getVirtualBoxConfigPath(), virtualBoxConfigBackupPath)
 
 		if recoveryErr := os.Rename(virtualBoxConfigBackupPath, getVirtualBoxConfigPath()); recoveryErr != nil {
 			mebroutines.ShowTranslatedErrorMessage("Naksu encountered an error while trying to fix a problem with VirtualBox. VirtualBox configuration file %s has been moved to %s. Manually rename it to %s to fix this.", getVirtualBoxConfigPath(), virtualBoxConfigBackupPath, getVirtualBoxConfigPath())

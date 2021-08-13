@@ -1,7 +1,6 @@
 package progress
 
 import (
-	"fmt"
 	"naksu/log"
 	"naksu/xlate"
 
@@ -19,7 +18,7 @@ func SetProgressLabel(newProgressLabel *ui.Label) {
 
 // setMessage does the actual message label updating
 func setMessage(message string) {
-	log.Debug(fmt.Sprintf("Progress message: %s", message))
+	log.Debug("Progress message: %s", message)
 	ui.QueueMain(func() {
 		progressLabel.SetText(message)
 	})

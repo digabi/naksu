@@ -44,8 +44,7 @@ func isFAT32(backupPath string) (bool, error) {
 	query := wmi.CreateQuery(&dst, fmt.Sprintf("WHERE DriveLetter='%s'", driveLetter)) // #nosec
 	err := wmi.Query(query, &dst)
 	if err != nil || len(dst) == 0 {
-		log.Debug(fmt.Sprintf("backupMediaFileSystem could not get volume information for drive '%s'", backupPath))
-		log.Debug(fmt.Sprint(err))
+		log.Error("backupMediaFileSystem could not get volume information for drive '%s': %v", backupPath, err)
 		return false, err
 	}
 

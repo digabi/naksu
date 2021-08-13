@@ -51,7 +51,7 @@ func getExtInterfaceSpeed(extInterface string) uint64 {
 	speedPath := fmt.Sprintf("/sys/class/net/%s/speed", extInterface)
 
 	if !mebroutines.ExistsFile(speedPath) {
-		log.Debug(fmt.Sprintf("Network interface speed file '%s' does not exist", speedPath))
+		log.Error("Network interface speed file '%s' does not exist", speedPath)
 		return 0
 	}
 
@@ -64,7 +64,7 @@ func getExtInterfaceSpeed(extInterface string) uint64 {
 			return 0
 		}
 
-		log.Debug(fmt.Sprintf("Unexpected error while trying to read link state from %s: %s", carrierPath, err.Error()))
+		log.Error("Unexpected error while trying to read link state from %s: %s", carrierPath, err.Error())
 	} else if strings.TrimSpace(string(carrierFileContent)) == "0" {
 		return 0 // The link is down e.g. because the device is disconnected from the network.
 	}
@@ -72,13 +72,13 @@ func getExtInterfaceSpeed(extInterface string) uint64 {
 	/* #nosec */
 	speedFileContent, err := ioutil.ReadFile(speedPath)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Could not read network interface speed from '%s': %v", speedPath, err))
+		log.Error("Could not read network interface speed from '%s': %v", speedPath, err)
 		return 0
 	}
 	speedFileContentTrimmed := strings.TrimSpace(string(speedFileContent))
 	speedInt, errConvert := strconv.ParseUint(speedFileContentTrimmed, 10, 64)
 	if errConvert != nil {
-		log.Debug(fmt.Sprintf("Could not convert speed string '%s' to integer: %v", speedFileContentTrimmed, errConvert))
+		log.Error("Could not convert speed string '%s' to integer: %v", speedFileContentTrimmed, errConvert)
 		return 0
 	}
 
@@ -91,7 +91,7 @@ func getExtInterfaceType(extInterface string) nicType {
 	/* #nosec */
 	modaliasContent, err := ioutil.ReadFile(modaliasPath)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Could not detect type of external network interface %s: %v", extInterface, err))
+		log.Warning("Could not detect type of external network interface %s: %v", extInterface, err)
 		return 0
 	}
 
@@ -107,7 +107,7 @@ func getExtInterfaceType(extInterface string) nicType {
 		}
 	}
 
-	log.Debug(fmt.Sprintf("Could not detect type of external network interface %s (%s): %s", extInterface, modaliasPath, modaliasStr))
+	log.Warning("Could not detect type of external network interface %s (%s): %s", extInterface, modaliasPath, modaliasStr)
 	return nicTypeUnknown
 }
 
@@ -126,7 +126,7 @@ func getPCIDeviceLegend(vendor string, device string) (string, error) {
 	vendor = strings.ToLower(vendor)
 	device = strings.ToLower(device)
 
-	log.Debug(fmt.Sprintf("Getting device name from PCI database: %s:%s", vendor, device))
+	log.Debug("Getting device name from PCI database: %s:%s", vendor, device)
 
 	searchKey := fmt.Sprintf("%s%s", vendor, device)
 
@@ -136,26 +136,26 @@ func getPCIDeviceLegend(vendor string, device string) (string, error) {
 		pcidb.WithDisableNetworkFetch()
 		linuxPCIDatabase, err = pcidb.New()
 		if err != nil {
-			log.Debug(fmt.Sprintf("Could not initialise PCI database: %v", err))
+			log.Error("Could not initialise PCI database: %v", err)
 			return "", err
 		}
 	}
 
 	for key, devProduct := range linuxPCIDatabase.Products {
 		if key == searchKey {
-			log.Debug(fmt.Sprintf("Found device from PCI database: %s", devProduct.Name))
+			log.Debug("Found device from PCI database: %s", devProduct.Name)
 			return devProduct.Name, nil
 		}
 	}
 
-	log.Debug(fmt.Sprintf("Did not find any matches from PCI database for key %s", searchKey))
+	log.Debug("Did not find any matches from PCI database for key %s", searchKey)
 	return "", errors.New("no matching legend found")
 }
 
 func getUSBDeviceLegend(vendor string, product string) (string, error) {
 	var desc *gousb.DeviceDesc
 
-	log.Debug(fmt.Sprintf("Getting device name from USB database: %s:%s", vendor, product))
+	log.Debug("Getting device name from USB database: %s:%s", vendor, product)
 
 	vendorInt, vendorErr := strconv.ParseUint(vendor, 16, 32)
 	if vendorErr != nil {
@@ -170,7 +170,7 @@ func getUSBDeviceLegend(vendor string, product string) (string, error) {
 	desc = &gousb.DeviceDesc{Vendor: gousb.ID(vendorInt), Product: gousb.ID(productInt)}
 
 	legend := usbid.Describe(desc)
-	log.Debug(fmt.Sprintf("USB database gives following legend to device %s:%s: %s", vendor, product, legend))
+	log.Debug("USB database gives following legend to device %s:%s: %s", vendor, product, legend)
 
 	return legend, nil
 }
@@ -191,32 +191,32 @@ func getPCIExtInterfaceLegend(extInterface string) (string, error) {
 	/* #nosec */
 	vendor, errVendor := ioutil.ReadFile(vendorPath)
 	if errVendor != nil {
-		log.Debug(fmt.Sprintf("Trying to get vendor ID for %s but could not open %s for reading: %v", extInterface, vendorPath, errVendor))
+		log.Error("Trying to get vendor ID for %s but could not open %s for reading: %v", extInterface, vendorPath, errVendor)
 		return "", fmt.Errorf("failed to get vendor id for external pci network interface %s", extInterface)
 	}
 	vendorID, vendorErr := prepareID(vendor)
 
 	if vendorErr != nil {
-		log.Debug(fmt.Sprintf("Failed to get PCI vendor ID for %s: %v", extInterface, vendorErr))
+		log.Error("Failed to get PCI vendor ID for %s: %v", extInterface, vendorErr)
 		return "", vendorErr
 	}
 
 	/* #nosec */
 	device, errDevice := ioutil.ReadFile(devicePath)
 	if errDevice != nil {
-		log.Debug(fmt.Sprintf("Trying to get device ID for %s but could not open %s for reading: %v", extInterface, devicePath, errDevice))
+		log.Error("Trying to get device ID for %s but could not open %s for reading: %v", extInterface, devicePath, errDevice)
 		return "", fmt.Errorf("failed to get device id for external pci network interface %s", extInterface)
 	}
 	deviceID, deviceErr := prepareID(device)
 
 	if deviceErr != nil {
-		log.Debug(fmt.Sprintf("Failed to get PCI device ID for %s: %v", extInterface, deviceErr))
+		log.Error("Failed to get PCI device ID for %s: %v", extInterface, deviceErr)
 		return "", deviceErr
 	}
 
 	pciLegend, errSearch := getPCIDeviceLegend(vendorID, deviceID)
 	if errSearch != nil {
-		log.Debug(fmt.Sprintf("Failed to get device legend for a PCI device %s:%s: %v", vendorID, deviceID, errSearch))
+		log.Error("Failed to get device legend for a PCI device %s:%s: %v", vendorID, deviceID, errSearch)
 	}
 
 	return pciLegend, errSearch
@@ -228,7 +228,7 @@ func getUSBExtInterfaceLegend(extInterface string) (string, error) {
 	/* #nosec */
 	modaliasContent, err := ioutil.ReadFile(modaliasPath)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Could not get vendor/product codes for external network interface %s: %v", extInterface, err))
+		log.Error("Could not get vendor/product codes for external network interface %s: %v", extInterface, err)
 		return "", fmt.Errorf("could not get vendor/product codes for external network interface %s: %v", extInterface, err)
 	}
 
@@ -241,7 +241,7 @@ func getUSBExtInterfaceLegend(extInterface string) (string, error) {
 
 		usbLegend, errSearch := getUSBDeviceLegend(vendorID, deviceID)
 		if errSearch != nil {
-			log.Debug(fmt.Sprintf("Failed to get device legend for a USB device %s:%s: %v", vendorID, deviceID, errSearch))
+			log.Error("Failed to get device legend for a USB device %s:%s: %v", vendorID, deviceID, errSearch)
 		}
 
 		return usbLegend, errSearch
@@ -267,7 +267,7 @@ func getExtInterfaceLegend(extInterface string) string {
 	}
 
 	if err != nil {
-		log.Debug(fmt.Sprintf("Failed to get legend for external network interface %s: %v", extInterface, err))
+		log.Error("Failed to get legend for external network interface %s: %v", extInterface, err)
 		legend = getExtInterfaceDefaultLegend(extInterface)
 	}
 
@@ -345,9 +345,9 @@ func GetExtInterfaces() []constants.AvailableSelection {
 	if err == nil {
 		for n := range interfaces {
 			if isIgnoredExtInterfaceLinux(interfaces[n].Name) {
-				log.Debug(fmt.Sprintf("Ignoring external network interface '%s'", interfaces[n].Name))
+				log.Debug("Ignoring external network interface '%s'", interfaces[n].Name)
 			} else {
-				log.Debug(fmt.Sprintf("Adding external network interface '%s' to the list of available devices", interfaces[n].Name))
+				log.Debug("Adding external network interface '%s' to the list of available devices", interfaces[n].Name)
 				var oneInterface constants.AvailableSelection
 				oneInterface.ConfigValue = interfaces[n].Name
 

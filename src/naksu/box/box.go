@@ -82,7 +82,7 @@ func CreateNewBox(boxType string, boxVersion string) error {
 		return errMemory
 	}
 
-	log.Debug(fmt.Sprintf("Calculated new VM specs - CPUs: %d, Memory: %d", calculatedBoxCPUs, calculatedBoxMemory))
+	log.Debug("Calculated new VM specs - CPUs: %d, Memory: %d", calculatedBoxCPUs, calculatedBoxMemory)
 
 	createCommands := []vboxmanage.VBoxCommand{
 		{"convertfromraw", mebroutines.GetImagePath(), mebroutines.GetVDIImagePath(), "--format", "VDI"},
@@ -141,7 +141,7 @@ func CreateNewBox(boxType string, boxVersion string) error {
 
 	vBoxVersion, err := vboxmanage.GetVBoxManageVersion()
 	if err != nil {
-		log.Debug(fmt.Sprintf("Could not get VBoxManage version: %v", err))
+		log.Error("Could not get VBoxManage version: %v", err)
 		return err
 	}
 
@@ -230,14 +230,14 @@ func StartEnvironmentStatusUpdate(environmentStatus *constants.EnvironmentStatus
 
 			boxInstalled, boxInstalledErr := Installed()
 			if boxInstalledErr != nil {
-				log.Debug(fmt.Sprintf("Could not query whether VM is installed: %v", boxInstalledErr))
+				log.Error("Could not query whether VM is installed: %v", boxInstalledErr)
 			} else {
 				environmentStatus.BoxInstalled = (boxInstalledErr == nil) && boxInstalled
 			}
 
 			boxRunning, boxRunningErr := Running()
 			if boxRunningErr != nil {
-				log.Debug(fmt.Sprintf("Could not query whether VM is running: %v", boxRunningErr))
+				log.Error("Could not query whether VM is running: %v", boxRunningErr)
 			} else {
 				environmentStatus.BoxRunning = (boxRunningErr == nil) && boxRunning
 			}
@@ -250,7 +250,7 @@ func Installed() (bool, error) {
 	isInstalled, err := vboxmanage.IsVMInstalled(boxName)
 
 	if err != nil {
-		log.Debug(fmt.Sprintf("box.Installed() could not detect whether VM is installed: %v", err))
+		log.Error("box.Installed() could not detect whether VM is installed: %v", err)
 	}
 
 	return isInstalled, err
@@ -260,7 +260,7 @@ func Running() (bool, error) {
 	isRunning, err := vboxmanage.IsVMRunning(boxName)
 
 	if err != nil {
-		log.Debug(fmt.Sprintf("box.Running() could not detect whether VM is running: %v", err))
+		log.Error("box.Running() could not detect whether VM is running: %v", err)
 	}
 
 	return isRunning, err
@@ -282,7 +282,7 @@ func GetTypeLegend() string {
 	}
 
 	// Unknown box type
-	log.Debug(fmt.Sprintf("Warning: We have a type string '%s' which does not resolve to Abitti/Matriculation box type (GetTypeLegend)", GetType()))
+	log.Warning("Warning: We have a type string '%s' which does not resolve to Abitti/Matriculation box type (GetTypeLegend)", GetType())
 	return "-"
 }
 
@@ -330,7 +330,7 @@ func MediumSizeOnDisk(location string) (uint64, error) {
 	mediumInfo, err := vboxmanage.RunCommand([]string{"showmediuminfo", location})
 
 	if err != nil {
-		log.Debug(fmt.Sprintf("Could not get medium info to calculate its size: %v", err))
+		log.Error("Could not get medium info to calculate its size: %v", err)
 		return 0, errors.New("failed to get medium size: could not execute vboxmanage")
 	}
 

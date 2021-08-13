@@ -58,7 +58,7 @@ func MakeBackup(backupPath string) error {
 	// Get disk location
 	progress.TranslateAndSetMessage("Getting disk location...")
 	diskLocation := box.GetDiskLocation()
-	log.Debug(fmt.Sprintf("Disk location: %s", diskLocation))
+	log.Debug("Disk location: %s", diskLocation)
 	if diskLocation == "" {
 		return mebroutines.ShowTranslatedErrorMessageAndPassError(generalErrorString, errors.New("could not get disk location"))
 	}
@@ -108,7 +108,7 @@ func checkForFATFilesystem(backupPath string, vmDiskLocation string) error {
 
 	// If we can't get medium size, we'll just ignore the error and continue.
 	if err != nil {
-		log.Debug(fmt.Sprintf("Error getting VirtualBox medium size: %s", err))
+		log.Error("Error getting VirtualBox medium size: %s", err)
 		return nil
 	}
 
@@ -122,7 +122,7 @@ func checkForFATFilesystem(backupPath string, vmDiskLocation string) error {
 	// see an error eventually, if the backup disk actually is FAT32.
 	isFAT32, err := isFAT32(backupPath)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Error checking if the backup medium has a FAT filesystem: %s", err))
+		log.Error("Error checking if the backup medium has a FAT filesystem: %s", err)
 		return nil
 	}
 

@@ -2,7 +2,6 @@ package vboxmanage
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -16,13 +15,13 @@ import (
 func CleanUpTrashVMDirectories() {
 	defaultVMDirectory, err := virtualBoxDefaultVMDirectory()
 	if err != nil {
-		log.Debug(fmt.Sprintf("Error searching for trash VM directories (get default vm dir): %v", err))
+		log.Error("Error searching for trash VM directories (get default vm dir): %v", err)
 		return
 	}
 
 	entriesInDefaultVMDir, err := ioutil.ReadDir(defaultVMDirectory)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Error searching for trash VM directories (list default vm dir %s): %v", defaultVMDirectory, err))
+		log.Error("Error searching for trash VM directories (list default vm dir %s): %v", defaultVMDirectory, err)
 		return
 	}
 
@@ -34,14 +33,14 @@ func CleanUpTrashVMDirectories() {
 		fullPathToPotentialTrashVMDir := path.Join(defaultVMDirectory, entryInDefaultVMDirRoot.Name())
 		entriesInSubDir, err := ioutil.ReadDir(fullPathToPotentialTrashVMDir)
 		if err != nil {
-			log.Debug(fmt.Sprintf("Error searching for trash VM directories (listing '%s'): %v", fullPathToPotentialTrashVMDir, err))
+			log.Error("Error searching for trash VM directories (listing '%s'): %v", fullPathToPotentialTrashVMDir, err)
 			return
 		}
 		if len(entriesInSubDir) == 1 && !entriesInSubDir[0].IsDir() && strings.HasSuffix(entriesInSubDir[0].Name(), ".vbox") {
-			log.Debug(fmt.Sprintf("Removing trash VM dir %s", fullPathToPotentialTrashVMDir))
+			log.Debug("Removing trash VM dir %s", fullPathToPotentialTrashVMDir)
 			err := os.RemoveAll(fullPathToPotentialTrashVMDir)
 			if err != nil {
-				log.Debug(fmt.Sprintf("Error removing trash VM dir %s", fullPathToPotentialTrashVMDir))
+				log.Debug("Error removing trash VM dir %s", fullPathToPotentialTrashVMDir)
 			}
 		}
 	}
@@ -51,7 +50,7 @@ func virtualBoxDefaultVMDirectory() (string, error) {
 	systemProperties, err := RunCommand([]string{"list", "systemproperties"})
 
 	if err != nil {
-		log.Debug(fmt.Sprintf("Failing to list system properties is not a fatal error, continuing normally. Error: %v", err))
+		log.Error("Failing to list system properties is not a fatal error, continuing normally. Error: %v", err)
 	}
 
 	defaultVMDirectoryRE := regexp.MustCompile(`Default machine folder:\s+(\S.*)`)
