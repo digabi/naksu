@@ -91,7 +91,20 @@ msgid ""
 "running: %v"
 msgstr ""
 
+msgid "Could not open MEB share directory"
+msgstr ""
+
 msgid "Could not remove current VM before installing new one: %v"
+msgstr ""
+
+msgid ""
+"Could not start server as we could not detect whether existing VM is "
+"installed: %v"
+msgstr ""
+
+msgid ""
+"Could not start server as we could not detect whether existing VM is "
+"running: %v"
 msgstr ""
 
 #, c-format
@@ -138,9 +151,6 @@ msgstr ""
 msgid "Done zipping"
 msgstr ""
 
-msgid "Downloading image"
-msgstr ""
-
 msgid "Downloading server image"
 msgstr ""
 
@@ -180,6 +190,9 @@ msgid "Failed to create new VM: %v"
 msgstr ""
 
 msgid "Failed to get new VM image: %v"
+msgstr ""
+
+msgid "Failed to remove directory %s: %v"
 msgstr ""
 
 msgid "Failed to remove exams: %v"
@@ -243,6 +256,13 @@ msgstr ""
 msgid "Matriculation Exam"
 msgstr ""
 
+#, c-format
+msgid ""
+"Naksu encountered an error while trying to fix a problem with VirtualBox. "
+"VirtualBox configuration file %s has been moved to %s. Manually rename it to "
+"%s to fix this."
+msgstr ""
+
 msgid "Naksu has been automatically updated. Please restart Naksu."
 msgstr ""
 
@@ -274,6 +294,9 @@ msgstr ""
 msgid "No network connection"
 msgstr ""
 
+msgid "No server has been installed."
+msgstr ""
+
 msgid "OK"
 msgstr ""
 
@@ -303,6 +326,9 @@ msgid "Please turn Windows Hypervisor off as it may cause problems."
 msgstr ""
 
 msgid "Please wait, writing backup..."
+msgstr ""
+
+msgid "Preparing..."
 msgstr ""
 
 msgid "Profile directory"
@@ -372,6 +398,13 @@ msgid ""
 "backup disk as exFAT."
 msgstr ""
 
+msgid "The server is already running."
+msgstr ""
+
+msgid ""
+"The server appears to be running but we remove it as you requested."
+msgstr ""
+
 msgid "Turn Naksu self updates back on"
 msgstr ""
 
@@ -385,10 +418,18 @@ msgstr ""
 msgid "Update available: %s"
 msgstr ""
 
+msgid "Virtual machine was started"
+msgstr ""
+
 msgid "Wait..."
 msgstr ""
 
 msgid "Warning"
+msgstr ""
+
+msgid ""
+"We could not detect whether existing VM is running: %v, but continued "
+"removing the server as you requested."
 msgstr ""
 
 msgid "Wireless connection"

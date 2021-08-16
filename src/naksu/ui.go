@@ -467,7 +467,7 @@ func checkAbittiUpdate() (bool, string) {
 	boxInstalled, err := box.Installed()
 
 	if err != nil {
-		log.Debug(fmt.Sprintf("Could not detect whether VM is installed: %v", err))
+		log.Error("Could not detect whether VM is installed: %v", err)
 	}
 
 	if (err == nil && !boxInstalled) || box.TypeIsAbitti() {
@@ -708,7 +708,7 @@ func startServerButtonClicked(mainUIStatus chan string) {
 			log.Debug("Failed to start server: %v", err)
 			progress.SetMessage("")
 		} else {
-			progress.SetMessage("Virtual machine was started")
+			progress.TranslateAndSetMessage("Virtual machine was started")
 		}
 
 		// Wait over one UI loop
@@ -818,7 +818,7 @@ func bindOnMakeBackup(mainUIStatus chan string) {
 }
 
 func setLogDeliveryLabelTextInGoroutine(text string) {
-	log.Debug(fmt.Sprintf("Log delivery status: %s", text))
+	log.Debug("Log delivery status: %s", text)
 	ui.QueueMain(func() {
 		logDeliveryStatusLabel.SetText(text)
 	})
@@ -948,7 +948,7 @@ func bindOnLogDelivery(mainUIStatus chan string) {
 		log.Action("Copying log filename to clipboard")
 		err := clipboard.WriteAll(logDeliveryFilenameLabel.Text())
 		if err != nil {
-			log.Debug(fmt.Sprintf("Could not write to clipboard: %v", err))
+			log.Error("Could not write to clipboard: %v", err)
 		}
 	})
 
@@ -1152,7 +1152,7 @@ func RunUI() error {
 			if err != nil {
 				log.Debug("Could not detect whether VirtualBox is too old or too new: %v. User was not notified.", err)
 			} else if translatedMessage != "" {
-				mebroutines.ShowWarningMessage(translatedMessage)
+				mebroutines.ShowTranslatedWarningMessage(translatedMessage)
 			}
 		}()
 
@@ -1178,7 +1178,7 @@ func RunUI() error {
 			}
 		}
 
-		log.Debug(fmt.Sprintf("Currently installed box: %s %s", box.GetVersion(), box.GetType()))
+		log.Debug("Currently installed box: %s %s", box.GetVersion(), box.GetType())
 
 		logdelivery.DeleteLogCopyFiles()
 

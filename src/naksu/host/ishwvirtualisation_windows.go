@@ -1,8 +1,6 @@
 package host
 
 import (
-	"fmt"
-
 	"golang.org/x/sys/windows"
 
 	"naksu/log"
@@ -18,11 +16,11 @@ func IsHWVirtualisation() bool {
 	ret, _, err := proc.Call(uintptr(PF_VIRT_FIRMWARE_ENABLED))
 
 	if err != windows.ERROR_SUCCESS {
-		log.Debug(fmt.Sprintf("Error while making call to kernel32.dll, IsProcessorFeaturePresent: %v", err))
+		log.Error("Error while making call to kernel32.dll, IsProcessorFeaturePresent: %v", err)
 		return false
 	}
 
-	log.Debug(fmt.Sprintf("Kernel IsProcessorFeaturePresent returns %d", ret))
+	log.Debug("Kernel IsProcessorFeaturePresent returns %d", ret)
 
 	if ret > 0 {
 		log.Debug("Hardware virtualisation support is enabled in BIOS (Windows)")

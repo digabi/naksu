@@ -1,8 +1,6 @@
 package mebroutines
 
 import (
-	"fmt"
-
 	"naksu/log"
 )
 
@@ -10,7 +8,7 @@ import (
 func OpenMebShare() {
 	mebSharePath := GetMebshareDirectory()
 
-	log.Debug(fmt.Sprintf("MEB share directory: %s", mebSharePath))
+	log.Debug("MEB share directory: %s", mebSharePath)
 
 	if !ExistsDir(mebSharePath) {
 		ShowTranslatedWarningMessage("Cannot open MEB share directory since it does not exist")
@@ -36,6 +34,6 @@ func OpenMebShare() {
 			}
 		}
 
-		ShowWarningMessage("Could not open MEB share directory")
+		ShowTranslatedWarningMessage("Could not open MEB share directory")
 	}()
 }

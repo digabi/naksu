@@ -43,7 +43,7 @@ func isHyperVOptionalFeature() bool {
 				thisCaption = *dst[thisService].Caption
 			}
 
-			log.Debug(fmt.Sprintf("Windows Hyper-V Optional Feature found: %s (%s)", thisName, thisCaption))
+			log.Debug("Windows Hyper-V Optional Feature found: %s (%s)", thisName, thisCaption)
 			// We're not returning this value as there might be a number of Hyper-V -related features found
 			isRunning = true
 		}

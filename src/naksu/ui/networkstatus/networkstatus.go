@@ -1,8 +1,6 @@
 package networkstatus
 
 import (
-	"fmt"
-
 	"github.com/andlabs/ui"
 
 	"naksu/log"
@@ -92,7 +90,7 @@ func showNetworkStatus(text string, warning bool) {
 	}
 	ui.QueueMain(networkStatusArea.QueueRedrawAll)
 
-	log.Debug(fmt.Sprintf("Network status: %s", text))
+	log.Debug("Network status: %s", text)
 }
 
 // Area returns the Area UI component singleton that shows the network status

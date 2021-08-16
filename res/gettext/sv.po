@@ -28,6 +28,11 @@ msgstr "Säkerhetskopieringen misslyckades: %v"
 msgid "Cancel"
 msgstr "Avbryt"
 
+msgid "Cannot open MEB share directory since it does not exist"
+msgstr ""
+"Det gick inte att öppna den virtuella överföringsstationen. Kontrollera att "
+"servern är installerad och/eller att katalogen finns."
+
 msgid ""
 "Cannot send logs because there is no Internet connection. Logs are in a zip "
 "archive in the ktp-jako folder."
@@ -96,10 +101,27 @@ msgstr ""
 "Servern kunde inte installeras eftersom det inte gick att kontrollera ifall "
 "den befintliga servern är på: %v"
 
+msgid "Could not open MEB share directory"
+msgstr "Katalogen ktp-jako Kunde inte öppnas"
+
 msgid "Could not remove current VM before installing new one: %v"
 msgstr ""
 "Avlägsnande av befintlig server fore installation av ny server misslyckades: "
 "%v"
+
+msgid ""
+"Could not start server as we could not detect whether existing VM is "
+"installed: %v"
+msgstr ""
+"Servern kunde inte startas eftersom den befintliga servern inte Kunde "
+"kontrolleras: %v"
+
+msgid ""
+"Could not start server as we could not detect whether existing VM is "
+"running: %v"
+msgstr ""
+"Servern kunde inte startas eftersom det inte var möjligt att kontrollera "
+"ifall befintlig server är på: %v"
 
 #, c-format
 msgid "Could not write test backup file %s. Try another location."
@@ -147,10 +169,6 @@ msgstr "Logguppgifterna är kopierade"
 msgid "Done zipping"
 msgstr "Logguppgifterna är komprimerade"
 
-#, c-format
-msgid "Downloading image: %d %%"
-msgstr "Laddar ned skivavbild: %d %%"
-
 msgid "Downloading server image"
 msgstr "Laddar skivavbild för servern"
 
@@ -191,6 +209,9 @@ msgstr "Misslyckades med att skapa en ny virtuell maskin: %v"
 
 msgid "Failed to get new VM image: %v"
 msgstr "Laddning av skivavbild misslyckades: %v"
+
+msgid "Failed to remove directory %s: %v"
+msgstr "Radering av katalogen %s misslyckades: %v"
 
 msgid "Failed to remove exams: %v"
 msgstr "Avlägsnande av proven misslyckades: %v"
@@ -260,6 +281,16 @@ msgstr "Examensserver"
 msgid "Matriculation Exam"
 msgstr "Studentprovet"
 
+#, c-format
+msgid ""
+"Naksu encountered an error while trying to fix a problem with VirtualBox. "
+"VirtualBox configuration file %s has been moved to %s. Manually rename it to "
+"%s to fix this."
+msgstr ""
+"Reparation av problemet i VirtualBox misslyckades. Namnet på "
+"inställningsfilen %s för VirtualBox har ändrats till %s. Ändra namnet till "
+"%s manuellt för att åtgärda problemet."
+
 msgid "Naksu has been automatically updated. Please restart Naksu."
 msgstr "Naksu har uppdaterats automatiskt. Var god starta Naksu på nytt."
 
@@ -298,6 +329,9 @@ msgstr "Nätverksstatus: "
 msgid "No network connection"
 msgstr "Inget nätverk"
 
+msgid "No server has been installed."
+msgstr "Ingen server installerad."
+
 msgid "OK"
 msgstr "OK"
 
@@ -328,6 +362,9 @@ msgstr "Vänligen stäng av Windows Hypervisor eftersom den kan orsaka problem."
 
 msgid "Please wait, writing backup..."
 msgstr "Var god vänta, säkerhetskopia skrivs..."
+
+msgid "Preparing..."
+msgstr "Förberedelser..."
 
 msgid "Profile directory"
 msgstr "Profilkatalog"
@@ -399,6 +436,13 @@ msgstr ""
 "Säkerhetskopian är för stor för ett FAT32-filsystem. Vänligen formatera "
 "minnespinnen eller skivan som exFAT."
 
+msgid "The server is already running."
+msgstr "Servern har redan startats."
+
+msgid ""
+"The server appears to be running but we remove it as you requested."
+msgstr "Servern är på men avlägsnas trots det."
+
 msgid "Turn Naksu self updates back on"
 msgstr "Aktivera Naksu självuppdateringar"
 
@@ -412,11 +456,21 @@ msgstr "Packar upp skivavbild..."
 msgid "Update available: %s"
 msgstr "Uppdatering tillgänglig: %s"
 
+msgid "Virtual machine was started"
+msgstr "Den virtuella maskinen har startats"
+
 msgid "Wait..."
 msgstr "Vänta..."
 
 msgid "Warning"
 msgstr "Varning"
+
+msgid ""
+"We could not detect whether existing VM is running: %v, but continued "
+"removing the server as you requested."
+msgstr ""
+"Kunde inte bekräfta ifall den befintliga virtuella servern är på: %v men "
+"fortsätter avlägsnandet av servern."
 
 msgid "Wireless connection"
 msgstr "Trådlös anslutning"
@@ -490,74 +544,3 @@ msgstr ""
 
 msgid "vmstate"
 msgstr ""
-
-msgid "Preparing..."
-msgstr "Förberedelser..."
-
-msgid "Cannot open MEB share directory since it does not exist"
-msgstr "Det gick inte att öppna den virtuella överföringsstationen. Kontrollera att servern är installerad och/eller att katalogen finns."
-
-#~ msgid "Cannot open MEB share directory since it does not exist"
-#~ msgstr "Katalogen ktp-jako kunde inte öppnas eftersom den inte existerar"
-
-#~ msgid "Could not open MEB share directory"
-#~ msgstr "Katalogen ktp-jako Kunde inte öppnas"
-
-#~ msgid ""
-#~ "Could not start server as we could not detect whether existing VM is "
-#~ "installed: %v"
-#~ msgstr ""
-#~ "Servern kunde inte startas eftersom den befintliga servern inte Kunde "
-#~ "kontrolleras: %v"
-
-#~ msgid "No server has been installed."
-#~ msgstr "Ingen server installerad."
-
-#~ msgid ""
-#~ "Could not start server as we could not detect whether existing VM is "
-#~ "running: %v"
-#~ msgstr ""
-#~ "Servern kunde inte startas eftersom det inte var möjligt att kontrollera "
-#~ "ifall befintlig server är på: %v"
-
-#~ msgid "The server is already running."
-#~ msgstr "Servern har redan startats."
-
-#~ msgid "Could not start VM: %v"
-#~ msgstr "Kunde inte starta den virtuella maskinen: %v"
-
-#~ msgid "Virtual machine was started"
-#~ msgstr "Den virtuella maskinen har startats"
-
-#~ msgid ""
-#~ "We could not detect whether existing VM is running: %v, but continued "
-#~ "removing the server as you requested."
-#~ msgstr ""
-#~ "Kunde inte bekräfta ifall den befintliga virtuella servern är på: %v men "
-#~ "fortsätter avlägsnandet av servern."
-
-#~ msgid ""
-#~ "There is a server appears to be running but we remove it as you requested."
-#~ msgstr "Servern är på men avlägsnas trots det."
-
-#~ msgid "Changing current directory to home"
-#~ msgstr "Går till hemkatalogen"
-
-#~ msgid "Failed to remove directory %s: %v"
-#~ msgstr "Radering av katalogen %s misslyckades: %v"
-
-#~ msgid ""
-#~ "Naksu encountered an error while trying to fix a problem with VirtualBox. "
-#~ "VirtualBox configuration file %s has been moved to %s. Manually rename it "
-#~ "to %s to fix this."
-#~ msgstr ""
-#~ "Reparation av problemet i VirtualBox misslyckades. Namnet på "
-#~ "inställningsfilen %s för VirtualBox har ändrats till %s. Ändra namnet "
-#~ "till %s manuellt för att åtgärda problemet."
-
-#~ msgid "Naksu could not check for updates as there is no network connection."
-#~ msgstr ""
-#~ "Naksu kunde inte söka nya uppdateringar för att nätförbindelse saknades."
-
-#~ msgid "Failed to create temporary file: %v"
-#~ msgstr "Temporär fil kunde inte skapas: %v"

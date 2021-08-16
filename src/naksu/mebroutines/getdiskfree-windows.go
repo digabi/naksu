@@ -17,7 +17,7 @@ func getDiskFreeWindows(path string) (uint64, error) {
 	patternResult := patternDisk.FindStringSubmatch(path)
 
 	if len(patternResult) < 2 {
-		log.Debug(fmt.Sprintf("Could not detect drive letter from path: %s", path))
+		log.Error("Could not detect drive letter from path: %s", path)
 
 		return 0, errors.New("could not detect drive letter")
 	}
@@ -36,7 +36,7 @@ func getDiskFreeWindows(path string) (uint64, error) {
 		query := wmi.CreateQuery(&dst, wmiQuery)
 		err := wmi.Query(query, &dst)
 		if err != nil {
-			log.Debug(fmt.Sprintf("getDiskFreeWindows() could not make WMI query (%s): %s", wmiQuery, fmt.Sprint(err)))
+			log.Error("getDiskFreeWindows() could not make WMI query (%s): %s", wmiQuery, fmt.Sprint(err))
 			result <- []Win32_LogicalDisk{}
 		} else {
 			result <- dst

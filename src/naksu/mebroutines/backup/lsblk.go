@@ -36,14 +36,13 @@ func ListBlockDevices() (*LsblkOutput, error) {
 	log.Debug(lsblkJSON)
 
 	if lsblkErr != nil {
-		log.Debug("Failed to run lsblk")
+		log.Error("Failed to run lsblk: %v", lsblkErr)
 		return &LsblkOutput{}, lsblkErr
 	}
 
 	output, jsonErr := ParseLsblkJSON(lsblkJSON)
 	if jsonErr != nil {
-		log.Debug("Unable to unmarshal lsblk response:")
-		log.Debug(fmt.Sprintf("%s", jsonErr))
+		log.Error("Unable to unmarshal lsblk response: %v", jsonErr)
 		return &LsblkOutput{}, lsblkErr
 	}
 
@@ -94,7 +93,7 @@ func (bd *BlockDevice) IsRemovable() bool {
 		}
 	}
 
-	log.Debug(fmt.Sprintf("Unknown format for hotplug field in lsblk output: %v", bd.HotPlug))
+	log.Error("Unknown format for hotplug field in lsblk output: %v", bd.HotPlug)
 	return false
 }
 

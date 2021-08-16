@@ -31,7 +31,7 @@ func queryInterfaces(filter string) []Win32_NetworkAdapter {
 		query := wmi.CreateQuery(&dst, filter)
 		err := wmi.Query(query, &dst)
 		if err != nil {
-			log.Debug(fmt.Sprintf("queryInterfaces() could not query network adapters from WMI: %v", err))
+			log.Error("queryInterfaces() could not query network adapters from WMI: %v", err)
 			result <- []Win32_NetworkAdapter{}
 		} else {
 			result <- dst
@@ -60,7 +60,7 @@ func GetExtInterfaces() []constants.AvailableSelection {
 
 	for thisInterface := range interfaces {
 		if isIgnoredExtInterfaceWindows(*interfaces[thisInterface].Name) {
-			log.Debug(fmt.Sprintf("GetExtInterfaces() is ignoring external network interface '%s'", *interfaces[thisInterface].Name))
+			log.Debug("GetExtInterfaces() is ignoring external network interface '%s'", *interfaces[thisInterface].Name)
 		} else if *interfaces[thisInterface].PhysicalAdapter {
 			linkSpeed := formatLinkSpeed(&interfaces[thisInterface])
 			physicalInterface := constants.AvailableSelection{
@@ -68,7 +68,7 @@ func GetExtInterfaces() []constants.AvailableSelection {
 				Legend:      fmt.Sprintf("%s (%s)", *interfaces[thisInterface].Name, linkSpeed),
 			}
 
-			log.Debug(fmt.Sprintf("GetExtInterfaces() has found external network interface '%s', speed %s", *interfaces[thisInterface].Name, linkSpeed))
+			log.Debug("GetExtInterfaces() has found external network interface '%s', speed %s", *interfaces[thisInterface].Name, linkSpeed)
 
 			result = append(result, physicalInterface)
 		}
@@ -97,10 +97,10 @@ func selectedInterfaceOrAll() []Win32_NetworkAdapter {
 		// #nosec (SQL query formatting warning)
 		interfaces := queryInterfaces(fmt.Sprintf("WHERE Name='%s'AND  PhysicalAdapter=TRUE AND NetEnabled=TRUE", selectedInterface))
 		if len(interfaces) != 1 {
-			log.Debug(fmt.Sprintf("Found %d (not 1!) adapters with name '%s' which are online", len(interfaces), selectedInterface))
+			log.Warning("Found %d (not 1!) adapters with name '%s' which are online", len(interfaces), selectedInterface)
 
 			offlineInterfaces := queryInterfaces(fmt.Sprintf("WHERE Name='%s'AND  PhysicalAdapter=TRUE", selectedInterface))
-			log.Debug(fmt.Sprintf("However, there are %d interfaces with name '%s' which are offline", len(offlineInterfaces), selectedInterface))
+			log.Warning("However, there are %d interfaces with name '%s' which are offline", len(offlineInterfaces), selectedInterface)
 		}
 		return interfaces
 	}
@@ -125,7 +125,7 @@ func CurrentLinkSpeed() uint64 {
 		return 0
 	}
 
-	log.Debug(fmt.Sprintf("CurrentLinkSpeed() is %d Mbps (%s)", minLinkSpeed, humanize.SI(float64(minLinkSpeed), "bit/s")))
+	log.Debug("CurrentLinkSpeed() is %d Mbps (%s)", minLinkSpeed, humanize.SI(float64(minLinkSpeed), "bit/s"))
 
 	return bpsToMbps(minLinkSpeed)
 }

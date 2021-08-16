@@ -2,7 +2,6 @@ package mebroutines
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -65,7 +64,7 @@ func ExtractDiskFreeDarwin(dfOutput string) (uint64, error) {
 		if err == nil {
 			// df gives available disk space in 1K blocks
 			intResult := uint64(floatResult) * 512
-			log.Debug(fmt.Sprintf("ExtractDiskFreeDarwin: %d", intResult))
+			log.Debug("ExtractDiskFreeDarwin: %d", intResult)
 			return intResult, nil
 		}
 	}
@@ -99,7 +98,7 @@ func ExtractDiskFreeLinux(dfOutput string) (uint64, error) {
 		if err == nil {
 			// df gives available disk space in 1K blocks
 			intResult := uint64(floatResult) * 1024
-			log.Debug(fmt.Sprintf("ExtractDiskFreeLinux: %d", intResult))
+			log.Debug("ExtractDiskFreeLinux: %d", intResult)
 			return intResult, nil
 		}
 	}
@@ -114,7 +113,7 @@ func ExtractDiskFreeLinux(dfOutput string) (uint64, error) {
 func ExtractDiskFreeWindows(wmiData []Win32_LogicalDisk) (uint64, error) {
 	if len(wmiData) > 0 {
 		freeSpace := wmiData[0].FreeSpace
-		log.Debug(fmt.Sprintf("ExtractDiskFreeWindows: %d", freeSpace))
+		log.Debug("ExtractDiskFreeWindows: %d", freeSpace)
 		return freeSpace, nil
 	}
 

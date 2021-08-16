@@ -2,7 +2,6 @@ package network
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -31,12 +30,12 @@ func testHTTPGet(url string, timeout int) bool {
 	/* #nosec */
 	resp, err := client.Get(url)
 	if err != nil {
-		log.Debug(fmt.Sprintf("Testing HTTP GET %s and got error %v", url, err.Error()))
+		log.Error("Testing HTTP GET %s and got error %v", url, err.Error())
 		return false
 	}
 	defer mebroutines.Close(resp.Body)
 
-	log.Debug(fmt.Sprintf("Testing HTTP GET %s succeeded", url))
+	log.Debug("Testing HTTP GET %s succeeded", url)
 
 	return true
 }
@@ -57,7 +56,7 @@ func StartEnvironmentStatusUpdate(environmentStatus *constants.EnvironmentStatus
 // DownloadFile downloads a file from the given URL and stores it to the given destFile.
 // Returns error
 func DownloadFile(url string, destFile string) error {
-	log.Debug(fmt.Sprintf("Starting download from URL %s to file %s", url, destFile))
+	log.Debug("Starting download from URL %s to file %s", url, destFile)
 
 	out, err1 := os.Create(destFile)
 	if err1 != nil {
@@ -77,7 +76,7 @@ func DownloadFile(url string, destFile string) error {
 		return errors.New("failed to copy body")
 	}
 
-	log.Debug(fmt.Sprintf("Finished download from URL %s to file %s", url, destFile))
+	log.Debug("Finished download from URL %s to file %s", url, destFile)
 	return nil
 }
 
@@ -98,7 +97,7 @@ func DownloadString(url string) (string, error) {
 
 	errDL := DownloadFile(url, tempname)
 	if errDL != nil {
-		log.Debug(fmt.Sprintf("DownloadString could not download URL %s to file %s", url, tempname))
+		log.Error("DownloadString could not download URL %s to file %s", url, tempname)
 		return "", errors.New("could not download url")
 	}
 
@@ -106,7 +105,7 @@ func DownloadString(url string) (string, error) {
 	/* #nosec */
 	buffer, errRead := ioutil.ReadFile(tempname)
 	if errRead != nil {
-		log.Debug(fmt.Sprintf("DownloadString could not read file %s", tempname))
+		log.Error("DownloadString could not read file %s", tempname)
 		return "", errors.New("could not read temporary file")
 	}
 
@@ -114,7 +113,7 @@ func DownloadString(url string) (string, error) {
 
 	errRemove := os.Remove(tempname)
 	if errRemove != nil {
-		log.Debug(fmt.Sprintf("DownloadString could not remove temporary file %s", tempname))
+		log.Error("DownloadString could not remove temporary file %s", tempname)
 		// We don't return error as the temp files will get deleted anyway by the OS
 	}
 

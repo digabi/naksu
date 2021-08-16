@@ -28,6 +28,11 @@ msgstr "Varmuuskopiointi epäonnistui: %v"
 msgid "Cancel"
 msgstr "Peruuta"
 
+msgid "Cannot open MEB share directory since it does not exist"
+msgstr ""
+"Virtuaalisen siirtotikun avaaminen epäonnistui. Tarkista, että palvelin on "
+"asennettu ja/tai hakemisto on olemassa."
+
 msgid ""
 "Cannot send logs because there is no Internet connection. Logs are in a zip "
 "archive in the ktp-jako folder."
@@ -96,9 +101,26 @@ msgstr ""
 "Palvelimen asennus epäonnistui, koska olemassaolevan palvelimen päälläoloa "
 "ei saatu tutkittua: %v"
 
+msgid "Could not open MEB share directory"
+msgstr "Hakemiston ktp-jako avaaminen epäonnistui"
+
 msgid "Could not remove current VM before installing new one: %v"
 msgstr ""
 "Olemassaolevan palvelimen poistaminen uuden palvelimen alta epäonnistui: %v"
+
+msgid ""
+"Could not start server as we could not detect whether existing VM is "
+"installed: %v"
+msgstr ""
+"Palvelinta ei voi käynnistää, koska olemassa olevan palvelimen tutkinta ei "
+"onnistu: %v"
+
+msgid ""
+"Could not start server as we could not detect whether existing VM is "
+"running: %v"
+msgstr ""
+"Palvelinta ei voitu käynnistää, koska olemassa olevan palvelin käynnissäoloa "
+"ei saatu selville: %v"
 
 #, c-format
 msgid "Could not write test backup file %s. Try another location."
@@ -146,10 +168,6 @@ msgstr "Lokitiedot kopioitu"
 msgid "Done zipping"
 msgstr "Lokitiedot pakattu"
 
-#, c-format
-msgid "Downloading image: %d %%"
-msgstr "Levynkuvaa ladataan: %d %%"
-
 msgid "Downloading server image"
 msgstr "Ladataan palvelimen levynkuvaa"
 
@@ -190,6 +208,9 @@ msgstr "Uuden virtuaalikoneen luominen epäonnistui: %v"
 
 msgid "Failed to get new VM image: %v"
 msgstr "Levynkuvan lataaminen epäonnistui: %v"
+
+msgid "Failed to remove directory %s: %v"
+msgstr "Hakemiston %s poistaminen epäonnistui: %v"
 
 msgid "Failed to remove exams: %v"
 msgstr "Kokeiden poistaminen epäonnistui: %v"
@@ -257,6 +278,16 @@ msgstr "Yo-palvelin"
 msgid "Matriculation Exam"
 msgstr "Yo-koe"
 
+#, c-format
+msgid ""
+"Naksu encountered an error while trying to fix a problem with VirtualBox. "
+"VirtualBox configuration file %s has been moved to %s. Manually rename it to "
+"%s to fix this."
+msgstr ""
+"VirtualBox-ongelman korjaaminen epäonnistui. VirtualBoxin asetustiedosto %s "
+"on nimetty uudelleen (%s). Uudelleen nimeä asetustiedosto käsin nimelle %s "
+"korjataksesi ongelman."
+
 msgid "Naksu has been automatically updated. Please restart Naksu."
 msgstr ""
 "Naksu on päivitetty automaattisesti. Ole hyvä ja käynnistä Naksu uudelleen."
@@ -294,6 +325,9 @@ msgstr "Verkon tila: "
 msgid "No network connection"
 msgstr "Ei verkkoyhteyttä"
 
+msgid "No server has been installed."
+msgstr "Palvelinta ei ole asennettu."
+
 msgid "OK"
 msgstr "OK"
 
@@ -327,6 +361,9 @@ msgstr ""
 
 msgid "Please wait, writing backup..."
 msgstr "Hetkinen, varmuuskopioidaan..."
+
+msgid "Preparing..."
+msgstr "Valmistellaan..."
 
 msgid "Profile directory"
 msgstr "Profiilihakemisto"
@@ -381,9 +418,6 @@ msgstr "Käynnistä %s"
 msgid "Start Exam Server"
 msgstr "Käynnistä Yo-palvelin"
 
-msgid "Preparing..."
-msgstr "Valmistellaan..."
-
 msgid "Start by installing a server: Show management features"
 msgstr "Aloita asentamalla palvelin: Näytä hallintaominaisuudet"
 
@@ -400,12 +434,18 @@ msgstr ""
 "Varmuuskopio on liian suuri talletettavaksi FAT32-tiedostojärjestelmäään. "
 "Alusta varmuuskopiolevy uudelleen exFAT-tiedostojärjestelmällä."
 
+msgid "The server is already running."
+msgstr "Palvelin on jo käynnissä."
+
+msgid ""
+"The server appears to be running but we remove it as you requested."
+msgstr "Palvelin on käynnissä, mutta se poistetaan silti."
+
 msgid "Turn Naksu self updates back on"
 msgstr "Kytke Naksun automattipäivitys päälle"
 
 msgid "Uncompressing finished"
 msgstr "Purkaminen on valmis"
-
 
 msgid "Uncompressing image..."
 msgstr "Pakattua levynkuvaa puretaan..."
@@ -414,11 +454,21 @@ msgstr "Pakattua levynkuvaa puretaan..."
 msgid "Update available: %s"
 msgstr "Päivitys saatavilla: %s"
 
+msgid "Virtual machine was started"
+msgstr "Virtuaalikone on käynnistetty"
+
 msgid "Wait..."
 msgstr "Odota..."
 
 msgid "Warning"
 msgstr "Varoitus"
+
+msgid ""
+"We could not detect whether existing VM is running: %v, but continued "
+"removing the server as you requested."
+msgstr ""
+"Nykyisen virtuaalipalvelimen käynnissäoloa ei saatu selville (%v), mutta "
+"palvelimen poistamista jatketaan."
 
 msgid "Wireless connection"
 msgstr "Langaton yhteys"
@@ -491,74 +541,3 @@ msgstr ""
 
 msgid "vmstate"
 msgstr ""
-
-msgid "Cannot open MEB share directory since it does not exist"
-msgstr "Virtuaalisen siirtotikun avaaminen epäonnistui. Tarkista, että palvelin on asennettu ja/tai hakemisto on olemassa."
-
-#~ msgid "Cannot open MEB share directory since it does not exist"
-#~ msgstr ""
-#~ "Hakemiston ktp-jako avaaminen epäonnistui, koska sitä ei ole olemassa"
-
-#~ msgid "Could not open MEB share directory"
-#~ msgstr "Hakemiston ktp-jako avaaminen epäonnistui"
-
-#~ msgid ""
-#~ "Could not start server as we could not detect whether existing VM is "
-#~ "installed: %v"
-#~ msgstr ""
-#~ "Palvelinta ei voi käynnistää, koska olemassa olevan palvelimen tutkinta "
-#~ "ei onnistu: %v"
-
-#~ msgid "No server has been installed."
-#~ msgstr "Palvelinta ei ole asennettu."
-
-#~ msgid ""
-#~ "Could not start server as we could not detect whether existing VM is "
-#~ "running: %v"
-#~ msgstr ""
-#~ "Palvelinta ei voitu käynnistää, koska olemassa olevan palvelin "
-#~ "käynnissäoloa ei saatu selville: %v"
-
-#~ msgid "The server is already running."
-#~ msgstr "Palvelin on jo käynnissä."
-
-#~ msgid "Could not start VM: %v"
-#~ msgstr "Virtuaalikoneen käynnistys epäonnistu: %v"
-
-#~ msgid "Virtual machine was started"
-#~ msgstr "Virtuaalikone on käynnistetty"
-
-#~ msgid ""
-#~ "We could not detect whether existing VM is running: %v, but continued "
-#~ "removing the server as you requested."
-#~ msgstr ""
-#~ "Nykyisen virtuaalipalvelimen käynnissäoloa ei saatu selville (%v), mutta "
-#~ "palvelimen poistamista jatketaan."
-
-#~ msgid ""
-#~ "There is a server appears to be running but we remove it as you requested."
-#~ msgstr "Palvelin on käynnissä, mutta se poistetaan silti."
-
-#~ msgid "Changing current directory to home"
-#~ msgstr "Siirryn kotihakemistoon"
-
-#~ msgid "Failed to remove directory %s: %v"
-#~ msgstr "Hakemiston %s poistaminen epäonnistui: %v"
-
-#~ msgid ""
-#~ "Naksu encountered an error while trying to fix a problem with VirtualBox. "
-#~ "VirtualBox configuration file %s has been moved to %s. Manually rename it "
-#~ "to %s to fix this."
-#~ msgstr ""
-#~ "VirtualBox-ongelman korjaaminen epäonnistui. VirtualBoxin asetustiedosto "
-#~ "%s on nimetty uudelleen (%s). Uudelleen nimeä asetustiedosto käsin "
-#~ "nimelle %s korjataksesi ongelman."
-
-#~ msgid "Naksu could not check for updates as there is no network connection."
-#~ msgstr "Naksu ei voinut etsiä uusia versioita, koska verkkoyhteys puuttuu."
-
-#~ msgid "Failed to create temporary file: %v"
-#~ msgstr "Väliaikaistiedoston luominen epäonnistui: %v"
-
-#~ msgid "command failed: %s (%v)"
-#~ msgstr "komento epäonnistui: %s (%v)"
