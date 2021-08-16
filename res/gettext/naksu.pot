@@ -402,7 +402,7 @@ msgid "The server is already running."
 msgstr ""
 
 msgid ""
-"There is a server appears to be running but we remove it as you requested."
+"The server appears to be running but we remove it as you requested."
 msgstr ""
 
 msgid "Turn Naksu self updates back on"

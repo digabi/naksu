@@ -20,7 +20,7 @@ func Server() error {
 	case err != nil:
 		mebroutines.ShowTranslatedWarningMessage("We could not detect whether existing VM is running: %v, but continued removing the server as you requested.", err)
 	case isRunning:
-		mebroutines.ShowTranslatedWarningMessage("There is a server appears to be running but we remove it as you requested.")
+		mebroutines.ShowTranslatedWarningMessage("The server appears to be running but we remove it as you requested.")
 	}
 
 	// Remove current box to syncronise running VirtualBox GUI

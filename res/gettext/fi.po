@@ -438,7 +438,7 @@ msgid "The server is already running."
 msgstr "Palvelin on jo käynnissä."
 
 msgid ""
-"There is a server appears to be running but we remove it as you requested."
+"The server appears to be running but we remove it as you requested."
 msgstr "Palvelin on käynnissä, mutta se poistetaan silti."
 
 msgid "Turn Naksu self updates back on"

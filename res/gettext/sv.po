@@ -440,7 +440,7 @@ msgid "The server is already running."
 msgstr "Servern har redan startats."
 
 msgid ""
-"There is a server appears to be running but we remove it as you requested."
+"The server appears to be running but we remove it as you requested."
 msgstr "Servern är på men avlägsnas trots det."
 
 msgid "Turn Naksu self updates back on"
