@@ -42,13 +42,15 @@ func TranslateAndShowProgressDialog(message string) Dialog {
 // UpdateProgressDialog updates the progress bar progress
 func UpdateProgressDialog(dialog Dialog, progress int, message *string) {
 	if dialog.Window != nil && dialog.Window.Visible() {
-		dialog.Progress.SetValue(progress)
-		if message != nil {
-			dialog.Message.SetText(*message + " (" + strconv.Itoa(progress) + "%)")
-			dialog.MessageString = *message
-		} else {
-			dialog.Message.SetText(dialog.MessageString + " (" + strconv.Itoa(progress) + "%)")
-		}
+		ui.QueueMain(func() {
+			dialog.Progress.SetValue(progress)
+			if message != nil {
+				dialog.Message.SetText(*message + " (" + strconv.Itoa(progress) + "%)")
+				dialog.MessageString = *message
+			} else {
+				dialog.Message.SetText(dialog.MessageString + " (" + strconv.Itoa(progress) + "%)")
+			}
+		})
 	}
 }
 
@@ -67,6 +69,8 @@ func TranslateAndUpdateProgressDialogWithMessage(dialog Dialog, progress int, me
 // CloseProgressDialog closes given progress dialog
 func CloseProgressDialog(dialog Dialog) {
 	if dialog.Window != nil && dialog.Window.Visible() {
-		dialog.Window.ControlBase.Destroy()
+		ui.QueueMain(func() {
+			dialog.Window.ControlBase.Destroy()
+		})
 	}
 }
