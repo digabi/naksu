@@ -18,20 +18,24 @@ type Dialog struct {
 
 // ShowProgressDialog opens a progress dialog
 func ShowProgressDialog(message string) Dialog {
-	progressWindow := ui.NewWindow("", 400, 1, false)
-	//progressWindow.SetBorderless(true)
-	progressBox := ui.NewVerticalBox()
-	progressBox.SetPadded(true)
-	progressBar := ui.NewProgressBar()
-	status := ui.NewLabel(message)
-	progressBox.Append(status, true)
-	progressBox.Append(progressBar, true)
-	progressWindow.SetMargined(true)
-	progressWindow.SetChild(progressBox)
+	dialogChannel := make(chan Dialog)
+
 	ui.QueueMain(func() {
+		progressWindow := ui.NewWindow("", 400, 1, false)
+		//progressWindow.SetBorderless(true)
+		progressBox := ui.NewVerticalBox()
+		progressBox.SetPadded(true)
+		progressBar := ui.NewProgressBar()
+		status := ui.NewLabel(message)
+		progressBox.Append(status, true)
+		progressBox.Append(progressBar, true)
+		progressWindow.SetMargined(true)
+		progressWindow.SetChild(progressBox)
 		progressWindow.Show()
+
+		dialogChannel <- Dialog{Progress: progressBar, Message: status, Window: progressWindow, MessageString: message}
 	})
-	return Dialog{Progress: progressBar, Message: status, Window: progressWindow, MessageString: message}
+	return <-dialogChannel
 }
 
 // TranslateAndShowProgressDialog translates message and then opens the progress dialog
