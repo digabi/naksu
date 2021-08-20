@@ -76,8 +76,14 @@ func GetNewDebugFilename() string {
 		panic("Could not get home directory")
 	}
 
-	if existsDir(filepath.Join(homeDir, "ktp")) {
-		newDebugFilename = filepath.Join(homeDir, "ktp", "naksu_lastlog.txt")
+	ktpDir := filepath.Join(homeDir, "ktp")
+	err = os.Mkdir(ktpDir, 0700)
+	if err != nil {
+		fmt.Printf("Warning: log.GetNewDebugFilename() could not create directory '%s': %v\n", ktpDir, err)
+	}
+
+	if existsDir(ktpDir) {
+		newDebugFilename = filepath.Join(ktpDir, "naksu_lastlog.txt")
 	} else {
 		newDebugFilename = filepath.Join(os.TempDir(), "naksu_lastlog.txt")
 	}
