@@ -77,9 +77,12 @@ func GetNewDebugFilename() string {
 	}
 
 	ktpDir := filepath.Join(homeDir, "ktp")
-	err = os.Mkdir(ktpDir, 0700)
-	if err != nil {
-		fmt.Printf("Warning: log.GetNewDebugFilename() could not create directory '%s': %v\n", ktpDir, err)
+
+	if !existsDir(ktpDir) {
+		err = os.Mkdir(ktpDir, 0700)
+		if err != nil {
+			fmt.Printf("Warning: log.GetNewDebugFilename() could not create directory '%s': %v\n", ktpDir, err)
+		}
 	}
 
 	if existsDir(ktpDir) {
