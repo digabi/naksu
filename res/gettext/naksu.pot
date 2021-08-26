@@ -398,11 +398,10 @@ msgid ""
 "backup disk as exFAT."
 msgstr ""
 
-msgid "The server is already running."
+msgid "The server appears to be running but we remove it as you requested."
 msgstr ""
 
-msgid ""
-"The server appears to be running but we remove it as you requested."
+msgid "The server is already running."
 msgstr ""
 
 msgid "Turn Naksu self updates back on"

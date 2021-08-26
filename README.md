@@ -136,6 +136,14 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 2.0.4 (26-AUG-2021)
+
+ - UI improvements (progress bar, messages) - thanks to @developerfromjokela
+ - Added/fixed some missing translations and log messages
+ - Check downloaded images with sha256 checksum
+ - Create `~/ktp` on start to avoid storing first Naksu log to system temporary
+   directory
+
 ### 2.0.3 (16-APR-2021)
 
  - Fixed broken detection of running VM
