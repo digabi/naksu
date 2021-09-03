@@ -1,8 +1,6 @@
 package mebroutines
 
 import (
-	"fmt"
-
 	"naksu/log"
 )
 
