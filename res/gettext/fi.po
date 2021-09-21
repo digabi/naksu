@@ -85,7 +85,7 @@ msgstr ""
 "asennettu Oracle VirtualBox?"
 
 msgid "Could not get version string for a new server: %v"
-msgstr "Uuden palvelin versiotiedon haku epäonnistui: %v"
+msgstr "Uuden palvelinversiotiedon haku epäonnistui: %v"
 
 msgid ""
 "Could not install server as we could not detect whether existing VM is "
