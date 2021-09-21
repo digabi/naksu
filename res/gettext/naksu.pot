@@ -151,6 +151,9 @@ msgstr ""
 msgid "Done zipping"
 msgstr ""
 
+msgid "Downloaded image is corrupted. Try again."
+msgstr ""
+
 msgid "Downloading server image"
 msgstr ""
 

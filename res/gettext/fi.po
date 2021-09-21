@@ -168,6 +168,9 @@ msgstr "Lokitiedot kopioitu"
 msgid "Done zipping"
 msgstr "Lokitiedot pakattu"
 
+msgid "Downloaded image is corrupted. Try again."
+msgstr "Ladattu levynkuva on viallinen. Yritä uudelleen."
+
 msgid "Downloading server image"
 msgstr "Ladataan palvelimen levynkuvaa"
 
@@ -434,12 +437,11 @@ msgstr ""
 "Varmuuskopio on liian suuri talletettavaksi FAT32-tiedostojärjestelmäään. "
 "Alusta varmuuskopiolevy uudelleen exFAT-tiedostojärjestelmällä."
 
+msgid "The server appears to be running but we remove it as you requested."
+msgstr "Palvelin on käynnissä, mutta se poistetaan silti."
+
 msgid "The server is already running."
 msgstr "Palvelin on jo käynnissä."
-
-msgid ""
-"The server appears to be running but we remove it as you requested."
-msgstr "Palvelin on käynnissä, mutta se poistetaan silti."
 
 msgid "Turn Naksu self updates back on"
 msgstr "Kytke Naksun automattipäivitys päälle"

@@ -52,7 +52,13 @@ func newServer(boxType string, imageURL string, versionURL string) error {
 
 	updateProgressFunc(xlate.GetRaw("Getting Image from the Cloud"), 100*(1/3))
 	err = download.GetServerImage(imageURL, updateProgressFunc)
-	if err != nil {
+	switch err {
+	case nil:
+	case download.ErrDownloadedDiskImageCorrupted:
+		progress.CloseProgressDialog(progressDialog)
+		mebroutines.ShowTranslatedErrorMessage("Downloaded image is corrupted. Try again.")
+		return fmt.Errorf("downloading image failed (image corrupted): %v", err)
+	default:
 		progress.CloseProgressDialog(progressDialog)
 		mebroutines.ShowTranslatedErrorMessage("Failed to get new VM image: %v", err)
 		return fmt.Errorf("downloading image failed: %v", err)
