@@ -25,9 +25,9 @@ func newServer(boxType string, imageURL string, versionURL string) error {
 	version, err := download.GetAvailableVersion(versionURL)
 	switch fmt.Sprintf("%v", err) {
 	case "<nil>":
-	case "404":
+	case "403", "404":
 		mebroutines.ShowTranslatedErrorMessage("Please check the install passphrase")
-		return errors.New("wrong passphrase entered (got 404)")
+		return fmt.Errorf("wrong passphrase entered (got %v)", err)
 	default:
 		mebroutines.ShowTranslatedErrorMessage("Could not get version string for a new server: %v", err)
 		return fmt.Errorf("error from server: %v", err)
