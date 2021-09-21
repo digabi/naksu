@@ -40,7 +40,7 @@ func ShowProgressDialog(message string) Dialog {
 
 // TranslateAndShowProgressDialog translates message and then opens the progress dialog
 func TranslateAndShowProgressDialog(message string) Dialog {
-	return ShowProgressDialog(message)
+	return ShowProgressDialog(xlate.Get(message))
 }
 
 // UpdateProgressDialog updates the progress bar progress
