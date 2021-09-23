@@ -170,7 +170,7 @@ msgid "Done zipping"
 msgstr "Logguppgifterna är komprimerade"
 
 msgid "Downloaded image is corrupted. Try again."
-msgstr "Den nedladdade skivavbildningen är skadad. Försök igen."
+msgstr "Den nedladdade skivavbilden är skadad. Försök igen."
 
 msgid "Downloading server image"
 msgstr "Laddar skivavbild för servern"
