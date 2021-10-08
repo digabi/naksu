@@ -6,6 +6,7 @@ package download
 
 import (
 	"archive/zip"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -23,6 +24,8 @@ import (
 	"naksu/mebroutines"
 	"naksu/xlate"
 )
+
+var ErrDownloadedDiskImageCorrupted error = errors.New("downloaded image is corrupted")
 
 // Suppress progress messages if there has been less than 2 seconds from a message
 const progressLastMessageTimeout = 2 * time.Second
@@ -196,7 +199,7 @@ func unZipServerImage(progressCallbackFn func(string, int)) error {
 
 		if definedChecksum != calculatedChecksum {
 			log.Error("Image checksums differ, defined: %s, calculated: %s", definedChecksum, calculatedChecksum)
-			return fmt.Errorf("downloaded image is corrupted")
+			return ErrDownloadedDiskImageCorrupted
 		}
 
 		log.Debug("Image checksum verified without errors")

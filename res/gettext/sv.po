@@ -169,6 +169,9 @@ msgstr "Logguppgifterna är kopierade"
 msgid "Done zipping"
 msgstr "Logguppgifterna är komprimerade"
 
+msgid "Downloaded image is corrupted. Try again."
+msgstr "Den nedladdade skivavbilden är skadad. Försök igen."
+
 msgid "Downloading server image"
 msgstr "Laddar skivavbild för servern"
 
@@ -436,12 +439,11 @@ msgstr ""
 "Säkerhetskopian är för stor för ett FAT32-filsystem. Vänligen formatera "
 "minnespinnen eller skivan som exFAT."
 
+msgid "The server appears to be running but we remove it as you requested."
+msgstr "Servern är på men avlägsnas trots det."
+
 msgid "The server is already running."
 msgstr "Servern har redan startats."
-
-msgid ""
-"The server appears to be running but we remove it as you requested."
-msgstr "Servern är på men avlägsnas trots det."
 
 msgid "Turn Naksu self updates back on"
 msgstr "Aktivera Naksu självuppdateringar"

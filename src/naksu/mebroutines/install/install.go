@@ -25,9 +25,9 @@ func newServer(boxType string, imageURL string, versionURL string) error {
 	version, err := download.GetAvailableVersion(versionURL)
 	switch fmt.Sprintf("%v", err) {
 	case "<nil>":
-	case "404":
+	case "403", "404":
 		mebroutines.ShowTranslatedErrorMessage("Please check the install passphrase")
-		return errors.New("wrong passphrase entered (got 404)")
+		return fmt.Errorf("wrong passphrase entered (got %v)", err)
 	default:
 		mebroutines.ShowTranslatedErrorMessage("Could not get version string for a new server: %v", err)
 		return fmt.Errorf("error from server: %v", err)
@@ -39,47 +39,27 @@ func newServer(boxType string, imageURL string, versionURL string) error {
 	// Initialize dialog
 	progressDialog := progress.TranslateAndShowProgressDialog("Preparing...")
 
-	updateProgressFunc := func(message string, value int) {
-		//fmt.Println(message)
-		progress.UpdateProgressDialog(progressDialog, value, &message)
-	}
-
 	// Check prerequisites
 	if ensureServerIsNotRunningAndDoesNotExist() != nil || ensureDiskIsReady(&progressDialog) != nil {
 		progress.CloseProgressDialog(progressDialog)
 		return errors.New("server exists or disk is not ready")
 	}
 
-	updateProgressFunc(xlate.GetRaw("Getting Image from the Cloud"), 100*(1/3))
-	err = download.GetServerImage(imageURL, updateProgressFunc)
+	err = downloadAndInstallVM(&progressDialog, imageURL, boxType, version)
 	if err != nil {
-		progress.CloseProgressDialog(progressDialog)
-		mebroutines.ShowTranslatedErrorMessage("Failed to get new VM image: %v", err)
-		return fmt.Errorf("downloading image failed: %v", err)
+		log.Error("Failed to download and install VM: %v", err)
+		return err
 	}
 
-	updateProgressFunc(xlate.GetRaw("Creating New VM"), 100*(2/3))
-	err = box.CreateNewBox(boxType, version)
-
-	if err != nil {
-		mebroutines.ShowTranslatedErrorMessage("Failed to create new VM: %v", err)
-
-		removeErr := os.Remove(mebroutines.GetImagePath())
-		if removeErr != nil {
-			log.Debug("Failed to remove image file %s: %v", mebroutines.GetImagePath(), removeErr)
-		}
-		progress.CloseProgressDialog(progressDialog)
-		return fmt.Errorf("failed to create new vm: %v", err)
-	}
-
-	updateProgressFunc(xlate.GetRaw("Removing temporary raw image file"), 100)
+	progressDialogMessage := xlate.GetRaw("Removing temporary raw image file")
+	progress.UpdateProgressDialog(progressDialog, 100, &progressDialogMessage)
 	err = os.Remove(mebroutines.GetImagePath())
 
 	if err != nil {
-		progress.CloseProgressDialog(progressDialog)
 		mebroutines.ShowTranslatedWarningMessage("Failed to remove raw image file %s: %v", mebroutines.GetImagePath(), err)
 	}
 	progress.CloseProgressDialog(progressDialog)
+
 	return nil
 }
 
@@ -186,6 +166,43 @@ func ensureFreeDisk() error {
 			mebroutines.ShowTranslatedErrorMessage("Failed to calculate free disk space: %v", err)
 			return err
 		}
+	}
+
+	return nil
+}
+
+func downloadAndInstallVM(progressDialog *progress.Dialog, imageURL string, boxType string, version string) error {
+	updateProgressFunc := func(message string, value int) {
+		progress.UpdateProgressDialog(*progressDialog, value, &message)
+	}
+
+	updateProgressFunc(xlate.GetRaw("Getting Image from the Cloud"), 100*(1/3))
+	err := download.GetServerImage(imageURL, updateProgressFunc)
+
+	switch err {
+	case nil:
+	case download.ErrDownloadedDiskImageCorrupted:
+		progress.CloseProgressDialog(*progressDialog)
+		mebroutines.ShowTranslatedErrorMessage("Downloaded image is corrupted. Try again.")
+		return fmt.Errorf("downloading image failed (image corrupted): %v", err)
+	default:
+		progress.CloseProgressDialog(*progressDialog)
+		mebroutines.ShowTranslatedErrorMessage("Failed to get new VM image: %v", err)
+		return fmt.Errorf("downloading image failed: %v", err)
+	}
+
+	updateProgressFunc(xlate.GetRaw("Creating New VM"), 100*(2/3))
+	err = box.CreateNewBox(boxType, version)
+
+	if err != nil {
+		mebroutines.ShowTranslatedErrorMessage("Failed to create new VM: %v", err)
+
+		removeErr := os.Remove(mebroutines.GetImagePath())
+		if removeErr != nil {
+			log.Debug("Failed to remove image file %s: %v", mebroutines.GetImagePath(), removeErr)
+		}
+		progress.CloseProgressDialog(*progressDialog)
+		return fmt.Errorf("failed to create new vm: %v", err)
 	}
 
 	return nil
