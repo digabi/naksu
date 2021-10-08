@@ -136,6 +136,11 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 2.0.5 (08-OCT-2021)
+ - Fix checksum calculation of zip entries
+ - Improve status and error messages
+ - Code clean-ups
+
 ### 2.0.4 (26-AUG-2021)
 
  - UI improvements (progress bar, messages) - thanks to @developerfromjokela
