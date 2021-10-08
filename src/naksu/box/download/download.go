@@ -188,22 +188,21 @@ func unZipServerImage(progressCallbackFn func(string, int)) error {
 				return err
 			}
 		}
+	}
+	if definedChecksum != "" {
+		log.Debug("Checking that uncompressed image meets defined checksum '%s'", definedChecksum)
 
-		if definedChecksum != "" {
-			log.Debug("Checking that uncompressed image meets defined checksum '%s'", definedChecksum)
-
-			calculatedChecksum, err := GetSHA256ChecksumFromFile(mebroutines.GetImagePath(), progressCallbackFn)
-			if err != nil {
-				return fmt.Errorf("could not calculate sha256: %v", err)
-			}
-
-			if definedChecksum != calculatedChecksum {
-				log.Error("Image checksums differ, defined: %s, calculated: %s", definedChecksum, calculatedChecksum)
-				return ErrDownloadedDiskImageCorrupted
-			}
-
-			log.Debug("Image checksum verified without errors")
+		calculatedChecksum, err := GetSHA256ChecksumFromFile(mebroutines.GetImagePath(), progressCallbackFn)
+		if err != nil {
+			return fmt.Errorf("could not calculate sha256: %v", err)
 		}
+
+		if definedChecksum != calculatedChecksum {
+			log.Error("Image checksums differ, defined: %s, calculated: %s", definedChecksum, calculatedChecksum)
+			return ErrDownloadedDiskImageCorrupted
+		}
+
+		log.Debug("Image checksum verified without errors")
 	}
 
 	return nil
