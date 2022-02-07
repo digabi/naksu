@@ -3,7 +3,7 @@
 `naksu` is collection of helper scripts for MEB stickless Abitti/matriculation exam servers.
 In real life Naksu is Onerva's (the [Abitti model teacher](https://www.abitti.fi/fi/tutustu/)) cat.
 
-Naksu is currently the suggested method for operating a stickess, virtualised Abitti exam server.
+Naksu is currently the suggested method for operating a stickless, virtualised Abitti exam server.
 The zipped executables can be downloaded from [GitHub](https://github.com/digabi/naksu/releases/latest).
 Download either Windows or Linux version and execute the file in the OS-related zip.
 
