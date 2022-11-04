@@ -18,7 +18,7 @@ const (
 
 	// URLTest is a testing URL for network connectivity (network.CheckIfNetworkAvailable).
 	// Point this to something ultra-stable
-	URLTest = "https://static.abitti.fi/usbimg/qa/latest.txt"
+	URLTest = "https://static.abitti.fi/etcher-usb/ktp-etcher.ver"
 
 	// URLTestTimeout is the timeout in seconds for the test above
 	URLTestTimeout = 4
