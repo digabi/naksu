@@ -5,31 +5,50 @@ linters-settings:
 linters:
   disable-all: true
   enable:
-    - deadcode
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+    - contextcheck
+    - decorder
     - depguard
+    - dogsled
     - dupl
+    - errchkjson
     - errcheck
+    - errname
+    - errorlint
+    - exhaustive
+    - exhaustruct
+    - funlen
+    - forcetypeassert
+    - gochecknoglobals
     - gochecknoinits
+    - gocognit
     - goconst
     - gocritic
     - gocyclo
     - gofmt
     - goimports
-    - golint
+    - gomnd
     - gosec
     - gosimple
     - govet
     - ineffassign
-    - interfacer
-    - maligned
+    - maintidx
     - misspell
     - nakedret
-    - scopelint
+    - nestif
+    - nilnil
+    - nlreturn
+    - noctx
+    - revive
     - staticcheck
-    - structcheck
     - stylecheck
+    - tenv
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
+    - varnamelen
+    - whitespace

@@ -35,10 +35,10 @@ src/naksu/xlate/xlate_sv.go: res/gettext/sv.po
 	gofmt -s -w src/naksu/xlate/xlate_sv.go
 
 bin/golangci-lint:
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.30.0
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.50.1
 
 bin/go2xunit:
-	go get github.com/tebeka/go2xunit
+	go install github.com/tebeka/go2xunit@v1.4.10
 
 checkstyle: bin/golangci-lint
 	-cd src/naksu && GOOS=linux GOARCH=amd64 CGO_ENABLED=1 ../../bin/golangci-lint run --timeout 5m0s --out-format checkstyle > $(current_dir)/checkstyle-linux.xml
