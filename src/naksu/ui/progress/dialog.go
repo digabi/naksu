@@ -18,11 +18,12 @@ type Dialog struct {
 
 // ShowProgressDialog opens a progress dialog
 func ShowProgressDialog(message string) Dialog {
+	const progressDialogDefaultWidth = 400
+
 	dialogChannel := make(chan Dialog)
 
 	ui.QueueMain(func() {
-		progressWindow := ui.NewWindow("", 400, 1, false)
-		//progressWindow.SetBorderless(true)
+		progressWindow := ui.NewWindow("", progressDialogDefaultWidth, 1, false)
 		progressBox := ui.NewVerticalBox()
 		progressBox.SetPadded(true)
 		progressBar := ui.NewProgressBar()
@@ -35,6 +36,7 @@ func ShowProgressDialog(message string) Dialog {
 
 		dialogChannel <- Dialog{Progress: progressBar, Message: status, Window: progressWindow, MessageString: message}
 	})
+
 	return <-dialogChannel
 }
 

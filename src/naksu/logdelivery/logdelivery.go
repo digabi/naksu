@@ -58,6 +58,7 @@ func RequestLogsFromServer() (chan bool, chan string) {
 		go func() {
 			doneChannel <- true
 		}()
+
 		return doneChannel, progressChannel
 	}
 
@@ -88,6 +89,7 @@ func updateRequestNumber(requestFilepath string) (int, error) {
 		currentNumber, err = readNumberFromFile(requestFilepath)
 		if err != nil {
 			log.Error("Error reading number from requestFile %s: %s", requestFilepath, err)
+
 			return 0, err
 		}
 	}
@@ -98,15 +100,17 @@ func updateRequestNumber(requestFilepath string) (int, error) {
 		return 0, err
 	}
 	err = writeToFile(requestFilepath, requestFile, fmt.Sprintf("%d\n", newNumber))
+
 	return newNumber, err
 }
 
 func openFileForWriting(filepath string) (*os.File, error) {
 	var file *os.File
-	file, err := os.OpenFile(filepath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644) // nolint:gosec
+	file, err := os.OpenFile(filepath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, constants.FilePermissionsOwnerRW)
 	if err != nil {
 		log.Error("Error opening file %s for writing: %s", filepath, err)
 	}
+
 	return file, err
 }
 
@@ -114,14 +118,18 @@ func readNumberFromFile(filename string) (int, error) {
 	content, err := ioutil.ReadFile(filepath.Clean(filename))
 	if err != nil {
 		log.Error("Error reading file %s: %s", filename, err)
+
 		return 0, err
 	}
 	number, err := strconv.Atoi(strings.TrimSpace(string(content)))
 	if err != nil {
 		log.Error("Error converting value to integer %s: %s", content, err)
+
 		// corrupted request file => restart request number sequence
+
 		return 0, nil
 	}
+
 	return number, nil
 }
 
@@ -129,12 +137,14 @@ func writeToFile(filename string, file *os.File, content string) error {
 	_, err := file.WriteString(content)
 	if err != nil {
 		log.Error("Error writing to file %s: %s", filename, err)
+
 		return err
 	}
 	err = file.Close()
 	if err != nil {
 		log.Error("Error closing file %s: %s", filename, err)
 	}
+
 	return nil
 }
 
@@ -156,6 +166,7 @@ func waitForLogs(requestNumber int, timeout time.Duration, doneChannel chan bool
 				if err == nil && doneNumber >= requestNumber {
 					log.Debug("Done number %d matches request number %d", doneNumber, requestNumber)
 					doneChannel <- true
+
 					return
 				}
 			}
@@ -174,10 +185,12 @@ func waitForLogs(requestNumber int, timeout time.Duration, doneChannel chan bool
 			if now.After(endTimestamp) {
 				log.Debug("Timing out copying logs at %v", now)
 				doneChannel <- true
+
 				return
 			}
 		}
 	}()
+
 	return doneChannel, progressChannel
 }
 
@@ -197,6 +210,7 @@ func CollectLogsToZip() (string, chan uint8, chan error) {
 		if err != nil {
 			log.Error("Error creating zip file %s: %s", zipFilepath, err)
 			errorChannel <- err
+
 			return
 		}
 
@@ -218,25 +232,28 @@ func CollectLogsToZip() (string, chan uint8, chan error) {
 			// continue collecting logs after error in appending naksu logs
 		}
 
-		w := zip.NewWriter(zipFile)
-		for i, logFilepath := range logFiles {
-			err = addFileToZip(logFilepath, w)
+		writer := zip.NewWriter(zipFile)
+		for logFileNumber, logFilepath := range logFiles {
+			err = addFileToZip(logFilepath, writer)
 			if err != nil {
 				errorChannel <- err
+
 				return
 			}
 
-			progress <- uint8(100 * i / len(logFiles))
+			progress <- uint8(100 * logFileNumber / len(logFiles))
 		}
 
-		err = w.Close()
+		err = writer.Close()
 		if err != nil {
 			errorChannel <- err
+
 			return
 		}
 
 		progress <- 127
 	}()
+
 	return zipFilename, progress, errorChannel
 }
 
@@ -251,6 +268,7 @@ func appendKtpLogs(logFiles []string) ([]string, error) {
 		log.Debug("Appending ktp log file %s", logFilepath)
 		logFiles = append(logFiles, logFilepath)
 	}
+
 	return logFiles, nil
 }
 
@@ -265,6 +283,7 @@ func appendVirtualBoxLogs(logFiles []string) ([]string, error) {
 		log.Debug("Appending VirtualBox log file %s", logFilepath)
 		logFiles = append(logFiles, logFilepath)
 	}
+
 	return logFiles, nil
 }
 
@@ -282,6 +301,7 @@ func appendNaksuLastlogs(logFiles []string) ([]string, error) {
 			logFiles = append(logFiles, logFilepath)
 		}
 	}
+
 	return logFiles, nil
 }
 
@@ -289,38 +309,46 @@ func getDirectoryFileInfos(directory string) ([]os.FileInfo, error) {
 	fileInfos, err := ioutil.ReadDir(directory)
 	if err != nil {
 		log.Error("Error listing directory %s: %s", directory, err)
+
 		return nil, err
 	}
+
 	return fileInfos, nil
 }
 
-func addFileToZip(logFilepath string, w *zip.Writer) error {
+func addFileToZip(logFilepath string, zipWriter *zip.Writer) error {
 	fileInfo, err := os.Stat(logFilepath)
 	if err != nil {
 		log.Warning("Could not stat %s: %s", logFilepath, err)
+
 		return nil
 	}
 	fileInfoHeader, err := zip.FileInfoHeader(fileInfo)
 	if err != nil {
 		log.Warning("Converting FileInfo to FileInfoHeader %s: %s", logFilepath, err)
+
 		return nil
 	}
 	fileInfoHeader.Method = zip.Deflate
-	outFile, err := w.CreateHeader(fileInfoHeader)
+	outFile, err := zipWriter.CreateHeader(fileInfoHeader)
 	if err != nil {
 		log.Error("Error creating zip entry for %s: %s", logFilepath, err)
+
 		return err
 	}
 	inFile, err := os.Open(filepath.Clean(logFilepath))
 	if err != nil {
 		log.Warning("Could not open %s: %s", logFilepath, err)
+
 		return nil
 	}
 	_, err = io.Copy(outFile, inFile)
 	if err != nil {
 		log.Warning("Could not add %s to zip: %s", logFilepath, err)
+
 		return nil
 	}
+
 	return nil
 }
 
@@ -333,28 +361,28 @@ type ProgressReadSeeker struct {
 }
 
 // Read reads from file
-func (r *ProgressReadSeeker) Read(p []byte) (int, error) {
-	return r.fp.Read(p)
+func (progressReadSeeker *ProgressReadSeeker) Read(buffer []byte) (int, error) {
+	return progressReadSeeker.fp.Read(buffer)
 }
 
 // ReadAt reads from file at specified offset
-func (r *ProgressReadSeeker) ReadAt(p []byte, off int64) (int, error) {
-	n, err := r.fp.ReadAt(p, off)
+func (progressReadSeeker *ProgressReadSeeker) ReadAt(buffer []byte, off int64) (int, error) {
+	bytesRead, err := progressReadSeeker.fp.ReadAt(buffer, off)
 	if err != nil {
-		return n, err
+		return bytesRead, err
 	}
 
-	atomic.AddInt64(&r.read, int64(n))
+	atomic.AddInt64(&progressReadSeeker.read, int64(bytesRead))
 
 	// read length is divided by two because s3manager reads the file twice
-	r.progressCallback(uint8(float32(r.read*100/2) / float32(r.size)))
+	progressReadSeeker.progressCallback(uint8(float32(progressReadSeeker.read*100/2) / float32(progressReadSeeker.size))) // nolint:gomnd
 
-	return n, err
+	return bytesRead, err
 }
 
 // Seek seeks to a specified offset
-func (r *ProgressReadSeeker) Seek(offset int64, whence int) (int64, error) {
-	return r.fp.Seek(offset, whence)
+func (progressReadSeeker *ProgressReadSeeker) Seek(offset int64, whence int) (int64, error) {
+	return progressReadSeeker.fp.Seek(offset, whence)
 }
 
 // SendLogs sends logs to S3
@@ -363,48 +391,57 @@ func SendLogs(filename string, progressCallback func(uint8)) error {
 
 	setAwsCredentials()
 
-	sess, err := session.NewSession(&aws.Config{
+	sess, err := session.NewSession(&aws.Config{ // nolint:exhaustruct
 		Region: aws.String("eu-north-1")},
 	)
 	if err != nil {
 		log.Debug("Could not create AWS session")
+
 		return err
 	}
 
 	logZipFilePath := filepath.Join(mebroutines.GetMebshareDirectory(), filename)
-	f, err := os.Open(filepath.Clean(logZipFilePath))
+	logZipFile, err := os.Open(filepath.Clean(logZipFilePath))
 	if err != nil {
 		log.Error("Could not open %s", logZipFilePath)
+
 		return err
 	}
 
-	fileInfo, err := f.Stat()
+	defer logZipFile.Close()
+
+	fileInfo, err := logZipFile.Stat()
 	if err != nil {
 		log.Error("Could not stat %s", logZipFilePath)
+
 		return err
 	}
 
 	reader := &ProgressReadSeeker{
-		fp:               f,
+		fp:               logZipFile,
 		size:             fileInfo.Size(),
 		progressCallback: progressCallback,
+		read:             0,
 	}
 
 	uploader := s3manager.NewUploader(sess, func(u *s3manager.Uploader) {
-		u.PartSize = 5 * 1024 * 1024
+		const megabyteInBytes = 1024 * 1024
+		u.PartSize = 5 * megabyteInBytes // nolint:gomnd
 	})
 
-	output, err := uploader.Upload(&s3manager.UploadInput{
+	output, err := uploader.Upload(&s3manager.UploadInput{ // nolint:exhaustruct
 		Bucket: aws.String("naksulogs.yo-prod"),
 		Key:    aws.String(filename),
 		Body:   reader,
 	})
 	if err != nil {
 		log.Error("Uploading %s failed: %s", filename, err)
+
 		return err
 	}
 
 	log.Debug("Log file %s sent to %s", filename, output.Location)
+
 	return nil
 }
 
@@ -413,6 +450,7 @@ func decodeBase64(base64String string) string {
 	if err != nil {
 		log.Error("Error decoding base64 '%s'", base64String)
 	}
+
 	return string(decoded)
 }
 

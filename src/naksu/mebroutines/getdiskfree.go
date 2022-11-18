@@ -40,8 +40,6 @@ func GetDiskFree(path string) (uint64, error) {
 }
 
 func getDiskFreeDarwin(path string) (uint64, error) {
-	// FIXME: By default Darwin df gives number of 512-byte blocks
-	// GetDiskFree should return number of free disk in BYTES
 	runParams := []string{"df", path}
 
 	output, err := RunAndGetOutput(runParams, true)
@@ -62,9 +60,10 @@ func ExtractDiskFreeDarwin(dfOutput string) (uint64, error) {
 	if len(result) > 1 {
 		floatResult, err := strconv.ParseFloat(result[1], 64)
 		if err == nil {
-			// df gives available disk space in 1K blocks
-			intResult := uint64(floatResult) * 512
+			const darwinDfBlockSize = 512
+			intResult := uint64(floatResult) * darwinDfBlockSize
 			log.Debug("ExtractDiskFreeDarwin: %d", intResult)
+
 			return intResult, nil
 		}
 	}
@@ -96,9 +95,10 @@ func ExtractDiskFreeLinux(dfOutput string) (uint64, error) {
 	if len(result) > 1 {
 		floatResult, err := strconv.ParseFloat(result[1], 64)
 		if err == nil {
-			// df gives available disk space in 1K blocks
-			intResult := uint64(floatResult) * 1024
+			const linuxDfBlockSize = 1024
+			intResult := uint64(floatResult) * linuxDfBlockSize
 			log.Debug("ExtractDiskFreeLinux: %d", intResult)
+
 			return intResult, nil
 		}
 	}
@@ -114,6 +114,7 @@ func ExtractDiskFreeWindows(wmiData []Win32_LogicalDisk) (uint64, error) {
 	if len(wmiData) > 0 {
 		freeSpace := wmiData[0].FreeSpace
 		log.Debug("ExtractDiskFreeWindows: %d", freeSpace)
+
 		return freeSpace, nil
 	}
 

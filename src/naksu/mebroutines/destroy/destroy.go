@@ -18,6 +18,7 @@ func Server() error {
 	isInstalled, err := box.Installed()
 	if err != nil {
 		log.Debug("Could not start destroying server as we could not detect whether existing VM is installed: %v", err)
+
 		return mebroutines.ShowTranslatedErrorMessageAndPassError(generalErrorString, errors.New("could not detect whether there is an existing vm installed"))
 	}
 
@@ -28,6 +29,7 @@ func Server() error {
 	isRunning, err := box.Running()
 	if err != nil {
 		log.Debug("Could not start destroying server as we could not detect whether existing VM is running: %v", err)
+
 		return mebroutines.ShowTranslatedErrorMessageAndPassError(generalErrorString, errors.New("could not detect whether there is existing vm running"))
 	}
 
@@ -40,7 +42,8 @@ func Server() error {
 	err = box.RestoreSnapshot()
 	if err != nil {
 		log.Debug("Could not destroy VM / restore initial snapshot: %v", err)
-		return mebroutines.ShowTranslatedErrorMessageAndPassError(generalErrorString, fmt.Errorf("could not restore snapshot: %v", err))
+
+		return mebroutines.ShowTranslatedErrorMessageAndPassError(generalErrorString, fmt.Errorf("could not restore snapshot: %w", err))
 	}
 
 	progress.SetMessage("")

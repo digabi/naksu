@@ -25,6 +25,7 @@ func isHyperVOptionalFeature() bool {
 	if err != nil {
 		log.Debug("isHyperVOptionalFeature() could not query WMI")
 		log.Debug(fmt.Sprint(err))
+
 		return false
 	}
 
@@ -67,17 +68,20 @@ func isHypervisorPresent() bool {
 	if err != nil {
 		log.Debug("isHypervisorPresent() could not query WMI")
 		log.Debug(fmt.Sprint(err))
+
 		return false
 	}
 
 	for thisEntry := range dst {
 		if dst[thisEntry].HypervisorPresent {
 			log.Debug("Windows Hypervisor was detected")
+
 			return true
 		}
 	}
 
 	log.Debug("Windows Hypervisor was not detected")
+
 	return false
 }
 

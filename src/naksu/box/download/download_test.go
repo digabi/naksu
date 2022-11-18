@@ -56,7 +56,7 @@ func testOneGetSHA256ChecksumFromFile(t *testing.T, fileContent string, expected
 	}
 
 	nilProgressCallbackFn := func(message string, value int) {
-		//fmt.Println(message)
+		// fmt.Println(message)
 	}
 
 	calculatedChecksum, err := GetSHA256ChecksumFromFile(tempFile.Name(), nilProgressCallbackFn)

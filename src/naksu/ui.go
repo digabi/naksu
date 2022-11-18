@@ -239,7 +239,7 @@ func createMainWindowElements() {
 	boxUI.Append(ui.NewHorizontalSeparator(), false)
 	boxUI.Append(boxStatusBar, true)
 
-	window = ui.NewWindow(fmt.Sprintf("naksu %s", version), 1, 1, false)
+	window = ui.NewWindow(fmt.Sprintf("naksu %s", thisNaksuVersion), 1, 1, false)
 }
 
 func createBackupElements(backupMedia map[string]string) {
@@ -267,6 +267,8 @@ func createBackupElements(backupMedia map[string]string) {
 }
 
 func createLogDeliveryElements() {
+	const logDeliveryWindowDefaultWidth = 400
+
 	// Define Backup SaveAs window/dialog
 	logDeliveryFilenameLabelLabel = ui.NewLabel(xlate.Get("Filename for Abitti support:"))
 	logDeliveryFilenameLabel = ui.NewLabel(xlate.Get("Wait..."))
@@ -295,12 +297,14 @@ func createLogDeliveryElements() {
 	logDeliveryBox.Append(logDeliveryStatusLabel, false)
 	logDeliveryBox.Append(logDeliveryButtonClose, false)
 
-	logDeliveryWindow = ui.NewWindow("", 400, 1, false)
+	logDeliveryWindow = ui.NewWindow("", logDeliveryWindowDefaultWidth, 1, false)
 	logDeliveryWindow.SetMargined(true)
 	logDeliveryWindow.SetChild(logDeliveryBox)
 }
 
 func createExamInstallElements() {
+	const examInstallWindowDefaultWidth = 400
+
 	// Define exam install passhrase dialog window
 	examInstallPassphraseLabel = ui.NewLabel(xlate.Get("Enter install passphrase for the exam server:"))
 	examInstallPassphraseEntry = ui.NewEntry()
@@ -315,7 +319,7 @@ func createExamInstallElements() {
 	examInstallBox.Append(examInstallButtonInstall, false)
 	examInstallBox.Append(examInstallButtonCancel, false)
 
-	examInstallWindow = ui.NewWindow("", 400, 1, false)
+	examInstallWindow = ui.NewWindow("", examInstallWindowDefaultWidth, 1, false)
 	examInstallWindow.SetMargined(true)
 	examInstallWindow.SetChild(examInstallBox)
 }
@@ -683,11 +687,13 @@ func startServerButtonClicked(mainUIStatus chan string) {
 		// and there are more than one available
 		if config.GetExtNic() == "" {
 			mebroutines.ShowTranslatedErrorMessage("Please select the network device which is connected to your exam network.")
+
 			return
 		}
 
 		if !network.IsExtInterface(config.GetExtNic()) {
 			mebroutines.ShowTranslatedErrorMessage("You have selected network device '%s' which is not available.", config.GetExtNic())
+
 			return
 		}
 
@@ -712,7 +718,9 @@ func startServerButtonClicked(mainUIStatus chan string) {
 		}
 
 		// Wait over one UI loop
-		time.Sleep(5000)
+		const waitOverOneUILoop = 5 * time.Second
+		time.Sleep(waitOverOneUILoop)
+
 		enableUI(mainUIStatus)
 
 		progress.SetMessage("")
@@ -787,6 +795,7 @@ func bindOnInstallExamServer(mainUIStatus chan string) {
 		examInstallWindow.Hide()
 		enableUI(mainUIStatus)
 		examInstallPassphraseEntry.SetText("")
+
 		return false
 	})
 }
@@ -872,6 +881,7 @@ func followLogCopyProgress(copyDoneChannel chan bool, copyProgressChannel chan s
 		case copyDone := <-copyDoneChannel:
 			if copyDone {
 				setLogDeliveryLabelTextInGoroutine(xlate.Get("Done copying"))
+
 				return
 			}
 		case copyProgress := <-copyProgressChannel:
@@ -883,17 +893,21 @@ func followLogCopyProgress(copyDoneChannel chan bool, copyProgressChannel chan s
 }
 
 func followLogDeliveryZippingProgress(zipProgressChannel chan uint8, zipErrorChannel chan error) error {
+	const zipProgressFinished = 100
+
 	for {
 		select {
 		case zipProgress := <-zipProgressChannel:
-			if zipProgress <= 100 {
+			if zipProgress <= zipProgressFinished {
 				setLogDeliveryLabelTextInGoroutine(xlate.Get("Zipping logs: %d %%", zipProgress))
 			} else {
 				setLogDeliveryLabelTextInGoroutine(xlate.Get("Done zipping"))
+
 				return nil
 			}
 		case zipError := <-zipErrorChannel:
 			setLogDeliveryLabelTextInGoroutine(xlate.Get("Error zipping logs: %s", zipError))
+
 			return zipError
 		}
 	}
@@ -939,6 +953,7 @@ func bindOnBackup(mainUIStatus chan string) {
 		log.Action("Closing Backup dialog")
 		backupWindow.Hide()
 		enableUI(mainUIStatus)
+
 		return false
 	})
 }
@@ -964,6 +979,7 @@ func bindOnLogDelivery(mainUIStatus chan string) {
 		logDeliveryWindow.Hide()
 		buttonDeliverLogs.Enable()
 		enableUI(mainUIStatus)
+
 		return false
 	})
 }
@@ -1006,6 +1022,7 @@ func bindOnDestroy(mainUIStatus chan string) {
 		log.Action("Closing Destroy dialog")
 		destroyWindow.Hide()
 		enableUI(mainUIStatus)
+
 		return true
 	})
 }
@@ -1048,12 +1065,13 @@ func bindOnRemove(mainUIStatus chan string) {
 		log.Action("Closing Remove dialog")
 		removeWindow.Hide()
 		enableUI(mainUIStatus)
+
 		return true
 	})
 }
 
-// RunUI sets up user interface and starts running it. function exists when application exits
-func RunUI() error {
+// RunUI sets up user interface and starts running it. Function exists when application exits.
+func RunUI() error { // nolint:whitespace
 
 	// Get list of backup locations (as there is not SaveAs/directory dialog in libui)
 	// We do this before starting GUI to avoid "cannot change thread mode" in Windows WMI call
@@ -1064,7 +1082,6 @@ func RunUI() error {
 
 	// UI (main menu)
 	return ui.Main(func() {
-
 		createMainWindowElements()
 
 		createBackupElements(backupMedia)
@@ -1127,6 +1144,7 @@ func RunUI() error {
 		window.OnClosing(func(*ui.Window) bool {
 			log.Action("User exits through window exit")
 			ui.Quit()
+
 			return false
 		})
 
@@ -1136,7 +1154,7 @@ func RunUI() error {
 
 		// Do self-update
 		go func() {
-			RunSelfUpdate()
+			RunSelfUpdate(thisNaksuVersion)
 		}()
 
 		// Make sure we have VBoxManage

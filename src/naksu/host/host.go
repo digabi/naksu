@@ -35,15 +35,18 @@ func (e *LowDiskSizeError) Error() string {
 func IsHWVirtualisationCPU() bool {
 	if cpuid.HasFeature(cpuid.VMX) {
 		log.Debug("Hardware virtualisation is supported by CPU (VT-x, CPU flag VMX)")
+
 		return true
 	}
 
 	if cpuid.HasExtraFeature(cpuid.SVM) {
 		log.Debug("Hardware virtualisation is supported by CPU (AMD-V, CPU flag SVM)")
+
 		return true
 	}
 
 	log.Debug("Hardware virtualisation is not supported by CPU")
+
 	return false
 }
 
@@ -54,7 +57,9 @@ func GetMemory() (uint64, error) {
 		return 0, err
 	}
 
-	return memory.Total / (1024 * 1024), nil
+	const megabyteInBytes = 1024 * 1024
+
+	return memory.Total / megabyteInBytes, nil
 }
 
 // CheckFreeDisk checks that all of the listed directories have more than
@@ -87,7 +92,8 @@ func IsVirtualBoxVersionOK() (string, error) {
 	vBoxVersion, err := vboxmanage.GetVBoxManageVersion()
 	if err != nil {
 		log.Debug("Could not get VBoxManage version: %v", err)
-		return "", fmt.Errorf("could not get vboxmanage version: %v", err)
+
+		return "", fmt.Errorf("could not get vboxmanage version: %w", err)
 	}
 
 	if constants.VBoxMinVersion != "" {

@@ -15,6 +15,7 @@ func GetCPUCoreCount() (int, error) {
 
 	if err != nil {
 		log.Error("Could not open /proc/cpuinfo to detect number of CPU cores: %v", err)
+
 		return 0, err
 	}
 

@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package mebroutines
@@ -16,7 +17,8 @@ func getDiskFreeWindows(path string) (uint64, error) {
 	patternDisk := regexp.MustCompile(`^(\w\:)`)
 	patternResult := patternDisk.FindStringSubmatch(path)
 
-	if len(patternResult) < 2 {
+	const minimumDriveLetterLength = 2
+	if len(patternResult) < minimumDriveLetterLength {
 		log.Error("Could not detect drive letter from path: %s", path)
 
 		return 0, errors.New("could not detect drive letter")

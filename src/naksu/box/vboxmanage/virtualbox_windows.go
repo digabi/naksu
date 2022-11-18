@@ -11,5 +11,6 @@ func getVirtualBoxConfigPath() string {
 	if errHome != nil {
 		panic("Could not get home directory")
 	}
+
 	return filepath.Join(homeDir, ".VirtualBox", "VirtualBox.xml")
 }

@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"time"
 
+	"naksu/constants"
 	"naksu/log"
 	"naksu/mebroutines"
 )
@@ -38,6 +39,7 @@ func detectAndFixDuplicateHardDiskProblem(vBoxManageOutput string) (wasFixed boo
 
 		return true, nil
 	}
+
 	return false, nil
 }
 
@@ -45,6 +47,7 @@ func writeFixedVirtualBoxConfig(orphanedHardDiskUUID string) (string, error) {
 	virtualBoxConfigFile, err := os.Open(getVirtualBoxConfigPath())
 	if err != nil {
 		log.Error("Failed to open virtualbox configuration file %s", getVirtualBoxConfigPath())
+
 		return "", err
 	}
 	defer func() {
@@ -52,9 +55,10 @@ func writeFixedVirtualBoxConfig(orphanedHardDiskUUID string) (string, error) {
 	}()
 
 	fixedVirtualBoxConfigPath := getVirtualBoxConfigPath() + ".new"
-	fixedVirtualBoxConfigFile, err := os.OpenFile(fixedVirtualBoxConfigPath, os.O_RDWR|os.O_CREATE, 0600)
+	fixedVirtualBoxConfigFile, err := os.OpenFile(fixedVirtualBoxConfigPath, os.O_RDWR|os.O_CREATE, constants.FilePermissionsOwnerRW)
 	if err != nil {
 		log.Error("Failed to open replacement virtual box configuration file %s", fixedVirtualBoxConfigPath)
+
 		return "", err
 	}
 	defer func() {
@@ -69,6 +73,7 @@ func writeFixedVirtualBoxConfig(orphanedHardDiskUUID string) (string, error) {
 
 		if err != nil {
 			log.Error("Error trying to regexp, UUID=%s", orphanedHardDiskUUID)
+
 			return "", err
 		}
 
@@ -76,6 +81,7 @@ func writeFixedVirtualBoxConfig(orphanedHardDiskUUID string) (string, error) {
 			_, err = fixedVirtualBoxConfigWriter.WriteString(line + "\r\n")
 			if err != nil {
 				log.Error("Failed to write to %s", fixedVirtualBoxConfigPath)
+
 				return "", err
 			}
 		}
@@ -83,10 +89,12 @@ func writeFixedVirtualBoxConfig(orphanedHardDiskUUID string) (string, error) {
 
 	if err := fixedVirtualBoxConfigWriter.Flush(); err != nil {
 		log.Error("Failed to flush writer of %s", fixedVirtualBoxConfigPath)
+
 		return "", err
 	}
 	if err := fixedVirtualBoxConfigFile.Close(); err != nil {
 		log.Error("Failed to close %s", fixedVirtualBoxConfigPath)
+
 		return "", err
 	}
 
@@ -97,8 +105,10 @@ func backupVirtualBoxConfig() (string, error) {
 	virtualBoxConfigBackupPath := getVirtualBoxConfigPath() + ".naksubackup"
 	if err := os.Rename(getVirtualBoxConfigPath(), virtualBoxConfigBackupPath); err != nil {
 		log.Error("Failed to backup %s to %s", getVirtualBoxConfigPath(), virtualBoxConfigBackupPath)
+
 		return "", err
 	}
+
 	return virtualBoxConfigBackupPath, nil
 }
 
@@ -114,7 +124,9 @@ func replaceVirtualBoxConfigWithFixedOne(fixedVirtualBoxConfigPath string, virtu
 	}
 
 	fmt.Print("Please wait a few seconds while Naksu is fixing a duplicate hard disk problem that it detected with VirtualBox.\n")
-	time.Sleep(5500 * time.Millisecond) // VBoxManage takes 5 seconds from last run to notice that the config file is now on a different inode
+	// VBoxManage takes 5 seconds from last run to notice that the config file is now on a different inode
+	const timeToWaitForVirtualbox = 5500 * time.Millisecond
+	time.Sleep(timeToWaitForVirtualbox)
 
 	return nil
 }

@@ -41,8 +41,10 @@ func runCommand(args VBoxCommand, logOutput bool) (string, error) {
 	// This locking avoids executing multiple instances of VBoxManage at the same time. Calling
 	// VBoxManage simulaneously tends to cause E_ACCESSDENIED errors from VBoxManage.
 	tryCounter := 0
-	for (vBoxManageStarted != 0) && (tryCounter < 240) {
-		time.Sleep(500 * time.Millisecond)
+	const waitBetweenTries = 500 * time.Millisecond
+	const maximumTries = 240
+	for (vBoxManageStarted != 0) && (tryCounter < maximumTries) {
+		time.Sleep(waitBetweenTries)
 		tryCounter++
 		log.Debug("RunCommand is waiting VBoxManage to exit (race condition lock count %d)", tryCounter)
 	}
@@ -67,8 +69,8 @@ func RunCommands(commands []VBoxCommand) error {
 
 // runVBoxManage runs vboxmanage command with given arguments
 func runVBoxManage(args []string, logOutput bool) (string, error) {
-	vboxmanagepathArr := []string{getVBoxManagePath()}
-	runArgs := append(vboxmanagepathArr, args...)
+	runArgs := []string{getVBoxManagePath()}
+	runArgs = append(runArgs, args...)
 	vBoxManageOutput, err := mebroutines.RunAndGetOutput(runArgs, logOutput)
 	if err != nil {
 		command := strings.Join(runArgs, " ")
@@ -82,7 +84,8 @@ func runVBoxManage(args []string, logOutput bool) (string, error) {
 		fixed, fixErr := detectAndFixDuplicateHardDiskProblem(vBoxManageOutput)
 		if !fixed && fixErr != nil {
 			log.Error("Failed to fix duplicate hard disk problem with command %s: (%v)", command, fixErr)
-			return "", fmt.Errorf("failed to execute %s: %v", command, err)
+
+			return "", fmt.Errorf("failed to execute %s: %w", command, err)
 		}
 
 		// We need to re-run the command only if problem was fixed
@@ -155,10 +158,11 @@ func getVMInfo(vmName string) string {
 }
 
 func getVBoxManageVersionSemanticPart() (string, error) {
-	output, errVBM := RunCommand([]string{"--version"})
-	if errVBM != nil {
-		log.Error("GetVBoxManageVersion() failed to get VBoxManage version: %v", errVBM)
-		return "", fmt.Errorf("failed to get vboxmanage version: %v", errVBM)
+	output, err := RunCommand([]string{"--version"})
+	if err != nil {
+		log.Error("GetVBoxManageVersion() failed to get VBoxManage version: %v", err)
+
+		return "", fmt.Errorf("failed to get vboxmanage version: %w", err)
 	}
 
 	re := regexp.MustCompile(`^(\d+\.\d+\.\d+)`)
@@ -176,13 +180,15 @@ func GetVBoxManageVersion() (semver.Version, error) {
 		vBoxManageVersionString, errVersionString := getVBoxManageVersionSemanticPart()
 		if errVersionString != nil {
 			log.Error("GetVBoxManageVersion() could not get VBoxManage version: %v", errVersionString)
+
 			return semver.Version{}, errVersionString
 		}
 
 		vBoxManageVersion, errSemVer := semver.Make(vBoxManageVersionString)
 		if errSemVer != nil {
 			log.Error("GetVBoxManageVersion() got VBoxManage version code '%s' but it is not semantic version number: %v", vBoxManageVersionString, errSemVer)
-			return semver.Version{}, fmt.Errorf("vboxmanage version %s is not a semantic version number: %v", vBoxManageVersionString, errSemVer)
+
+			return semver.Version{}, fmt.Errorf("vboxmanage version %s is not a semantic version number: %w", vBoxManageVersionString, errSemVer)
 		}
 
 		errCache = vBoxResponseCache.Set("vboxmanageversion", vBoxManageVersion.String(), constants.VBoxManageCacheTimeout)
@@ -196,35 +202,44 @@ func GetVBoxManageVersion() (semver.Version, error) {
 	cachedVBoxManageVersionSemVer, err := semver.Make(fmt.Sprintf("%v", cachedVBoxManageVersion))
 
 	if err != nil {
-		return semver.Version{}, fmt.Errorf("getting semantic version object from '%v' caused error: %v", cachedVBoxManageVersion, err)
+		return semver.Version{}, fmt.Errorf("getting semantic version object from '%v' caused error: %w", cachedVBoxManageVersion, err)
 	}
 
 	return cachedVBoxManageVersionSemVer, nil
 }
 
+func getVMPropertyByExecutingVBoxManage(vmName string, property string) string {
+	propertyValue := ""
+
+	output, err := RunCommand([]string{"guestproperty", "get", vmName, property})
+	if err != nil {
+		log.Debug("Could not get VM guest property '%s': %v", property, err)
+
+		return propertyValue
+	}
+
+	propRegexp := regexp.MustCompile(`Value:\s*(\w+)`)
+	propMatches := propRegexp.FindStringSubmatch(output)
+	if propMatches != nil {
+		propertyValue = propMatches[1]
+	}
+
+	err = vBoxResponseCache.Set(property, propertyValue, constants.VBoxManageCacheTimeout)
+	if err == nil {
+		log.Debug("Stored VM guest property '%s' value '%s' to cache", property, propertyValue)
+	} else {
+		log.Warning("Could not store VM guest property '%s', value '%s' to cache: %v", property, propertyValue, err)
+	}
+
+	return propertyValue
+}
+
 func GetVMProperty(vmName string, property string) string {
 	propertyValue := ""
 
-	propertyValueInterface, errCache := vBoxResponseCache.Get(property)
-	if errCache != nil {
-		output, errVBoxManage := RunCommand([]string{"guestproperty", "get", vmName, property})
-		if errVBoxManage != nil {
-			log.Debug("Could not get VM guest property '%s': %v", property, errVBoxManage)
-			output = ""
-		}
-
-		propRegexp := regexp.MustCompile(`Value:\s*(\w+)`)
-		propMatches := propRegexp.FindStringSubmatch(output)
-		if propMatches != nil {
-			propertyValue = propMatches[1]
-		}
-
-		errCacheSet := vBoxResponseCache.Set(property, propertyValue, constants.VBoxManageCacheTimeout)
-		if errCacheSet == nil {
-			log.Debug("Stored VM guest property '%s' value '%s' to cache", property, propertyValue)
-		} else {
-			log.Warning("Could not store VM guest property '%s', value '%s' to cache: %v", property, propertyValue, errCacheSet)
-		}
+	propertyValueInterface, err := vBoxResponseCache.Get(property)
+	if err != nil {
+		propertyValue = getVMPropertyByExecutingVBoxManage(vmName, property)
 	} else {
 		propertyValue = fmt.Sprintf("%v", propertyValueInterface)
 		log.Debug("Got VM guest property %s from cache: %s", property, propertyValue)
@@ -252,12 +267,14 @@ func getVMState(vmName string) (string, error) {
 		// Check whether VM is installed
 		if strings.Contains(rawVMInfo, vBoxManageOutputNoVMInstalled) {
 			log.Debug("When trying to get VM state, VM is not installed")
+
 			return "", nil
 		}
 
 		// Process other VBoxManage errors
 		if err != nil {
 			log.Error("When trying to get VM state, could not get VM info: %v", err)
+
 			return "", err
 		}
 
@@ -265,6 +282,7 @@ func getVMState(vmName string) (string, error) {
 		vmState = getVMStateFromOutput(rawVMInfo)
 		if vmState == "" {
 			log.Debug("Could not find VM state from the VM info")
+
 			return "", errors.New("could not find vm state from the vm info")
 		}
 
@@ -300,6 +318,7 @@ func IsVMInstalled(vmName string) (bool, error) {
 	if err != nil {
 		if strings.Contains(rawVMInfo, vBoxManageOutputNoVMInstalled) {
 			log.Debug("vboxmanage.IsVMInstalled: Box is not installed")
+
 			return false, nil
 		}
 
@@ -317,6 +336,7 @@ func IsInstalled() bool {
 
 	if vboxmanagepath == "" {
 		log.Debug("Could not get VBoxManage path")
+
 		return false
 	}
 
@@ -324,9 +344,11 @@ func IsInstalled() bool {
 	if err != nil {
 		// No VBoxManage was found
 		log.Debug("VBoxManage was not found")
+
 		return false
 	}
 
 	log.Debug("VBoxManage version: %s", vBoxManageVersion)
+
 	return true
 }

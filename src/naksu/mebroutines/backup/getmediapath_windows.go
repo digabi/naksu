@@ -45,6 +45,7 @@ func isFAT32(backupPath string) (bool, error) {
 	err := wmi.Query(query, &dst)
 	if err != nil || len(dst) == 0 {
 		log.Error("backupMediaFileSystem could not get volume information for drive '%s': %v", backupPath, err)
+
 		return false, err
 	}
 
@@ -69,6 +70,7 @@ func getBackupMediaWindows() map[string]string {
 	if err != nil {
 		log.Debug("getBackupMediaWindows() could not detect removable/hard drives as it could not query WMI")
 		log.Debug(fmt.Sprint(err))
+
 		return media
 	}
 

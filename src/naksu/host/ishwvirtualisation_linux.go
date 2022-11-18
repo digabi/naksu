@@ -13,9 +13,11 @@ func IsHWVirtualisation() bool {
 	// * Debian 10
 	if mebroutines.ExistsCharDevice("/dev/kvm") {
 		log.Debug("Hardware virtualisation support is enabled in BIOS (Linux)")
+
 		return true
 	}
 
 	log.Debug("Hardware virtualisation support is disabled in BIOS (Linux)")
+
 	return false
 }

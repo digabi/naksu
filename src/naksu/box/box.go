@@ -23,11 +23,14 @@ import (
 )
 
 const (
-	boxName           = "NaksuAbittiKTP"
-	boxOSType         = "Debian"
-	boxFinalImageSize = 55 * 1024 // VDI disk size in megs
-	boxVRamSize       = 24        // Video RAM size in megs
-	boxSnapshotName   = "Installed"
+	boxName                 = "NaksuAbittiKTP"
+	boxOSType               = "Debian"
+	boxFinalImageSize       = 55 * 1024 // VDI disk size in megs
+	boxVRamSize             = 24        // Video RAM size in megs
+	boxSnapshotName         = "Installed"
+	boxMinimumNumberOfCores = 2
+	boxMemorySizePercentage = 0.74        // 0.74 = box RAM size will be 74% of the host RAM size
+	boxLowMemoryLimit       = 8192 - 1024 // 8G minus 1G for display adapter
 )
 
 func calculateBoxCPUs() (int, error) {
@@ -38,8 +41,8 @@ func calculateBoxCPUs() (int, error) {
 
 	calculatedCores := detectedCores - 1
 
-	if calculatedCores <= 2 {
-		return 2, nil
+	if calculatedCores <= boxMinimumNumberOfCores {
+		return boxMinimumNumberOfCores, nil
 	}
 
 	return calculatedCores, nil
@@ -49,11 +52,11 @@ func calculateBoxMemory() (uint64, error) {
 	hostMemory, err := host.GetMemory()
 
 	if err != nil {
-		return 0, fmt.Errorf("could not read system memory: %v", err)
+		return 0, fmt.Errorf("could not read system memory: %w", err)
 	}
 
-	freeVMMemory := uint64(math.Round(float64(hostMemory) * 0.74))
-	lowVMMemoryLimit := uint64(math.Round((8192 - 1024) * 0.74))
+	freeVMMemory := uint64(math.Round(float64(hostMemory) * boxMemorySizePercentage))
+	lowVMMemoryLimit := uint64(math.Round(float64(boxLowMemoryLimit) * boxMemorySizePercentage))
 
 	if freeVMMemory < lowVMMemoryLimit {
 		return 0, fmt.Errorf("allocated vm memory %d is less than required minimum memory limit %d", freeVMMemory, lowVMMemoryLimit)
@@ -62,28 +65,7 @@ func calculateBoxMemory() (uint64, error) {
 	return freeVMMemory, nil
 }
 
-// CreateNewBox creates new VM using the given imagePath
-func CreateNewBox(boxType string, boxVersion string) error {
-	if mebroutines.ExistsFile(mebroutines.GetVDIImagePath()) {
-		err := os.Remove(mebroutines.GetVDIImagePath())
-		if err != nil {
-			return fmt.Errorf("could not remove old vdi file %s: %v", mebroutines.GetVDIImagePath(), err)
-		}
-		log.Debug("Removed existing VDI file %s", mebroutines.GetVDIImagePath())
-	}
-
-	calculatedBoxCPUs, err := calculateBoxCPUs()
-	if err != nil {
-		return err
-	}
-
-	calculatedBoxMemory, errMemory := calculateBoxMemory()
-	if errMemory != nil {
-		return errMemory
-	}
-
-	log.Debug("Calculated new VM specs - CPUs: %d, Memory: %d", calculatedBoxCPUs, calculatedBoxMemory)
-
+func getCreateNewBoxBasicCommands(boxName string, boxType string, boxVersion string, calculatedBoxCPUs int, calculatedBoxMemory uint64) []vboxmanage.VBoxCommand {
 	createCommands := []vboxmanage.VBoxCommand{
 		{"convertfromraw", mebroutines.GetImagePath(), mebroutines.GetVDIImagePath(), "--format", "VDI"},
 		{"modifyhd", mebroutines.GetVDIImagePath(), "--resize", fmt.Sprintf("%d", boxFinalImageSize)},
@@ -133,23 +115,64 @@ func CreateNewBox(boxType string, boxVersion string) error {
 		},
 	}
 
+	return createCommands
+}
+
+func getCreateNewBoxClipboadCommand(vBoxVersion semver.Version) (vboxmanage.VBoxCommand, error) {
 	v6_1String := "6.1.0"
 	v6_1, err := semver.Make(v6_1String)
 	if err != nil {
-		return fmt.Errorf("hard-coded version string %s could not be converted to sematic version object", v6_1String)
+		return nil, fmt.Errorf("hard-coded version string %s could not be converted to sematic version object", v6_1String)
 	}
+
+	// Defaults to 6.1 or newer
+	clipboardCommand := vboxmanage.VBoxCommand{"modifyvm", boxName, "--clipboard-mode", "bidirectional"}
+
+	if vBoxVersion.LT(v6_1) {
+		clipboardCommand = vboxmanage.VBoxCommand{"modifyvm", boxName, "--clipboard", "bidirectional"}
+	}
+
+	return clipboardCommand, nil
+}
+
+// CreateNewBox creates new VM using the given imagePath
+func CreateNewBox(boxType string, boxVersion string) error {
+	if mebroutines.ExistsFile(mebroutines.GetVDIImagePath()) {
+		err := os.Remove(mebroutines.GetVDIImagePath())
+		if err != nil {
+			return fmt.Errorf("could not remove old vdi file %s: %w", mebroutines.GetVDIImagePath(), err)
+		}
+		log.Debug("Removed existing VDI file %s", mebroutines.GetVDIImagePath())
+	}
+
+	calculatedBoxCPUs, err := calculateBoxCPUs()
+	if err != nil {
+		return err
+	}
+
+	calculatedBoxMemory, errMemory := calculateBoxMemory()
+	if errMemory != nil {
+		return errMemory
+	}
+
+	log.Debug("Calculated new VM specs - CPUs: %d, Memory: %d", calculatedBoxCPUs, calculatedBoxMemory)
+
+	createCommands := getCreateNewBoxBasicCommands(boxName, boxType, boxVersion, calculatedBoxCPUs, calculatedBoxMemory)
 
 	vBoxVersion, err := vboxmanage.GetVBoxManageVersion()
 	if err != nil {
 		log.Error("Could not get VBoxManage version: %v", err)
+
 		return err
 	}
 
-	if vBoxVersion.LT(v6_1) {
-		createCommands = append(createCommands, vboxmanage.VBoxCommand{"modifyvm", boxName, "--clipboard", "bidirectional"})
-	} else {
-		createCommands = append(createCommands, vboxmanage.VBoxCommand{"modifyvm", boxName, "--clipboard-mode", "bidirectional"})
+	clipboardCommand, err := getCreateNewBoxClipboadCommand(vBoxVersion)
+	if err != nil {
+		log.Error("Could not get new box clipboard creation command: %v", err)
+
+		return err
 	}
+	createCommands = append(createCommands, clipboardCommand)
 
 	createCommands = append(createCommands, vboxmanage.VBoxCommand{"snapshot", boxName, "take", boxSnapshotName})
 
@@ -211,11 +234,13 @@ func WriteDiskClone(clonePath string) error {
 	if errRe != nil || !matched {
 		// Failure
 		log.Debug("VBoxManage output does not report successful clone in format 'VMDK'")
+
 		return errors.New("could not get correct response from vboxmanage")
 	}
 
 	// Detach media from VirtualBox disk management
 	_, errCloseMedium := vboxmanage.RunCommand(vboxmanage.VBoxCommand{"closemedium", clonePath})
+
 	return errCloseMedium
 }
 
@@ -283,6 +308,7 @@ func GetTypeLegend() string {
 
 	// Unknown box type
 	log.Warning("Warning: We have a type string '%s' which does not resolve to Abitti/Matriculation box type (GetTypeLegend)", GetType())
+
 	return "-"
 }
 
@@ -331,6 +357,7 @@ func MediumSizeOnDisk(location string) (uint64, error) {
 
 	if err != nil {
 		log.Error("Could not get medium info to calculate its size: %v", err)
+
 		return 0, errors.New("failed to get medium size: could not execute vboxmanage")
 	}
 
@@ -338,7 +365,9 @@ func MediumSizeOnDisk(location string) (uint64, error) {
 	result := sizeOnDiskRE.FindStringSubmatch(mediumInfo)
 	if len(result) > 1 {
 		size := result[1]
+
 		return strconv.ParseUint(size, 10, 64)
 	}
+
 	return 0, errors.New("failed to get medium size: no regex matches")
 }

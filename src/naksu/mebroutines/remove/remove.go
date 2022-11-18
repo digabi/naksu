@@ -43,6 +43,7 @@ func Server() error {
 	err = mebroutines.RemoveDir(mebroutines.GetVirtualBoxVMsDirectory())
 	if err != nil {
 		mebroutines.ShowTranslatedWarningMessage("Failed to remove directory %s: %v", mebroutines.GetVirtualBoxVMsDirectory(), err)
+
 		return err
 	}
 

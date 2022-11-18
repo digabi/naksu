@@ -28,17 +28,17 @@ func MakeBackup(backupPath string) error {
 	}
 
 	err = host.CheckFreeDisk(constants.LowDiskLimit, []string{filepath.Dir(backupPath)})
-	if err != nil {
-		if err, ok := err.(*host.LowDiskSizeError); ok {
-			mebroutines.ShowTranslatedWarningMessage("Your free disk size is getting low (%s). If backup process fails please consider freeing some disk space.", humanize.Bytes(err.LowSize))
-		} else {
-			mebroutines.ShowTranslatedErrorMessage("Failed to calculate free disk size: %v", err)
-		}
+	var lowDiskSizeError *host.LowDiskSizeError
+	if errors.As(err, &lowDiskSizeError) {
+		mebroutines.ShowTranslatedWarningMessage("Your free disk size is getting low (%s). If backup process fails please consider freeing some disk space.", humanize.Bytes(lowDiskSizeError.LowSize))
+	} else if err != nil {
+		mebroutines.ShowTranslatedErrorMessage("Failed to calculate free disk size: %v", err)
 	}
 
 	progress.TranslateAndSetMessage("Checking existing file...")
 	if mebroutines.ExistsFile(backupPath) {
 		mebroutines.ShowTranslatedErrorMessage("File %s already exists", backupPath)
+
 		return errors.New("backup file already exists")
 	}
 
@@ -47,12 +47,13 @@ func MakeBackup(backupPath string) error {
 	err = mebroutines.CreateFile(backupPath)
 	if err != nil {
 		mebroutines.ShowTranslatedErrorMessage("Could not write test backup file %s. Try another location.", backupPath)
-		return fmt.Errorf("could not write test backup file: %v", err)
+
+		return fmt.Errorf("could not write test backup file: %w", err)
 	}
 
 	err = os.Remove(backupPath)
 	if err != nil {
-		return mebroutines.ShowTranslatedErrorMessageAndPassError(generalErrorString, fmt.Errorf("removing test backup file returned error code: %v", err))
+		return mebroutines.ShowTranslatedErrorMessageAndPassError(generalErrorString, fmt.Errorf("removing test backup file returned error code: %w", err))
 	}
 
 	// Get disk location
@@ -67,14 +68,15 @@ func MakeBackup(backupPath string) error {
 	err = checkForFATFilesystem(backupPath, diskLocation)
 	if err != nil {
 		mebroutines.ShowTranslatedErrorMessage("The backup file is too large for a FAT32 filesystem. Please reformat the backup disk as exFAT.")
-		return fmt.Errorf("backup file too large for fat32 filesystem: %v", err)
+
+		return fmt.Errorf("backup file too large for fat32 filesystem: %w", err)
 	}
 
 	// Make clone to path_backup
 	progress.TranslateAndSetMessage("Please wait, writing backup...")
 	err = box.WriteDiskClone(backupPath)
 	if err != nil {
-		return mebroutines.ShowTranslatedErrorMessageAndPassError(generalErrorString, fmt.Errorf("failed to make clone: %v", err))
+		return mebroutines.ShowTranslatedErrorMessageAndPassError(generalErrorString, fmt.Errorf("failed to make clone: %w", err))
 	}
 
 	return nil
@@ -83,7 +85,7 @@ func MakeBackup(backupPath string) error {
 func ensureBoxInstalledAndNotRunning() error {
 	isInstalled, err := box.Installed()
 	if err != nil {
-		return fmt.Errorf("could not back up server as we could not detect whether vm is installed: %v", err)
+		return fmt.Errorf("could not back up server as we could not detect whether vm is installed: %w", err)
 	}
 
 	if !isInstalled {
@@ -92,7 +94,7 @@ func ensureBoxInstalledAndNotRunning() error {
 
 	isRunning, err := box.Running()
 	if err != nil {
-		return fmt.Errorf("could not back up server as we could not detect whether vm is running: %v", err)
+		return fmt.Errorf("could not back up server as we could not detect whether vm is running: %w", err)
 	}
 
 	if isRunning {
@@ -109,6 +111,7 @@ func checkForFATFilesystem(backupPath string, vmDiskLocation string) error {
 	// If we can't get medium size, we'll just ignore the error and continue.
 	if err != nil {
 		log.Error("Error getting VirtualBox medium size: %s", err)
+
 		return nil
 	}
 
@@ -123,6 +126,7 @@ func checkForFATFilesystem(backupPath string, vmDiskLocation string) error {
 	isFAT32, err := isFAT32(backupPath)
 	if err != nil {
 		log.Error("Error checking if the backup medium has a FAT filesystem: %s", err)
+
 		return nil
 	}
 
