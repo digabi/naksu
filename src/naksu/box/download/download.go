@@ -90,7 +90,9 @@ func makeHTTPGet(url string) (http.Response, error) {
 	if err != nil {
 		log.Error("Creating HTTP GET request to '%s' resulted an error: %v", url, err)
 
-		return http.Response{}, err
+		var emptyResponse http.Response
+
+		return emptyResponse, err
 	}
 
 	// response should be called by the caller
@@ -98,7 +100,9 @@ func makeHTTPGet(url string) (http.Response, error) {
 	if err != nil {
 		log.Error("Making HTTP GET request to '%s' resulted an error: %v", url, err)
 
-		return *response, err
+		var emptyResponse http.Response
+
+		return emptyResponse, err
 	}
 
 	return *response, nil
