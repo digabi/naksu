@@ -22,7 +22,6 @@ linters:
     - exhaustruct
     - funlen
     - forcetypeassert
-    - gochecknoglobals
     - gochecknoinits
     - gocognit
     - goconst
@@ -52,3 +51,12 @@ linters:
     - unused
     - varnamelen
     - whitespace
+
+issues:
+  exclude-rules:
+    - path: 'xlate/xlate_(..).go'
+      linters:
+        - funlen
+    - path: 'ui.go'
+      linters:
+        - funlen
