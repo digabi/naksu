@@ -40,11 +40,11 @@ bin/golangci-lint:
 bin/go2xunit:
 	go install github.com/tebeka/go2xunit@v1.4.10
 
-checkstyle: bin/golangci-lint
+checkstyle: bin/golangci-lint xlate
 	-cd src/naksu && GOOS=linux GOARCH=amd64 CGO_ENABLED=1 ../../bin/golangci-lint run --timeout 5m0s --out-format checkstyle > $(current_dir)/checkstyle-linux.xml
 	-cd src/naksu && GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ ../../bin/golangci-lint run --timeout 5m0s --out-format checkstyle > $(current_dir)/checkstyle-windows.xml
 
-lint: bin/golangci-lint
+lint: bin/golangci-lint xlate
 	cd src/naksu && ../../bin/golangci-lint run --out-format checkstyle
 
 ci-test: bin/go2xunit
