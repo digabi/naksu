@@ -1,7 +1,6 @@
 package download
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -41,7 +40,7 @@ func TestGetSHA256ChecksumFromFile(t *testing.T) {
 }
 
 func testOneGetSHA256ChecksumFromFile(t *testing.T, fileContent string, expectedChecksum string) {
-	tempFile, err := ioutil.TempFile(os.TempDir(), "naksu-test-")
+	tempFile, err := os.CreateTemp(os.TempDir(), "naksu-test-")
 	if err != nil {
 		t.Errorf("Cannot create temporary file: %v", err)
 	}

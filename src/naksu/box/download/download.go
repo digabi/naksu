@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -173,7 +172,7 @@ func unZipServerImageChecksum(file *zip.File) (string, error) {
 
 	defer fZipped.Close()
 
-	definedChecksumFileContent, err := ioutil.ReadAll(fZipped)
+	definedChecksumFileContent, err := io.ReadAll(fZipped)
 	if err != nil {
 		return "", fmt.Errorf("could not read image checksum file inside the zip: %w", err)
 	}
@@ -309,7 +308,7 @@ func GetAvailableVersion(versionURL string) (string, error) {
 		return "", fmt.Errorf("%d", response.StatusCode)
 	}
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		log.Error("Reading available version from '%s' resulted and error: %v", versionURL, err)
 

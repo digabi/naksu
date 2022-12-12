@@ -3,9 +3,9 @@ package network
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"net"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -57,7 +57,7 @@ func getExtInterfaceSpeed(extInterface string) uint64 {
 	}
 
 	/* #nosec */
-	carrierFileContent, err := ioutil.ReadFile(carrierPath)
+	carrierFileContent, err := os.ReadFile(carrierPath)
 	if err != nil {
 		if strings.HasSuffix(err.Error(), "invalid argument") {
 			// When the network interface is powered down, trying to read /sys/class/net/<device>/carrier
@@ -72,7 +72,7 @@ func getExtInterfaceSpeed(extInterface string) uint64 {
 	}
 
 	/* #nosec */
-	speedFileContent, err := ioutil.ReadFile(speedPath)
+	speedFileContent, err := os.ReadFile(speedPath)
 	if err != nil {
 		log.Error("Could not read network interface speed from '%s': %v", speedPath, err)
 
@@ -93,7 +93,7 @@ func getExtInterfaceType(extInterface string) nicType {
 	modaliasPath := fmt.Sprintf("/sys/class/net/%s/device/modalias", extInterface)
 
 	/* #nosec */
-	modaliasContent, err := ioutil.ReadFile(modaliasPath)
+	modaliasContent, err := os.ReadFile(modaliasPath)
 	if err != nil {
 		log.Warning("Could not detect type of external network interface %s: %v", extInterface, err)
 
@@ -201,7 +201,7 @@ func getPCIExtInterfaceLegend(extInterface string) (string, error) {
 	}
 
 	/* #nosec */
-	vendor, errVendor := ioutil.ReadFile(vendorPath)
+	vendor, errVendor := os.ReadFile(vendorPath)
 	if errVendor != nil {
 		log.Error("Trying to get vendor ID for %s but could not open %s for reading: %v", extInterface, vendorPath, errVendor)
 
@@ -216,7 +216,7 @@ func getPCIExtInterfaceLegend(extInterface string) (string, error) {
 	}
 
 	/* #nosec */
-	device, errDevice := ioutil.ReadFile(devicePath)
+	device, errDevice := os.ReadFile(devicePath)
 	if errDevice != nil {
 		log.Error("Trying to get device ID for %s but could not open %s for reading: %v", extInterface, devicePath, errDevice)
 
@@ -242,7 +242,7 @@ func getUSBExtInterfaceLegend(extInterface string) (string, error) {
 	modaliasPath := fmt.Sprintf("/sys/class/net/%s/device/modalias", extInterface)
 
 	/* #nosec */
-	modaliasContent, err := ioutil.ReadFile(modaliasPath)
+	modaliasContent, err := os.ReadFile(modaliasPath)
 	if err != nil {
 		log.Error("Could not get vendor/product codes for external network interface %s: %v", extInterface, err)
 
