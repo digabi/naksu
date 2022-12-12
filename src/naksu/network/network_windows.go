@@ -55,6 +55,7 @@ func GetExtInterfaces() []constants.AvailableSelection {
 		if *networkInterface.NetEnabled {
 			return humanize.SI(float64(*networkInterface.Speed), "bit/s")
 		}
+
 		return "? bit/s"
 	}
 
@@ -85,10 +86,13 @@ func UsingWirelessInterface() bool {
 		nameContainsWireless, err := regexp.MatchString("Wireless", selectedInterfaceName)
 		if err != nil {
 			log.Debug("Could not check if the current interface is wireless")
+
 			return false
 		}
+
 		return nameContainsWireless
 	}
+
 	return false
 }
 
@@ -102,8 +106,10 @@ func selectedInterfaceOrAll() []Win32_NetworkAdapter {
 			offlineInterfaces := queryInterfaces(fmt.Sprintf("WHERE Name='%s'AND  PhysicalAdapter=TRUE", selectedInterface))
 			log.Warning("However, there are %d interfaces with name '%s' which are offline", len(offlineInterfaces), selectedInterface)
 		}
+
 		return interfaces
 	}
+
 	return queryInterfaces("WHERE PhysicalAdapter=TRUE AND NetEnabled=TRUE")
 }
 
@@ -122,6 +128,7 @@ func CurrentLinkSpeed() uint64 {
 
 	if minLinkSpeed == math.MaxUint64 {
 		log.Debug("CurrentLinkSpeed() could not detect any network interfaces/their speed")
+
 		return 0
 	}
 

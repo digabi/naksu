@@ -3,9 +3,9 @@ package network
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"net"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -52,15 +52,17 @@ func getExtInterfaceSpeed(extInterface string) uint64 {
 
 	if !mebroutines.ExistsFile(speedPath) {
 		log.Error("Network interface speed file '%s' does not exist", speedPath)
+
 		return 0
 	}
 
 	/* #nosec */
-	carrierFileContent, err := ioutil.ReadFile(carrierPath)
+	carrierFileContent, err := os.ReadFile(carrierPath)
 	if err != nil {
 		if strings.HasSuffix(err.Error(), "invalid argument") {
 			// When the network interface is powered down, trying to read /sys/class/net/<device>/carrier
 			// results in an "invalid argument" error. This is the kernel working as intended.
+
 			return 0
 		}
 
@@ -70,36 +72,40 @@ func getExtInterfaceSpeed(extInterface string) uint64 {
 	}
 
 	/* #nosec */
-	speedFileContent, err := ioutil.ReadFile(speedPath)
+	speedFileContent, err := os.ReadFile(speedPath)
 	if err != nil {
 		log.Error("Could not read network interface speed from '%s': %v", speedPath, err)
+
 		return 0
 	}
 	speedFileContentTrimmed := strings.TrimSpace(string(speedFileContent))
 	speedInt, errConvert := strconv.ParseUint(speedFileContentTrimmed, 10, 64)
 	if errConvert != nil {
 		log.Error("Could not convert speed string '%s' to integer: %v", speedFileContentTrimmed, errConvert)
+
 		return 0
 	}
 
-	return speedInt * 1000000
+	return speedInt * 1000000 // nolint:gomnd
 }
 
 func getExtInterfaceType(extInterface string) nicType {
 	modaliasPath := fmt.Sprintf("/sys/class/net/%s/device/modalias", extInterface)
 
 	/* #nosec */
-	modaliasContent, err := ioutil.ReadFile(modaliasPath)
+	modaliasContent, err := os.ReadFile(modaliasPath)
 	if err != nil {
 		log.Warning("Could not detect type of external network interface %s: %v", extInterface, err)
+
 		return 0
 	}
 
 	// Sample modalias string:
 	// pci:v00008086d000024FBsv00008086sd00002110bc02sc80i00
 	modaliasStr := string(modaliasContent)
-	if len(modaliasStr) >= 4 {
-		switch modaliasStr[:4] {
+	const modaliasTypePrefixLength = 4
+	if len(modaliasStr) >= modaliasTypePrefixLength {
+		switch modaliasStr[:modaliasTypePrefixLength] {
 		case "usb:":
 			return nicTypeUSB
 		case "pci:":
@@ -108,6 +114,7 @@ func getExtInterfaceType(extInterface string) nicType {
 	}
 
 	log.Warning("Could not detect type of external network interface %s (%s): %s", extInterface, modaliasPath, modaliasStr)
+
 	return nicTypeUnknown
 }
 
@@ -137,6 +144,7 @@ func getPCIDeviceLegend(vendor string, device string) (string, error) {
 		linuxPCIDatabase, err = pcidb.New()
 		if err != nil {
 			log.Error("Could not initialise PCI database: %v", err)
+
 			return "", err
 		}
 	}
@@ -144,11 +152,13 @@ func getPCIDeviceLegend(vendor string, device string) (string, error) {
 	for key, devProduct := range linuxPCIDatabase.Products {
 		if key == searchKey {
 			log.Debug("Found device from PCI database: %s", devProduct.Name)
+
 			return devProduct.Name, nil
 		}
 	}
 
 	log.Debug("Did not find any matches from PCI database for key %s", searchKey)
+
 	return "", errors.New("no matching legend found")
 }
 
@@ -159,15 +169,15 @@ func getUSBDeviceLegend(vendor string, product string) (string, error) {
 
 	vendorInt, vendorErr := strconv.ParseUint(vendor, 16, 32)
 	if vendorErr != nil {
-		return "", fmt.Errorf("vendor id cannot be converted to hex: %v", vendorErr)
+		return "", fmt.Errorf("vendor id cannot be converted to hex: %w", vendorErr)
 	}
 
 	productInt, productErr := strconv.ParseUint(product, 16, 32)
 	if productErr != nil {
-		return "", fmt.Errorf("product id cannot be converted to hex: %v", productErr)
+		return "", fmt.Errorf("product id cannot be converted to hex: %w", productErr)
 	}
 
-	desc = &gousb.DeviceDesc{Vendor: gousb.ID(vendorInt), Product: gousb.ID(productInt)}
+	desc = &gousb.DeviceDesc{Vendor: gousb.ID(vendorInt), Product: gousb.ID(productInt)} // nolint:exhaustruct
 
 	legend := usbid.Describe(desc)
 	log.Debug("USB database gives following legend to device %s:%s: %s", vendor, product, legend)
@@ -179,9 +189,11 @@ func getPCIExtInterfaceLegend(extInterface string) (string, error) {
 	vendorPath := fmt.Sprintf("/sys/class/net/%s/device/vendor", extInterface)
 	devicePath := fmt.Sprintf("/sys/class/net/%s/device/device", extInterface)
 
+	const pciDeviceCodeMinimumLength = 6
+
 	prepareID := func(idByte []byte) (string, error) {
 		idStr := string(idByte)
-		if len(idStr) < 6 {
+		if len(idStr) < pciDeviceCodeMinimumLength {
 			return "", fmt.Errorf("malformatted pci device code: %s", idStr)
 		}
 
@@ -189,28 +201,32 @@ func getPCIExtInterfaceLegend(extInterface string) (string, error) {
 	}
 
 	/* #nosec */
-	vendor, errVendor := ioutil.ReadFile(vendorPath)
+	vendor, errVendor := os.ReadFile(vendorPath)
 	if errVendor != nil {
 		log.Error("Trying to get vendor ID for %s but could not open %s for reading: %v", extInterface, vendorPath, errVendor)
+
 		return "", fmt.Errorf("failed to get vendor id for external pci network interface %s", extInterface)
 	}
 	vendorID, vendorErr := prepareID(vendor)
 
 	if vendorErr != nil {
 		log.Error("Failed to get PCI vendor ID for %s: %v", extInterface, vendorErr)
+
 		return "", vendorErr
 	}
 
 	/* #nosec */
-	device, errDevice := ioutil.ReadFile(devicePath)
+	device, errDevice := os.ReadFile(devicePath)
 	if errDevice != nil {
 		log.Error("Trying to get device ID for %s but could not open %s for reading: %v", extInterface, devicePath, errDevice)
+
 		return "", fmt.Errorf("failed to get device id for external pci network interface %s", extInterface)
 	}
 	deviceID, deviceErr := prepareID(device)
 
 	if deviceErr != nil {
 		log.Error("Failed to get PCI device ID for %s: %v", extInterface, deviceErr)
+
 		return "", deviceErr
 	}
 
@@ -226,16 +242,18 @@ func getUSBExtInterfaceLegend(extInterface string) (string, error) {
 	modaliasPath := fmt.Sprintf("/sys/class/net/%s/device/modalias", extInterface)
 
 	/* #nosec */
-	modaliasContent, err := ioutil.ReadFile(modaliasPath)
+	modaliasContent, err := os.ReadFile(modaliasPath)
 	if err != nil {
 		log.Error("Could not get vendor/product codes for external network interface %s: %v", extInterface, err)
-		return "", fmt.Errorf("could not get vendor/product codes for external network interface %s: %v", extInterface, err)
+
+		return "", fmt.Errorf("could not get vendor/product codes for external network interface %s: %w", extInterface, err)
 	}
 
 	modaliasStr := string(modaliasContent)
 
 	// See http://people.skolelinux.org/pere/blog/Modalias_strings___a_practical_way_to_map__stuff__to_hardware.html
-	if len(modaliasStr) > 14 {
+	const minimumModaliasRowLength = 14
+	if len(modaliasStr) > minimumModaliasRowLength {
 		vendorID := strings.ToLower(modaliasStr[5:9])
 		deviceID := strings.ToLower(modaliasStr[10:14])
 
@@ -298,10 +316,13 @@ func UsingWirelessInterface() bool {
 		isWireless, err := regexp.MatchString(nicRegexWireless, selectedInterface)
 		if err != nil {
 			log.Debug("Could not check if the current interface is wireless")
+
 			return false
 		}
+
 		return isWireless
 	}
+
 	return false
 }
 
@@ -329,6 +350,7 @@ func CurrentLinkSpeed() uint64 {
 	if minLinkSpeed == math.MaxUint64 {
 		return 0
 	}
+
 	return bpsToMbps(minLinkSpeed)
 }
 
@@ -342,26 +364,30 @@ func GetExtInterfaces() []constants.AvailableSelection {
 	result := constants.DefaultExtNicArray
 
 	interfaces, err := net.Interfaces()
-	if err == nil {
-		for n := range interfaces {
-			if isIgnoredExtInterfaceLinux(interfaces[n].Name) {
-				log.Debug("Ignoring external network interface '%s'", interfaces[n].Name)
+	if err != nil {
+		log.Debug("Query to external interfaces got an error: %v", err.Error())
+
+		return result
+	}
+
+	for interfaceIndex := range interfaces {
+		if isIgnoredExtInterfaceLinux(interfaces[interfaceIndex].Name) {
+			log.Debug("Ignoring external network interface '%s'", interfaces[interfaceIndex].Name)
+		} else {
+			log.Debug("Adding external network interface '%s' to the list of available devices", interfaces[interfaceIndex].Name)
+			var oneInterface constants.AvailableSelection
+			oneInterface.ConfigValue = interfaces[interfaceIndex].Name
+
+			legend := getExtInterfaceLegend(interfaces[interfaceIndex].Name)
+
+			speed := getExtInterfaceSpeed(interfaces[interfaceIndex].Name)
+			if speed > 0 {
+				oneInterface.Legend = fmt.Sprintf("%s %s (%s)", legend, interfaces[interfaceIndex].Name, humanize.SI(float64(speed), "bit/s"))
 			} else {
-				log.Debug("Adding external network interface '%s' to the list of available devices", interfaces[n].Name)
-				var oneInterface constants.AvailableSelection
-				oneInterface.ConfigValue = interfaces[n].Name
-
-				legend := getExtInterfaceLegend(interfaces[n].Name)
-
-				speed := getExtInterfaceSpeed(interfaces[n].Name)
-				if speed > 0 {
-					oneInterface.Legend = fmt.Sprintf("%s %s (%s)", legend, interfaces[n].Name, humanize.SI(float64(speed), "bit/s"))
-				} else {
-					oneInterface.Legend = fmt.Sprintf("%s %s", legend, interfaces[n].Name)
-				}
-
-				result = append(result, oneInterface)
+				oneInterface.Legend = fmt.Sprintf("%s %s", legend, interfaces[interfaceIndex].Name)
 			}
+
+			result = append(result, oneInterface)
 		}
 	}
 

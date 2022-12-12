@@ -15,7 +15,7 @@ import (
 	_ "github.com/andlabs/ui/winmanifest"
 )
 
-const version = "2.0.5"
+const thisNaksuVersion = "2.0.5"
 
 var isDebug bool
 
@@ -81,7 +81,7 @@ func main() {
 	})
 
 	handleOptionalArgument("version", parser, func(opt *flags.Option) {
-		fmt.Printf("Naksu version is %v\n", version)
+		fmt.Printf("Naksu version is %v\n", thisNaksuVersion)
 		os.Exit(0)
 	})
 
@@ -99,7 +99,7 @@ func main() {
 	// Determine/set path for debug log
 	log.SetDebugFilename(log.GetNewDebugFilename())
 
-	log.Action("This is Naksu %s. Hello world!", version)
+	log.Action("This is Naksu %s. Hello world!", thisNaksuVersion)
 
 	logDirectoryPaths()
 

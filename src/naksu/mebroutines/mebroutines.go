@@ -68,6 +68,7 @@ func ExistsCharDevice(path string) bool {
 // CreateDir creates new directory
 func CreateDir(path string) error {
 	var err = os.Mkdir(path, os.ModePerm)
+
 	return err
 }
 
@@ -77,6 +78,7 @@ func CreateFile(path string) error {
 	if err == nil {
 		defer Close(f)
 	}
+
 	return err
 }
 
@@ -84,6 +86,7 @@ func CreateFile(path string) error {
 // case of errors. See also RemoveDirAndLogErrors()
 func RemoveDir(path string) error {
 	err := os.RemoveAll(path)
+
 	return err
 }
 
@@ -101,11 +104,13 @@ func RemoveDirAndLogErrors(topPath string) {
 				return err
 			}
 			paths = append(paths, newPath)
+
 			return nil
 		})
 
 	if err != nil {
 		log.Debug("RemoveDirAndLogErrors could not remove directory %s: %v", topPath, err)
+
 		return
 	}
 
@@ -118,40 +123,44 @@ func RemoveDirAndLogErrors(topPath string) {
 }
 
 // CopyFile copies existing file
-func CopyFile(src, dst string) (err error) {
-	log.Debug("Copying file %s to %s", src, dst)
+func CopyFile(filenameSource, filenameDestination string) error {
+	log.Debug("Copying file %s to %s", filenameSource, filenameDestination)
 
-	if !ExistsFile(src) {
-		log.Error("Copying failed, could not find source file '%s'", src)
+	if !ExistsFile(filenameSource) {
+		log.Error("Copying failed, could not find source file '%s'", filenameSource)
+
 		return errors.New("could not find source file")
 	}
 
 	/* #nosec */
-	in, err := os.Open(src)
+	fileSource, err := os.Open(filenameSource)
 	if err != nil {
-		log.Error("Copying failed while opening source file '%s': %v", src, err)
-		return fmt.Errorf("could not open source file: %v", err)
-	}
-	defer Close(in)
+		log.Error("Copying failed while opening source file '%s': %v", filenameSource, err)
 
-	out, err := os.Create(dst)
+		return fmt.Errorf("could not open source file: %w", err)
+	}
+	defer Close(fileSource)
+
+	fileDestination, err := os.Create(filenameDestination)
 	if err != nil {
-		log.Error("Copying failed while opening destination file '%s': %v", dst, err)
-		return fmt.Errorf("could not open destination file: %v", err)
+		log.Error("Copying failed while opening destination file '%s': %v", filenameDestination, err)
+
+		return fmt.Errorf("could not open destination file: %w", err)
 	}
 	defer func() {
-		cerr := out.Close()
+		cerr := fileDestination.Close()
 		if err == nil {
 			err = cerr
 		}
 	}()
-	if _, err = io.Copy(out, in); err != nil {
-		return fmt.Errorf("error when copying data: %v", err)
+	if _, err = io.Copy(fileDestination, fileSource); err != nil {
+		return fmt.Errorf("error when copying data: %w", err)
 	}
-	err = out.Sync()
+	err = fileDestination.Sync()
 	if err != nil {
-		log.Error("Copying failed while syncing destination file '%s': %v", dst, err)
-		return fmt.Errorf("error when syncing destination file: %v", err)
+		log.Error("Copying failed while syncing destination file '%s': %v", filenameDestination, err)
+
+		return fmt.Errorf("error when syncing destination file: %w", err)
 	}
 
 	return nil
@@ -220,6 +229,7 @@ func chdir(chdirTo string) bool {
 	err := os.Chdir(chdirTo)
 	if err != nil {
 		log.Error("Could not chdir to %s: %v", chdirTo, err)
+
 		return false
 	}
 
@@ -255,6 +265,7 @@ func ShowTranslatedErrorMessage(str string, vars ...interface{}) {
 // return mebroutines.ShowTranslatedErrorMessageAndPassError("General error: %v", errors.New("Shit happened"))
 func ShowTranslatedErrorMessageAndPassError(str string, err error) error {
 	ShowTranslatedErrorMessage(str, err)
+
 	return err
 }
 

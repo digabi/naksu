@@ -56,6 +56,7 @@ func findBlockDevice(blockDevices []BlockDevice, mountPoint string) *BlockDevice
 	for _, device := range blockDevices {
 		if mountPoint == device.MountPoint {
 			correctDevice := device
+
 			return &correctDevice
 		}
 

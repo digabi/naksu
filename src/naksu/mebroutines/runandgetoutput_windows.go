@@ -36,8 +36,10 @@ func RunAndGetOutput(origCommandArgs []string, logAction bool) (string, error) {
 	}
 
 	cmd := exec.Command(windowsComSpec)
-	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	cmd.SysProcAttr.CmdLine = strings.Join(escapedCommandArgs, " ")
+	cmd.SysProcAttr = &syscall.SysProcAttr{ // nolint: exhaustruct
+		CmdLine:    strings.Join(escapedCommandArgs, " "),
+		HideWindow: true,
+	}
 
 	out, err := cmd.CombinedOutput()
 

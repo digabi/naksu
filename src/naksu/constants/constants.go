@@ -55,6 +55,10 @@ const (
 	VBoxMinVersion = "6.1.16"
 	// VBoxMaxVersion c.f. VBoxMinVersion
 	VBoxMaxVersion = ""
+
+	// Define common file permissions
+	FilePermissionsOwnerRW  = 0600
+	FilePermissionsOwnerRWX = 0700
 )
 
 // AvailableSelection is a struct for a UI/configuration option

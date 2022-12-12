@@ -14,6 +14,7 @@ func OpenMebShare() {
 
 	if !ExistsDir(mebSharePath) {
 		ShowTranslatedWarningMessage("Cannot open MEB share directory since it does not exist")
+
 		return
 	}
 

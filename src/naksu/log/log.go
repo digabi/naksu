@@ -9,6 +9,8 @@ import (
 
 	"github.com/mitchellh/go-homedir"
 	"gopkg.in/natefinch/lumberjack.v2"
+
+	"naksu/constants"
 )
 
 var isDebug bool
@@ -54,10 +56,16 @@ func SetDebugFilename(newFilename string) {
 	if newFilename == "-" {
 		loggerWriter = os.Stderr
 	} else {
+		const maxBackups = 3
+		const maxLogSizeInMegabytes = 3
+
 		lumberLog := lumberjack.Logger{
+			Compress:   false,
 			Filename:   debugFilename,
-			MaxSize:    3, // megabytes
-			MaxBackups: 3,
+			LocalTime:  false,
+			MaxAge:     0,
+			MaxBackups: maxBackups,
+			MaxSize:    maxLogSizeInMegabytes,
 		}
 
 		loggerWriter = &lumberLog
@@ -79,7 +87,7 @@ func GetNewDebugFilename() string {
 	ktpDir := filepath.Join(homeDir, "ktp")
 
 	if !existsDir(ktpDir) {
-		err = os.Mkdir(ktpDir, 0700)
+		err = os.Mkdir(ktpDir, constants.FilePermissionsOwnerRWX)
 		if err != nil {
 			fmt.Printf("Warning: log.GetNewDebugFilename() could not create directory '%s': %v\n", ktpDir, err)
 		}

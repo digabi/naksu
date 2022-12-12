@@ -9,22 +9,24 @@ import (
 	"naksu/xlate"
 )
 
+const requiredLinkSpeed = 1000 // Required network device speed in Mbit/s
+
 var networkStatusString *ui.AttributedString
 var networkStatusArea *ui.Area
 
 type networkStatusAreaHandler struct {
 }
 
-func (networkStatusAreaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
+func (networkStatusAreaHandler) Draw(uiArea *ui.Area, uiAreaDrawParams *ui.AreaDrawParams) {
 	fontFamily, size := naksuUi.Font()
-	tl := ui.DrawNewTextLayout(&ui.DrawTextLayoutParams{
+	textLayout := ui.DrawNewTextLayout(&ui.DrawTextLayoutParams{
 		String:      networkStatusString,
-		Width:       p.AreaWidth,
-		DefaultFont: &ui.FontDescriptor{Size: size, Family: fontFamily, Weight: ui.TextWeightNormal},
+		Width:       uiAreaDrawParams.AreaWidth,
+		DefaultFont: &ui.FontDescriptor{Size: size, Family: fontFamily, Weight: ui.TextWeightNormal, Italic: 0, Stretch: 0},
 		Align:       ui.DrawTextAlignLeft,
 	})
-	defer tl.Free()
-	p.Context.Text(tl, 0, 0)
+	defer textLayout.Free()
+	uiAreaDrawParams.Context.Text(textLayout, 0, 0)
 }
 
 func (networkStatusAreaHandler) MouseEvent(a *ui.Area, me *ui.AreaMouseEvent) {
@@ -69,7 +71,7 @@ func Update() {
 		switch {
 		case linkSpeedMbit == 0:
 			showNetworkStatus(xlate.Get("No network connection"), true)
-		case linkSpeedMbit < 1000:
+		case linkSpeedMbit < requiredLinkSpeed:
 			statusText := xlate.Get("Network speed is too low (%d Mbit/s)", linkSpeedMbit)
 			showNetworkStatus(statusText, true)
 		default:
@@ -96,5 +98,6 @@ func showNetworkStatus(text string, warning bool) {
 // Area returns the Area UI component singleton that shows the network status
 func Area() *ui.Area {
 	ensureUIComponentsInitialized()
+
 	return networkStatusArea
 }

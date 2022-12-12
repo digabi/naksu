@@ -19,6 +19,7 @@ func getIniFilePath() string {
 	if errHome != nil {
 		panic("Could not get home directory")
 	}
+
 	return filepath.Join(homeDir, "naksu.ini")
 }
 
@@ -70,6 +71,7 @@ func getBoolean(section string, key string) bool {
 		}
 		setValue(section, key, defaultValue)
 	}
+
 	return value
 }
 
@@ -108,6 +110,7 @@ func validateStringChoice(section string, key string, choices []constants.Availa
 	defaultValue := getDefault(section, key)
 	log.Warning("Correcting malformed ini-key %v / %v to default value %v", section, key, defaultValue)
 	setValue(section, key, defaultValue)
+
 	return defaultValue
 }
 
@@ -162,6 +165,7 @@ func SetNic(nic string) {
 // GetExtNic returns current host network device value
 func GetExtNic() string {
 	// Since there are no pre-set selection of variables we dont use validateStringChoice() here
+
 	return getString("environment", "extnic")
 }
 

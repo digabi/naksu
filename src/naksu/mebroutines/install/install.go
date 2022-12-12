@@ -20,6 +20,12 @@ import (
 	humanize "github.com/dustin/go-humanize"
 )
 
+const (
+	installProgressDownloadingImage = 33
+	installProgressCreatingVM       = 66
+	installProgressFinished         = 100
+)
+
 // newServer downloads and creates new Abitti or Exam server using the given image URL
 func newServer(boxType string, imageURL string, versionURL string) error {
 	version, err := download.GetAvailableVersion(versionURL)
@@ -27,10 +33,12 @@ func newServer(boxType string, imageURL string, versionURL string) error {
 	case "<nil>":
 	case "403", "404":
 		mebroutines.ShowTranslatedErrorMessage("Please check the install passphrase")
-		return fmt.Errorf("wrong passphrase entered (got %v)", err)
+
+		return fmt.Errorf("wrong passphrase entered (got %w)", err)
 	default:
 		mebroutines.ShowTranslatedErrorMessage("Could not get version string for a new server: %v", err)
-		return fmt.Errorf("error from server: %v", err)
+
+		return fmt.Errorf("error from server: %w", err)
 	}
 
 	// Clean message
@@ -42,17 +50,19 @@ func newServer(boxType string, imageURL string, versionURL string) error {
 	// Check prerequisites
 	if ensureServerIsNotRunningAndDoesNotExist() != nil || ensureDiskIsReady(&progressDialog) != nil {
 		progress.CloseProgressDialog(progressDialog)
+
 		return errors.New("server exists or disk is not ready")
 	}
 
 	err = downloadAndInstallVM(&progressDialog, imageURL, boxType, version)
 	if err != nil {
 		log.Error("Failed to download and install VM: %v", err)
+
 		return err
 	}
 
 	progressDialogMessage := xlate.GetRaw("Removing temporary raw image file")
-	progress.UpdateProgressDialog(progressDialog, 100, &progressDialogMessage)
+	progress.UpdateProgressDialog(progressDialog, installProgressFinished, &progressDialogMessage)
 	err = os.Remove(mebroutines.GetImagePath())
 
 	if err != nil {
@@ -81,17 +91,20 @@ func ensureServerIsNotRunningAndDoesNotExist() error {
 	isRunning, errRunning := box.Running()
 	if errRunning != nil {
 		mebroutines.ShowTranslatedErrorMessage("Could not install server as we could not detect whether existing VM is running: %v", errRunning)
+
 		return errRunning
 	}
 
 	if isRunning {
 		mebroutines.ShowTranslatedErrorMessage("Please stop the current server before installing a new one")
+
 		return errors.New("please stop the current server before installing a new one")
 	}
 
 	isInstalled, errInstalled := box.Installed()
 	if errInstalled != nil {
 		mebroutines.ShowTranslatedErrorMessage("Could not install server as we could not detect whether existing VM is installed: %v", errInstalled)
+
 		return errInstalled
 	}
 
@@ -110,6 +123,7 @@ func ensureDiskIsReady(dialog *progress.Dialog) error {
 	if err != nil {
 		log.Error("Failed to ensure Naksu directories exist: %v", err)
 		mebroutines.ShowTranslatedErrorMessage("Could not create directory: %v", err)
+
 		return err
 	}
 
@@ -117,6 +131,7 @@ func ensureDiskIsReady(dialog *progress.Dialog) error {
 	if err != nil {
 		log.Error("Failed to ensure we have enough free disk: %v", err)
 		mebroutines.ShowTranslatedErrorMessage("Could not calculate free disk size: %v", err)
+
 		return err
 	}
 
@@ -133,7 +148,7 @@ func ensureNaksuDirectoriesExist(dialog *progress.Dialog) error {
 	ktpPath, errKtpPath := createKtpDir()
 
 	if errKtpPath != nil {
-		return fmt.Errorf("could not create ktp (%s): %v", ktpPath, errKtpPath)
+		return fmt.Errorf("could not create ktp (%s): %w", ktpPath, errKtpPath)
 	}
 
 	log.Debug("ktpPath is %s", ktpPath)
@@ -147,7 +162,7 @@ func ensureNaksuDirectoriesExist(dialog *progress.Dialog) error {
 	ktpJakoPath, errKtpJakoPath := createKtpJakoDir()
 
 	if errKtpJakoPath != nil {
-		return fmt.Errorf("could not create ktp-jako (%s): %v", ktpJakoPath, errKtpJakoPath)
+		return fmt.Errorf("could not create ktp-jako (%s): %w", ktpJakoPath, errKtpJakoPath)
 	}
 
 	log.Debug("ktpJakoPath is %s", ktpJakoPath)
@@ -157,15 +172,13 @@ func ensureNaksuDirectoriesExist(dialog *progress.Dialog) error {
 
 func ensureFreeDisk() error {
 	err := host.CheckFreeDisk(constants.LowDiskLimit, []string{mebroutines.GetKtpDirectory(), mebroutines.GetVirtualBoxHiddenDirectory(), mebroutines.GetVirtualBoxVMsDirectory()})
+	var lowDiskSizeError *host.LowDiskSizeError
+	if errors.As(err, &lowDiskSizeError) {
+		mebroutines.ShowTranslatedWarningMessage("Your free disk size is getting low (%s)", humanize.Bytes(lowDiskSizeError.LowSize))
+	} else if err != nil {
+		mebroutines.ShowTranslatedErrorMessage("Failed to calculate free disk space: %v", err)
 
-	if err != nil {
-		if err, ok := err.(*host.LowDiskSizeError); ok {
-			// We just inform the user instead of returning an error
-			mebroutines.ShowTranslatedWarningMessage("Your free disk size is getting low (%s)", humanize.Bytes(err.LowSize))
-		} else {
-			mebroutines.ShowTranslatedErrorMessage("Failed to calculate free disk space: %v", err)
-			return err
-		}
+		return err
 	}
 
 	return nil
@@ -176,22 +189,22 @@ func downloadAndInstallVM(progressDialog *progress.Dialog, imageURL string, boxT
 		progress.UpdateProgressDialog(*progressDialog, value, &message)
 	}
 
-	updateProgressFunc(xlate.GetRaw("Getting Image from the Cloud"), 100*(1/3))
+	updateProgressFunc(xlate.GetRaw("Getting Image from the Cloud"), installProgressDownloadingImage)
 	err := download.GetServerImage(imageURL, updateProgressFunc)
 
-	switch err {
-	case nil:
-	case download.ErrDownloadedDiskImageCorrupted:
+	if errors.Is(err, download.ErrDownloadedDiskImageCorrupted) {
 		progress.CloseProgressDialog(*progressDialog)
 		mebroutines.ShowTranslatedErrorMessage("Downloaded image is corrupted. Try again.")
-		return fmt.Errorf("downloading image failed (image corrupted): %v", err)
-	default:
+
+		return fmt.Errorf("downloading image failed (image corrupted): %w", err)
+	} else if err != nil {
 		progress.CloseProgressDialog(*progressDialog)
 		mebroutines.ShowTranslatedErrorMessage("Failed to get new VM image: %v", err)
-		return fmt.Errorf("downloading image failed: %v", err)
+
+		return fmt.Errorf("downloading image failed: %w", err)
 	}
 
-	updateProgressFunc(xlate.GetRaw("Creating New VM"), 100*(2/3))
+	updateProgressFunc(xlate.GetRaw("Creating New VM"), installProgressCreatingVM)
 	err = box.CreateNewBox(boxType, version)
 
 	if err != nil {
@@ -202,7 +215,8 @@ func downloadAndInstallVM(progressDialog *progress.Dialog, imageURL string, boxT
 			log.Debug("Failed to remove image file %s: %v", mebroutines.GetImagePath(), removeErr)
 		}
 		progress.CloseProgressDialog(*progressDialog)
-		return fmt.Errorf("failed to create new vm: %v", err)
+
+		return fmt.Errorf("failed to create new vm: %w", err)
 	}
 
 	return nil
@@ -233,17 +247,18 @@ func createKtpJakoDir() (string, error) {
 }
 
 func getPassphraseHash(passphrase string) string {
-	o := sha256.New()
-	_, err := io.WriteString(o, passphrase)
+	hashCalculator := sha256.New()
+	_, err := io.WriteString(hashCalculator, passphrase)
 
 	if err != nil {
 		panic(err)
 	}
 
-	return fmt.Sprintf("%x", o.Sum(nil))
+	return fmt.Sprintf("%x", hashCalculator.Sum(nil))
 }
 
 func getExamURL(url string, passphraseHash string) string {
 	re := regexp.MustCompile(`###PASSPHRASEHASH###`)
+
 	return re.ReplaceAllString(url, passphraseHash)
 }
