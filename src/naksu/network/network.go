@@ -30,14 +30,14 @@ func testHTTPGet(url string, timeout int) bool {
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		log.Error("Testing HTTP GET %s and got error %v when creating request", url, err.Error())
+		log.Error("Testing HTTP GET %s and got error %v when creating request", url, err)
 
 		return false
 	}
 
 	response, err := client.Do(request)
 	if err != nil {
-		log.Error("Testing HTTP GET %s and got error %v when making request", url, err.Error())
+		log.Error("Testing HTTP GET %s and got error %v when making request", url, err)
 
 		return false
 	}
