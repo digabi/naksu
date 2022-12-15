@@ -4,7 +4,7 @@ import (
 	"archive/zip"
 	"encoding/base64"
 	"io"
-	"io/ioutil"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -115,7 +115,7 @@ func openFileForWriting(filepath string) (*os.File, error) {
 }
 
 func readNumberFromFile(filename string) (int, error) {
-	content, err := ioutil.ReadFile(filepath.Clean(filename))
+	content, err := os.ReadFile(filepath.Clean(filename))
 	if err != nil {
 		log.Error("Error reading file %s: %s", filename, err)
 
@@ -173,7 +173,7 @@ func waitForLogs(requestNumber int, timeout time.Duration, doneChannel chan bool
 
 			time.Sleep(1 * time.Second)
 
-			content, err := ioutil.ReadFile(filepath.Clean(statusFilepath))
+			content, err := os.ReadFile(filepath.Clean(statusFilepath))
 			if err != nil {
 				log.Warning("Could not read status file %s: %s", doneFilepath, err)
 			} else {
@@ -305,8 +305,8 @@ func appendNaksuLastlogs(logFiles []string) ([]string, error) {
 	return logFiles, nil
 }
 
-func getDirectoryFileInfos(directory string) ([]os.FileInfo, error) {
-	fileInfos, err := ioutil.ReadDir(directory)
+func getDirectoryFileInfos(directory string) ([]fs.DirEntry, error) {
+	fileInfos, err := os.ReadDir(directory)
 	if err != nil {
 		log.Error("Error listing directory %s: %s", directory, err)
 
