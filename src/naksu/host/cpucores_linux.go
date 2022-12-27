@@ -2,7 +2,7 @@ package host
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"regexp"
 	"strconv"
 
@@ -11,7 +11,7 @@ import (
 
 // GetCPUCoreCount returns number of CPU cores
 func GetCPUCoreCount() (int, error) {
-	cpuinfoFileContentBytearr, err := ioutil.ReadFile("/proc/cpuinfo")
+	cpuinfoFileContentBytearr, err := os.ReadFile("/proc/cpuinfo")
 
 	if err != nil {
 		log.Error("Could not open /proc/cpuinfo to detect number of CPU cores: %v", err)

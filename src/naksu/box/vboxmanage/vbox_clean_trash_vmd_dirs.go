@@ -2,7 +2,6 @@ package vboxmanage
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"path"
 	"regexp"
@@ -20,7 +19,7 @@ func CleanUpTrashVMDirectories() {
 		return
 	}
 
-	entriesInDefaultVMDir, err := ioutil.ReadDir(defaultVMDirectory)
+	entriesInDefaultVMDir, err := os.ReadDir(defaultVMDirectory)
 	if err != nil {
 		log.Error("Error searching for trash VM directories (list default vm dir %s): %v", defaultVMDirectory, err)
 
@@ -33,7 +32,7 @@ func CleanUpTrashVMDirectories() {
 		}
 
 		fullPathToPotentialTrashVMDir := path.Join(defaultVMDirectory, entryInDefaultVMDirRoot.Name())
-		entriesInSubDir, err := ioutil.ReadDir(fullPathToPotentialTrashVMDir)
+		entriesInSubDir, err := os.ReadDir(fullPathToPotentialTrashVMDir)
 		if err != nil {
 			log.Error("Error searching for trash VM directories (listing '%s'): %v", fullPathToPotentialTrashVMDir, err)
 

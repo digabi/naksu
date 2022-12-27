@@ -1,7 +1,10 @@
-FROM ubuntu:jammy
+FROM --platform=linux/amd64 debian:bullseye-slim
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get -y install zip wget curl golang-1.18 libgtk-3-dev gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64 mingw-w64 make git libusb-1.0-0-dev gettext
-ENV PATH="/usr/lib/go-1.18/bin/:/root/go/bin:${PATH}"
+RUN apt-get update && apt-get -y install zip wget curl build-essential libgtk-3-dev gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64 mingw-w64 make git libusb-1.0-0-dev gettext
+RUN wget -O /tmp/go-bin.tar.gz https://go.dev/dl/go1.19.4.linux-amd64.tar.gz
+RUN [ "c9c08f783325c4cf840a94333159cc937f05f75d36a8b307951d5bd959cf2ab8  /tmp/go-bin.tar.gz" = "$(sha256sum /tmp/go-bin.tar.gz)" ]
+RUN tar -zxvf /tmp/go-bin.tar.gz -C /usr/local/
+ENV PATH="/usr/local/go/bin/:/root/go/bin:${PATH}"
 COPY Makefile /app/
 COPY .golangci.yaml /app/
 RUN cd /app && make bin/golangci-lint bin/go2xunit
