@@ -136,6 +136,12 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 2.0.6 (27-DEC-2022)
+ - Network detection uses new version URL instead of deprecated AbittiUSB URL
+ - Build with golang 1.19
+ - Upgraded vulnerable `xz` package
+ - Removed deprecated `io/ioutil` package
+
 ### 2.0.5 (08-OCT-2021)
  - Fix checksum calculation of zip entries
  - Improve status and error messages
