@@ -20,7 +20,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/paulusrobin/go-memory-cache v1.1.4
 	github.com/rhysd/go-github-selfupdate v1.0.0
-	golang.org/x/sys v0.0.0-20200202164722-d101bd2416d5
+	golang.org/x/sys v0.5.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0-20170531160350-a96e63847dc3
 )
 
@@ -40,7 +40,7 @@ require (
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/tcnksm/go-gitconfig v0.1.2 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
-	golang.org/x/net v0.0.0-20200202094626-16171245cfb2 // indirect
+	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20181003184128-c57b0facaced // indirect
 	google.golang.org/appengine v1.2.0 // indirect
 	gopkg.in/ini.v1 v1.60.0 // indirect
