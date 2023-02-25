@@ -6,7 +6,7 @@ require (
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6
 	github.com/andlabs/ui v0.0.0-20180902183112-867a9e5a498d
 	github.com/atotto/clipboard v0.1.2
-	github.com/aws/aws-sdk-go v1.25.14-0.20200701185931-ae9d6422f7b6
+	github.com/aws/aws-sdk-go v1.34.0
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/blang/semver/v4 v4.0.0
 	github.com/dustin/go-humanize v1.0.0
