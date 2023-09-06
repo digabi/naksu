@@ -15,7 +15,7 @@ import (
 	_ "github.com/andlabs/ui/winmanifest"
 )
 
-const thisNaksuVersion = "2.0.6"
+const thisNaksuVersion = "2.0.7"
 
 var isDebug bool
 

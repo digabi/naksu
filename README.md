@@ -136,6 +136,10 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 2.0.7 (06-SEP-2023)
+ - Fix a bug causing Naksu to stop when Exam Server install passphrase was given
+   on a Linux with Nvidia proprietary display drivers
+
 ### 2.0.6 (27-DEC-2022)
  - Network detection uses new version URL instead of deprecated AbittiUSB URL
  - Build with golang 1.19
