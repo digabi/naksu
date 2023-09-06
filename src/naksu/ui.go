@@ -760,7 +760,9 @@ func bindOnInstallExamServer(mainUIStatus chan string) {
 	examInstallButtonInstall.OnClicked(func(*ui.Button) {
 		go func() {
 			passphrase := examInstallPassphraseEntry.Text()
-			examInstallPassphraseEntry.SetText("")
+			ui.QueueMain(func() {
+				examInstallPassphraseEntry.SetText("")
+			})
 			disableUI(mainUIStatus)
 			if passphrase != "" {
 				log.Action("InstallExamServer passhrase entered - Starting Exam box update")
