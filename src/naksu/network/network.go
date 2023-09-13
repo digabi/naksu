@@ -37,8 +37,6 @@ func testHTTPGet(url string, timeout int) bool {
 
 	response, err := client.Do(request)
 	if err != nil {
-		log.Error("Testing HTTP GET %s and got error %v when making request", url, err)
-
 		return false
 	}
 
@@ -50,8 +48,6 @@ func testHTTPGet(url string, timeout int) bool {
 
 		return false
 	}
-
-	log.Debug("Testing HTTP GET %s succeeded", url)
 
 	return true
 }
