@@ -33,6 +33,8 @@ const (
 	boxLowMemoryLimit       = 8192 - 1024 // 8G minus 1G for display adapter
 )
 
+var boxInstalled bool
+
 func calculateBoxCPUs() (int, error) {
 	detectedCores, err := host.GetCPUCoreCount()
 	if err != nil {
@@ -253,11 +255,12 @@ func StartEnvironmentStatusUpdate(environmentStatus *constants.EnvironmentStatus
 		for {
 			<-ticker.C
 
-			boxInstalled, boxInstalledErr := Installed()
-			if boxInstalledErr != nil {
-				log.Error("Could not query whether VM is installed: %v", boxInstalledErr)
+			boxInstalledStatus, err := Installed()
+			if err != nil {
+				log.Error("Could not query whether VM is installed: %v", err)
 			} else {
-				environmentStatus.BoxInstalled = (boxInstalledErr == nil) && boxInstalled
+				boxInstalled = (err == nil) && boxInstalledStatus
+				environmentStatus.BoxInstalled = boxInstalled
 			}
 
 			boxRunning, boxRunningErr := Running()
@@ -282,6 +285,10 @@ func Installed() (bool, error) {
 }
 
 func Running() (bool, error) {
+	if !boxInstalled {
+		return false, nil
+	}
+
 	isRunning, err := vboxmanage.IsVMRunning(boxName)
 
 	if err != nil {
@@ -293,11 +300,19 @@ func Running() (bool, error) {
 
 // GetType returns the box type (e.g. "digabi/ktp-qa") of the current VM
 func GetType() string {
+	if !boxInstalled {
+		return ""
+	}
+
 	return vboxmanage.GetVMProperty(boxName, "boxType")
 }
 
 // GetTypeLegend returns an user-readable type legend of the current VM
 func GetTypeLegend() string {
+	if !boxInstalled {
+		return "-"
+	}
+
 	if TypeIsAbitti() {
 		return xlate.Get("Abitti server")
 	}
@@ -328,21 +343,37 @@ func TypeIsMatriculationExam() bool {
 
 // GetVersion returns the version string (e.g. "SERVER7108X v69") of the current VM
 func GetVersion() string {
+	if !boxInstalled {
+		return ""
+	}
+
 	return vboxmanage.GetVMProperty(boxName, "boxVersion")
 }
 
 // getDiskUUID returns the VirtualBox UUID for the image of the current VM
 func getDiskUUID() string {
+	if !boxInstalled {
+		return ""
+	}
+
 	return vboxmanage.GetVMInfoByRegexp(boxName, "\"SATA Controller-ImageUUID-0-0\"=\"(.*?)\"")
 }
 
 // GetDiskLocation returns the full path of the current VM disk image.
 func GetDiskLocation() string {
+	if !boxInstalled {
+		return ""
+	}
+
 	return vboxmanage.GetVMInfoByRegexp(boxName, "\"SATA Controller-0-0\"=\"(.*)\"")
 }
 
 // GetLogDir returns the full path of VirtualBox log directory
 func GetLogDir() string {
+	if !boxInstalled {
+		return ""
+	}
+
 	return vboxmanage.GetVMInfoByRegexp(boxName, "LogFldr=\"(.*)\"")
 }
 

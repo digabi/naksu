@@ -313,21 +313,18 @@ func IsVMRunning(vmName string) (bool, error) {
 
 // IsVMInstalled returns true if given VM has been installed
 func IsVMInstalled(vmName string) (bool, error) {
-	rawVMInfo, err := RunCommandWithoutLogging([]string{"showvminfo", "--machinereadable", vmName})
+	rawVMInfo, err := RunCommandWithoutLogging([]string{"list", "vms"})
 
 	if err != nil {
-		if strings.Contains(rawVMInfo, vBoxManageOutputNoVMInstalled) {
-			log.Debug("vboxmanage.IsVMInstalled: Box is not installed")
-
-			return false, nil
-		}
-
 		// Other error, return it to the caller
 		return false, err
 	}
 
-	// We got the showvminfo all right, so the machine is installed
-	return true, nil
+	if strings.Contains(rawVMInfo, fmt.Sprintf("\"%s\"", vmName)) {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 // IsIstalled returns true if VBoxManage has been installed
