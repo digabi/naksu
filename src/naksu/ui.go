@@ -466,8 +466,6 @@ func mainUIStatusHandler(currentMainUIStatus mainUIStatusType) { //nolint:gocycl
 func checkAbittiUpdate() (bool, string) {
 	availAbittiVersion := ""
 
-	currentBoxVersion := box.GetVersion()
-
 	boxInstalled, err := box.Installed()
 
 	if err != nil {
@@ -475,6 +473,8 @@ func checkAbittiUpdate() (bool, string) {
 	}
 
 	if (err == nil && !boxInstalled) || box.TypeIsAbitti() {
+		currentBoxVersion := box.GetVersion()
+
 		availAbittiVersion, err = download.GetAvailableVersion(constants.AbittiVersionURL)
 		if err == nil && currentBoxVersion != availAbittiVersion {
 			return true, availAbittiVersion
@@ -1198,7 +1198,11 @@ func RunUI() error { // nolint:whitespace
 			}
 		}
 
-		log.Debug("Currently installed box: %s %s", box.GetVersion(), box.GetType())
+		if environmentStatus.BoxInstalled {
+			log.Debug("Currently installed box is version '%s', type '%s'", box.GetVersion(), box.GetType())
+		} else {
+			log.Debug("There is no box installed")
+		}
 
 		logdelivery.DeleteLogCopyFiles()
 
