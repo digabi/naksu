@@ -56,8 +56,8 @@ func SetDebugFilename(newFilename string) {
 	if newFilename == "-" {
 		loggerWriter = os.Stderr
 	} else {
-		const maxBackups = 3
-		const maxLogSizeInMegabytes = 3
+		const maxBackups = 5
+		const maxLogSizeInMegabytes = 10
 
 		lumberLog := lumberjack.Logger{
 			Compress:   false,
