@@ -140,7 +140,6 @@ func getPCIDeviceLegend(vendor string, device string) (string, error) {
 	if linuxPCIDatabase == nil {
 		var err error
 		// Do not try to load PCI database from the network
-		pcidb.WithDisableNetworkFetch()
 		linuxPCIDatabase, err = pcidb.New()
 		if err != nil {
 			log.Error("Could not initialise PCI database: %v", err)
