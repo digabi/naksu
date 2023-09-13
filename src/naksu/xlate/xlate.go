@@ -11,6 +11,8 @@ var currentPo gotext.Po
 
 // SetLanguage sets active language
 func SetLanguage(newLanguage string) {
+	currentPo = *gotext.NewPo()
+
 	switch newLanguage {
 	case "fi":
 		currentPo.Parse([]byte(getPoStrFi()))
