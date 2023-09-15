@@ -132,7 +132,5 @@ func CurrentLinkSpeed() uint64 {
 		return 0
 	}
 
-	log.Debug("CurrentLinkSpeed() is %d Mbps (%s)", minLinkSpeed, humanize.SI(float64(minLinkSpeed), "bit/s"))
-
 	return bpsToMbps(minLinkSpeed)
 }
