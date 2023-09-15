@@ -10,6 +10,7 @@ import (
 )
 
 const requiredLinkSpeed = 1000 // Required network device speed in Mbit/s
+var lastDetectedLinkSpeedMbit = ^uint64(0)
 
 var networkStatusString *ui.AttributedString
 var networkStatusArea *ui.Area
@@ -65,18 +66,29 @@ func ensureUIComponentsInitialized() {
 func Update() {
 	if network.UsingWirelessInterface() {
 		showNetworkStatus(xlate.Get("Wireless connection"), true)
-	} else {
-		linkSpeedMbit := network.CurrentLinkSpeed()
 
-		switch {
-		case linkSpeedMbit == 0:
-			showNetworkStatus(xlate.Get("No network connection"), true)
-		case linkSpeedMbit < requiredLinkSpeed:
-			statusText := xlate.Get("Network speed is too low (%d Mbit/s)", linkSpeedMbit)
-			showNetworkStatus(statusText, true)
-		default:
-			showNetworkStatus(xlate.Get("OK"), false)
+		return
+	}
+
+	linkSpeedMbit := network.CurrentLinkSpeed()
+
+	if lastDetectedLinkSpeedMbit != linkSpeedMbit {
+		if lastDetectedLinkSpeedMbit == ^uint64(0) {
+			log.Debug("Network speed is %d Mbit/s", linkSpeedMbit)
+		} else {
+			log.Debug("Network speed changed from %d Mbit/s to %d Mbit/s", lastDetectedLinkSpeedMbit, linkSpeedMbit)
 		}
+	}
+	lastDetectedLinkSpeedMbit = linkSpeedMbit
+
+	switch {
+	case linkSpeedMbit == 0:
+		showNetworkStatus(xlate.Get("No network connection"), true)
+	case linkSpeedMbit < requiredLinkSpeed:
+		statusText := xlate.Get("Network speed is too low (%d Mbit/s)", linkSpeedMbit)
+		showNetworkStatus(statusText, true)
+	default:
+		showNetworkStatus(xlate.Get("OK"), false)
 	}
 }
 
@@ -91,8 +103,6 @@ func showNetworkStatus(text string, warning bool) {
 		appendWithAttributes(networkStatusString, text, normalTextColor)
 	}
 	ui.QueueMain(networkStatusArea.QueueRedrawAll)
-
-	log.Debug("Network status: %s", text)
 }
 
 // Area returns the Area UI component singleton that shows the network status
