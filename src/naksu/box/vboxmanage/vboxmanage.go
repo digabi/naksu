@@ -296,19 +296,14 @@ func getVMState(vmName string) (string, error) {
 }
 
 // IsVMRunning returns true if given VM is currently running
-func IsVMRunning(vmName string) (bool, error) {
+func IsVMRunning(vmName string) (bool, string, error) {
 	vmState, err := getVMState(vmName)
 
-	if vmState != "<nil>" {
-		// Log only messages with content to avoid log spam
-		log.Debug("vboxmanage.IsVMRunning() got following state string: '%s'", vmState)
-	}
-
 	if err != nil {
-		return false, err
+		return false, vmState, err
 	}
 
-	return vmState == "running", nil
+	return vmState == "running", vmState, nil
 }
 
 // IsVMInstalled returns true if given VM has been installed
