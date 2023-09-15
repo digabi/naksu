@@ -33,7 +33,15 @@ const (
 	boxLowMemoryLimit       = 8192 - 1024 // 8G minus 1G for display adapter
 )
 
-var boxInstalled bool
+type boxStatus struct {
+	installed bool
+	running   bool
+	state     string
+}
+
+// Setting initial installed value to true allows dependent getSomevalue() functions
+// to operate even before the real install status is detected
+var lastBoxStatus = boxStatus{true, false, ""}
 
 func calculateBoxCPUs() (int, error) {
 	detectedCores, err := host.GetCPUCoreCount()
@@ -255,11 +263,10 @@ func StartEnvironmentStatusUpdate(environmentStatus *constants.EnvironmentStatus
 		for {
 			<-ticker.C
 
-			boxInstalledStatus, err := Installed()
+			boxInstalled, err := Installed()
 			if err != nil {
 				log.Error("Could not query whether VM is installed: %v", err)
 			} else {
-				boxInstalled = (err == nil) && boxInstalledStatus
 				environmentStatus.BoxInstalled = boxInstalled
 			}
 
@@ -279,28 +286,45 @@ func Installed() (bool, error) {
 
 	if err != nil {
 		log.Error("box.Installed() could not detect whether VM is installed: %v", err)
+	} else {
+		lastBoxStatus.installed = isInstalled
 	}
 
 	return isInstalled, err
 }
 
 func Running() (bool, error) {
-	if !boxInstalled {
+	if !lastBoxStatus.installed {
 		return false, nil
 	}
 
-	isRunning, err := vboxmanage.IsVMRunning(boxName)
+	isRunning, state, err := vboxmanage.IsVMRunning(boxName)
 
 	if err != nil {
 		log.Error("box.Running() could not detect whether VM is running: %v", err)
 	}
+
+	if lastBoxStatus.state != state {
+		log.Debug("VM state changed from '%s' to '%s'", lastBoxStatus.state, state)
+	}
+
+	if isRunning != lastBoxStatus.running {
+		if isRunning {
+			log.Debug("VM has been started")
+		} else {
+			log.Debug("VM has been stopped")
+		}
+	}
+
+	lastBoxStatus.running = isRunning
+	lastBoxStatus.state = state
 
 	return isRunning, err
 }
 
 // GetType returns the box type (e.g. "digabi/ktp-qa") of the current VM
 func GetType() string {
-	if !boxInstalled {
+	if !lastBoxStatus.installed {
 		return ""
 	}
 
@@ -309,7 +333,7 @@ func GetType() string {
 
 // GetTypeLegend returns an user-readable type legend of the current VM
 func GetTypeLegend() string {
-	if !boxInstalled {
+	if !lastBoxStatus.installed {
 		return "-"
 	}
 
@@ -343,7 +367,7 @@ func TypeIsMatriculationExam() bool {
 
 // GetVersion returns the version string (e.g. "SERVER7108X v69") of the current VM
 func GetVersion() string {
-	if !boxInstalled {
+	if !lastBoxStatus.installed {
 		return ""
 	}
 
@@ -352,7 +376,7 @@ func GetVersion() string {
 
 // getDiskUUID returns the VirtualBox UUID for the image of the current VM
 func getDiskUUID() string {
-	if !boxInstalled {
+	if !lastBoxStatus.installed {
 		return ""
 	}
 
@@ -361,7 +385,7 @@ func getDiskUUID() string {
 
 // GetDiskLocation returns the full path of the current VM disk image.
 func GetDiskLocation() string {
-	if !boxInstalled {
+	if !lastBoxStatus.installed {
 		return ""
 	}
 
@@ -370,7 +394,7 @@ func GetDiskLocation() string {
 
 // GetLogDir returns the full path of VirtualBox log directory
 func GetLogDir() string {
-	if !boxInstalled {
+	if !lastBoxStatus.installed {
 		return ""
 	}
 
