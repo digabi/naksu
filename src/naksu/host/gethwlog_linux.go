@@ -33,24 +33,30 @@ func simpleRunAndGetOutput(commandArgs []string) string {
 // information to be printed to a log file
 func GetHwLog() string {
 	cpuinfo := simpleRunAndGetOutput([]string{"cat", "/proc/cpuinfo"})
+	powerplan := getPowerplan()
 	meminfo := simpleRunAndGetOutput([]string{"cat", "/proc/meminfo"})
 	lshw := simpleRunAndGetOutput([]string{"lshw"})
 	lspci := simpleRunAndGetOutput([]string{"lspci"})
 	lsusb := simpleRunAndGetOutput([]string{"lsusb"})
 
 	return fmt.Sprintf(`
-Output of /proc/cpuinfo
+===== Output of /proc/cpuinfo
 %s
 
-Output of /proc/meminfo
+===== Scaling governor (for each CPU/core): '%s'
+
+===== Output of /proc/meminfo
 %s
 
-Output of lshw
+===== Output of lshw
 %s
 
-Output of lspci
+===== Output of lspci
 %s
 
-Output of lsusb
-%s`, cpuinfo, meminfo, lshw, lspci, lsusb)
+===== Output of lsusb
+%s
+
+===== End of Hardware Log
+`, cpuinfo, powerplan, meminfo, lshw, lspci, lsusb)
 }

@@ -206,16 +206,23 @@ func getWinProcessorAvailabilityLegend(legendCode uint16) string {
 // information to be printed to a log file
 func GetHwLog() string {
 	cpuInfo := getProcessorString()
+	powerplan := getPowerplan()
 	memoryInfo := getMemoryString()
 	pnpEntities := getPnpEntityString()
 
 	return fmt.Sprintf(`
-Processor Info
+===== Processor Info
 %s
 
-Memory Info
+===== Power configuration
 %s
 
-Plug-And-Play Devices
-%s`, cpuInfo, memoryInfo, pnpEntities)
+===== Memory Info
+%s
+
+===== Plug-And-Play Devices
+%s
+
+===== End of Hardware Log
+`, cpuInfo, powerplan, memoryInfo, pnpEntities)
 }
