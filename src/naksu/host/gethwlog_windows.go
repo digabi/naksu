@@ -7,8 +7,8 @@ import (
 
 	"naksu/log"
 
-	"github.com/StackExchange/wmi"
 	humanize "github.com/dustin/go-humanize"
+	"github.com/yusufpapurcu/wmi"
 )
 
 // Win32_Processor is a struct used to query Windows WMI

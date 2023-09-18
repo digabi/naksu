@@ -3,7 +3,6 @@ module naksu
 go 1.18
 
 require (
-	github.com/StackExchange/wmi v1.2.1
 	github.com/andlabs/ui v0.0.0-20200610043537-70a69d6ae31e
 	github.com/atotto/clipboard v0.1.4
 	github.com/aws/aws-sdk-go v1.45.8
@@ -20,6 +19,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/paulusrobin/go-memory-cache v1.1.4
 	github.com/rhysd/go-github-selfupdate v1.2.3
+	github.com/yusufpapurcu/wmi v1.2.3
 	golang.org/x/sys v0.12.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
