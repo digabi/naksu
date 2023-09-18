@@ -5,7 +5,7 @@ import (
 
 	"naksu/log"
 
-	"github.com/StackExchange/wmi"
+	"github.com/yusufpapurcu/wmi"
 )
 
 // isHyperVOptionalFeature returns true if Hyper-V features are installed

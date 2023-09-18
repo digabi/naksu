@@ -10,7 +10,7 @@ import (
 
 	"naksu/log"
 
-	"github.com/StackExchange/wmi"
+	"github.com/yusufpapurcu/wmi"
 )
 
 func getDiskFreeWindows(path string) (uint64, error) {

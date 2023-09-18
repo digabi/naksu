@@ -5,8 +5,8 @@ import (
 	"math"
 	"regexp"
 
-	"github.com/StackExchange/wmi"
 	humanize "github.com/dustin/go-humanize"
+	"github.com/yusufpapurcu/wmi"
 
 	"naksu/config"
 	"naksu/constants"

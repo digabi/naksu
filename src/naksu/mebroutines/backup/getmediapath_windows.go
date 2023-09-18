@@ -10,7 +10,7 @@ import (
 	"naksu/mebroutines"
 	"naksu/xlate"
 
-	"github.com/StackExchange/wmi"
+	"github.com/yusufpapurcu/wmi"
 )
 
 // GetBackupMedia returns the backup media path
