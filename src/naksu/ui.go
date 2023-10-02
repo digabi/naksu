@@ -1198,10 +1198,16 @@ func RunUI() error { // nolint:whitespace
 			}
 		}
 
-		if environmentStatus.BoxInstalled {
-			log.Debug("Currently installed box is version '%s', type '%s'", box.GetVersion(), box.GetType())
+		boxInstalled, err := box.Installed()
+
+		if err != nil {
+			log.Debug("Error while checking if box has been installed: %v", err)
 		} else {
-			log.Debug("There is no box installed")
+			if boxInstalled {
+				log.Debug("Currently installed box is version '%s', type '%s'", box.GetVersion(), box.GetType())
+			} else {
+				log.Debug("There is no box installed")
+			}
 		}
 
 		logdelivery.DeleteLogCopyFiles()
