@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"naksu/constants"
 	"naksu/log"
 	"naksu/xlate"
 
@@ -185,6 +186,18 @@ func GetKtpDirectory() string {
 // GetMebshareDirectory returns ktp-jako path from under home directory
 func GetMebshareDirectory() string {
 	return filepath.Join(GetHomeDirectory(), "ktp-jako")
+}
+
+// EnsureMebshareDirectory creates the ~/ktp-jako directory if it is missing
+func EnsureMebshareDirectory() {
+	directoryPath := GetMebshareDirectory()
+
+	if !ExistsDir(directoryPath) {
+		err := os.Mkdir(directoryPath, constants.FilePermissionsOwnerRWX)
+		if err != nil {
+			log.Error("Could not create missing directory '%s': %v", directoryPath, err)
+		}
+	}
 }
 
 // GetVirtualBoxHiddenDirectory returns path to global VirtualBox settings
