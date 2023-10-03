@@ -3,6 +3,7 @@ package networkstatus
 import (
 	"github.com/andlabs/ui"
 
+	"naksu/config"
 	"naksu/log"
 	"naksu/network"
 	naksuUi "naksu/ui"
@@ -10,6 +11,7 @@ import (
 )
 
 const requiredLinkSpeed = 1000 // Required network device speed in Mbit/s
+var lastSelectedExtInterfaceName string
 var lastDetectedLinkSpeedMbit = ^uint64(0)
 
 var networkStatusString *ui.AttributedString
@@ -71,8 +73,9 @@ func Update() {
 	}
 
 	linkSpeedMbit := network.CurrentLinkSpeed()
+	selectedExtInterfaceName := config.GetExtNic()
 
-	if lastDetectedLinkSpeedMbit != linkSpeedMbit {
+	if lastDetectedLinkSpeedMbit != linkSpeedMbit || lastSelectedExtInterfaceName != selectedExtInterfaceName {
 		if lastDetectedLinkSpeedMbit == ^uint64(0) {
 			log.Debug("Network speed is %d Mbit/s", linkSpeedMbit)
 		} else {
@@ -80,6 +83,7 @@ func Update() {
 		}
 	}
 	lastDetectedLinkSpeedMbit = linkSpeedMbit
+	lastSelectedExtInterfaceName = selectedExtInterfaceName
 
 	switch {
 	case linkSpeedMbit == 0:
