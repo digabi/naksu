@@ -194,65 +194,69 @@ func waitForLogs(requestNumber int, timeout time.Duration, doneChannel chan bool
 	return doneChannel, progressChannel
 }
 
+func doCollectLogsToZip(zipFilename string, progress chan uint8, errorChannel chan error) {
+	progress <- 0
+
+	zipFilepath := filepath.Join(mebroutines.GetMebshareDirectory(), zipFilename)
+
+	zipFile, err := os.Create(zipFilepath)
+	if err != nil {
+		log.Error("Error creating zip file %s: %s", zipFilepath, err)
+		errorChannel <- err
+
+		return
+	}
+
+	var logFiles = []string{}
+
+	logFiles, err = appendKtpLogs(logFiles)
+	if err != nil {
+		log.Warning("Error appending ktp logs: %s", err)
+		// continue collecting logs after error in appending ktp logs
+	}
+	logFiles, err = appendVirtualBoxLogs(logFiles)
+	if err != nil {
+		log.Warning("Error appending VirtualBox logs: %s", err)
+		// continue collecting logs after error in appending VirtualBox logs
+	}
+	logFiles, err = appendNaksuLastlogs(logFiles)
+	if err != nil {
+		log.Warning("Error appending naksu logs: %s", err)
+		// continue collecting logs after error in appending naksu logs
+	}
+
+	writer := zip.NewWriter(zipFile)
+	for logFileNumber, logFilepath := range logFiles {
+		err = addFileToZip(logFilepath, writer)
+		if err != nil {
+			errorChannel <- err
+
+			return
+		}
+
+		progress <- uint8(100 * logFileNumber / len(logFiles))
+	}
+
+	err = writer.Close()
+	if err != nil {
+		errorChannel <- err
+
+		return
+	}
+
+	progress <- 127
+}
+
 // CollectLogsToZip creates a zip file of log files
 func CollectLogsToZip() (string, chan uint8, chan error) {
+	mebroutines.EnsureMebshareDirectory()
+
 	log.Debug("Collecting logs")
 	zipFilename := time.Now().Format("2006-01-02_15-04-05.zip")
-
 	progress := make(chan uint8)
 	errorChannel := make(chan error)
-	go func() {
-		progress <- 0
 
-		zipFilepath := filepath.Join(mebroutines.GetMebshareDirectory(), zipFilename)
-
-		zipFile, err := os.Create(zipFilepath)
-		if err != nil {
-			log.Error("Error creating zip file %s: %s", zipFilepath, err)
-			errorChannel <- err
-
-			return
-		}
-
-		var logFiles = []string{}
-
-		logFiles, err = appendKtpLogs(logFiles)
-		if err != nil {
-			log.Warning("Error appending ktp logs: %s", err)
-			// continue collecting logs after error in appending ktp logs
-		}
-		logFiles, err = appendVirtualBoxLogs(logFiles)
-		if err != nil {
-			log.Warning("Error appending VirtualBox logs: %s", err)
-			// continue collecting logs after error in appending VirtualBox logs
-		}
-		logFiles, err = appendNaksuLastlogs(logFiles)
-		if err != nil {
-			log.Warning("Error appending naksu logs: %s", err)
-			// continue collecting logs after error in appending naksu logs
-		}
-
-		writer := zip.NewWriter(zipFile)
-		for logFileNumber, logFilepath := range logFiles {
-			err = addFileToZip(logFilepath, writer)
-			if err != nil {
-				errorChannel <- err
-
-				return
-			}
-
-			progress <- uint8(100 * logFileNumber / len(logFiles))
-		}
-
-		err = writer.Close()
-		if err != nil {
-			errorChannel <- err
-
-			return
-		}
-
-		progress <- 127
-	}()
+	go doCollectLogsToZip(zipFilename, progress, errorChannel)
 
 	return zipFilename, progress, errorChannel
 }
