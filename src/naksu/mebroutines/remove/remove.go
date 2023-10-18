@@ -47,5 +47,7 @@ func Server() error {
 		return err
 	}
 
+	box.ResetCache()
+
 	return nil
 }
