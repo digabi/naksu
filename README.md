@@ -136,6 +136,13 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 2.0.8 (18-OCT-2023)
+ - Increased the size and number of rotated log files. Now each log file can be up to 10 megs and rotation stores 5 last files.
+ - Removed several unnecessary periodical log entries. In some cases there will be an log entry only in case the status changes.
+ - Log host computer power plan settings.
+ - Create an unexisting `~/ktp-jako` when sending log files to Abitti support.
+ - Updated several modules to recent versions.
+
 ### 2.0.7 (06-SEP-2023)
  - Fix a bug causing Naksu to stop when Exam Server install passphrase was given
    on a Linux with Nvidia proprietary display drivers
