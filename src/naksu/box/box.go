@@ -41,7 +41,8 @@ type boxStatus struct {
 
 // Setting initial installed value to true allows dependent getSomevalue() functions
 // to operate even before the real install status is detected
-var lastBoxStatus = boxStatus{true, false, ""}
+var initialBoxStatus = boxStatus{true, false, ""}
+var lastBoxStatus = initialBoxStatus
 
 func calculateBoxCPUs() (int, error) {
 	detectedCores, err := host.GetCPUCoreCount()
@@ -145,6 +146,12 @@ func getCreateNewBoxClipboadCommand(vBoxVersion semver.Version) (vboxmanage.VBox
 	return clipboardCommand, nil
 }
 
+// ResetCache resets all local box status caches
+func ResetCache() {
+	vboxmanage.ResetVBoxResponseCache()
+	lastBoxStatus = initialBoxStatus
+}
+
 // CreateNewBox creates new VM using the given imagePath
 func CreateNewBox(boxType string, boxVersion string) error {
 	if mebroutines.ExistsFile(mebroutines.GetVDIImagePath()) {
@@ -191,7 +198,7 @@ func CreateNewBox(boxType string, boxVersion string) error {
 		return err
 	}
 
-	vboxmanage.ResetVBoxResponseCache()
+	ResetCache()
 
 	return nil
 }

@@ -219,6 +219,8 @@ func downloadAndInstallVM(progressDialog *progress.Dialog, imageURL string, boxT
 		return fmt.Errorf("failed to create new vm: %w", err)
 	}
 
+	box.ResetCache()
+
 	return nil
 }
 
