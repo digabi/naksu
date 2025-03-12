@@ -15,7 +15,7 @@ Before any contribution is accepted to the codebase, to clarify the intellectual
 * Organizations or corporations should sign and send the [Corporate CLA](https://digabi.fi/YTL%20Corporate%20CLA.pdf) to the same address.
   
 # naksu
-================================
+
 `naksu` is collection of helper scripts for MEB stickless Abitti/matriculation exam servers.
 In real life Naksu is Onerva's (the [Abitti model teacher](https://www.abitti.fi/fi/tutustu/)) cat.
 
