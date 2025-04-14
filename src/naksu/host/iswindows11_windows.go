@@ -16,10 +16,9 @@ func IsWindows11() bool {
 
 	// Windows 10 and 11 both have major version as 10 but Windows 11 has build number >= 22000
 	if maj == 10 && build >= 22000 {
-		log.Debug("This is likely Windows 11.")
+
 		return true
-	} else {
-		log.Debug("This is not Windows 11.")
-		return false
 	}
+
+	return false
 }
