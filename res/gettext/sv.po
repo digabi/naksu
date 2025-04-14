@@ -363,6 +363,9 @@ msgstr "Var god stäng av den befintliga servern innan en ny server installeras"
 msgid "Please turn Windows Hypervisor off as it may cause problems."
 msgstr "Vänligen stäng av Windows Hypervisor eftersom den kan orsaka problem."
 
+msgid "Instability has been detected in the operation of Oracle VirtualBox on Windows 11. We recommend YTL Linux."
+msgstr "Instabilitet har upptäckts i Oracle VirtualBoxs funktion på Windows 11. Vi rekommenderar YTL Linux."
+
 msgid "Please wait, writing backup..."
 msgstr "Var god vänta, säkerhetskopia skrivs..."
 

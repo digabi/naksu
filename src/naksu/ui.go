@@ -1176,6 +1176,10 @@ func RunUI() error { // nolint:whitespace
 			}
 		}()
 
+		if host.IsWindows11() {
+			mebroutines.ShowTranslatedWarningMessage("Instability has been detected in the operation of Oracle VirtualBox on Windows 11. We recommend YTL Linux.")
+		}
+
 		// Make sure Hyper-V is not running
 		// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
 		isHyperV := make(chan bool)

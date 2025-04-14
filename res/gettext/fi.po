@@ -362,6 +362,9 @@ msgstr ""
 "Ole hyvä ja kytke Windows Hypervisor pois päältä, koska se voi aiheuttaa "
 "ongelmia."
 
+msgid "Instability has been detected in the operation of Oracle VirtualBox on Windows 11. We recommend YTL Linux."
+msgstr "Oracle VirtualBoxin toiminnassa Windows 11:ssa on havaittu epästabiiliutta. Suosittelemme YTL Linuxia."
+
 msgid "Please wait, writing backup..."
 msgstr "Hetkinen, varmuuskopioidaan..."
 

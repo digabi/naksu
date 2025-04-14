@@ -430,6 +430,10 @@ msgid "Warning"
 msgstr ""
 
 msgid ""
+"Instability has been detected in the operation of Oracle VirtualBox on Windows 11. We recommend YTL Linux."
+msgstr ""
+
+msgid ""
 "We could not detect whether existing VM is running: %v, but continued "
 "removing the server as you requested."
 msgstr ""
