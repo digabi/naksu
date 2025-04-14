@@ -363,8 +363,8 @@ msgstr "Var god stäng av den befintliga servern innan en ny server installeras"
 msgid "Please turn Windows Hypervisor off as it may cause problems."
 msgstr "Vänligen stäng av Windows Hypervisor eftersom den kan orsaka problem."
 
-msgid "Instability has been detected in the operation of Oracle VirtualBox on Windows 11. We recommend YTL Linux."
-msgstr "Instabilitet har upptäckts i Oracle VirtualBoxs funktion på Windows 11. Vi rekommenderar YTL Linux."
+msgid "Oracle VirtualBox software has been found to be unstable on Windows 11. We recommend using YTL Linux as the operating system for the server machine. In the matriculation examination, the use of Windows 11 on server machines is not permitted."
+msgstr "Programmet Oracle VirtualBox har konstaterats vara instabilt i Windows 11. Vi rekommenderar att YTL Linux används som operativsystem på serverdatorerna. I studentexamensproven är det inte tillåtet att använda Windows 11 på serverdatorerna."
 
 msgid "Please wait, writing backup..."
 msgstr "Var god vänta, säkerhetskopia skrivs..."
