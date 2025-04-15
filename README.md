@@ -152,6 +152,9 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 2.0.9 (14-APR-2025)
+ - Add warning if host operating system is Windows 11.
+
 ### 2.0.8 (18-OCT-2023)
  - Increased the size and number of rotated log files. Now each log file can be up to 10 megs and rotation stores 5 last files.
  - Removed several unnecessary periodical log entries. In some cases there will be an log entry only in case the status changes.

@@ -309,6 +309,13 @@ msgstr ""
 msgid "Opening file"
 msgstr ""
 
+msgid ""
+"Oracle VirtualBox software has been found to be unstable on Windows 11. We "
+"recommend using YTL Linux as the operating system for the server machine. In "
+"the matriculation examination, the use of Windows 11 on server machines is "
+"not permitted."
+msgstr ""
+
 msgid "Please check the install passphrase"
 msgstr ""
 
