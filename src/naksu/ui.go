@@ -1176,10 +1176,6 @@ func RunUI() error { // nolint:whitespace
 			}
 		}()
 
-		if host.IsWindows11() {
-			mebroutines.ShowTranslatedWarningMessage("Oracle VirtualBox software has been found to be unstable on Windows 11. We recommend using YTL Linux as the operating system for the server machine. In the matriculation examination, the use of Windows 11 on server machines is not permitted.")
-		}
-
 		// Make sure Hyper-V is not running
 		// Do this in Goroutine to avoid "cannot change thread mode" in Windows WMI call
 		isHyperV := make(chan bool)
@@ -1189,7 +1185,7 @@ func RunUI() error { // nolint:whitespace
 		}()
 
 		if <-isHyperV {
-			mebroutines.ShowTranslatedWarningMessage("Please turn Windows Hypervisor off as it may cause problems.")
+			mebroutines.ShowTranslatedWarningMessage("Please turn Windows Hypervisor off as it may cause problems. Before doing so the server cannot be used as the server for matriculation examination. We recommend using YTL Linux as the operating system for the server machine.")
 		} else {
 			// Does CPU support hardware virtualisation?
 			if !host.IsHWVirtualisationCPU() {
