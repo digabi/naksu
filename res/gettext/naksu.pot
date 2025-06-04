@@ -309,13 +309,6 @@ msgstr ""
 msgid "Opening file"
 msgstr ""
 
-msgid ""
-"Oracle VirtualBox software has been found to be unstable on Windows 11. We "
-"recommend using YTL Linux as the operating system for the server machine. In "
-"the matriculation examination, the use of Windows 11 on server machines is "
-"not permitted."
-msgstr ""
-
 msgid "Please check the install passphrase"
 msgstr ""
 
@@ -332,7 +325,10 @@ msgstr ""
 msgid "Please stop the current server before installing a new one"
 msgstr ""
 
-msgid "Please turn Windows Hypervisor off as it may cause problems."
+msgid ""
+"Please turn Windows Hypervisor off as it may cause problems. Before doing so "
+"the server cannot be used as the server for matriculation examination. We "
+"recommend using YTL Linux as the operating system for the server machine."
 msgstr ""
 
 msgid "Please wait, writing backup..."
