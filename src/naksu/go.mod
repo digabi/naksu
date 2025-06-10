@@ -1,6 +1,8 @@
 module naksu
 
-go 1.18
+go 1.21
+
+toolchain go1.24.4
 
 require (
 	github.com/andlabs/ui v0.0.0-20200610043537-70a69d6ae31e
