@@ -89,7 +89,7 @@ Mac OS X test version can be started with command `./bin/naksu-darwin`
 ## Compilation details (without Docker)
 
 Preferred way to compile `naksu` is using Docker. However, you can build
-without it, too. You need at least Go 1.13 to build `naksu`.
+without it, too. You need at least Go 1.24 to build `naksu`.
 
 Make sure `go` points to your compiler or set `GO` to point your go binary (in `Makefile`).
 
