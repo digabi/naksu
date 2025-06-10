@@ -56,7 +56,7 @@ test:
 docker: clean
 	mkdir -p bin
 	-docker rm naksu-build
-	docker build -t naksu-build-img:latest -f Dockerfile.build .
+	docker build --platform=linux/amd64 -t naksu-build-img:latest -f Dockerfile.build .
 	docker run -w /app --name naksu-build naksu-build-img:latest make ci-test
 	docker cp naksu-build:/app/checkstyle-linux.xml .
 	docker cp naksu-build:/app/checkstyle-windows.xml .

@@ -52,7 +52,7 @@ const (
 	// VBoxMinVersion sets minimum sufficient version number for VirtualBox.
 	// host.IsVirtualBoxVersionOK() reports too old/new version to an user.
 	// Setting the version number to an empty string "" disables tne minimum check.
-	VBoxMinVersion = "6.1.16"
+	VBoxMinVersion = "7.1.1"
 	// VBoxMaxVersion c.f. VBoxMinVersion
 	VBoxMaxVersion = ""
 
