@@ -156,6 +156,7 @@ However, please report these problems since we would like to make naksu as easy 
  - Remove warning if host operating system is Windows 11.
  - Reword Hyper-V warning by stating that the server cannot be used in the matriculation examination if Hyper-V cannot
    be disabled.
+ - Warn if VirtualBox version is below 7.1.1
  - Build with Go 1.24.4.
  - Updated several modules to recent versions.
 
