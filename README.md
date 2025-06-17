@@ -152,6 +152,13 @@ However, please report these problems since we would like to make naksu as easy 
 
 ## Changelog
 
+### 2.0.10 (17-JUN-2025)
+ - Remove warning if host operating system is Windows 11.
+ - Reword Hyper-V warning by stating that the server cannot be used in the matriculation examination if Hyper-V cannot
+   be disabled.
+ - Build with Go 1.24.4.
+ - Updated several modules to recent versions.
+
 ### 2.0.9 (14-APR-2025)
  - Add warning if host operating system is Windows 11.
 
