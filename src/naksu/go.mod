@@ -1,6 +1,6 @@
 module naksu
 
-go 1.23.5
+go 1.24.0
 
 toolchain go1.24.4
 
@@ -22,7 +22,7 @@ require (
 	github.com/paulusrobin/go-memory-cache v1.1.4
 	github.com/rhysd/go-github-selfupdate v1.2.3
 	github.com/yusufpapurcu/wmi v1.2.4
-	golang.org/x/sys v0.33.0
+	golang.org/x/sys v0.38.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
@@ -38,6 +38,6 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/tcnksm/go-gitconfig v0.1.2 // indirect
 	github.com/ulikunitz/xz v0.5.12 // indirect
-	golang.org/x/crypto v0.39.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
 )
